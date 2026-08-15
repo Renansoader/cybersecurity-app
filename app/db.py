@@ -101,10 +101,14 @@ def registrar_tentativa(questao_id, modulo_id, tipo, acertou, usou_dica, segundo
     o índice único parcial levanta sqlite3.IntegrityError.
     """
     with conexao() as con:
-        anteriores = con.execute(
-            "SELECT COUNT(*) FROM tentativas WHERE questao_id = ?", (questao_id,)
+        # MAX + 1, e não COUNT + 1: se uma linha do meio for apagada, COUNT
+        # devolveria um número já usado e duas tentativas ficariam com o mesmo
+        # n_tentativa.
+        ultima = con.execute(
+            "SELECT COALESCE(MAX(n_tentativa), 0) FROM tentativas WHERE questao_id = ?",
+            (questao_id,),
         ).fetchone()[0]
-        n_tentativa = anteriores + 1
+        n_tentativa = ultima + 1
         con.execute(
             "INSERT INTO tentativas (questao_id, modulo_id, tipo, acertou, usou_dica,"
             " n_tentativa, segundos, data) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",

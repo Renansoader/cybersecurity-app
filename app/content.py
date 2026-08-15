@@ -35,7 +35,10 @@ TIPOS_COM_ALTERNATIVAS = {t for t, campos in CAMPOS_POR_TIPO.items()
 CAMPOS_MODULO = ("id", "nivel", "titulo", "objetivos", "pre_requisitos",
                  "teoria", "questoes")
 CAMPOS_TEORIA = ("id", "titulo", "texto", "fonte")
-CAMPOS_QUESTAO = ("id", "tipo", "dificuldade", "enunciado", "dicas",
+# `objetivos` na questão é a lista de índices dos objetivos do módulo que ela
+# testa. É por esse campo que a regra de cobertura funciona: objetivo declarado
+# sem nenhuma questão reprova o módulo inteiro.
+CAMPOS_QUESTAO = ("id", "tipo", "dificuldade", "enunciado", "objetivos", "dicas",
                   "pergunta_socratica", "explicacao", "fonte", "tags")
 
 MAX_BLOCOS_TEORIA = 8  # módulo maior que isso cansa; dividir em dois
@@ -79,6 +82,7 @@ def validar_questao(questao, arquivo, indice):
     _exigir(questao, CAMPOS_POR_TIPO[tipo], arquivo, contexto)
     _exigir_lista(questao, "dicas", arquivo, contexto)
     _exigir_lista(questao, "tags", arquivo, contexto)
+    _exigir_lista(questao, "objetivos", arquivo, contexto)
 
     if not isinstance(questao["dificuldade"], int) or not 1 <= questao["dificuldade"] <= 3:
         raise ErroDeConteudo(arquivo, f"{contexto}.dificuldade",
@@ -144,7 +148,7 @@ def validar_modulo(modulo, arquivo):
     if not isinstance(modulo["nivel"], int) or not 0 <= modulo["nivel"] <= 5:
         raise ErroDeConteudo(arquivo, "nivel", "esperava um inteiro de 0 a 5")
 
-    _exigir_lista(modulo, "objetivos", arquivo, "modulo")
+    objetivos = _exigir_lista(modulo, "objetivos", arquivo, "modulo")
     if not isinstance(modulo["pre_requisitos"], list):
         raise ErroDeConteudo(arquivo, "pre_requisitos", "esperava uma lista (pode ser vazia)")
 
@@ -161,7 +165,31 @@ def validar_modulo(modulo, arquivo):
 
     _exigir_ids_unicos([b["id"] for b in teoria], arquivo, "teoria")
     _exigir_ids_unicos([q["id"] for q in questoes], arquivo, "questoes")
+    _exigir_cobertura_dos_objetivos(objetivos, questoes, arquivo)
     return modulo
+
+
+def _exigir_cobertura_dos_objetivos(objetivos, questoes, arquivo):
+    """Objetivo declarado e não testado é objetivo que o módulo não entrega.
+
+    Vale para os 41 módulos: se o módulo promete ensinar quatro coisas, tem que
+    existir pelo menos uma questão sobre cada uma delas.
+    """
+    cobertos = set()
+    for questao in questoes:
+        for indice in questao["objetivos"]:
+            if not isinstance(indice, int) or not 0 <= indice < len(objetivos):
+                raise ErroDeConteudo(
+                    arquivo, f"questoes[{questao['id']}].objetivos",
+                    f"índice {indice!r} não existe; o módulo declara "
+                    f"{len(objetivos)} objetivo(s)")
+            cobertos.add(indice)
+
+    descobertos = [i for i in range(len(objetivos)) if i not in cobertos]
+    if descobertos:
+        detalhe = "; ".join(f"[{i}] {objetivos[i]}" for i in descobertos)
+        raise ErroDeConteudo(arquivo, "objetivos",
+                             f"sem nenhuma questão que os teste: {detalhe}")
 
 
 def _exigir_ids_unicos(ids, arquivo, campo):

@@ -43,6 +43,44 @@ def test_modulo_exemplo_usa_pelo_menos_quatro_tipos(modulo_valido):
     assert tipos <= set(content.CAMPOS_POR_TIPO)
 
 
+def test_modulo_exemplo_testa_todos_os_objetivos_que_declara(modulo_valido):
+    cobertos = {i for q in modulo_valido["questoes"] for i in q["objetivos"]}
+    assert cobertos == set(range(len(modulo_valido["objetivos"])))
+
+
+# --- cobertura dos objetivos ---
+
+def test_objetivo_sem_questao_reprova_o_modulo(tmp_path, modulo_valido):
+    modulo_valido["objetivos"].append("Objetivo que nenhuma questão testa")
+    caminho = escrever(tmp_path, modulo_valido)
+
+    with pytest.raises(content.ErroDeConteudo) as erro:
+        content.carregar_modulo(caminho)
+
+    assert erro.value.campo == "objetivos"
+    assert "Objetivo que nenhuma questão testa" in erro.value.detalhe
+
+
+def test_questao_apontando_objetivo_inexistente_e_recusada(tmp_path, modulo_valido):
+    modulo_valido["questoes"][0]["objetivos"] = [7]
+    caminho = escrever(tmp_path, modulo_valido)
+
+    with pytest.raises(content.ErroDeConteudo) as erro:
+        content.carregar_modulo(caminho)
+
+    assert erro.value.campo == "questoes[0.1.q1].objetivos"
+
+
+def test_questao_sem_campo_objetivos_e_recusada(tmp_path, modulo_valido):
+    del modulo_valido["questoes"][0]["objetivos"]
+    caminho = escrever(tmp_path, modulo_valido)
+
+    with pytest.raises(content.ErroDeConteudo) as erro:
+        content.carregar_modulo(caminho)
+
+    assert erro.value.campo == "questoes[0].objetivos"
+
+
 # --- o que precisa falhar, falha apontando arquivo e campo ---
 
 def test_campo_obrigatorio_ausente_diz_qual_arquivo_e_qual_campo(tmp_path, modulo_valido):

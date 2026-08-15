@@ -48,6 +48,7 @@
       "id": "0.1.q1",
       "tipo": "conceitual",
       "dificuldade": 1,
+      "objetivos": [0],
       "enunciado": "Um funcionário fotografa a tela com a lista de clientes e envia a imagem para um contato pessoal por aplicativo de mensagens. Qual propriedade da tríade CIA foi violada?",
       "alternativas": [
         "Confidencialidade",
@@ -75,6 +76,7 @@
       "id": "0.1.q2",
       "tipo": "conceitual",
       "dificuldade": 2,
+      "objetivos": [1],
       "enunciado": "Qual dos casos abaixo é um incidente de segurança da informação que está FORA do recorte de cibersegurança?",
       "alternativas": [
         "Um contrato impresso com dados pessoais é esquecido na bandeja da impressora do corredor",
@@ -102,6 +104,7 @@
       "id": "0.1.q3",
       "tipo": "cenario",
       "dificuldade": 2,
+      "objetivos": [2],
       "enunciado": "A diretoria da sua empresa aprovou a compra de um firewall next-generation caro e comunicou internamente que \"a questão da segurança está resolvida\". Qual é a leitura mais correta da situação?",
       "alternativas": [
         "O firewall reduz um conjunto específico de riscos de rede, mas nada muda para phishing, acesso indevido de quem já está dentro ou falha na própria aplicação",
@@ -127,63 +130,62 @@
     },
     {
       "id": "0.1.q4",
-      "tipo": "ataque_defesa",
+      "tipo": "ordenacao",
       "dificuldade": 2,
-      "enunciado": "Levantamento interno mostrou que vários funcionários usam a mesma senha do e-mail corporativo em sites pessoais, e algumas dessas senhas já apareceram em vazamentos públicos. Qual mitigação ataca o problema de verdade?",
-      "alternativas": [
-        "Exigir múltiplo fator (MFA) no acesso corporativo e verificar as senhas contra listas de credenciais vazadas no momento do cadastro",
-        "Obrigar a troca de senha a cada 30 dias",
-        "Exigir pelo menos três caracteres especiais em toda senha",
-        "Proibir por política o uso de senha corporativa em sites pessoais e divulgar a proibição por e-mail"
+      "objetivos": [2],
+      "enunciado": "O ciclo do NIST Cybersecurity Framework é o que transforma segurança em processo contínuo em vez de compra pontual. Coloque as cinco funções na ordem em que o framework as apresenta.",
+      "itens": [
+        "Identificar o que existe: sistemas, dados, fornecedores e riscos",
+        "Proteger: aplicar os controles que reduzem a chance de o risco se realizar",
+        "Detectar: perceber que algo passou pelos controles",
+        "Responder: conter, erradicar e comunicar durante o incidente",
+        "Recuperar: restabelecer a operação e incorporar as lições aprendidas"
       ],
-      "correta": 0,
+      "ordem_correta": [0, 1, 2, 3, 4],
       "dicas": [
-        "O atacante já tem a senha. Pergunte o que ainda o impediria de entrar.",
-        "Algumas das alternativas aumentam o incômodo do usuário sem tirar valor da senha que já vazou.",
-        "As recomendações atuais do NIST abandonaram duas práticas antigas que aparecem nessa lista."
+        "O ciclo começa antes de qualquer defesa: não dá para proteger o que você não sabe que tem.",
+        "Duas funções tratam do que acontece depois que a proteção falhou — e uma delas vem antes da outra.",
+        "A última função é a que fecha o ciclo e realimenta a primeira, com o que se aprendeu."
       ],
-      "pergunta_socratica": "Antes de conferir: supondo que a senha já esteja na mão do atacante hoje, qual dessas medidas ainda o barra?",
-      "explicacao": "MFA quebra a premissa do ataque: a senha vazada deixa de ser suficiente para entrar. A verificação contra listas de vazamento remove a senha ruim no momento em que ela é escolhida. As duas medidas atuam sobre o mecanismo do ataque, e não sobre a boa vontade do usuário. É também o que o NIST SP 800-63B recomenda, no lugar das regras antigas de rotação periódica e de composição obrigatória de caracteres.",
-      "por_que_erradas": {
-        "1": "Rotação periódica não impede o uso da senha vazada na janela em que ela é válida, e leva o usuário a criar variações previsíveis (Senha1!, Senha2!). O NIST SP 800-63B desaconselha a prática.",
-        "2": "Regras de composição aumentam pouco a entropia real e empurram o usuário para padrões conhecidos. Também foram abandonadas pelo NIST SP 800-63B.",
-        "3": "Política e comunicado não têm como impedir o reuso, porque a empresa não tem visibilidade sobre o cadastro do funcionário em sites pessoais. É controle de intenção, não de mecanismo."
-      },
-      "fonte": "NIST SP 800-63B, seção de segredos memorizados",
-      "tags": ["autenticacao", "senhas", "mfa", "nist-800-63b"]
+      "pergunta_socratica": "Antes de conferir: se você tivesse que começar amanhã em uma empresa que nunca cuidou disso, qual dessas cinco coisas você faria primeiro, e por quê?",
+      "explicacao": "A ordem é identificar, proteger, detectar, responder, recuperar. Ela não é arbitrária: cada função depende da anterior. Sem inventário (identificar), a proteção é palpite. Sem detecção, a resposta nunca começa. E a recuperação termina com lições aprendidas, que voltam a alimentar a identificação — por isso é um ciclo, e não uma lista de tarefas com fim. É exatamente essa realimentação que faz de segurança um processo, e não um produto que se compra uma vez.",
+      "fonte": "NIST Cybersecurity Framework; teoria 0.1.t3",
+      "tags": ["processo-nao-produto", "nist-csf", "fundamentos", "ciclo"]
     },
     {
       "id": "0.1.q5",
       "tipo": "caca_erro",
       "dificuldade": 3,
-      "trecho": "POLÍTICA DE SENHAS — v4\n1. A senha deve ter no mínimo 12 caracteres.\n2. A senha NÃO pode conter caracteres especiais, para evitar erros de digitação em terminais antigos.\n3. Senhas conhecidamente vazadas são rejeitadas no cadastro.\n4. O acesso remoto exige segundo fator.",
-      "enunciado": "Um item desta política enfraquece a segurança em vez de reforçá-la. Qual é, e por quê?",
+      "objetivos": [3],
+      "trecho": "RELATÓRIO PÓS-INCIDENTE — nº 2026-014\nCausa raiz: servidor de aplicação rodando versão vulnerável da biblioteca de terceiros X. A correção do fornecedor estava disponível havia oito meses.\nDetecção: alerta de um cliente, por telefone.\nAção corretiva: biblioteca X atualizada no servidor afetado. Chamado encerrado.",
+      "enunciado": "A ação corretiva registrada resolve o incidente, mas deixa um dos três pilares — pessoas, processo e tecnologia — sem nenhum tratamento. Qual pilar ficou de fora, e por quê?",
       "alternativas": [
-        "O item 2: proibir uma classe inteira de caracteres reduz o espaço de senhas possíveis e facilita o trabalho de quem tenta adivinhá-las",
-        "O item 1: 12 caracteres é excessivo e leva o usuário a anotar a senha em papel",
-        "O item 3: rejeitar senha vazada no cadastro revela ao usuário que aquela senha existe em uma lista",
-        "O item 4: exigir segundo fator só no acesso remoto cria uma falsa sensação de segurança e deveria ser removido"
+        "Processo: atualizar aquele servidor conserta a instância, mas não cria a rotina de inventário e de aplicação de correções que deixou a falha oito meses no ar",
+        "Tecnologia: atualizar a biblioteca é insuficiente, seria preciso substituir o servidor por um modelo mais recente",
+        "Pessoas: o que faltou foi treinar os usuários finais a reconhecer o ataque antes que ele chegasse ao servidor",
+        "Nenhum: a causa raiz técnica foi corrigida, então o incidente está devidamente encerrado"
       ],
       "correta": 0,
       "dicas": [
-        "Para cada item, pergunte se ele aumenta ou diminui o número de senhas que um atacante precisaria testar.",
-        "Um dos itens troca segurança por conveniência operacional, e diz isso na própria justificativa.",
-        "Três itens estão alinhados com a recomendação atual do NIST. Um deles vai na direção contrária."
+        "Repare no dado mais incômodo do relatório: a correção existia havia oito meses.",
+        "Pergunte se a mesma falha poderia acontecer amanhã em outro servidor da empresa.",
+        "Um pilar responde por \"o que estava quebrado\"; outro responde por \"por que ninguém percebeu durante oito meses\"."
       ],
-      "pergunta_socratica": "Antes de conferir: qual item, se você fosse o atacante, deixaria seu trabalho mais fácil?",
-      "explicacao": "Proibir caracteres especiais corta um pedaço do alfabeto disponível e, portanto, encolhe o espaço de busca que o atacante precisa cobrir. A justificativa (\"terminais antigos\") é operacional, e a política resolve um problema de compatibilidade tirando segurança de todo mundo. Os itens 1, 3 e 4 estão alinhados com o NIST SP 800-63B: comprimento mínimo generoso, bloqueio de senhas vazadas e segundo fator.",
+      "pergunta_socratica": "Antes de conferir: depois dessa ação corretiva, o que impede que a próxima biblioteca vulnerável fique oito meses sem correção?",
+      "explicacao": "O relatório trata o sintoma no pilar tecnológico e para por aí. Os oito meses de exposição não são falha da biblioteca: são falha de processo — não havia inventário de dependências, rotina de aplicação de correções, nem verificação periódica. Sem isso, a próxima vulnerabilidade repete a história, e a detecção continuará vindo por telefone de cliente. Foi exatamente esse o padrão do vazamento da Equifax em 2017: existia correção publicada, e faltou o processo que a aplicasse.",
       "por_que_erradas": {
-        "1": "Comprimento mínimo alto é exatamente a recomendação atual; o NIST prefere senhas longas a senhas com regras de composição.",
-        "2": "Rejeitar senha vazada é uma boa prática recomendada. O usuário saber que aquela senha circula em listas é informação útil, não vazamento.",
-        "3": "Segundo fator no acesso remoto é insuficiente como cobertura total, mas removê-lo piora a situação. Ampliar é o caminho, não retirar."
+        "1": "A tecnologia foi tratada: a biblioteca foi atualizada. Trocar o servidor não teria relação com a causa raiz.",
+        "2": "O vetor foi uma biblioteca vulnerável exposta, não engano de usuário. Treinamento não teria evitado este incidente.",
+        "3": "Encerrar aqui garante a repetição: a condição que permitiu oito meses de exposição continua exatamente igual."
       },
-      "fonte": "NIST SP 800-63B; Security Engineering, 3ª ed., cap. 3",
-      "tags": ["senhas", "politica", "nist-800-63b", "caca-erro"]
+      "fonte": "Security Engineering, 3ª ed., cap. 1 e 2; caso Equifax (2017); teoria 0.1.t4",
+      "tags": ["pessoas-processo-tecnologia", "gestao-de-patches", "causa-raiz", "estudo-de-caso"]
     },
     {
       "id": "0.1.q6",
       "tipo": "pareamento",
       "dificuldade": 1,
+      "objetivos": [0],
       "enunciado": "Ligue cada propriedade da tríade CIA ao incidente que a viola de forma mais direta.",
       "pares": [
         ["Confidencialidade", "A base de clientes aparece publicada em um fórum na internet"],

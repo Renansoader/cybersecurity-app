@@ -45,6 +45,20 @@ def test_n_tentativa_e_calculado_pelo_banco(banco):
     assert numeros == [1, 2, 3]
 
 
+def test_n_tentativa_nao_se_repete_apos_apagar_uma_linha_do_meio(banco):
+    """Por isso o cálculo é MAX + 1, e não COUNT + 1."""
+    for _ in range(3):
+        banco.registrar_tentativa("0.1.q1", "0.1", "conceitual",
+                                  acertou=False, usou_dica=False, segundos=9)
+
+    with banco.conexao() as con:
+        con.execute("DELETE FROM tentativas WHERE questao_id = ? AND n_tentativa = 2",
+                    ("0.1.q1",))
+
+    assert banco.registrar_tentativa("0.1.q1", "0.1", "conceitual",
+                                     acertou=True, usou_dica=False, segundos=5) == 4
+
+
 def test_dominio_ignora_revisoes_e_conta_meio_ponto_com_dica(banco):
     banco.registrar_tentativa("0.1.q1", "0.1", "conceitual",
                               acertou=True, usou_dica=False, segundos=10)   # 1,0
