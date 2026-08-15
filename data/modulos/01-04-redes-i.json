@@ -1,0 +1,1030 @@
+{
+  "id": "1.4",
+  "nivel": 1,
+  "titulo": "Redes I — modelo, endereçamento e serviços de base",
+  "objetivos": [
+    "Situar protocolos e problemas nas camadas do modelo OSI e do modelo TCP/IP",
+    "Interpretar endereço, máscara e prefixo, e determinar a que rede um endereço pertence",
+    "Distinguir endereço público de privado e explicar o que o NAT faz e o que ele não faz por segurança",
+    "Descrever o papel do DNS e do DHCP e reconhecer os riscos associados a cada um"
+  ],
+  "pre_requisitos": ["1.1"],
+  "teoria": [
+    {
+      "id": "1.4.t1",
+      "titulo": "Camadas: por que dividir",
+      "texto": "Redes são organizadas em camadas para que cada nível resolva um problema e ofereça um serviço ao de cima. O modelo OSI tem sete camadas: física, enlace, rede, transporte, sessão, apresentação e aplicação. O modelo TCP/IP, que é o que realmente roda, tem quatro: acesso à rede, internet, transporte e aplicação.\n\nO valor prático é diagnóstico. Diante de um problema, a pergunta \"em que camada isso está?\" separa cabo solto de rota errada, de porta fechada, de erro na aplicação — e cada uma leva a uma ferramenta e a uma equipe diferentes.\n\nEm segurança vale o mesmo: firewall de pacote atua em rede e transporte, um proxy de aplicação atua na camada de aplicação, e nenhum dos dois enxerga o problema do outro.",
+      "analogia": "Uma carta: o carteiro cuida do endereço, os Correios cuidam do transporte, e o conteúdo do envelope é assunto de quem escreve e de quem lê.",
+      "erro_comum": "Tratar o modelo OSI como descrição exata da realidade. Ele é um mapa conceitual; o que roda é a pilha TCP/IP.",
+      "fonte": "RFC 1122 (arquitetura de hosts na internet)"
+    },
+    {
+      "id": "1.4.t2",
+      "titulo": "Endereço, máscara e prefixo",
+      "texto": "Um endereço IPv4 tem 32 bits, escritos em quatro números de 0 a 255. A máscara separa esse endereço em duas partes: a que identifica a rede e a que identifica o host dentro dela.\n\nA notação de prefixo diz quantos bits pertencem à rede. Em /24, a máscara é 255.255.255.0 e sobram 8 bits para hosts: 256 endereços, dos quais 254 são utilizáveis, porque o primeiro identifica a rede e o último é o de difusão. Em /26 a máscara é 255.255.255.192, com 64 endereços e 62 utilizáveis; em /30, 4 endereços e 2 utilizáveis.\n\nSaber a que rede um endereço pertence é operação diária: 192.168.10.100 com prefixo /26 está na rede 192.168.10.64/26, cuja faixa utilizável vai de 192.168.10.65 a 192.168.10.126.",
+      "analogia": "O CEP separa bairro de número da casa. A máscara faz o mesmo com o endereço IP.",
+      "erro_comum": "Esquecer que dois endereços de cada faixa não são atribuíveis a hosts. Em /30, sobram apenas dois — o suficiente para um enlace ponto a ponto.",
+      "fonte": "RFC 4632 (CIDR); valores conferidos com a biblioteca ipaddress"
+    },
+    {
+      "id": "1.4.t3",
+      "titulo": "Público, privado e o que a RFC 1918 reserva",
+      "texto": "Endereços públicos são únicos na internet e roteáveis. Endereços privados são reservados para uso interno e não são roteados na internet pública.\n\nA RFC 1918 reserva exatamente três blocos: 10.0.0.0/8, que vai de 10.0.0.0 a 10.255.255.255; 172.16.0.0/12, de 172.16.0.0 a 172.31.255.255; e 192.168.0.0/16, de 192.168.0.0 a 192.168.255.255. Repare no segundo: ele não cobre 172.15 nem 172.32 — o limite é 172.16 a 172.31.\n\nOutras faixas especiais aparecem com frequência e não são da RFC 1918: 127.0.0.0/8 é o laço local, e 169.254.0.0/16 é o endereço automático que a máquina atribui a si mesma quando não consegue falar com o DHCP.",
+      "analogia": "Ramal interno da empresa: funciona dentro do prédio e não pode ser discado de fora.",
+      "erro_comum": "Assumir que todo 172.x é privado. Só a faixa de 172.16 a 172.31 é reservada.",
+      "fonte": "RFC 1918, seção 3; faixas conferidas com a biblioteca ipaddress"
+    },
+    {
+      "id": "1.4.t4",
+      "titulo": "NAT: o que ele faz e o que ele não faz",
+      "texto": "O NAT traduz endereços privados em um endereço público na saída, e faz o caminho inverso na volta. Ele existe porque endereços IPv4 públicos são escassos, e não porque alguém quis um mecanismo de segurança.\n\nO efeito colateral é real: como não há mapeamento prévio para conexões iniciadas de fora, a rede interna fica menos alcançável a partir da internet. Isso ajuda, mas está longe de ser um firewall.\n\nO que o NAT não faz: não inspeciona conteúdo, não impede que uma máquina interna inicie conexão para qualquer lugar, não protege contra phishing, não vê tráfego entre máquinas da mesma rede interna e não substitui regras de filtragem. Tratar NAT como segurança é uma das confusões mais caras em redes pequenas.",
+      "analogia": "Uma portaria que anota quem saiu para poder receber a resposta. Ela não revista ninguém, e não impede que alguém de dentro chame quem quiser.",
+      "erro_comum": "Concluir que \"estamos atrás de NAT, então estamos protegidos\". A maioria dos ataques chega por conexão iniciada de dentro.",
+      "fonte": "RFC 2663 (terminologia de NAT); RFC 3022"
+    },
+    {
+      "id": "1.4.t5",
+      "titulo": "DNS: o catálogo que tudo usa",
+      "texto": "O DNS traduz nomes em endereços. Sem ele, nada de usar nome de site, de servidor ou de serviço. Responde na porta 53, historicamente em UDP para consultas curtas e em TCP quando a resposta é grande ou na transferência de zona.\n\nComo praticamente toda comunicação começa por uma consulta de nome, o DNS é ao mesmo tempo uma fonte de detecção riquíssima e um alvo. Registro de consultas revela máquina infectada tentando alcançar servidor de controle antes mesmo de a conexão acontecer.\n\nOs riscos clássicos: resposta forjada que direciona o usuário para o servidor errado, uso do próprio DNS como canal de saída de dados, e servidor mal configurado que responde a qualquer um e é usado para amplificar ataques contra terceiros.",
+      "analogia": "A lista telefônica. Se alguém trocar o número ao lado do nome, você liga com confiança para a pessoa errada.",
+      "erro_comum": "Não registrar consultas de DNS. É um dos sinais mais baratos e mais úteis que uma rede pode coletar.",
+      "fonte": "RFC 1035 (DNS); porta conferida no registro de serviços"
+    },
+    {
+      "id": "1.4.t6",
+      "titulo": "DHCP: quem entrega o endereço",
+      "texto": "O DHCP entrega configuração automática às máquinas: endereço, máscara, roteador padrão e servidores de DNS. O servidor escuta na porta 67 em UDP e o cliente na 68.\n\nO fluxo tem quatro mensagens: a máquina descobre, o servidor oferece, a máquina pede e o servidor confirma. Quando nenhum servidor responde, o sistema costuma atribuir a si mesmo um endereço em 169.254.0.0/16 — sinal clássico de que o DHCP está inacessível.\n\nO risco central é de confiança: o cliente aceita a primeira resposta válida que chega. Um servidor DHCP não autorizado na rede pode entregar um roteador padrão e um DNS controlados pelo atacante, colocando-se no meio do caminho sem explorar falha nenhuma.",
+      "analogia": "Alguém no saguão distribuindo mapas do prédio. Se o mapa vier de quem não devia, você anda para onde essa pessoa quiser.",
+      "erro_comum": "Tratar DHCP como detalhe de operação. Um servidor falso na rede é um dos caminhos mais simples para interceptar tráfego.",
+      "fonte": "RFC 2131 (DHCP); portas conferidas no registro de serviços"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "1.4.q1",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Coloque as sete camadas do modelo OSI na ordem, da camada 1 até a camada 7.",
+      "itens": [
+        "Física: sinais elétricos, ópticos ou de rádio no meio de transmissão",
+        "Enlace: quadros entre equipamentos vizinhos, com endereço físico",
+        "Rede: endereçamento lógico e roteamento entre redes diferentes",
+        "Transporte: entrega fim a fim, com ou sem garantia de ordem e recebimento",
+        "Sessão: estabelecimento e controle de diálogos entre aplicações",
+        "Apresentação: formato, codificação e representação dos dados",
+        "Aplicação: os protocolos que o usuário e os programas utilizam"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4, 5, 6],
+      "dicas": [
+        "A camada 1 trata do meio físico; a 7 é a mais próxima do usuário.",
+        "Roteamento entre redes acontece antes da entrega fim a fim.",
+        "Sessão e apresentação ficam entre transporte e aplicação."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual camada estaria o problema se o cabo estiver bom, a rota existir, mas a porta estiver fechada?",
+      "explicacao": "A ordem é física, enlace, rede, transporte, sessão, apresentação e aplicação. Na prática, o modelo TCP/IP condensa isso em quatro camadas — acesso à rede, internet, transporte e aplicação —, e é ele que descreve o que realmente roda. O valor do OSI é diagnóstico: nomear a camada de um problema encurta a investigação e indica a ferramenta certa.",
+      "fonte": "Modelo OSI (ISO/IEC 7498-1); RFC 1122",
+      "tags": ["redes", "osi", "camadas", "fundamentos"]
+    },
+    {
+      "id": "1.4.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Em qual camada do modelo OSI atua um firewall que filtra por endereço IP e por porta?",
+      "alternativas": [
+        "Camadas 3 e 4: rede e transporte",
+        "Camada 1: física",
+        "Camada 7: aplicação",
+        "Camada 2: enlace"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Endereço IP pertence a qual camada?",
+        "Porta é um conceito de qual camada?",
+        "Filtrar por conteúdo de requisição seria outra camada."
+      ],
+      "pergunta_socratica": "Antes de conferir: separe as duas informações do enunciado e pergunte de qual camada cada uma vem.",
+      "explicacao": "Endereço IP é da camada de rede e porta é da camada de transporte, então o filtro clássico atua nas camadas 3 e 4. Um proxy que inspeciona conteúdo de requisição trabalha na camada 7, e cada um enxerga o que o outro não vê — daí a necessidade de combinar controles em camadas diferentes, e não escolher entre eles.",
+      "por_que_erradas": {
+        "1": "A camada física trata de sinais no meio de transmissão.",
+        "2": "A camada de aplicação é onde atuam proxies e filtros de conteúdo.",
+        "3": "A camada de enlace trata de endereço físico entre equipamentos vizinhos."
+      },
+      "fonte": "Modelo OSI; teoria 1.4.t1",
+      "tags": ["redes", "osi", "firewall", "camadas"]
+    },
+    {
+      "id": "1.4.q3",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [1, 2],
+      "enunciado": "Quais são os três blocos de endereços reservados para redes privadas pela RFC 1918?",
+      "alternativas": [
+        "10.0.0.0/8, 172.16.0.0/12 e 192.168.0.0/16",
+        "10.0.0.0/8, 172.0.0.0/8 e 192.0.0.0/8",
+        "127.0.0.0/8, 169.254.0.0/16 e 192.168.0.0/16",
+        "10.0.0.0/16, 172.16.0.0/16 e 192.168.0.0/24"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um dos blocos não começa no início do segundo octeto: ele vai de 172.16 a 172.31.",
+        "Laço local e endereço automático não são faixas da RFC 1918.",
+        "Os prefixos são /8, /12 e /16."
+      ],
+      "pergunta_socratica": "Antes de conferir: 172.15.0.1 e 172.32.0.1 são endereços privados?",
+      "explicacao": "A RFC 1918 reserva 10.0.0.0/8 (10.0.0.0 a 10.255.255.255), 172.16.0.0/12 (172.16.0.0 a 172.31.255.255) e 192.168.0.0/16 (192.168.0.0 a 192.168.255.255). O bloco do meio é o que mais gera engano: 172.15.0.1 e 172.32.0.1 estão fora dele e são endereços públicos. Laço local (127.0.0.0/8) e endereço automático (169.254.0.0/16) são faixas especiais de outras normas.",
+      "por_que_erradas": {
+        "1": "172.0.0.0/8 e 192.0.0.0/8 não são as faixas reservadas; os prefixos são maiores.",
+        "2": "127.0.0.0/8 é laço local e 169.254.0.0/16 é endereço automático, definidos em outras normas.",
+        "3": "Os prefixos estão errados: são /8, /12 e /16."
+      },
+      "fonte": "RFC 1918, seção 3; faixas conferidas com a biblioteca ipaddress",
+      "tags": ["redes", "rfc1918", "enderecamento", "fundamentos"]
+    },
+    {
+      "id": "1.4.q4",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Quantos endereços utilizáveis por hosts existem em uma rede /26?",
+      "alternativas": [
+        "62",
+        "64",
+        "126",
+        "30"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um prefixo /26 deixa 6 bits para hosts.",
+        "2 elevado a 6 dá quantos endereços no total?",
+        "Dois endereços de cada faixa não são atribuíveis a hosts."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual é o total de endereços da faixa, e quantos deles não podem ser dados a um host?",
+      "explicacao": "Em /26 sobram 6 bits para hosts, o que dá 64 endereços no total. Dois não são atribuíveis: o primeiro identifica a rede e o último é o de difusão. Restam 62. A máscara correspondente é 255.255.255.192. O mesmo raciocínio vale para os outros prefixos: /24 tem 254 utilizáveis, /25 tem 126 e /30 tem apenas 2.",
+      "por_que_erradas": {
+        "1": "64 é o total de endereços da faixa, antes de descontar rede e difusão.",
+        "2": "126 é o número de utilizáveis em /25.",
+        "3": "30 é o número de utilizáveis em /27."
+      },
+      "fonte": "RFC 4632; valores conferidos com a biblioteca ipaddress",
+      "tags": ["redes", "enderecamento", "mascara", "calculo"]
+    },
+    {
+      "id": "1.4.q5",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "A que rede pertence o endereço 192.168.10.100 com máscara /26?",
+      "alternativas": [
+        "192.168.10.64/26, com faixa utilizável de 192.168.10.65 a 192.168.10.126",
+        "192.168.10.0/26, com faixa utilizável de 192.168.10.1 a 192.168.10.62",
+        "192.168.10.96/26, com faixa utilizável de 192.168.10.97 a 192.168.10.158",
+        "192.168.10.100/26, com faixa utilizável de 192.168.10.101 a 192.168.10.162"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Em /26, as redes começam de 64 em 64: 0, 64, 128 e 192.",
+        "Em qual desses blocos o número 100 cai?",
+        "O primeiro endereço do bloco identifica a rede, e o último é o de difusão."
+      ],
+      "pergunta_socratica": "Antes de conferir: liste os quatro blocos /26 de um /24 e veja onde 100 se encaixa.",
+      "explicacao": "Com /26 o último octeto é dividido em blocos de 64: 0-63, 64-127, 128-191 e 192-255. O valor 100 cai no segundo bloco, então a rede é 192.168.10.64/26, o endereço de difusão é 192.168.10.127 e a faixa utilizável vai de .65 a .126. Um endereço nunca é o nome da sua própria rede, o que descarta de saída a última alternativa.",
+      "por_que_erradas": {
+        "1": "O bloco 192.168.10.0/26 termina em .63 e não contém o endereço .100.",
+        "2": "Blocos /26 começam em múltiplos de 64; .96 não é início de bloco nesse prefixo.",
+        "3": "Um endereço de host não identifica a própria rede, e a faixa apresentada extrapola o bloco."
+      },
+      "fonte": "RFC 4632; cálculo conferido com a biblioteca ipaddress",
+      "tags": ["redes", "enderecamento", "mascara", "calculo", "subrede"]
+    },
+    {
+      "id": "1.4.q6",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual máscara decimal corresponde ao prefixo /26?",
+      "alternativas": [
+        "255.255.255.192",
+        "255.255.255.0",
+        "255.255.255.240",
+        "255.255.192.0"
+      ],
+      "correta": 0,
+      "dicas": [
+        "/24 corresponde a 255.255.255.0. Faltam 2 bits para chegar a /26.",
+        "Os dois bits mais significativos do último octeto valem 128 e 64.",
+        "Cuidado com a máscara que desloca o valor para o terceiro octeto."
+      ],
+      "pergunta_socratica": "Antes de conferir: quanto vale a soma dos dois bits mais altos de um octeto?",
+      "explicacao": "/26 marca 26 bits de rede: os 24 primeiros preenchem os três primeiros octetos, e os 2 seguintes ocupam os bits de valor 128 e 64 do último octeto, somando 192. Daí 255.255.255.192. A máscara 255.255.255.240 corresponde a /28, e 255.255.192.0 a /18.",
+      "por_que_erradas": {
+        "1": "255.255.255.0 corresponde a /24.",
+        "2": "255.255.255.240 corresponde a /28.",
+        "3": "255.255.192.0 corresponde a /18."
+      },
+      "fonte": "RFC 4632; valores conferidos com a biblioteca ipaddress",
+      "tags": ["redes", "mascara", "enderecamento", "calculo"]
+    },
+    {
+      "id": "1.4.q7",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Qual afirmação sobre o NAT é correta?",
+      "alternativas": [
+        "Ele foi criado para lidar com a escassez de endereços IPv4 públicos, e a redução de exposição é um efeito colateral",
+        "Ele foi criado como mecanismo de segurança e substitui um firewall em redes pequenas",
+        "Ele inspeciona o conteúdo das conexões e bloqueia tráfego malicioso",
+        "Ele impede que máquinas internas iniciem conexões para a internet"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte qual problema o NAT foi criado para resolver.",
+        "Ele olha para o conteúdo do tráfego?",
+        "O que acontece quando a conexão parte de dentro?"
+      ],
+      "pergunta_socratica": "Antes de conferir: um usuário atrás de NAT consegue acessar qualquer site da internet?",
+      "explicacao": "O NAT nasceu da escassez de endereços públicos: ele permite que muitas máquinas internas compartilhem um endereço na saída. A menor alcançabilidade a partir da internet é consequência de não haver mapeamento prévio para conexões de entrada, e não um projeto de segurança. Ele não inspeciona conteúdo e não restringe conexões iniciadas de dentro — que é justamente por onde chega a maior parte dos ataques.",
+      "por_que_erradas": {
+        "1": "NAT não filtra por política nem inspeciona; firewall e NAT são funções distintas.",
+        "2": "NAT traduz endereços e portas; ele não analisa conteúdo.",
+        "3": "Conexões iniciadas de dentro funcionam normalmente — é o caso de uso comum."
+      },
+      "fonte": "RFC 2663; RFC 3022",
+      "tags": ["redes", "nat", "seguranca", "conceito"]
+    },
+    {
+      "id": "1.4.q8",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Uma empresa afirma estar protegida porque todas as estações estão atrás de NAT. Quais riscos permanecem?",
+      "alternativas": [
+        "Phishing, download de código malicioso, conexões de saída para servidores de controle e ataques entre máquinas da mesma rede interna",
+        "Nenhum: com NAT, máquinas internas não são alcançáveis nem afetadas",
+        "Apenas ataques de negação de serviço contra o endereço público da empresa",
+        "Apenas ataques que explorem falhas do próprio equipamento de NAT"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O NAT trata de conexões iniciadas de fora. E as iniciadas de dentro?",
+        "O tráfego entre duas máquinas da mesma rede passa pelo NAT?",
+        "Como um ransomware costuma chegar a uma estação?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quando um funcionário clica em um link, quem inicia a conexão?",
+      "explicacao": "O NAT reduz a alcançabilidade a partir da internet e não faz mais que isso. Todo ataque que começa com uma conexão iniciada de dentro — phishing, download de código malicioso, comunicação com servidor de controle — passa sem obstáculo, e o tráfego entre máquinas da mesma rede interna sequer atravessa o NAT. É por isso que segmentação interna e filtragem de saída continuam necessárias.",
+      "por_que_erradas": {
+        "1": "A maior parte dos ataques atuais chega por conexão iniciada de dentro.",
+        "2": "Negação de serviço é apenas um dos riscos, e não o principal.",
+        "3": "Falhas no equipamento são um risco adicional, mas não o conjunto principal."
+      },
+      "fonte": "RFC 2663; teoria 1.4.t4",
+      "tags": ["redes", "nat", "seguranca", "segmentacao"]
+    },
+    {
+      "id": "1.4.q9",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [3],
+      "enunciado": "Em qual porta o serviço de DNS responde por padrão?",
+      "alternativas": [
+        "53",
+        "80",
+        "443",
+        "67"
+      ],
+      "correta": 0,
+      "dicas": [
+        "É uma porta baixa, do conjunto de portas de sistema.",
+        "80 e 443 pertencem à web.",
+        "67 pertence a outro serviço de infraestrutura."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas portas você esperaria ver aberta em um servidor que só resolve nomes?",
+      "explicacao": "O DNS atende na porta 53, tanto em UDP quanto em TCP — UDP para consultas comuns e TCP quando a resposta é grande ou em transferência de zona. As portas 80 e 443 são de HTTP e HTTPS, e a 67 é do servidor DHCP. Reconhecer portas de serviço é o que permite interpretar rapidamente uma varredura ou uma lista de conexões.",
+      "por_que_erradas": {
+        "1": "80 é a porta padrão de HTTP.",
+        "2": "443 é a porta padrão de HTTPS.",
+        "3": "67 é a porta do servidor DHCP."
+      },
+      "fonte": "RFC 1035; porta conferida no registro de serviços do sistema",
+      "tags": ["redes", "dns", "portas", "fundamentos"]
+    },
+    {
+      "id": "1.4.q10",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [3, 0],
+      "enunciado": "Ligue cada serviço à sua porta padrão.",
+      "pares": [
+        ["DNS", "53"],
+        ["HTTP", "80"],
+        ["HTTPS", "443"],
+        ["SSH", "22"],
+        ["DHCP (servidor)", "67"]
+      ],
+      "dicas": [
+        "Três dessas portas ficam abaixo de 100.",
+        "A porta da web cifrada é a mais alta da lista.",
+        "O cliente DHCP usa a porta seguinte à do servidor."
+      ],
+      "pergunta_socratica": "Antes de conferir: ao ver uma varredura com as portas 22 e 443 abertas, o que você conclui sobre a máquina?",
+      "explicacao": "DNS na 53, HTTP na 80, HTTPS na 443, SSH na 22 e o servidor DHCP na 67, com o cliente na 68. Essas cinco aparecem em praticamente toda análise de rede, e reconhecê-las de imediato permite ler uma varredura ou uma tabela de conexões sem consultar referência — e estranhar o que estiver fora do esperado.",
+      "fonte": "Registro de serviços do sistema, derivado da lista da IANA",
+      "tags": ["redes", "portas", "pareamento", "servicos"]
+    },
+    {
+      "id": "1.4.q11",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Quais portas o DHCP utiliza?",
+      "alternativas": [
+        "67 no servidor e 68 no cliente, em UDP",
+        "53 no servidor e 54 no cliente, em UDP",
+        "80 no servidor e 8080 no cliente, em TCP",
+        "67 e 68, ambas em TCP"
+      ],
+      "correta": 0,
+      "dicas": [
+        "São duas portas vizinhas, uma para cada lado da conversa.",
+        "O protocolo de transporte é o mesmo usado quando não há conexão estabelecida.",
+        "53 pertence a outro serviço."
+      ],
+      "pergunta_socratica": "Antes de conferir: a máquina que ainda não tem endereço IP consegue estabelecer uma conexão TCP?",
+      "explicacao": "O servidor DHCP escuta em 67/UDP e o cliente em 68/UDP. O transporte é UDP justamente porque a máquina ainda não tem endereço configurado quando a conversa começa, e as primeiras mensagens são enviadas em difusão. A porta 53 pertence ao DNS.",
+      "por_que_erradas": {
+        "1": "53 é do DNS, e não há porta 54 associada ao DHCP.",
+        "2": "80 e 8080 são portas de serviços web.",
+        "3": "As portas estão certas, mas o transporte é UDP, não TCP."
+      },
+      "fonte": "RFC 2131; portas conferidas no registro de serviços do sistema",
+      "tags": ["redes", "dhcp", "portas", "udp"]
+    },
+    {
+      "id": "1.4.q12",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Coloque as quatro mensagens do processo de obtenção de endereço por DHCP na ordem correta.",
+      "itens": [
+        "A máquina emite uma descoberta procurando servidores DHCP na rede",
+        "Um servidor responde oferecendo um endereço disponível",
+        "A máquina solicita formalmente o endereço oferecido",
+        "O servidor confirma a concessão e o endereço passa a valer"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "A máquina começa sem saber sequer se existe um servidor.",
+        "Existe uma oferta antes do pedido formal.",
+        "A confirmação encerra o processo."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que existe um pedido formal depois de a oferta já ter sido feita?",
+      "explicacao": "A sequência é descoberta, oferta, solicitação e confirmação. O pedido formal depois da oferta existe porque pode haver mais de um servidor respondendo: a máquina escolhe uma oferta e anuncia a escolha, o que também informa aos demais servidores que suas ofertas foram recusadas. É justamente esse passo de aceitação da primeira oferta válida que torna possível um servidor não autorizado se colocar no meio do caminho.",
+      "fonte": "RFC 2131",
+      "tags": ["redes", "dhcp", "protocolo", "ciclo"]
+    },
+    {
+      "id": "1.4.q13",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um atacante conecta um servidor DHCP não autorizado à rede interna. Qual é o risco principal?",
+      "alternativas": [
+        "Ele pode entregar às máquinas um roteador padrão e um servidor DNS sob seu controle, colocando-se no meio do tráfego sem explorar nenhuma falha",
+        "Ele consegue apagar as configurações de rede das máquinas, deixando-as sem acesso",
+        "Ele consegue ler diretamente os arquivos das máquinas que receberem endereço",
+        "Ele consegue alterar as senhas dos usuários que se conectarem à rede"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que exatamente o DHCP entrega além do endereço?",
+        "Se o roteador padrão for do atacante, por onde passa o tráfego?",
+        "O cliente aceita a primeira resposta válida que chegar."
+      ],
+      "pergunta_socratica": "Antes de conferir: se alguém escolhe o seu DNS e o seu roteador padrão, o que essa pessoa passa a ver?",
+      "explicacao": "O DHCP entrega endereço, máscara, roteador padrão e servidores de DNS. Um servidor falso pode indicar a si mesmo como caminho de saída e como resolvedor de nomes, e passa a ver e a manipular o tráfego — sem explorar vulnerabilidade nenhuma, apenas aproveitando que o cliente aceita a primeira resposta válida. As defesas são de rede: restringir quais portas podem responder DHCP e monitorar respostas inesperadas.",
+      "por_que_erradas": {
+        "1": "O servidor falso entrega configuração; ele não apaga configurações remotamente.",
+        "2": "Estar no caminho do tráfego não dá acesso direto aos arquivos das máquinas.",
+        "3": "Alterar senhas exigiria comprometer os sistemas de autenticação."
+      },
+      "fonte": "RFC 2131; MITRE ATT&CK (adversário no meio)",
+      "tags": ["redes", "dhcp", "ataque", "interceptacao"]
+    },
+    {
+      "id": "1.4.q14",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3, 1],
+      "enunciado": "Uma máquina aparece com o endereço 169.254.12.45. O que isso indica?",
+      "alternativas": [
+        "Ela não conseguiu obter endereço de um servidor DHCP e atribuiu a si mesma um endereço automático",
+        "Ela recebeu um endereço público válido do provedor de internet",
+        "Ela está configurada com endereço fixo dentro de uma faixa da RFC 1918",
+        "Ela está usando um endereço de laço local para comunicação interna do sistema"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Essa faixa aparece quando algo deu errado, e não quando tudo funcionou.",
+        "Laço local é outra faixa, que começa com 127.",
+        "A faixa não está entre as três reservadas pela RFC 1918."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que a máquina faz quando ninguém responde ao pedido de endereço?",
+      "explicacao": "169.254.0.0/16 é a faixa de configuração automática que o sistema usa quando nenhum servidor DHCP responde. Na prática é um sintoma: cabo, porta de switch, rede sem fio ou o próprio serviço de DHCP está com problema. Não é faixa da RFC 1918 e não é laço local, que é 127.0.0.0/8.",
+      "por_que_erradas": {
+        "1": "Não é um endereço público roteável.",
+        "2": "A faixa 169.254.0.0/16 não pertence às três reservadas pela RFC 1918.",
+        "3": "Laço local é 127.0.0.0/8, usado para comunicação da máquina consigo mesma."
+      },
+      "fonte": "RFC 3927; comportamento conferido com a biblioteca ipaddress",
+      "tags": ["redes", "dhcp", "diagnostico", "enderecamento"]
+    },
+    {
+      "id": "1.4.q15",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que registrar as consultas de DNS é considerado uma das fontes de detecção mais valiosas de uma rede?",
+      "alternativas": [
+        "Porque quase toda comunicação começa com uma consulta de nome, então o registro revela tentativas de contato antes mesmo de a conexão acontecer",
+        "Porque o DNS registra o conteúdo das conexões que a máquina realiza",
+        "Porque a consulta de DNS contém as credenciais usadas pelo usuário",
+        "Porque o DNS substitui a necessidade de registrar conexões de rede"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que uma máquina faz antes de se conectar a um servidor pelo nome?",
+        "A consulta acontece antes ou depois da conexão?",
+        "O DNS resolve nomes; ele transporta o conteúdo?"
+      ],
+      "pergunta_socratica": "Antes de conferir: uma máquina infectada que tenta alcançar um domínio de controle deixa rastro antes de conseguir a conexão?",
+      "explicacao": "A consulta de nome antecede a conexão, então o registro de DNS mostra a intenção mesmo quando a conexão falha ou é bloqueada — inclusive máquina infectada tentando alcançar servidor de controle. É barato de coletar e cobre toda a rede. O DNS não transporta conteúdo nem credenciais, e complementa o registro de conexões em vez de substituí-lo.",
+      "por_que_erradas": {
+        "1": "O DNS resolve nomes; o conteúdo trafega em outras conexões.",
+        "2": "Consultas de DNS não carregam credenciais de usuário.",
+        "3": "Registro de conexões continua necessário; as duas fontes se complementam."
+      },
+      "fonte": "RFC 1035; NIST Cybersecurity Framework (detectar)",
+      "tags": ["redes", "dns", "deteccao", "monitoramento"]
+    },
+    {
+      "id": "1.4.q16",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma estação faz centenas de consultas de DNS por minuto para subdomínios longos e aparentemente aleatórios de um mesmo domínio. Qual é a hipótese mais provável?",
+      "alternativas": [
+        "Uso do DNS como canal de saída de dados, com a informação codificada nos nomes consultados",
+        "Falha no cache de DNS da estação, que repete consultas desnecessariamente",
+        "Ataque de negação de serviço contra a estação, vindo da internet",
+        "Configuração incorreta do sufixo de domínio na estação"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que os subdomínios longos e aleatórios podem estar carregando?",
+        "Consultas de DNS costumam ser permitidas em qualquer rede.",
+        "Repetição por falha de cache produziria nomes repetidos, e não sempre diferentes."
+      ],
+      "pergunta_socratica": "Antes de conferir: se todo tráfego de saída fosse bloqueado, menos DNS, por onde você tentaria enviar dados?",
+      "explicacao": "Nomes longos e sempre diferentes indicam dados codificados no próprio nome consultado. É uma técnica conhecida de saída de dados, atraente porque o DNS costuma ser permitido mesmo quando o resto da saída é restrito. Falha de cache produziria repetição dos mesmos nomes, negação de serviço tem outro padrão e sufixo incorreto geraria erros de resolução, não volume com nomes aleatórios.",
+      "por_que_erradas": {
+        "1": "Falha de cache repetiria os mesmos nomes, não nomes sempre diferentes.",
+        "2": "Negação de serviço contra a estação não gera consultas de saída dela.",
+        "3": "Sufixo incorreto produziria erros de resolução, e não volume com nomes aleatórios."
+      },
+      "fonte": "MITRE ATT&CK (exfiltração por protocolo alternativo)",
+      "tags": ["redes", "dns", "exfiltracao", "deteccao", "mitre"]
+    },
+    {
+      "id": "1.4.q17",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Qual é a diferença entre o modelo OSI e o modelo TCP/IP?",
+      "alternativas": [
+        "OSI é um modelo de referência com sete camadas; TCP/IP é a arquitetura efetivamente usada, com quatro camadas",
+        "OSI é usado em redes locais e TCP/IP em redes de longa distância",
+        "OSI é mais recente e substituiu o TCP/IP na internet atual",
+        "São o mesmo modelo, com nomes diferentes conforme o fabricante"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um dos dois descreve o que realmente roda na internet.",
+        "Conte as camadas de cada um.",
+        "A escolha entre eles não depende do tamanho da rede."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dos dois modelos corresponde aos protocolos que você usa todo dia?",
+      "explicacao": "OSI é um modelo de referência de sete camadas, útil para descrever e diagnosticar. TCP/IP tem quatro camadas — acesso à rede, internet, transporte e aplicação — e é a arquitetura que efetivamente roda. As camadas de sessão e apresentação do OSI não têm correspondência direta e acabam absorvidas pela camada de aplicação do TCP/IP.",
+      "por_que_erradas": {
+        "1": "A escolha não tem relação com a abrangência geográfica da rede.",
+        "2": "TCP/IP é o que roda na internet; OSI nunca o substituiu.",
+        "3": "São modelos distintos, com número e divisão de camadas diferentes."
+      },
+      "fonte": "RFC 1122; modelo OSI (ISO/IEC 7498-1)",
+      "tags": ["redes", "osi", "tcp-ip", "modelos"]
+    },
+    {
+      "id": "1.4.q18",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "artefato": "Interface: eth0\n  Endereço IPv4 . . . . : 192.168.10.100\n  Máscara . . . . . . . : 255.255.255.192\n  Gateway padrão. . . . : 192.168.10.1\n  Servidor DNS. . . . . : 192.168.10.10",
+      "enunciado": "Qual problema esta configuração apresenta?",
+      "alternativas": [
+        "O gateway padrão está fora da rede da estação: com /26, a máquina está em 192.168.10.64/26, que vai de .64 a .127, e o .1 não pertence a ela",
+        "A máscara está incorreta, pois /26 não é um prefixo válido para redes privadas",
+        "O servidor DNS não pode estar na mesma rede que a estação",
+        "O endereço 192.168.10.100 não é válido por ser terminado em número redondo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Calcule a rede a que o endereço pertence com essa máscara.",
+        "O gateway precisa estar dentro da mesma rede da interface.",
+        "255.255.255.192 corresponde a qual prefixo?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a estação consegue falar diretamente com um endereço que está fora da própria rede?",
+      "explicacao": "A máscara 255.255.255.192 é /26, então a estação está em 192.168.10.64/26, faixa de .64 a .127. O gateway .1 está no bloco 192.168.10.0/26 e é inalcançável diretamente — a máquina se comunica na própria rede, mas não sai dela. O servidor DNS .10 tem o mesmo problema. Corrigir exige um gateway dentro da faixa, ou uma máscara que realmente cubra os endereços em uso.",
+      "por_que_erradas": {
+        "1": "/26 é prefixo válido e usado normalmente em redes privadas.",
+        "2": "Servidor DNS na mesma rede é comum e desejável; o problema é que ele está fora dela.",
+        "3": "Não existe restrição a endereços terminados em determinados números."
+      },
+      "fonte": "RFC 4632; cálculo conferido com a biblioteca ipaddress",
+      "tags": ["redes", "enderecamento", "artefato", "diagnostico", "mascara"]
+    },
+    {
+      "id": "1.4.q19",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1, 2],
+      "enunciado": "Por que endereços privados não podem ser usados diretamente na internet?",
+      "alternativas": [
+        "Porque não são únicos globalmente: a mesma faixa é usada por incontáveis redes, então não haveria como rotear a resposta de volta",
+        "Porque são bloqueados por acordo comercial entre os provedores de acesso",
+        "Porque são reservados para equipamentos de rede e não para computadores",
+        "Porque usam um formato de endereço incompatível com o IPv4 público"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantas redes no mundo usam 192.168.0.0/16 neste momento?",
+        "Se a resposta precisasse voltar, para qual delas iria?",
+        "O formato do endereço é o mesmo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se dois milhões de redes usam 192.168.1.10, para qual delas o pacote de resposta deveria ir?",
+      "explicacao": "A reserva existe justamente para permitir reuso: milhões de redes usam as mesmas faixas ao mesmo tempo. Sem unicidade global, não há como rotear uma resposta de volta ao destino correto, e por isso os roteadores da internet não encaminham esses endereços. O formato é idêntico ao de qualquer endereço IPv4 — o que muda é o significado atribuído à faixa.",
+      "por_que_erradas": {
+        "1": "Não é acordo comercial, e sim consequência técnica da falta de unicidade.",
+        "2": "As faixas privadas são usadas por qualquer dispositivo, não só equipamentos de rede.",
+        "3": "O formato é o mesmo de qualquer endereço IPv4."
+      },
+      "fonte": "RFC 1918",
+      "tags": ["redes", "rfc1918", "roteamento", "enderecamento"]
+    },
+    {
+      "id": "1.4.q20",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Qual dos endereços abaixo NÃO pertence a uma faixa privada da RFC 1918?",
+      "alternativas": [
+        "172.32.5.10",
+        "10.200.0.7",
+        "172.20.1.4",
+        "192.168.250.9"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A faixa do meio vai de 172.16 até 172.31, e não além.",
+        "Confira o segundo octeto de cada endereço da família 172.",
+        "10.x.x.x e 192.168.x.x são privados por inteiro nas faixas reservadas."
+      ],
+      "pergunta_socratica": "Antes de conferir: até qual valor do segundo octeto a faixa 172.16.0.0/12 vai?",
+      "explicacao": "A faixa 172.16.0.0/12 cobre de 172.16.0.0 a 172.31.255.255, então 172.32.5.10 está fora dela e é endereço público. É o engano mais comum com endereçamento privado: supor que todo 172 é interno. Os outros três estão dentro das faixas reservadas — verificado com a biblioteca ipaddress, que classifica 172.32.0.1 como não privado.",
+      "por_que_erradas": {
+        "1": "10.0.0.0/8 cobre todo endereço iniciado por 10.",
+        "2": "172.20.1.4 está entre 172.16 e 172.31, portanto dentro da faixa.",
+        "3": "192.168.0.0/16 cobre todo endereço iniciado por 192.168."
+      },
+      "fonte": "RFC 1918, seção 3; classificação conferida com a biblioteca ipaddress",
+      "tags": ["redes", "rfc1918", "enderecamento", "armadilha"]
+    },
+    {
+      "id": "1.4.q21",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um usuário relata que \"a internet não funciona\". A máquina tem endereço válido e alcança o gateway, mas não abre nenhum site pelo nome. Endereços numéricos funcionam. Qual é a hipótese mais provável?",
+      "alternativas": [
+        "Problema de resolução de nomes: o servidor DNS configurado está inacessível ou respondendo errado",
+        "Cabo de rede desconectado ou porta do switch com defeito",
+        "Endereço IP duplicado na rede local",
+        "Falha no roteamento até a internet"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que distingue acessar por nome de acessar por número?",
+        "Se o roteamento estivesse quebrado, o acesso por número funcionaria?",
+        "A camada do problema é a que traduz nome em endereço."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual etapa existe no acesso por nome que não existe no acesso por número?",
+      "explicacao": "Acesso por número funcionando descarta cabo, endereçamento e roteamento — o caminho até a internet está de pé. O que sobra é a etapa exclusiva do acesso por nome: a resolução DNS. Esse raciocínio por camadas é o que torna o diagnóstico rápido; sem ele, a investigação começa trocando cabo.",
+      "por_que_erradas": {
+        "1": "Sem conectividade física, nem o acesso por número funcionaria.",
+        "2": "Endereço duplicado causaria falhas intermitentes gerais, não só na resolução de nomes.",
+        "3": "Falha de roteamento impediria também o acesso por endereço numérico."
+      },
+      "fonte": "RFC 1035; teoria 1.4.t1",
+      "tags": ["redes", "dns", "diagnostico", "camadas"]
+    },
+    {
+      "id": "1.4.q22",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma organização quer reduzir o risco de servidores DHCP não autorizados na rede interna. Qual medida trata o problema na raiz?",
+      "alternativas": [
+        "Configurar os switches para aceitar respostas de DHCP apenas nas portas onde os servidores legítimos estão conectados",
+        "Aumentar o tempo de concessão dos endereços entregues pelo servidor legítimo",
+        "Usar endereços fixos em todas as estações da empresa",
+        "Bloquear no firewall de borda o tráfego de DHCP vindo da internet"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O servidor falso está dentro da rede, e não na internet.",
+        "O que decide qual resposta a máquina aceita?",
+        "Endereço fixo em todo o parque resolve, mas a que custo operacional?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o problema está em quem pergunta ou em quem pode responder?",
+      "explicacao": "Como o cliente aceita a primeira resposta válida, a defesa eficaz é restringir quem pode responder: os switches passam a aceitar mensagens de servidor DHCP apenas nas portas confiáveis e descartam as demais. Bloquear DHCP na borda não ajuda, porque o servidor falso é interno; tempo de concessão maior não impede a resposta falsa; e endereço fixo em todo o parque é inviável em escala.",
+      "por_que_erradas": {
+        "1": "Concessão mais longa não impede que a máquina aceite uma oferta falsa na renovação.",
+        "2": "Endereços fixos em todas as estações são inviáveis operacionalmente em escala.",
+        "3": "O servidor não autorizado está na rede interna, não na internet."
+      },
+      "fonte": "RFC 2131; boas práticas de segurança em switches",
+      "tags": ["redes", "dhcp", "hardening", "switch", "interceptacao"]
+    },
+    {
+      "id": "1.4.q23",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Em uma rede /24, quantos endereços existem no total e quantos podem ser atribuídos a hosts?",
+      "alternativas": [
+        "256 no total e 254 utilizáveis",
+        "256 no total e 256 utilizáveis",
+        "254 no total e 252 utilizáveis",
+        "255 no total e 253 utilizáveis"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Sobram 8 bits para hosts, o que dá quantos valores?",
+        "Dois endereços têm função especial em cada faixa.",
+        "O primeiro identifica a rede e o último é o de difusão."
+      ],
+      "pergunta_socratica": "Antes de conferir: quais dois endereços de uma faixa você nunca configura em uma estação?",
+      "explicacao": "Com 8 bits para hosts, são 256 endereços no total. O primeiro identifica a rede e o último é o endereço de difusão, então restam 254 atribuíveis. É a conta mais usada em endereçamento, e a mesma lógica se aplica a qualquer prefixo — inclusive ao /30, em que sobram apenas 2 endereços utilizáveis.",
+      "por_que_erradas": {
+        "1": "Dois endereços da faixa não são atribuíveis a hosts.",
+        "2": "O total é 256; 254 é justamente o número de utilizáveis.",
+        "3": "O total é 256, e não 255."
+      },
+      "fonte": "RFC 4632; valores conferidos com a biblioteca ipaddress",
+      "tags": ["redes", "enderecamento", "calculo", "fundamentos"]
+    },
+    {
+      "id": "1.4.q24",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "trecho": "PROJETO DE REDE — filial\n1. Toda a filial em uma única rede plana 10.0.0.0/16, sem segmentação interna.\n2. Servidores e estações compartilham a mesma faixa de endereços.\n3. Segurança garantida pelo NAT do roteador de borda.\n4. Servidor DNS interno aceita consultas de qualquer origem, inclusive da internet.",
+      "enunciado": "Quais problemas de segurança este projeto apresenta?",
+      "alternativas": [
+        "Rede plana sem segmentação permite movimento lateral livre, NAT não é controle de segurança, e o DNS aberto pode ser usado para amplificar ataques contra terceiros",
+        "Apenas o item 1, já que redes planas dificultam a administração",
+        "Apenas o item 4, já que os demais são decisões normais de projeto",
+        "Nenhum: o projeto é adequado para uma filial de pequeno porte"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que acontece quando uma estação é comprometida numa rede sem segmentação?",
+        "Relembre o que o NAT faz e o que ele não faz.",
+        "Um resolvedor que responde a qualquer um serve a quem?"
+      ],
+      "pergunta_socratica": "Antes de conferir: comprometida uma estação dessa filial, o que o atacante alcança a partir dela?",
+      "explicacao": "Três problemas se somam. Rede plana coloca servidores e estações no mesmo espaço, então uma estação comprometida alcança tudo — é a condição ideal para movimento lateral. NAT não filtra e não substitui regra de firewall. E um resolvedor de DNS que responde a qualquer origem pode ser usado por terceiros para amplificar ataques, transformando a filial em ferramenta de ataque contra outros. As correções são segmentar, filtrar explicitamente e restringir o DNS às redes internas.",
+      "por_que_erradas": {
+        "1": "Rede plana é problema de segurança, não apenas de administração.",
+        "2": "Os itens 1 e 3 são falhas de segurança relevantes por si sós.",
+        "3": "O porte da filial não torna aceitável rede plana com DNS aberto."
+      },
+      "fonte": "RFC 1918; RFC 2663; boas práticas de configuração de DNS",
+      "tags": ["redes", "segmentacao", "nat", "dns", "caca-erro"]
+    },
+    {
+      "id": "1.4.q25",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "O que é um ataque de resposta forjada de DNS, do ponto de vista do usuário?",
+      "alternativas": [
+        "O usuário digita o nome correto e é levado a um servidor controlado pelo atacante, sem perceber nada de errado",
+        "O usuário recebe uma mensagem de erro informando que o nome não pôde ser resolvido",
+        "O usuário fica sem acesso à internet até o servidor de DNS ser reiniciado",
+        "O usuário passa a acessar os sites mais devagar, mas sempre os corretos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O ataque é sobre a resposta estar errada, e não sobre não haver resposta.",
+        "O usuário digitou o nome certo. O que mudou foi o endereço devolvido.",
+        "A ausência de sinal visível é justamente o que torna o ataque eficaz."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que o usuário veria na barra de endereço se o nome estivesse certo e o destino errado?",
+      "explicacao": "O nome consultado é o correto, e a resposta é que foi manipulada: o usuário chega a um servidor do atacante acreditando estar no lugar certo. Não há erro visível, e é isso que torna o ataque perigoso. As defesas passam por validação criptográfica das respostas e pelo uso de canais cifrados de resolução, além de atenção a avisos de certificado — que costumam ser o único sinal para o usuário.",
+      "por_que_erradas": {
+        "1": "Mensagem de erro indica falha de resolução, e não resposta forjada.",
+        "2": "Ficar sem acesso é indisponibilidade, outro tipo de problema.",
+        "3": "Lentidão não caracteriza redirecionamento para servidor controlado por atacante."
+      },
+      "fonte": "RFC 1035; MITRE ATT&CK (adversário no meio)",
+      "tags": ["redes", "dns", "ataque", "interceptacao"]
+    },
+    {
+      "id": "1.4.q26",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Qual é a diferença entre endereço IP e endereço físico de rede (MAC)?",
+      "alternativas": [
+        "O endereço IP é lógico e roteável entre redes; o endereço físico identifica a interface dentro do segmento local",
+        "O endereço IP identifica a máquina e o endereço físico identifica o usuário conectado",
+        "O endereço IP é usado em redes sem fio e o endereço físico em redes cabeadas",
+        "São o mesmo identificador, escrito em formatos diferentes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um deles funciona entre redes; o outro só dentro do segmento local.",
+        "As camadas são diferentes: rede e enlace.",
+        "Nenhum dos dois identifica pessoas."
+      ],
+      "pergunta_socratica": "Antes de conferir: quando um pacote atravessa um roteador, qual dos dois endereços muda?",
+      "explicacao": "O endereço IP é lógico, pertence à camada de rede e permite roteamento entre redes diferentes. O endereço físico pertence à camada de enlace e só tem significado dentro do segmento local — a cada salto de roteador, ele é substituído, enquanto o endereço IP de origem e destino permanece. Nenhum dos dois identifica pessoas, e ambos existem em redes cabeadas e sem fio.",
+      "por_que_erradas": {
+        "1": "Nenhum dos dois identifica usuários; ambos identificam interfaces ou máquinas.",
+        "2": "Ambos existem nos dois tipos de meio.",
+        "3": "São identificadores de camadas diferentes, com funções distintas."
+      },
+      "fonte": "RFC 1122; modelo OSI",
+      "tags": ["redes", "enderecamento", "camadas", "fundamentos"]
+    },
+    {
+      "id": "1.4.q27",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 2],
+      "enunciado": "Uma empresa precisa dividir a rede 192.168.20.0/24 em quatro sub-redes de tamanho igual. Qual prefixo usar e quantos hosts caberão em cada uma?",
+      "alternativas": [
+        "/26, com 62 hosts utilizáveis por sub-rede",
+        "/25, com 126 hosts utilizáveis por sub-rede",
+        "/28, com 14 hosts utilizáveis por sub-rede",
+        "/27, com 30 hosts utilizáveis por sub-rede"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Dividir em quatro exige emprestar quantos bits da parte de hosts?",
+        "Cada bit emprestado dobra o número de sub-redes.",
+        "Depois de definir o prefixo, subtraia rede e difusão."
+      ],
+      "pergunta_socratica": "Antes de conferir: dois bits permitem representar quantas combinações?",
+      "explicacao": "Dividir um /24 em quatro partes exige dois bits a mais de rede, chegando a /26. Cada bloco tem 64 endereços, dos quais 62 são utilizáveis. Os quatro blocos são 192.168.20.0/26, .64/26, .128/26 e .192/26. Com /25 seriam apenas duas sub-redes, e /27 e /28 dariam oito e dezesseis.",
+      "por_que_erradas": {
+        "1": "/25 produz duas sub-redes, e não quatro.",
+        "2": "/28 produz dezesseis sub-redes.",
+        "3": "/27 produz oito sub-redes."
+      },
+      "fonte": "RFC 4632; divisão conferida com a biblioteca ipaddress",
+      "tags": ["redes", "subrede", "calculo", "segmentacao"]
+    },
+    {
+      "id": "1.4.q28",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2, 1],
+      "enunciado": "Uma rede tem servidores e estações na mesma faixa. Qual mudança reduz mais o alcance de uma estação comprometida?",
+      "alternativas": [
+        "Separar servidores e estações em sub-redes distintas e filtrar explicitamente o tráfego permitido entre elas",
+        "Trocar a faixa de endereços privados usada pela rede",
+        "Aumentar o prefixo da rede para comportar mais endereços",
+        "Configurar endereços fixos em todas as estações"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Segmentar sem filtrar resolve alguma coisa?",
+        "Trocar a faixa muda quem alcança quem?",
+        "Relembre a defesa contra movimento lateral."
+      ],
+      "pergunta_socratica": "Antes de conferir: hoje, a partir de uma estação, quantos servidores são alcançáveis diretamente?",
+      "explicacao": "Segmentar cria a fronteira, e filtrar é o que a torna efetiva — sem regra explícita, as sub-redes continuam se alcançando por roteamento. Juntas, as duas medidas obrigam o atacante a atravessar um ponto controlado e observável, que é a defesa direta contra movimento lateral. Trocar faixa, ampliar espaço de endereços ou fixar endereços não altera quem alcança quem.",
+      "por_que_erradas": {
+        "1": "Trocar a faixa privada não altera a alcançabilidade entre as máquinas.",
+        "2": "Mais endereços disponíveis não reduzem alcance; podem até ampliá-lo.",
+        "3": "Endereço fixo facilita inventário, sem limitar o tráfego permitido."
+      },
+      "fonte": "NIST Cybersecurity Framework (proteger); teoria 0.2.t5",
+      "tags": ["redes", "segmentacao", "movimento-lateral", "hardening"]
+    },
+    {
+      "id": "1.4.q29",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que um servidor de DNS que responde consultas de qualquer origem na internet é um problema, mesmo sem dados sensíveis?",
+      "alternativas": [
+        "Ele pode ser usado por terceiros para amplificar ataques de negação de serviço contra outras vítimas",
+        "Ele expõe a lista de nomes internos da empresa a qualquer consulta",
+        "Ele consome toda a banda disponível ao responder consultas legítimas",
+        "Ele impede que as máquinas internas resolvam nomes corretamente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no tamanho da resposta comparado ao da pergunta.",
+        "O endereço de origem de uma consulta em UDP pode ser forjado.",
+        "A vítima do ataque não é necessariamente quem hospeda o servidor."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a pergunta é pequena e a resposta é grande, e a origem pode ser falsificada, quem recebe a resposta?",
+      "explicacao": "Consultas em UDP permitem forjar o endereço de origem, e as respostas costumam ser bem maiores que as perguntas. Um resolvedor aberto pode então ser usado para dirigir um grande volume de tráfego contra uma vítima escolhida pelo atacante — a empresa vira ferramenta de ataque contra terceiros. A correção é restringir o serviço às redes que devem usá-lo, e separar servidor autoritativo de resolvedor interno.",
+      "por_que_erradas": {
+        "1": "Exposição de nomes internos é um risco real, mas menor e evitável com separação de funções.",
+        "2": "O consumo de banda é consequência do abuso, e não a razão do problema.",
+        "3": "A resolução interna continua funcionando normalmente."
+      },
+      "fonte": "RFC 1035; boas práticas de configuração de DNS",
+      "tags": ["redes", "dns", "amplificacao", "hardening", "negacao-de-servico"]
+    },
+    {
+      "id": "1.4.q30",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Ligue cada faixa de endereços à sua finalidade.",
+      "pares": [
+        ["10.0.0.0/8", "Rede privada, o maior dos três blocos da RFC 1918"],
+        ["172.16.0.0/12", "Rede privada, cobrindo de 172.16.0.0 a 172.31.255.255"],
+        ["192.168.0.0/16", "Rede privada, comum em redes domésticas e pequenas"],
+        ["127.0.0.0/8", "Laço local: comunicação da máquina consigo mesma"],
+        ["169.254.0.0/16", "Endereço automático, atribuído quando não há resposta do DHCP"]
+      ],
+      "dicas": [
+        "Três dos cinco pertencem à RFC 1918.",
+        "Um deles nunca sai da própria máquina.",
+        "Outro é sintoma de problema, e não de configuração pretendida."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas faixas indica que algo deu errado ao configurar a rede?",
+      "explicacao": "As três primeiras são as faixas privadas da RFC 1918, com atenção ao limite da segunda, que termina em 172.31. A quarta é o laço local, que nunca sai da máquina, e a quinta é o endereço automático que aparece quando o DHCP não responde — sintoma, e não configuração desejada. Distinguir as cinco encurta muito o diagnóstico de rede.",
+      "fonte": "RFC 1918; RFC 1122; RFC 3927; classificação conferida com a biblioteca ipaddress",
+      "tags": ["redes", "enderecamento", "pareamento", "rfc1918", "diagnostico"]
+    },
+    {
+      "id": "1.4.q31",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0, 2],
+      "enunciado": "Por que um firewall que filtra apenas por endereço e porta não detecta um ataque contra uma aplicação web?",
+      "alternativas": [
+        "Porque o ataque trafega dentro de requisições legítimas na porta permitida; o problema está no conteúdo, que esse filtro não inspeciona",
+        "Porque aplicações web não usam portas fixas, o que impede qualquer filtragem",
+        "Porque firewalls não conseguem processar tráfego cifrado de nenhuma forma",
+        "Porque o ataque ocorre na camada física, fora do alcance do firewall"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Em qual porta chega a requisição maliciosa contra um site?",
+        "O filtro de rede e transporte enxerga o conteúdo da requisição?",
+        "Relembre em que camada cada controle atua."
+      ],
+      "pergunta_socratica": "Antes de conferir: a requisição do atacante e a de um cliente legítimo chegam pela mesma porta?",
+      "explicacao": "O ataque chega pela mesma porta que o tráfego legítimo, com endereço e porta perfeitamente aceitáveis — o que diferencia é o conteúdo da requisição, que um filtro de camadas 3 e 4 não examina. Detectar isso exige controle na camada de aplicação, como um proxy ou um firewall de aplicação web, ou correção na própria aplicação. É a razão de defesa em profundidade combinar controles de camadas diferentes.",
+      "por_que_erradas": {
+        "1": "Aplicações web usam portas bem conhecidas; a filtragem por porta é possível e feita.",
+        "2": "Firewalls lidam com tráfego cifrado, ainda que sem inspecionar o conteúdo sem terminação.",
+        "3": "O ataque ocorre na camada de aplicação, e não na física."
+      },
+      "fonte": "Modelo OSI; OWASP Top 10",
+      "tags": ["redes", "firewall", "camadas", "aplicacao", "owasp"]
+    },
+    {
+      "id": "1.4.q32",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3, 0],
+      "enunciado": "Ao investigar uma máquina suspeita, você quer saber com quais servidores ela tentou se comunicar nos últimos dias. Qual fonte responde melhor?",
+      "alternativas": [
+        "Os registros de consultas de DNS da rede, que mostram os nomes procurados mesmo quando a conexão falhou",
+        "A lista de programas instalados na máquina",
+        "O histórico de atualizações do sistema operacional",
+        "A tabela de endereços físicos do switch mais próximo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que a máquina faz antes de se conectar a um servidor pelo nome?",
+        "A fonte precisa cobrir também tentativas que não deram certo.",
+        "Duas alternativas descrevem informação sem relação com comunicação de rede."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual registro existiria mesmo se todas as conexões tivessem sido bloqueadas?",
+      "explicacao": "O registro de DNS mostra os nomes que a máquina procurou, inclusive quando a conexão seguinte falhou ou foi bloqueada — o que revela intenção, e não apenas resultado. Programas instalados e histórico de atualizações não descrevem comunicação, e a tabela do switch mostra presença no segmento local, não destinos procurados.",
+      "por_que_erradas": {
+        "1": "Programas instalados não indicam com quem a máquina tentou falar.",
+        "2": "Histórico de atualizações não registra comunicação de rede.",
+        "3": "A tabela do switch mostra endereços físicos no segmento local, não destinos remotos."
+      },
+      "fonte": "RFC 1035; NIST SP 800-61",
+      "tags": ["redes", "dns", "investigacao", "deteccao"]
+    },
+    {
+      "id": "1.4.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que significa dizer que o NAT quebra a comunicação fim a fim?",
+      "alternativas": [
+        "O endereço visto pelo destino não é o da máquina de origem, o que dificulta conexões iniciadas de fora e alguns protocolos",
+        "O NAT interrompe conexões que ultrapassam um limite de tempo definido",
+        "O NAT descarta pacotes cujo conteúdo não puder ser inspecionado",
+        "O NAT divide cada conexão em duas conexões independentes e cifradas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual endereço o servidor de destino enxerga quando você acessa um site?",
+        "Como alguém de fora alcançaria uma máquina interna específica?",
+        "O NAT inspeciona conteúdo?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o servidor do outro lado consegue distinguir duas máquinas da sua rede interna?",
+      "explicacao": "Com NAT, o destino enxerga o endereço público do roteador, e não o da máquina interna. A consequência é que conexões iniciadas de fora precisam de mapeamento explícito, e protocolos que carregam endereços dentro do próprio conteúdo exigem tratamento especial. O NAT não inspeciona conteúdo, não encerra conexões por tempo como função de segurança e não cifra nada.",
+      "por_que_erradas": {
+        "1": "Tabelas de tradução têm tempo de expiração, mas isso não é o que a expressão descreve.",
+        "2": "O NAT não inspeciona conteúdo.",
+        "3": "O NAT não cifra nem divide a conexão em duas sessões cifradas."
+      },
+      "fonte": "RFC 2663; RFC 3022",
+      "tags": ["redes", "nat", "conceito", "protocolos"]
+    },
+    {
+      "id": "1.4.q34",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [3, 0],
+      "artefato": "Registro do resolvedor interno — estação 192.168.30.44\n09:14:02  consulta A   atualizacoes.fabricante.com\n09:14:02  consulta A   api.servico-legitimo.com\n09:31:47  consulta A   k7x2p9.dominio-desconhecido.top\n09:32:47  consulta A   m4b8t1.dominio-desconhecido.top\n09:33:47  consulta A   q9c3v7.dominio-desconhecido.top\n09:34:47  consulta A   z2n6h4.dominio-desconhecido.top",
+      "enunciado": "O que este registro sugere?",
+      "alternativas": [
+        "Consultas periódicas a subdomínios sempre diferentes de um mesmo domínio, em intervalo regular de um minuto — padrão compatível com comunicação de código malicioso com servidor de controle",
+        "Comportamento normal de atualização automática de software, que consulta vários servidores",
+        "Falha do resolvedor interno, que está repetindo consultas por não obter resposta",
+        "Ataque de negação de serviço contra a estação 192.168.30.44"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare os horários das quatro últimas linhas.",
+        "Os nomes consultados se repetem ou são sempre diferentes?",
+        "As duas primeiras linhas parecem com quê, comparadas às demais?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que explica um intervalo tão exato de um minuto entre consultas?",
+      "explicacao": "Dois sinais se somam: intervalo exato de um minuto, que indica automação e não uso humano, e subdomínios sempre diferentes sob o mesmo domínio, padrão de comunicação com servidor de controle e de resistência a bloqueio por nome. As duas primeiras linhas são o contraste útil — tráfego legítimo, sem periodicidade rígida. Falha de resolvedor repetiria o mesmo nome, e negação de serviço não gera consultas de saída da própria estação.",
+      "por_que_erradas": {
+        "1": "Atualização de software não consulta subdomínios aleatórios em intervalo fixo de um minuto.",
+        "2": "Repetição por falha usaria o mesmo nome, e não nomes sempre distintos.",
+        "3": "Negação de serviço contra a estação não produziria essas consultas de saída."
+      },
+      "fonte": "MITRE ATT&CK (comando e controle); RFC 1035",
+      "tags": ["redes", "dns", "artefato", "comando-e-controle", "deteccao"]
+    },
+    {
+      "id": "1.4.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Você vai projetar a rede de um escritório novo com 60 estações, 6 servidores e rede sem fio para visitantes. Quais decisões de rede mais reduzem risco?",
+      "alternativas": [
+        "Sub-redes separadas para estações, servidores e visitantes, com filtragem explícita entre elas, DHCP restrito a portas confiáveis e registro das consultas de DNS",
+        "Uma única rede plana com endereçamento privado amplo, protegida pelo NAT do roteador de borda",
+        "Endereços públicos para os servidores, para evitar a complexidade de tradução de endereços",
+        "Rede única com endereços fixos em todas as máquinas e sem servidor de DHCP"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem precisa alcançar quem, de fato, nesse escritório?",
+        "Visitantes precisam enxergar os servidores internos?",
+        "Relembre o que o NAT não faz."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o notebook de um visitante estiver infectado, o que ele deve conseguir alcançar?",
+      "explicacao": "As quatro decisões atacam riscos distintos e conhecidos: segmentação com filtragem limita o alcance de qualquer máquina comprometida — especialmente a rede de visitantes, que não tem motivo para enxergar servidores; restringir DHCP às portas confiáveis fecha o caminho do servidor falso; e registrar consultas de DNS entrega detecção barata sobre toda a rede. Rede plana com NAT repete a confusão entre tradução e controle, e expor servidores com endereço público amplia a superfície sem necessidade.",
+      "por_que_erradas": {
+        "1": "Rede plana permite movimento lateral livre, e NAT não é controle de segurança.",
+        "2": "Endereços públicos nos servidores ampliam a exposição sem ganho real.",
+        "3": "Endereço fixo em todo o parque é inviável e não resolve segmentação nem detecção."
+      },
+      "fonte": "RFC 1918; RFC 2131; NIST Cybersecurity Framework",
+      "tags": ["redes", "segmentacao", "projeto", "dhcp", "dns", "carreira"]
+    }
+  ]
+}
