@@ -159,6 +159,84 @@ def questoes_vistas(modulo_id):
     return {linha["questao_id"] for linha in linhas}
 
 
+def primeiras_tentativas(modulo_id=None):
+    """As tentativas que contam. Sem argumento, as de todos os módulos."""
+    sql = "SELECT * FROM tentativas WHERE n_tentativa = 1"
+    parametros = ()
+    if modulo_id is not None:
+        sql += " AND modulo_id = ?"
+        parametros = (modulo_id,)
+    with conexao() as con:
+        return con.execute(sql + " ORDER BY id", parametros).fetchall()
+
+
+def ultimas_primeiras_tentativas(limite):
+    """As `limite` primeiras tentativas mais recentes, da mais nova para a mais velha.
+
+    É o que alimenta o ajuste de dificuldade das questões novas.
+    """
+    with conexao() as con:
+        return con.execute(
+            "SELECT * FROM tentativas WHERE n_tentativa = 1 ORDER BY id DESC LIMIT ?",
+            (limite,),
+        ).fetchall()
+
+
+# --- repetição espaçada -----------------------------------------------------
+
+def srs_obter(questao_id):
+    with conexao() as con:
+        return con.execute("SELECT * FROM srs WHERE questao_id = ?", (questao_id,)).fetchone()
+
+
+def srs_salvar(questao_id, modulo_id, intervalo, facilidade, proxima_data, acertos, erros):
+    with conexao() as con:
+        con.execute(
+            "INSERT INTO srs (questao_id, modulo_id, intervalo, facilidade, proxima_data,"
+            " acertos, erros) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            " ON CONFLICT(questao_id) DO UPDATE SET"
+            " intervalo = excluded.intervalo, facilidade = excluded.facilidade,"
+            " proxima_data = excluded.proxima_data, acertos = excluded.acertos,"
+            " erros = excluded.erros",
+            (questao_id, modulo_id, intervalo, facilidade, proxima_data, acertos, erros),
+        )
+
+
+def srs_vencidos(data):
+    """Questões com revisão vencida até a data (ISO 8601), da mais atrasada em diante."""
+    with conexao() as con:
+        return con.execute(
+            "SELECT questao_id, modulo_id FROM srs WHERE proxima_data <= ?"
+            " ORDER BY proxima_data, questao_id",
+            (data,),
+        ).fetchall()
+
+
+def srs_do_modulo(modulo_id):
+    with conexao() as con:
+        return con.execute("SELECT * FROM srs WHERE modulo_id = ?", (modulo_id,)).fetchall()
+
+
+# --- status dos módulos -----------------------------------------------------
+
+def salvar_status_modulo(modulo_id, desbloqueado, concluido, dominio):
+    with conexao() as con:
+        con.execute(
+            "INSERT INTO modulos_status (modulo_id, desbloqueado, concluido, dominio,"
+            " atualizado_em) VALUES (?, ?, ?, ?, ?)"
+            " ON CONFLICT(modulo_id) DO UPDATE SET"
+            " desbloqueado = excluded.desbloqueado, concluido = excluded.concluido,"
+            " dominio = excluded.dominio, atualizado_em = excluded.atualizado_em",
+            (modulo_id, int(desbloqueado), int(concluido), float(dominio), _hoje()),
+        )
+
+
+def status_modulos():
+    with conexao() as con:
+        linhas = con.execute("SELECT * FROM modulos_status").fetchall()
+    return {linha["modulo_id"]: linha for linha in linhas}
+
+
 def apagar_tentativas_modulo(modulo_id):
     """"Refazer módulo do zero": a única forma de melhorar um domínio ruim.
 
