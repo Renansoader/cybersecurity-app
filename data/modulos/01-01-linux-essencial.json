@@ -1,0 +1,1033 @@
+{
+  "id": "1.1",
+  "nivel": 1,
+  "titulo": "Linux essencial",
+  "objetivos": [
+    "Localizar no sistema de arquivos onde ficam configuração, logs e binários, e explicar por que isso importa em uma investigação",
+    "Interpretar e ajustar permissões de arquivo, incluindo a notação octal e o efeito do SUID",
+    "Distinguir usuário, grupo e root, e justificar o uso de sudo em vez de sessão privilegiada",
+    "Inspecionar processos e serviços e relacionar o que está em execução ao risco de segurança"
+  ],
+  "pre_requisitos": ["0.1"],
+  "teoria": [
+    {
+      "id": "1.1.t1",
+      "titulo": "Onde as coisas ficam",
+      "texto": "O Linux organiza tudo a partir de uma raiz única, a barra. Quatro caminhos aparecem em quase toda investigação.\n\n/etc guarda configuração do sistema e dos serviços. /var/log guarda os registros — é o primeiro lugar a olhar depois de um incidente. /home tem os diretórios dos usuários, e /root o do administrador. /tmp é área temporária, gravável por todos, e por isso destino preferido de quem acabou de invadir a máquina.\n\nBinários ficam em /usr/bin e /usr/sbin. E /proc não é disco: é uma visão do núcleo em forma de arquivos, com um diretório por processo em execução.",
+      "analogia": "É um prédio com endereços fixos: a papelada administrativa no mesmo andar, o arquivo morto sempre no mesmo depósito.",
+      "erro_comum": "Procurar log dentro da pasta da aplicação. No Linux o padrão é /var/log, e fugir disso costuma ser sinal de instalação improvisada.",
+      "fonte": "Filesystem Hierarchy Standard; Security Engineering, 3ª ed., cap. 6"
+    },
+    {
+      "id": "1.1.t2",
+      "titulo": "Usuário, grupo e root",
+      "texto": "Todo processo roda como algum usuário, e todo usuário pertence a um ou mais grupos. Permissão no Linux se resolve sempre nessa ordem: dono do arquivo, grupo do arquivo, e todos os demais.\n\nroot é o usuário de identificador zero e não é limitado pelas permissões — ele passa por cima delas. Por isso a regra prática é trabalhar como usuário comum e usar sudo apenas para a ação que exige privilégio.\n\n/etc/passwd lista as contas e é legível por qualquer um. As senhas ficam em /etc/shadow, com hash e acesso restrito ao root. Confundir os dois arquivos é o engano mais comum de quem está começando.",
+      "analogia": "Crachá de visitante para o dia a dia, chave-mestra pega no balcão só para a sala que precisa ser aberta — e devolvida em seguida.",
+      "erro_comum": "Abrir a sessão inteira como root \"para não ter problema\". Todo comando errado passa a ter alcance total, inclusive os digitados por engano.",
+      "fonte": "Security Engineering, 3ª ed., cap. 6; teoria 0.2.t5"
+    },
+    {
+      "id": "1.1.t3",
+      "titulo": "Permissões: rwx e a notação octal",
+      "texto": "Cada arquivo tem três conjuntos de permissão — dono, grupo e outros — com três bits cada: r de leitura, w de escrita e x de execução. A listagem mostra assim: -rw-r--r--.\n\nEm octal, r vale 4, w vale 2 e x vale 1, somados por conjunto. 644 é rw-r--r--: dono lê e escreve, o resto só lê. 600 restringe ao dono. 755 é o padrão de diretório e de binário executável.\n\nEm diretório os bits têm outro sentido: r lista o conteúdo, w cria e remove arquivos dentro dele, e x permite atravessar o diretório. Um diretório sem x é um diretório em que você não entra, mesmo tendo r.",
+      "analogia": "Três chaveiros diferentes na mesma porta: um do dono, um da equipe, um do público.",
+      "erro_comum": "Resolver problema de acesso com chmod 777. Isso dá escrita para qualquer usuário da máquina, e transforma o arquivo em porta de entrada.",
+      "fonte": "Security Engineering, 3ª ed., cap. 6"
+    },
+    {
+      "id": "1.1.t4",
+      "titulo": "SUID, SGID e sticky bit",
+      "texto": "Alguns programas precisam de privilégio maior que o de quem os executa. O bit SUID faz o programa rodar com os privilégios do dono do arquivo, e não de quem chamou. Na listagem aparece um s no lugar do x do dono: -rwsr-xr-x.\n\nÉ o mecanismo que permite a um usuário comum trocar a própria senha, já que a escrita em /etc/shadow exige root. Também é uma das primeiras coisas que um invasor procura: um binário SUID com falha vira caminho direto para privilégio de administrador.\n\nSGID faz o mesmo com o grupo. O sticky bit, usado em /tmp, permite que todos criem arquivos ali, mas cada um só remova os seus.",
+      "analogia": "Um formulário que só o gerente pode assinar, mas que qualquer funcionário pode acionar por um guichê específico — e o guichê precisa ser muito bem feito.",
+      "erro_comum": "Marcar SUID em script próprio para \"resolver permissão\". Cria uma escalada de privilégio pronta, e a maioria dos sistemas ignora SUID em script justamente por isso.",
+      "fonte": "Security Engineering, 3ª ed., cap. 6; MITRE ATT&CK (escalada de privilégio)"
+    },
+    {
+      "id": "1.1.t5",
+      "titulo": "Processos: o que está rodando agora",
+      "texto": "Cada programa em execução é um processo, com um identificador numérico, um usuário dono e um comando que o originou. ps aux lista todos; top e htop mostram em tempo real.\n\nDuas perguntas resolvem a maior parte das dúvidas de segurança: este processo deveria estar rodando nesta máquina, e deveria estar rodando com este usuário? Um processo de banco de dados executando como root, ou um binário desconhecido em /tmp, respondem sozinhos.\n\n/proc traz um diretório por processo, com o executável de origem, o diretório de trabalho e os arquivos abertos — útil quando o nome exibido não é confiável.",
+      "analogia": "A lista de quem está dentro do prédio agora, com o crachá que cada um usou para entrar.",
+      "erro_comum": "Confiar no nome do processo. Nome é escolhido por quem o criou, e renomear é trivial.",
+      "fonte": "MITRE ATT&CK; teoria 0.2.t3"
+    },
+    {
+      "id": "1.1.t6",
+      "titulo": "Serviços, systemd e onde caem os logs",
+      "texto": "O que sobe junto com a máquina é gerenciado pelo systemd. systemctl status mostra a situação de um serviço, systemctl enable define se ele sobe no boot, e systemctl list-units --type=service lista o que existe.\n\nCada serviço ativo é superfície de ataque: reduzir a lista do que sobe no boot é hardening barato e permanente.\n\nOs registros ficam em /var/log e no journal do systemd, consultável com journalctl -u de um serviço. Autenticação e uso de sudo vão para /var/log/auth.log em sistemas Debian e Ubuntu, e para /var/log/secure em Red Hat e derivados — é onde se procura tentativa de login malsucedida.",
+      "analogia": "A portaria registra quem entrou, a que horas e por qual porta; cada porta aberta a mais é uma porta a vigiar.",
+      "erro_comum": "Investigar incidente sem verificar se o log ainda existe. Log tem rotação e prazo, e quem invade costuma tentar apagá-lo.",
+      "fonte": "Marco Civil da Internet, art. 13 e 15 (guarda de registros); NIST SP 800-61"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "1.1.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Em uma máquina Linux, onde ficam por padrão os arquivos de registro do sistema?",
+      "alternativas": [
+        "/var/log",
+        "/etc/log",
+        "/home/logs",
+        "/usr/log"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no diretório destinado a dados que variam com o tempo.",
+        "Um dos caminhos é reservado a configuração, e não a dados.",
+        "A sigla var vem de variable: conteúdo que cresce durante a operação."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses diretórios guarda coisas que mudam de tamanho o tempo todo?",
+      "explicacao": "/var guarda dados variáveis do sistema, e /var/log é o destino padrão dos registros. /etc é configuração, /home são diretórios de usuários e /usr guarda binários e bibliotecas. Saber isso de cor economiza tempo em qualquer investigação, porque é o primeiro lugar a olhar depois de um incidente.",
+      "por_que_erradas": {
+        "1": "/etc guarda configuração, não registros.",
+        "2": "/home guarda diretórios pessoais dos usuários.",
+        "3": "/usr guarda binários, bibliotecas e documentação instalados."
+      },
+      "fonte": "Filesystem Hierarchy Standard; teoria 1.1.t1",
+      "tags": ["linux", "sistema-de-arquivos", "logs", "fundamentos"]
+    },
+    {
+      "id": "1.1.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 2],
+      "enunciado": "Qual é a diferença entre /etc/passwd e /etc/shadow?",
+      "alternativas": [
+        "/etc/passwd lista as contas e é legível por todos; /etc/shadow guarda os hashes de senha e é restrito ao root",
+        "/etc/passwd guarda as senhas em texto claro; /etc/shadow guarda uma cópia de segurança delas",
+        "/etc/passwd é usado por sistemas antigos e /etc/shadow o substituiu por completo",
+        "/etc/passwd guarda usuários comuns e /etc/shadow guarda apenas a conta root"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um dos dois precisa ser legível por qualquer processo que resolva nome de usuário.",
+        "Se a informação sensível estivesse no arquivo legível por todos, qual seria o problema?",
+        "A separação existe justamente para tirar o hash do arquivo público."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que o sistema separaria a lista de contas do lugar onde guarda as senhas?",
+      "explicacao": "/etc/passwd precisa ser legível por todos, porque muitos programas traduzem identificador numérico em nome de usuário. Colocar hash de senha ali permitiria que qualquer usuário da máquina copiasse todos os hashes e tentasse quebrá-los offline. Por isso os hashes foram movidos para /etc/shadow, legível apenas pelo root — a separação é uma aplicação direta de menor privilégio.",
+      "por_que_erradas": {
+        "1": "Nenhum dos dois guarda senha em texto claro, e /etc/shadow não é cópia de segurança.",
+        "2": "Os dois arquivos coexistem e são usados juntos nos sistemas atuais.",
+        "3": "A divisão não é por tipo de conta: /etc/shadow guarda os hashes de todas elas."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6; teoria 1.1.t2",
+      "tags": ["linux", "usuarios", "senhas", "menor-privilegio"]
+    },
+    {
+      "id": "1.1.q3",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "O que a permissão exibida em `-rw-r-----  1 app  financeiro  8192  relatorio.csv` significa?",
+      "alternativas": [
+        "O usuário app lê e escreve; membros do grupo financeiro apenas leem; os demais não têm acesso nenhum",
+        "Todos os usuários da máquina podem ler o arquivo, e apenas app pode escrever",
+        "O usuário app e o grupo financeiro podem ler, escrever e executar o arquivo",
+        "Apenas o root pode acessar o arquivo, já que nenhum bit de execução está marcado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia a sequência em três blocos de três caracteres, depois do primeiro traço.",
+        "O último bloco é o de \"outros\". O que ele mostra?",
+        "Traço significa permissão ausente."
+      ],
+      "pergunta_socratica": "Antes de conferir: separe a string em dono, grupo e outros. O que sobra para o último?",
+      "explicacao": "O primeiro caractere indica o tipo (traço para arquivo comum). Depois vêm três blocos: rw- para o dono app, r-- para o grupo financeiro e --- para os demais. Em octal isso é 640. Repare que root continua acessando: as permissões não limitam o superusuário.",
+      "por_que_erradas": {
+        "1": "O bloco de outros está vazio: usuários fora do grupo não leem o arquivo.",
+        "2": "Não há bit de execução em nenhum bloco, e o grupo não tem escrita.",
+        "3": "O usuário app e o grupo financeiro têm acesso; root acessa por ser root, não por falta de bits."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6; teoria 1.1.t3",
+      "tags": ["linux", "permissoes", "comando", "fundamentos"]
+    },
+    {
+      "id": "1.1.q4",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Você precisa que um arquivo de configuração com credenciais seja legível e gravável apenas pelo dono, sem acesso para grupo ou demais usuários. Qual comando faz isso?",
+      "alternativas": [
+        "chmod 600 config.env",
+        "chmod 644 config.env",
+        "chmod 755 config.env",
+        "chmod 777 config.env"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Some os valores: leitura 4, escrita 2, execução 1.",
+        "Grupo e outros precisam ficar em zero.",
+        "Um arquivo de configuração não precisa de bit de execução."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual número representa \"lê e escreve\", e o que representa \"nada\"?",
+      "explicacao": "600 é rw------- : leitura mais escrita para o dono (4+2) e zero para grupo e outros. É o padrão correto para arquivo com segredo. 644 deixaria a credencial legível por qualquer usuário da máquina, e 755 e 777 são piores ainda — este último dá escrita a todo mundo.",
+      "por_que_erradas": {
+        "1": "644 deixa o arquivo legível por grupo e por todos os demais usuários.",
+        "2": "755 adiciona execução e mantém leitura para todos.",
+        "3": "777 dá leitura, escrita e execução para qualquer usuário da máquina."
+      },
+      "fonte": "CIS Benchmarks; teoria 1.1.t3",
+      "tags": ["linux", "permissoes", "comando", "segredos"]
+    },
+    {
+      "id": "1.1.q5",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Em um diretório, qual é o efeito do bit de execução (x)?",
+      "alternativas": [
+        "Permite atravessar o diretório e acessar o que está dentro dele",
+        "Permite executar todos os arquivos contidos no diretório",
+        "Permite criar e remover arquivos dentro do diretório",
+        "Não tem efeito: o bit x só faz sentido em arquivos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Em diretório, os três bits têm significado diferente do que têm em arquivo.",
+        "Criar e remover é atribuição de outro bit.",
+        "Pense no que acontece ao tentar entrar em uma pasta com cd."
+      ],
+      "pergunta_socratica": "Antes de conferir: você tem r em um diretório mas não tem x. Consegue listar? Consegue entrar?",
+      "explicacao": "Em diretório, x é a permissão de travessia: sem ela você não entra nem alcança nada lá dentro, mesmo tendo r. O r lista os nomes e o w cria e remove entradas. É por isso que um diretório costuma ser 755 e não 644 — sem o x, ele fica inacessível.",
+      "por_que_erradas": {
+        "1": "Executar um arquivo depende do bit x do próprio arquivo.",
+        "2": "Criar e remover dentro do diretório depende do bit w.",
+        "3": "O bit x é justamente o mais importante em diretórios."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6; teoria 1.1.t3",
+      "tags": ["linux", "permissoes", "diretorios", "fundamentos"]
+    },
+    {
+      "id": "1.1.q6",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma aplicação não consegue gravar em um diretório e um colega sugere resolver com `chmod 777`. Qual é a objeção correta?",
+      "alternativas": [
+        "777 dá escrita a qualquer usuário da máquina; o correto é ajustar o dono ou o grupo e conceder só o necessário",
+        "777 não resolve problemas de escrita, apenas de leitura",
+        "O problema não é de permissão, e sim de espaço em disco",
+        "777 é adequado em servidores, e problemático apenas em estações de trabalho"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quem passa a poder gravar ali depois do comando.",
+        "Existe um caminho que resolve o acesso sem abrir para todos.",
+        "Menor privilégio também vale para permissão de arquivo."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem exatamente precisa gravar nesse diretório, e quantos usuários 777 autoriza?",
+      "explicacao": "777 resolve o sintoma abrindo o diretório para todos os usuários e processos da máquina, inclusive um eventual invasor com acesso limitado — que passa a poder plantar arquivo ali. O caminho correto é identificar o usuário do serviço e usar chown ou chgrp, concedendo o mínimo necessário. É o mesmo princípio de menor privilégio aplicado ao sistema de arquivos.",
+      "por_que_erradas": {
+        "1": "777 concede leitura, escrita e execução; ele resolve a escrita, e é justamente esse o problema.",
+        "2": "O enunciado descreve falha de permissão, não de espaço.",
+        "3": "Em servidor o risco é maior, não menor, por haver mais serviços e usuários."
+      },
+      "fonte": "CIS Benchmarks; Security Engineering, 3ª ed., cap. 6",
+      "tags": ["linux", "permissoes", "menor-privilegio", "hardening"]
+    },
+    {
+      "id": "1.1.q7",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "O que o bit SUID faz quando aplicado a um programa?",
+      "alternativas": [
+        "Faz o programa executar com os privilégios do dono do arquivo, e não os de quem o executou",
+        "Impede que o programa seja executado por usuários que não sejam o dono",
+        "Faz o programa ser executado sempre com privilégios de root, independentemente do dono",
+        "Marca o programa como somente leitura, impedindo alterações no binário"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A sigla vem de set user ID: define qual identidade o processo assume.",
+        "A identidade assumida é a de quem, exatamente?",
+        "Se o dono for um usuário comum, o programa roda com privilégio desse usuário."
+      ],
+      "pergunta_socratica": "Antes de conferir: como um usuário comum consegue alterar /etc/shadow ao trocar a própria senha?",
+      "explicacao": "SUID faz o processo assumir a identidade do dono do binário. Quando o dono é root, o programa roda como root mesmo chamado por usuário comum — é assim que o comando de troca de senha consegue escrever em /etc/shadow. O poder resultante depende do dono: SUID de um usuário comum concede apenas os privilégios dele.",
+      "por_que_erradas": {
+        "1": "SUID não restringe quem executa; isso é papel dos bits de permissão.",
+        "2": "O privilégio assumido é o do dono do arquivo, que nem sempre é root.",
+        "3": "SUID não tem relação com proteção contra escrita no binário."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6; teoria 1.1.t4",
+      "tags": ["linux", "suid", "permissoes", "escalada-de-privilegio"]
+    },
+    {
+      "id": "1.1.q8",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Durante uma verificação, você encontra um script próprio da empresa com o bit SUID e dono root. Por que isso é perigoso?",
+      "alternativas": [
+        "Qualquer falha no script passa a rodar com privilégio de root, criando um caminho de escalada de privilégio para usuários comuns",
+        "O script deixará de funcionar, porque scripts não podem ter permissão de execução",
+        "O script consumirá mais memória, já que processos de root têm prioridade maior",
+        "Não há risco: SUID apenas acelera a execução ao evitar verificações de permissão"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no que acontece se o script chamar outro programa ou aceitar entrada do usuário.",
+        "Quem pode executar esse script, e com que privilégio ele roda?",
+        "Escalada de privilégio é justamente transformar acesso comum em acesso de administrador."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o script usar uma variável que o usuário controla, o que o usuário consegue fazer?",
+      "explicacao": "Um script SUID de root vira um pedaço de código privilegiado exposto a qualquer usuário da máquina. Basta uma variável mal tratada, uma chamada a outro comando sem caminho absoluto ou uma entrada não validada para transformar acesso comum em root. É por isso que a maioria dos sistemas ignora o bit SUID em scripts interpretados, e que binários SUID são um dos primeiros alvos de quem já entrou na máquina.",
+      "por_que_erradas": {
+        "1": "Scripts podem ter permissão de execução normalmente; o que costuma ser ignorado é o SUID neles.",
+        "2": "SUID não altera prioridade nem consumo de memória.",
+        "3": "SUID não pula verificações por desempenho; ele troca a identidade do processo."
+      },
+      "fonte": "MITRE ATT&CK (escalada de privilégio); teoria 1.1.t4",
+      "tags": ["linux", "suid", "escalada-de-privilegio", "hardening"]
+    },
+    {
+      "id": "1.1.q9",
+      "tipo": "comando",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "O que faz o comando `find / -perm -4000 -type f 2>/dev/null`?",
+      "alternativas": [
+        "Lista todos os arquivos com o bit SUID marcado, descartando as mensagens de erro de permissão",
+        "Remove o bit SUID de todos os arquivos do sistema",
+        "Lista os arquivos com permissão 4000, ou seja, sem nenhuma permissão de leitura ou escrita",
+        "Procura arquivos modificados nos últimos 4000 minutos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O valor 4000 em octal corresponde a um bit especial, não aos bits rwx.",
+        "O comando find apenas localiza; ele não altera nada sem uma ação explícita.",
+        "O 2>/dev/null descarta a saída de erro, que apareceria em diretórios sem permissão."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que alguém rodaria esse comando logo após obter acesso a uma máquina?",
+      "explicacao": "O bit SUID vale 4000 em octal, e o traço antes do número pede a busca por esse bit marcado, ignorando os demais. O comando percorre o sistema listando binários SUID, e o 2>/dev/null descarta os erros de acesso negado. É levantamento padrão nos dois lados: quem defende usa para revisar o que existe, e quem invadiu usa para procurar um caminho até root.",
+      "por_que_erradas": {
+        "1": "find sem -delete ou -exec não altera nada.",
+        "2": "4000 não é a permissão de acesso; é o bit SUID, e o traço indica busca por bit marcado.",
+        "3": "Busca por tempo usaria -mmin ou -mtime."
+      },
+      "fonte": "MITRE ATT&CK; CIS Benchmarks",
+      "tags": ["linux", "suid", "comando", "hardening", "enumeracao"]
+    },
+    {
+      "id": "1.1.q10",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Para que serve o sticky bit em um diretório como /tmp?",
+      "alternativas": [
+        "Permite que todos criem arquivos ali, mas cada usuário só remova os próprios",
+        "Impede que qualquer usuário crie arquivos no diretório",
+        "Faz os arquivos do diretório serem executados com privilégio do dono",
+        "Mantém o diretório em memória para acelerar o acesso"
+      ],
+      "correta": 0,
+      "dicas": [
+        "/tmp precisa ser gravável por todos. Qual problema isso criaria sem uma proteção extra?",
+        "Sem essa proteção, o bit w do diretório permitiria remover arquivo alheio.",
+        "Executar com privilégio do dono é outro bit."
+      ],
+      "pergunta_socratica": "Antes de conferir: em um diretório gravável por todos, quem pode apagar o arquivo que você criou?",
+      "explicacao": "O bit w em diretório permite criar e remover entradas, inclusive as de outros usuários. Em /tmp, que precisa ser gravável por todos, isso permitiria apagar ou substituir arquivos alheios. O sticky bit corrige exatamente isso: cada um remove apenas o que é seu. Aparece como t na listagem, e /tmp costuma ser 1777.",
+      "por_que_erradas": {
+        "1": "O sticky bit não impede criação; /tmp continua gravável por todos.",
+        "2": "Executar com privilégio do dono é o SUID.",
+        "3": "O sticky bit não tem relação com cache em memória."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6; teoria 1.1.t4",
+      "tags": ["linux", "permissoes", "sticky-bit", "tmp"]
+    },
+    {
+      "id": "1.1.q11",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [2],
+      "enunciado": "Por que se recomenda trabalhar como usuário comum e usar sudo apenas quando necessário, em vez de manter uma sessão como root?",
+      "alternativas": [
+        "Porque limita o alcance de erros e de comandos maliciosos, e deixa registrado quem executou cada ação privilegiada",
+        "Porque o usuário root tem desempenho menor que o de um usuário comum",
+        "Porque o sudo criptografa os comandos executados no sistema",
+        "Porque sessões root são bloqueadas por padrão em todas as distribuições Linux"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no comando digitado por engano em uma sessão com poder total.",
+        "Existe também um ganho de rastreabilidade.",
+        "Duas alternativas atribuem ao sudo funções que ele não tem."
+      ],
+      "pergunta_socratica": "Antes de conferir: um comando de remoção digitado errado tem o mesmo efeito nas duas situações?",
+      "explicacao": "Trabalhar como usuário comum limita o dano de qualquer erro ou comando malicioso ao que aquele usuário alcança, e força uma decisão consciente para cada ação privilegiada. O sudo ainda registra quem executou o quê em /var/log/auth.log, o que é essencial em investigação. Não tem relação com desempenho e não criptografa nada.",
+      "por_que_erradas": {
+        "1": "Não há diferença de desempenho entre executar como root ou como usuário comum.",
+        "2": "sudo controla e registra a elevação de privilégio; não cifra comandos.",
+        "3": "Várias distribuições permitem login direto como root; a recomendação é de prática, não bloqueio universal."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6; teoria 1.1.t2",
+      "tags": ["linux", "sudo", "menor-privilegio", "auditoria"]
+    },
+    {
+      "id": "1.1.q12",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [2, 0],
+      "artefato": "Mar 12 03:14:07 srv-app sshd[2841]: Failed password for invalid user admin from 203.0.113.45 port 51422 ssh2\nMar 12 03:14:09 srv-app sshd[2843]: Failed password for invalid user oracle from 203.0.113.45 port 51436 ssh2\nMar 12 03:14:11 srv-app sshd[2845]: Failed password for root from 203.0.113.45 port 51450 ssh2\nMar 12 03:19:52 srv-app sshd[2903]: Accepted password for deploy from 203.0.113.45 port 52110 ssh2\nMar 12 03:20:04 srv-app sudo: deploy : TTY=pts/0 ; PWD=/home/deploy ; USER=root ; COMMAND=/usr/bin/cat /etc/shadow",
+      "enunciado": "Qual é a leitura mais preocupante deste trecho de /var/log/auth.log?",
+      "alternativas": [
+        "Uma sequência de falhas de autenticação do mesmo endereço termina em login bem-sucedido e leitura de /etc/shadow com sudo",
+        "O servidor está com o relógio dessincronizado, já que os eventos ocorrem de madrugada",
+        "O serviço de SSH está mal configurado, pois registra tentativas de usuários inexistentes",
+        "O usuário deploy não deveria usar autenticação por senha, e esse é o único problema do trecho"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Olhe o endereço de origem das linhas e compare entre elas.",
+        "O que muda entre as três primeiras linhas e a quarta?",
+        "A última linha mostra qual arquivo foi lido — e quem pode lê-lo."
+      ],
+      "pergunta_socratica": "Antes de conferir: as tentativas fracassadas e o sucesso vieram do mesmo lugar?",
+      "explicacao": "A sequência conta uma história: mesmo endereço testando usuários comuns de ataque automatizado, sucesso poucos minutos depois com a conta deploy e, em seguida, leitura de /etc/shadow via sudo — que é coleta de hashes para quebra offline. Cada linha isolada pareceria banal; o que acende o alerta é a correlação entre origem, sequência temporal e a ação privilegiada final.",
+      "por_que_erradas": {
+        "1": "Horário de madrugada é comum em ataques automatizados e não indica relógio errado.",
+        "2": "Registrar tentativas com usuário inexistente é comportamento correto e desejado do SSH.",
+        "3": "Autenticação por senha é um problema real, mas ignorá-lo como único ponto perde o comprometimento em curso."
+      },
+      "fonte": "MITRE ATT&CK (força bruta, credenciais); NIST SP 800-61",
+      "tags": ["linux", "logs", "artefato", "forca-bruta", "deteccao"]
+    },
+    {
+      "id": "1.1.q13",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que caracteriza o usuário root em um sistema Linux?",
+      "alternativas": [
+        "É o usuário de identificador zero, que não é limitado pelas permissões dos arquivos",
+        "É o usuário que pertence ao grupo administradores e por isso tem acesso ampliado",
+        "É qualquer usuário autorizado a executar sudo no sistema",
+        "É o usuário criado durante a instalação, com nome definido pelo administrador"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que define root é um número, e não um nome nem um grupo.",
+        "Quem pode usar sudo eleva privilégio; isso é a mesma coisa que ser root?",
+        "As permissões rwx valem para root?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se um arquivo é 600 e pertence a outro usuário, root consegue lê-lo?",
+      "explicacao": "root é definido pelo identificador de usuário zero, e o núcleo não aplica a ele as verificações comuns de permissão — um arquivo 600 de outro usuário é lido normalmente. Pertencer a um grupo ou poder usar sudo é diferente: são formas de obter privilégio de modo controlado e registrado, e não de ser root o tempo todo.",
+      "por_que_erradas": {
+        "1": "O poder de root vem do identificador zero, não de participação em grupo.",
+        "2": "Quem usa sudo eleva privilégio pontualmente, com registro; não é o mesmo que ser root.",
+        "3": "O nome root é convencional e o usuário existe independentemente da instalação."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6; teoria 1.1.t2",
+      "tags": ["linux", "root", "usuarios", "fundamentos"]
+    },
+    {
+      "id": "1.1.q14",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Uma equipe compartilha a senha do root entre cinco pessoas para agilizar a operação. Qual é o problema mais grave dessa prática?",
+      "alternativas": [
+        "Perde-se a atribuição de responsabilidade: não há como saber quem executou cada ação, o que inviabiliza auditoria e investigação",
+        "A senha do root fica mais fácil de esquecer, já que muitas pessoas a utilizam",
+        "O sistema fica mais lento, porque múltiplas sessões de root competem por recursos",
+        "Não há problema, desde que a senha seja longa e trocada periodicamente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Depois de um incidente, o que os registros vão mostrar?",
+        "Pense na diferença entre saber que \"alguém\" fez e saber quem fez.",
+        "Existe uma alternativa técnica que preserva a agilidade sem perder o rastro."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um comando destrutivo for executado amanhã, como você descobre quem digitou?",
+      "explicacao": "Com credencial compartilhada, todo registro aponta para a mesma identidade e a investigação para ali. A solução é dar conta nominal a cada pessoa e conceder sudo com regra específica: mantém a agilidade, preserva o rastro em /var/log/auth.log e permite revogar o acesso de uma pessoa sem afetar as outras. Trocar a senha periodicamente não resolve nada do que importa aqui.",
+      "por_que_erradas": {
+        "1": "Esquecimento é inconveniente operacional, não risco de segurança relevante.",
+        "2": "Sessões simultâneas não causam competição relevante por recursos.",
+        "3": "Comprimento e rotação não devolvem a atribuição de responsabilidade perdida."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6; NIST SP 800-61",
+      "tags": ["linux", "root", "auditoria", "gestao-de-acessos"]
+    },
+    {
+      "id": "1.1.q15",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [2, 1],
+      "enunciado": "Qual comando altera o dono e o grupo de um arquivo para o usuário app e o grupo web?",
+      "alternativas": [
+        "chown app:web arquivo.conf",
+        "chmod app:web arquivo.conf",
+        "usermod app:web arquivo.conf",
+        "chgrp app:web arquivo.conf"
+      ],
+      "correta": 0,
+      "dicas": [
+        "chmod altera bits de permissão, não propriedade.",
+        "A sigla do comando correto vem de change owner.",
+        "chgrp altera apenas o grupo, e não aceita a forma usuário:grupo."
+      ],
+      "pergunta_socratica": "Antes de conferir: mudar quem é o dono é a mesma operação que mudar o que o dono pode fazer?",
+      "explicacao": "chown altera a propriedade, aceitando a forma usuario:grupo para mudar os dois de uma vez. chmod altera bits de permissão, chgrp altera somente o grupo e usermod modifica contas de usuário, não arquivos. Ajustar propriedade costuma ser a correção certa quando alguém pensa em recorrer a chmod 777.",
+      "por_que_erradas": {
+        "1": "chmod trata de permissões, não de propriedade.",
+        "2": "usermod modifica contas de usuário, e não arquivos.",
+        "3": "chgrp muda apenas o grupo e não aceita essa sintaxe."
+      },
+      "fonte": "Teoria 1.1.t3",
+      "tags": ["linux", "comando", "permissoes", "propriedade"]
+    },
+    {
+      "id": "1.1.q16",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Ligue cada diretório ao que ele guarda.",
+      "pares": [
+        ["/etc", "Arquivos de configuração do sistema e dos serviços"],
+        ["/var/log", "Registros gerados pelo sistema e pelas aplicações"],
+        ["/home", "Diretórios pessoais dos usuários comuns"],
+        ["/tmp", "Área temporária gravável por todos, com sticky bit"],
+        ["/proc", "Visão do núcleo em forma de arquivos, com um diretório por processo"]
+      ],
+      "dicas": [
+        "Um deles não existe em disco: é gerado pelo núcleo em tempo de execução.",
+        "Outro é o primeiro lugar a olhar depois de um incidente.",
+        "Um é gravável por qualquer usuário, e por isso destino comum de arquivo plantado."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual desses diretórios você procuraria primeiro depois de suspeitar de uma invasão?",
+      "explicacao": "Cada caminho tem função fixa, e é isso que torna a investigação previsível: configuração em /etc, registros em /var/log, dados de usuário em /home, área temporária gravável por todos em /tmp e a visão viva do núcleo em /proc. Saber a função de cada um encurta qualquer análise — e um arquivo fora do lugar esperado já é, por si, um sinal.",
+      "fonte": "Filesystem Hierarchy Standard; teoria 1.1.t1",
+      "tags": ["linux", "sistema-de-arquivos", "pareamento", "fundamentos"]
+    },
+    {
+      "id": "1.1.q17",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Ao inspecionar processos em um servidor, quais duas perguntas orientam melhor a análise de segurança?",
+      "alternativas": [
+        "Este processo deveria estar rodando nesta máquina, e deveria estar rodando com este usuário?",
+        "Este processo consome muita memória, e há quanto tempo está em execução?",
+        "Este processo foi iniciado por um script, e o script está versionado no repositório?",
+        "Este processo tem nome conhecido, e o nome aparece em uma lista de programas confiáveis?"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Duas propriedades do processo importam mais que as demais: o que ele é e com que identidade roda.",
+        "Consumo de recursos indica desempenho, não necessariamente risco.",
+        "Nome de processo é escolhido por quem o criou."
+      ],
+      "pergunta_socratica": "Antes de conferir: um banco de dados rodando como root é um problema mesmo consumindo pouca memória?",
+      "explicacao": "Pertinência e identidade são o que revelam risco: um binário que não deveria existir naquele servidor, ou um serviço rodando com privilégio maior que o necessário, são achados imediatos. Consumo de recursos é sinal fraco, e nome de processo é dado não confiável — renomear é trivial, e por isso se confere o executável de origem em /proc.",
+      "por_que_erradas": {
+        "1": "Consumo e tempo de execução ajudam em desempenho, mas não indicam risco por si.",
+        "2": "Origem em script versionado é boa prática de operação, não critério de análise de risco.",
+        "3": "Nome é escolhido por quem criou o processo e pode ser falsificado."
+      },
+      "fonte": "MITRE ATT&CK; teoria 1.1.t5",
+      "tags": ["linux", "processos", "deteccao", "analise"]
+    },
+    {
+      "id": "1.1.q18",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "artefato": "USER   PID  %CPU %MEM COMMAND\nroot   911   0.0  0.4 /usr/sbin/sshd -D\npostgres 1204 0.3 8.1 /usr/lib/postgresql/15/bin/postgres\nwww-data 1876 0.1 1.2 /usr/sbin/nginx -g daemon off;\nroot   4021  97.3 0.2 /tmp/.sysupd\nwww-data 4055  0.0 0.1 /bin/bash -i",
+      "enunciado": "Quais linhas desta saída de `ps aux` merecem investigação imediata?",
+      "alternativas": [
+        "As duas últimas: um binário desconhecido em /tmp rodando como root e um shell interativo sob o usuário do servidor web",
+        "A do postgres, por consumir 8,1% da memória do servidor",
+        "A do sshd, por rodar como root, o que nunca deveria acontecer",
+        "A do nginx, por rodar como www-data em vez de root"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o caminho de cada executável. Algum está em um diretório temporário?",
+        "Por que o usuário do servidor web teria um shell interativo aberto?",
+        "sshd e nginx estão nos caminhos e com os usuários esperados."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses processos você não conseguiria justificar para o time de operação?",
+      "explicacao": "Duas linhas destoam. Um executável em /tmp com nome disfarçado de atualização, rodando como root e consumindo quase toda a CPU, tem cara de código plantado — mineração ou ferramenta de ataque. E um shell interativo sob www-data é o resultado típico de exploração de aplicação web, porque servidor web não abre shell no curso normal do trabalho. Postgres com uso de memória alto é esperado, e sshd como root e nginx como www-data são o comportamento correto.",
+      "por_que_erradas": {
+        "1": "Banco de dados usar memória é o comportamento normal e desejado.",
+        "2": "O sshd precisa de privilégio para autenticar e criar sessões; rodar como root é o padrão.",
+        "3": "nginx rodar como www-data é exatamente a boa prática de menor privilégio."
+      },
+      "fonte": "MITRE ATT&CK (execução, persistência); teoria 1.1.t5",
+      "tags": ["linux", "processos", "artefato", "deteccao", "comprometimento"]
+    },
+    {
+      "id": "1.1.q19",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Qual comando mostra a situação atual de um serviço gerenciado pelo systemd, incluindo se ele está ativo e as últimas linhas de log?",
+      "alternativas": [
+        "systemctl status nginx",
+        "service nginx list",
+        "systemctl enable nginx",
+        "journalctl --boot"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um dos comandos define se o serviço sobe no boot, e não mostra estado.",
+        "Outro exibe o log inteiro da inicialização, sem foco no serviço.",
+        "O comando procurado combina estado e trecho recente de log."
+      ],
+      "pergunta_socratica": "Antes de conferir: você quer saber como o serviço está agora, ou o que ele fará no próximo boot?",
+      "explicacao": "systemctl status mostra se o serviço está ativo, desde quando, com que identificador de processo e as últimas linhas do journal. systemctl enable trata do boot seguinte, journalctl --boot mostra o log de toda a inicialização e a sintaxe com service e list não existe nessa forma. Para o log completo de um serviço, o caminho é journalctl -u nome.",
+      "por_que_erradas": {
+        "1": "Não é uma forma válida do comando service.",
+        "2": "enable configura a inicialização automática; não informa o estado atual.",
+        "3": "journalctl --boot traz o log de toda a inicialização, sem recortar o serviço."
+      },
+      "fonte": "Teoria 1.1.t6",
+      "tags": ["linux", "systemd", "comando", "servicos"]
+    },
+    {
+      "id": "1.1.q20",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um servidor recém-instalado sobe 40 serviços no boot, e a equipe usa apenas 6. Do ponto de vista de segurança, o que isso representa?",
+      "alternativas": [
+        "Superfície de ataque desnecessária: cada serviço ativo é código exposto que precisa ser corrigido, monitorado e pode conter falha",
+        "Nenhum risco, desde que os serviços não estejam acessíveis pela internet",
+        "Uma vantagem, porque serviços já instalados evitam pedidos futuros de mudança",
+        "Um problema apenas de desempenho, resolvido com mais memória no servidor"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Relembre o que reduz superfície de ataque com o menor custo.",
+        "Serviço interno também é alcançável por quem já entrou na máquina.",
+        "O que não existe não precisa ser corrigido nem vigiado."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem vai lembrar de atualizar, daqui a dois anos, os 34 serviços que ninguém usa?",
+      "explicacao": "Cada serviço ativo é código em execução com possibilidade de falha, e todos entram na conta de correção e monitoramento para sempre. Estar restrito à rede interna reduz a exposição externa, mas não protege contra quem já obteve acesso — é justamente por serviços internos esquecidos que o movimento lateral acontece. Desligar o que não se usa é o hardening mais barato que existe.",
+      "por_que_erradas": {
+        "1": "Serviço interno continua alcançável por quem já está dentro, e ainda exige manutenção.",
+        "2": "Manter serviço sem uso não é conveniência: é dívida de segurança acumulada.",
+        "3": "O problema principal é exposição, não consumo de recursos."
+      },
+      "fonte": "CIS Benchmarks; teoria 0.2.t5",
+      "tags": ["linux", "systemd", "hardening", "reducao-de-superficie"]
+    },
+    {
+      "id": "1.1.q21",
+      "tipo": "comando",
+      "dificuldade": 3,
+      "objetivos": [3, 0],
+      "enunciado": "O que faz o comando `journalctl -u ssh --since \"2026-03-12 03:00\" --until \"2026-03-12 04:00\"`?",
+      "alternativas": [
+        "Mostra os registros do serviço ssh no intervalo de uma hora indicado",
+        "Reinicia o serviço ssh e registra a operação no journal",
+        "Exporta todos os registros do sistema para um arquivo com data no nome",
+        "Apaga os registros do serviço ssh anteriores à data informada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A opção -u recorta o serviço; as duas seguintes recortam o tempo.",
+        "journalctl é ferramenta de consulta.",
+        "Nada nesse comando altera o estado do serviço."
+      ],
+      "pergunta_socratica": "Antes de conferir: em uma investigação, por que você limitaria a consulta a uma janela de uma hora?",
+      "explicacao": "journalctl consulta o journal do systemd; -u filtra pelo serviço e --since/--until delimitam a janela. Recortar tempo é o que torna a investigação viável: em vez de ler dias de registro, você olha exatamente a hora em que o evento suspeito ocorreu. O comando é somente leitura e não altera serviço nem apaga registro.",
+      "por_que_erradas": {
+        "1": "Reiniciar serviço seria systemctl restart.",
+        "2": "Exportar exigiria redirecionamento de saída, e o comando está filtrando, não exportando tudo.",
+        "3": "journalctl não apaga registros com essas opções; a limpeza usa --vacuum."
+      },
+      "fonte": "NIST SP 800-61; teoria 1.1.t6",
+      "tags": ["linux", "logs", "comando", "investigacao", "systemd"]
+    },
+    {
+      "id": "1.1.q22",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1, 2],
+      "trecho": "PROCEDIMENTO DE INSTALAÇÃO — aplicação interna\n1. Criar o diretório /opt/app e copiar os arquivos.\n2. Executar: chmod -R 777 /opt/app  # garante que a aplicação funcione\n3. Executar a aplicação como root, para evitar problemas de permissão.\n4. Guardar as credenciais do banco em /opt/app/config.env, com permissão 644.",
+      "enunciado": "Os itens 2, 3 e 4 têm um problema em comum. Qual é?",
+      "alternativas": [
+        "Todos concedem mais privilégio do que a aplicação precisa, ampliando o estrago de qualquer falha nela",
+        "Todos deixam a aplicação mais lenta, por excesso de verificações de permissão",
+        "Todos impedem que a aplicação seja atualizada sem intervenção manual",
+        "Todos violam o padrão de diretórios, pois aplicações não devem ficar em /opt"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte de cada item: quem passa a poder fazer o quê?",
+        "Se a aplicação for comprometida amanhã, qual é o alcance do invasor em cada caso?",
+        "Existe um princípio único violado três vezes seguidas."
+      ],
+      "pergunta_socratica": "Antes de conferir: um invasor que explore essa aplicação sai com qual nível de acesso na máquina?",
+      "explicacao": "É menor privilégio violado três vezes. 777 recursivo permite que qualquer usuário da máquina altere os binários da aplicação; rodar como root faz qualquer exploração da aplicação virar controle total do servidor; e credencial com 644 é legível por todos. O conserto é direto: usuário dedicado sem shell, dono correto do diretório, permissões restritas e 600 no arquivo de configuração. /opt é caminho válido para aplicação instalada.",
+      "por_que_erradas": {
+        "1": "Permissões amplas não tornam a execução mais lenta.",
+        "2": "Nada nos itens impede atualização; o problema é o alcance concedido.",
+        "3": "/opt é destino apropriado para software adicional."
+      },
+      "fonte": "CIS Benchmarks; Security Engineering, 3ª ed., cap. 6",
+      "tags": ["linux", "permissoes", "menor-privilegio", "caca-erro", "hardening"]
+    },
+    {
+      "id": "1.1.q23",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3, 2],
+      "enunciado": "Um servidor web foi comprometido por falha na aplicação. Qual configuração prévia teria limitado mais o alcance do invasor?",
+      "alternativas": [
+        "Rodar o serviço web com usuário dedicado sem privilégio e sem shell de login",
+        "Manter o serviço web rodando como root, para que ele controle melhor os próprios arquivos",
+        "Aumentar a verbosidade dos registros do servidor web",
+        "Instalar um segundo servidor web como reserva, para assumir em caso de falha"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O invasor herda os privilégios do processo que ele explorou.",
+        "Duas alternativas ajudam em detecção ou disponibilidade, não em limitar alcance.",
+        "Se o processo não pode fazer quase nada, o que o invasor consegue?"
+      ],
+      "pergunta_socratica": "Antes de conferir: com que identidade o invasor passa a agir logo após explorar a aplicação?",
+      "explicacao": "Quem explora um serviço herda a identidade dele. Com usuário dedicado, sem privilégio e sem shell, o invasor cai em um contexto que não lê arquivos de outros serviços, não escreve fora do necessário e não tem sessão interativa fácil — ele precisa de um segundo passo, que é detectável. Registro mais detalhado ajuda a perceber depois, e servidor reserva trata disponibilidade; nenhum dos dois reduz o alcance.",
+      "por_que_erradas": {
+        "1": "Rodar como root entrega a máquina inteira na primeira exploração bem-sucedida.",
+        "2": "Registro detalhado melhora a detecção, sem limitar o que o invasor alcança.",
+        "3": "Servidor reserva trata continuidade, não contenção de comprometimento."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6; MITRE ATT&CK",
+      "tags": ["linux", "menor-privilegio", "hardening", "contencao"]
+    },
+    {
+      "id": "1.1.q24",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 3],
+      "enunciado": "Por que um arquivo executável encontrado em /tmp costuma ser tratado como suspeito?",
+      "alternativas": [
+        "Porque /tmp é gravável por qualquer usuário e não é destino normal de software instalado",
+        "Porque arquivos em /tmp são apagados a cada reinicialização e não funcionam corretamente",
+        "Porque /tmp não permite execução em nenhuma distribuição Linux",
+        "Porque /tmp é um diretório reservado ao usuário root"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense em qual diretório qualquer usuário consegue gravar sem privilégio.",
+        "Onde o software legítimo costuma ser instalado?",
+        "Duas alternativas afirmam restrições que não são universais."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você acabou de comprometer um serviço sem privilégio, onde consegue gravar um arquivo?",
+      "explicacao": "/tmp é gravável por todos, o que o torna o primeiro lugar onde um processo comprometido consegue depositar uma ferramenta. Software legítimo vai para /usr/bin, /usr/local/bin ou /opt. Montar /tmp com a opção noexec é hardening comum justamente por isso, mas não é padrão em toda distribuição — e o diretório não é reservado ao root.",
+      "por_que_erradas": {
+        "1": "A limpeza no boot não impede a execução enquanto o arquivo existe.",
+        "2": "noexec em /tmp é boa prática, mas não é comportamento padrão universal.",
+        "3": "/tmp é justamente o oposto: acessível a todos os usuários."
+      },
+      "fonte": "MITRE ATT&CK; CIS Benchmarks",
+      "tags": ["linux", "tmp", "deteccao", "hardening"]
+    },
+    {
+      "id": "1.1.q25",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [3, 0],
+      "enunciado": "Você suspeita que um servidor Linux foi comprometido. Coloque as etapas de triagem inicial na ordem que preserva mais informação.",
+      "itens": [
+        "Registrar data, hora e o motivo da suspeita, antes de tocar no sistema",
+        "Coletar o estado volátil: processos em execução, conexões de rede e sessões abertas",
+        "Verificar os registros de autenticação e o histórico de comandos",
+        "Procurar artefatos persistentes: tarefas agendadas, serviços habilitados e binários SUID recentes",
+        "Decidir sobre isolamento da máquina e comunicar o responsável pela resposta"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "Uma informação desaparece assim que a máquina é desligada ou reiniciada.",
+        "O registro do início da suspeita é o que dá contexto a tudo que vier depois.",
+        "Isolar antes de coletar o volátil pode destruir exatamente a evidência mais frágil."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas informações some para sempre se você reiniciar a máquina agora?",
+      "explicacao": "A ordem segue a volatilidade da evidência: primeiro registrar o contexto, depois capturar o que só existe em memória — processos, conexões e sessões —, em seguida os registros gravados, então os artefatos persistentes, e por fim a decisão de isolamento, que costuma encerrar a coleta volátil. Inverter isso é o erro mais comum: isolar ou reiniciar antes de coletar apaga a parte mais reveladora do quadro.",
+      "fonte": "NIST SP 800-61; RFC 3227 (ordem de volatilidade)",
+      "tags": ["linux", "resposta-a-incidentes", "forense", "ciclo"]
+    },
+    {
+      "id": "1.1.q26",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0, 3],
+      "enunciado": "Por que verificar a integridade dos registros é parte da investigação, e não um detalhe posterior?",
+      "alternativas": [
+        "Porque apagar ou adulterar registros é tática comum após a invasão, e um log incompleto leva a conclusões erradas",
+        "Porque registros ocupam espaço em disco e precisam ser rotacionados durante a análise",
+        "Porque a lei exige que todo registro seja assinado digitalmente no momento da coleta",
+        "Porque registros em texto puro não podem ser usados como evidência em nenhuma hipótese"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que um invasor faz depois de conseguir privilégio suficiente?",
+        "Ausência de evento no log significa que ele não aconteceu?",
+        "Cuidado com afirmações legais categóricas."
+      ],
+      "pergunta_socratica": "Antes de conferir: um período sem nenhum registro é sinal de calmaria ou de problema?",
+      "explicacao": "Apagar rastros é tática reconhecida, e um invasor com privilégio suficiente alcança o log local. Por isso um intervalo vazio, um arquivo truncado ou uma quebra de sequência são achados, e não ausência de achado. É também o argumento prático para enviar registros a um destino centralizado e somente-adição: o invasor da máquina não alcança a cópia remota. Não há exigência legal universal de assinatura, e log em texto é usado como evidência rotineiramente.",
+      "por_que_erradas": {
+        "1": "Rotação é questão operacional, não o motivo da verificação de integridade.",
+        "2": "Não existe exigência legal universal de assinatura digital de registros.",
+        "3": "Registros em texto são amplamente usados como evidência, com cuidados de custódia."
+      },
+      "fonte": "MITRE ATT&CK (ocultação de rastros); NIST SP 800-61",
+      "tags": ["linux", "logs", "forense", "integridade"]
+    },
+    {
+      "id": "1.1.q27",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Qual comando exibe as últimas 50 linhas de um arquivo de log e continua acompanhando o que for gravado depois?",
+      "alternativas": [
+        "tail -n 50 -f /var/log/auth.log",
+        "head -n 50 /var/log/auth.log",
+        "cat -n 50 /var/log/auth.log",
+        "less -f /var/log/auth.log"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um dos comandos mostra o começo do arquivo, e não o fim.",
+        "A opção que acompanha novas linhas costuma ser lembrada como follow.",
+        "cat não aceita número de linhas dessa forma."
+      ],
+      "pergunta_socratica": "Antes de conferir: você quer o começo do arquivo ou o que está sendo escrito agora?",
+      "explicacao": "tail mostra o fim do arquivo, -n 50 define quantas linhas e -f mantém o acompanhamento em tempo real — combinação padrão para observar um log enquanto se reproduz um problema. head mostra o início, cat -n numera linhas e não recebe quantidade assim, e less -f trata de arquivos especiais, sem acompanhar por padrão.",
+      "por_que_erradas": {
+        "1": "head mostra o começo do arquivo.",
+        "2": "cat -n numera as linhas e não aceita um limite dessa forma.",
+        "3": "A opção -f do less força a abertura de arquivos especiais; o acompanhamento contínuo é outro recurso."
+      },
+      "fonte": "Teoria 1.1.t6",
+      "tags": ["linux", "comando", "logs", "investigacao"]
+    },
+    {
+      "id": "1.1.q28",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Um analista encontra o arquivo /etc/shadow com permissão 644. Qual é o impacto?",
+      "alternativas": [
+        "Qualquer usuário da máquina pode copiar os hashes de senha e tentar quebrá-los offline, sem gerar tentativa de login",
+        "Nenhum: os hashes são irreversíveis, então a exposição não representa risco",
+        "O sistema deixará de autenticar usuários, porque o arquivo exige permissão restrita para funcionar",
+        "Apenas o root é afetado, já que somente a senha dele fica exposta"
+      ],
+      "correta": 0,
+      "dicas": [
+        "644 significa leitura para quem, exatamente?",
+        "Quebra offline gera algum registro no servidor atacado?",
+        "Hash resiste a inversão direta; e a tentativa por dicionário?"
+      ],
+      "pergunta_socratica": "Antes de conferir: com a lista de hashes na mão, o atacante precisa interagir com o servidor para testar senhas?",
+      "explicacao": "Com 644, qualquer usuário local lê o arquivo e leva os hashes embora. A quebra passa a acontecer na máquina do atacante, sem tentativa de login, sem bloqueio de conta e sem nenhum registro no servidor — o que remove todas as defesas que dependem de observar o acesso. Hash não é reversível, mas é testável por dicionário e por força bruta, e senhas fracas caem rápido.",
+      "por_que_erradas": {
+        "1": "Irreversibilidade não impede teste por dicionário, que é como a quebra realmente acontece.",
+        "2": "O sistema continua autenticando normalmente; o problema é a exposição.",
+        "3": "O arquivo contém os hashes de todas as contas, não apenas do root."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5 e 6; NIST SP 800-63B",
+      "tags": ["linux", "permissoes", "senhas", "hash", "exposicao"]
+    },
+    {
+      "id": "1.1.q29",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que significa dizer que um serviço roda com um \"usuário de serviço\" sem shell de login?",
+      "alternativas": [
+        "É uma conta criada só para executar aquele serviço, sem possibilidade de sessão interativa, o que limita o uso indevido da conta",
+        "É uma conta compartilhada entre todos os serviços do servidor, para simplificar a administração",
+        "É a conta root operando em modo restrito durante a execução do serviço",
+        "É uma conta temporária, criada no início e removida ao fim de cada execução"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Por que impedir que alguém abra uma sessão com essa conta?",
+        "Compartilhar entre serviços produz o mesmo problema da senha compartilhada.",
+        "A conta existe de forma permanente, não a cada execução."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um invasor obtiver a identidade dessa conta, o que ele ainda não consegue fazer?",
+      "explicacao": "Conta dedicada por serviço, sem shell de login, limita o alcance de um comprometimento àquele serviço e dificulta o uso da conta para sessão interativa. Compartilhar uma conta entre serviços recria o problema de atribuição e amplia o alcance de qualquer exploração, e root em \"modo restrito\" não existe: root não é limitado por permissões.",
+      "por_que_erradas": {
+        "1": "Conta compartilhada entre serviços amplia o alcance e destrói a atribuição.",
+        "2": "Não existe root em modo restrito; root ignora as permissões.",
+        "3": "Contas de serviço são permanentes, não criadas a cada execução."
+      },
+      "fonte": "CIS Benchmarks; Security Engineering, 3ª ed., cap. 6",
+      "tags": ["linux", "usuarios", "menor-privilegio", "servicos"]
+    },
+    {
+      "id": "1.1.q30",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "artefato": "$ ls -l /usr/local/bin/\n-rwsr-xr-x 1 root root  16824 Mar 11 22:47 backup-helper\n-rwxr-xr-x 1 root root  22160 Jan 08 09:12 deploy\n-rwxr-xr-x 1 root root  18432 Jan 08 09:12 rotate-logs",
+      "enunciado": "O que chama atenção nesta listagem?",
+      "alternativas": [
+        "backup-helper tem o bit SUID e data de modificação muito posterior aos demais, o que combina privilégio elevado com alteração recente",
+        "Os três arquivos pertencem ao root, o que é incomum em /usr/local/bin",
+        "deploy e rotate-logs têm o mesmo horário de modificação, o que indica adulteração",
+        "Os arquivos deveriam estar em /usr/bin, e não em /usr/local/bin"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o primeiro bloco de permissões das três linhas, caractere a caractere.",
+        "Um s no lugar do x tem significado específico.",
+        "Compare também as datas: duas são idênticas, uma destoa."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que um utilitário de backup precisaria rodar com privilégio do dono?",
+      "explicacao": "Duas pistas se somam na primeira linha: o s indica SUID, então o binário roda como root para qualquer usuário que o execute, e a data de modificação é semanas posterior à dos vizinhos, sugerindo alteração fora do ciclo normal de instalação. Isoladamente cada sinal seria fraco; juntos, pedem verificação de integridade e de origem. Datas iguais em arquivos instalados no mesmo pacote são esperadas, e /usr/local/bin é o caminho correto para software local.",
+      "por_que_erradas": {
+        "1": "Binários de sistema pertencerem ao root é o esperado.",
+        "2": "Horários idênticos indicam instalação conjunta, não adulteração.",
+        "3": "/usr/local/bin é justamente o destino recomendado para binários locais."
+      },
+      "fonte": "MITRE ATT&CK (escalada de privilégio, persistência); teoria 1.1.t4",
+      "tags": ["linux", "suid", "artefato", "deteccao", "integridade"]
+    },
+    {
+      "id": "1.1.q31",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Para que serve o diretório /proc em um sistema Linux?",
+      "alternativas": [
+        "Expõe informação do núcleo e dos processos em execução em forma de arquivos, sem ocupar disco",
+        "Guarda os programas instalados pelo gerenciador de pacotes",
+        "Armazena os processos suspensos para retomada posterior",
+        "Guarda cópias de segurança automáticas dos arquivos de configuração"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O conteúdo é gerado quando você lê, e não gravado previamente.",
+        "Há um subdiretório numerado para cada processo em execução.",
+        "Programas instalados ficam em outro lugar."
+      ],
+      "pergunta_socratica": "Antes de conferir: como você descobriria qual binário originou um processo cujo nome parece falsificado?",
+      "explicacao": "/proc é um sistema de arquivos virtual: cada leitura consulta o núcleo na hora. Há um diretório por processo, com o executável de origem, o diretório de trabalho e os arquivos abertos — exatamente o que se consulta quando o nome exibido não é confiável, já que renomear um processo é trivial. Nada disso ocupa espaço em disco.",
+      "por_que_erradas": {
+        "1": "Programas instalados ficam em /usr e /opt.",
+        "2": "Processos suspensos continuam sob controle do núcleo, não armazenados em /proc.",
+        "3": "Cópias de configuração não são função de /proc."
+      },
+      "fonte": "Teoria 1.1.t5",
+      "tags": ["linux", "proc", "processos", "investigacao"]
+    },
+    {
+      "id": "1.1.q32",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3, 0],
+      "enunciado": "Uma equipe quer garantir que registros de autenticação continuem disponíveis mesmo se um servidor for comprometido. Qual medida atende a esse objetivo?",
+      "alternativas": [
+        "Enviar os registros em tempo real para um destino centralizado, com acesso somente de adição para os servidores de origem",
+        "Aumentar o período de retenção dos arquivos de log no próprio servidor",
+        "Compactar os registros antigos para economizar espaço em disco",
+        "Restringir a leitura dos arquivos de log ao usuário root no servidor"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O invasor com privilégio alcança o que está na própria máquina.",
+        "Retenção maior no mesmo disco resolve o problema de alguém apagar?",
+        "A palavra-chave é uma cópia fora do alcance do comprometido."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem obteve root na máquina consegue alterar qualquer arquivo dela?",
+      "explicacao": "Um invasor com privilégio administrativo alcança qualquer arquivo local, inclusive os registros — então retenção maior, compactação e restrição de leitura não protegem contra apagamento. Centralizar em tempo real, com os servidores de origem podendo apenas acrescentar, tira a cópia do alcance de quem comprometeu a máquina e ainda permite comparar as duas versões para detectar adulteração.",
+      "por_que_erradas": {
+        "1": "Retenção maior no mesmo disco continua ao alcance de quem tem privilégio local.",
+        "2": "Compactação trata de espaço, não de integridade nem de disponibilidade da evidência.",
+        "3": "Restringir leitura ao root não impede que um invasor com root apague o arquivo."
+      },
+      "fonte": "NIST SP 800-61; MITRE ATT&CK (ocultação de rastros)",
+      "tags": ["linux", "logs", "centralizacao", "integridade", "forense"]
+    },
+    {
+      "id": "1.1.q33",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Ligue cada notação de permissão ao seu significado.",
+      "pares": [
+        ["600", "Dono lê e escreve; grupo e demais sem acesso"],
+        ["644", "Dono lê e escreve; grupo e demais apenas leem"],
+        ["755", "Dono lê, escreve e executa; grupo e demais leem e executam"],
+        ["4755", "As permissões de 755 acrescidas do bit SUID"]
+      ],
+      "dicas": [
+        "Some leitura 4, escrita 2 e execução 1 em cada conjunto.",
+        "Um dos números tem quatro dígitos, e o primeiro deles não é permissão comum.",
+        "Compare 600 e 644: a diferença está no que grupo e demais podem fazer."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas permissões você usaria em um arquivo com credenciais?",
+      "explicacao": "600 restringe tudo ao dono, e é o valor correto para arquivo com segredo. 644 é o padrão de arquivo comum legível. 755 é o padrão de binário e de diretório. O quarto dígito em 4755 marca o SUID, que faz o programa rodar com a identidade do dono — e é justamente o que se procura ao revisar um sistema.",
+      "fonte": "Teoria 1.1.t3 e 1.1.t4",
+      "tags": ["linux", "permissoes", "octal", "pareamento", "suid"]
+    },
+    {
+      "id": "1.1.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "enunciado": "Ao revisar um servidor, você encontra uma conta de usuário sem senha definida, com shell de login válido e pertencente ao grupo sudo. Qual é a avaliação correta?",
+      "alternativas": [
+        "É um caminho pronto para acesso administrativo e deve ser tratado como achado crítico, verificando também se a conta foi criada por um invasor",
+        "Não há risco enquanto a conta não for usada por ninguém",
+        "É configuração normal de contas de serviço, que não usam senha",
+        "O risco é baixo, porque contas sem senha não conseguem autenticar em nenhuma circunstância"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Some as três características: sem senha, com shell, e no grupo sudo.",
+        "Conta de serviço legítima costuma ter shell de login válido?",
+        "Contas criadas por invasores costumam se parecer com essa."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem criou essa conta, e por que ela precisaria de sudo?",
+      "explicacao": "As três características juntas descrevem um acesso administrativo pronto, e é um padrão comum de persistência deixada por invasor. Conta de serviço legítima costuma ter shell inválido e não pertence ao grupo sudo. Além de corrigir, é preciso investigar a origem: data de criação, quem a criou e o que foi feito com ela — tratar apenas como erro de configuração pode deixar o comprometimento intacto.",
+      "por_que_erradas": {
+        "1": "Não usar hoje não elimina o caminho disponível; e pode já ter sido usada.",
+        "2": "Contas de serviço normalmente têm shell inválido e não pertencem ao grupo sudo.",
+        "3": "A ausência de senha pode permitir autenticação por outros meios, e o risco é justamente esse."
+      },
+      "fonte": "MITRE ATT&CK (contas válidas, persistência); CIS Benchmarks",
+      "tags": ["linux", "usuarios", "persistencia", "sudo", "deteccao"]
+    },
+    {
+      "id": "1.1.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Você recebeu um servidor Linux recém-entregue por um fornecedor e tem duas horas para uma revisão inicial de segurança. Por onde começar?",
+      "alternativas": [
+        "Levantar contas com privilégio e shell válido, serviços que sobem no boot, portas em escuta, binários SUID e permissões de arquivos com segredo",
+        "Instalar uma ferramenta de detecção de intrusão e aguardar os primeiros alertas",
+        "Executar um teste de intrusão completo contra o servidor a partir da internet",
+        "Reinstalar o sistema operacional do zero, para eliminar qualquer configuração do fornecedor"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Em duas horas, você quer descobrir o que existe ou observar o que acontece?",
+        "Quais achados permitiriam a alguém obter privilégio administrativo hoje?",
+        "Reinstalar pode ser certo depois, mas responde à pergunta feita?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quais cinco perguntas, respondidas hoje, mais reduziriam o risco desse servidor?",
+      "explicacao": "Revisão inicial é levantamento, não observação: contas privilegiadas, serviços no boot, portas em escuta, binários SUID e permissões de arquivos sensíveis cobrem os caminhos mais prováveis de comprometimento e cabem no prazo. Detecção só produz valor depois, teste de intrusão exige autorização e escopo, e reinstalar pode ser a decisão certa mais adiante — mas sem o levantamento você nem sabe se é necessária.",
+      "por_que_erradas": {
+        "1": "Detecção depende de tempo de observação e não responde ao que já está errado agora.",
+        "2": "Teste de intrusão exige autorização formal e escopo, e não é revisão inicial.",
+        "3": "Reinstalar sem diagnóstico descarta informação e pode repetir os mesmos erros de configuração."
+      },
+      "fonte": "CIS Benchmarks; NIST Cybersecurity Framework (identificar)",
+      "tags": ["linux", "hardening", "revisao", "priorizacao", "carreira"]
+    }
+  ]
+}
