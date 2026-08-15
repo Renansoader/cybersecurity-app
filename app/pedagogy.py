@@ -8,9 +8,15 @@ para dar:
 2. As dicas saem uma a uma, sob pedido, e nunca de graça. Quem pediu dica fica
    registrado como "acerto com ajuda".
 
-Não existe função que revele a resposta sem uma tentativa registrada. Isso é
-proposital: a tela não tem como pular a etapa nem por engano.
+Ordenação e pareamento exigem atenção extra: remover o campo de gabarito não
+basta, porque nesses tipos a própria ordem dos itens é a resposta. O conteúdo
+grava os itens já na sequência certa, então exibi-los como estão permitiria
+acertar apenas confirmando sem mexer em nada. Os dois tipos são embaralhados
+aqui, com semente derivada do id da questão — determinístico, testável, e
+nunca igual à ordem correta.
 """
+
+import random
 
 SEGUNDOS_PARA_DICA = 20
 
@@ -20,24 +26,103 @@ CAMPOS_DE_RESPOSTA = ("correta", "explicacao", "por_que_erradas",
                       "ordem_correta", "pares")
 
 
+def _permutar(semente, total, proibida):
+    """Permutação determinística de 0..total-1, garantidamente != `proibida`.
+
+    A semente é o id da questão: o mesmo item cai sempre no mesmo lugar, então
+    a tela não parece instável entre aberturas e o teste é reproduzível.
+
+    Se o sorteio cair exatamente na ordem proibida, rotaciona uma posição — com
+    dois ou mais índices distintos, uma rotação nunca reproduz a lista original.
+    """
+    if total < 2:
+        return list(range(total))
+    indices = random.Random(semente).sample(range(total), total)
+    if indices == list(proibida):
+        indices = indices[1:] + indices[:1]
+    return indices
+
+
+def mapa_de_exibicao(questao):
+    """Permutação usada para exibir a questão, recalculada a partir do id.
+
+    Ordenação: posição exibida -> índice do item original.
+    Pareamento: posição exibida na coluna direita -> índice do par original.
+    Outros tipos: None.
+    """
+    tipo = questao["tipo"]
+    if tipo == "ordenacao":
+        # a ordem proibida é a correta: exibi-la deixaria acertar sem mexer
+        return _permutar(questao["id"], len(questao["itens"]),
+                         proibida=questao["ordem_correta"])
+    if tipo == "pareamento":
+        # aqui a proibida é a identidade: direita alinhada com a esquerda
+        total = len(questao["pares"])
+        return _permutar(questao["id"], total, proibida=range(total))
+    return None
+
+
 def questao_para_exibir(questao):
     """A questão como o usuário pode vê-la antes de responder.
 
-    As dicas saem da lista: elas são liberadas uma por vez por proxima_dica().
+    Em ordenação e pareamento acompanha o mapa de índices (`indices_originais`
+    e `indices_direita`), para o motor corrigir a resposta contra o gabarito
+    original. Ele é dado de correção, não conteúdo de tela: nada no app deve
+    renderizá-lo.
+
+    As dicas saem da lista; são liberadas uma por vez por proxima_dica().
     """
     visivel = {campo: valor for campo, valor in questao.items()
                if campo not in CAMPOS_DE_RESPOSTA}
     visivel["dicas_disponiveis"] = len(questao["dicas"])
     visivel.pop("dicas", None)
 
+    if questao["tipo"] == "ordenacao":
+        mapa = mapa_de_exibicao(questao)
+        visivel["itens"] = [questao["itens"][i] for i in mapa]
+        visivel["indices_originais"] = mapa
+
     if questao["tipo"] == "pareamento":
-        # a lista de pares É o gabarito; a tela recebe as duas colunas soltas.
-        # A coluna da direita sai em ordem alfabética: desfaz o pareamento e é
-        # determinística. Se a repetição incomodar no uso, trocar por embaralho
-        # com semente fixa por questão.
+        # a lista de pares É o gabarito; a tela recebe as duas colunas soltas
+        mapa = mapa_de_exibicao(questao)
         visivel["coluna_esquerda"] = [par[0] for par in questao["pares"]]
-        visivel["coluna_direita"] = sorted(par[1] for par in questao["pares"])
+        visivel["coluna_direita"] = [questao["pares"][i][1] for i in mapa]
+        visivel["indices_direita"] = mapa
     return visivel
+
+
+def conferir_ordenacao(questao, resposta):
+    """Corrige uma ordenação contra a ordem_correta original.
+
+    `resposta` são as posições EXIBIDAS, na sequência em que o usuário as
+    colocou. A tradução para os índices originais acontece aqui, e não na tela.
+    """
+    mapa = mapa_de_exibicao(questao)
+    if len(resposta) != len(mapa):
+        return False
+    return [mapa[posicao] for posicao in resposta] == list(questao["ordem_correta"])
+
+
+def conferir_pareamento(questao, resposta):
+    """Corrige um pareamento contra os pares originais.
+
+    `resposta[i]` é a posição escolhida na coluna direita exibida para a linha
+    `i` da coluna esquerda.
+    """
+    mapa = mapa_de_exibicao(questao)
+    if len(resposta) != len(mapa):
+        return False
+    return all(mapa[escolha] == linha for linha, escolha in enumerate(resposta))
+
+
+def conferir(questao, resposta):
+    """Corrige qualquer tipo de questão. Devolve True se acertou."""
+    tipo = questao["tipo"]
+    if tipo == "ordenacao":
+        return conferir_ordenacao(questao, resposta)
+    if tipo == "pareamento":
+        return conferir_pareamento(questao, resposta)
+    return resposta == questao["correta"]
 
 
 def dica_liberada(segundos_na_questao, dicas_pedidas, questao):

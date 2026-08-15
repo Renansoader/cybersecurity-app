@@ -8,6 +8,12 @@ MODULO = content.carregar_modulo(
     content.PASTA_DADOS / "modulos" / "00-01-o-que-e-ciberseguranca.json")
 QUESTOES = {q["id"]: q for q in MODULO["questoes"]}
 
+# Todas as questões de todos os módulos, para as regras que valem para os 41.
+TODOS_MODULOS, _ = content.carregar_modulos()
+TODAS_QUESTOES = [q for m in TODOS_MODULOS.values() for q in m["questoes"]]
+ORDENACAO = [q for q in TODAS_QUESTOES if q["tipo"] == "ordenacao"]
+PAREAMENTO = [q for q in TODAS_QUESTOES if q["tipo"] == "pareamento"]
+
 
 def primeira_do_tipo(tipo):
     """Busca por tipo, e não por id: reordenar o conteúdo não quebra o teste."""
@@ -21,7 +27,7 @@ def multipla():
 
 # --- nada de gabarito antes da hora ---
 
-@pytest.mark.parametrize("questao", MODULO["questoes"], ids=lambda q: q["id"])
+@pytest.mark.parametrize("questao", TODAS_QUESTOES, ids=lambda q: q["id"])
 def test_questao_para_exibir_nao_leva_a_resposta(questao):
     visivel = pedagogy.questao_para_exibir(questao)
     assert set(visivel) & set(pedagogy.CAMPOS_DE_RESPOSTA) == set()
@@ -35,23 +41,82 @@ def test_questao_para_exibir_mantem_o_que_a_tela_precisa(multipla):
     assert "dicas" not in visivel, "as dicas saem uma a uma, sob pedido"
 
 
-def test_pareamento_nao_entrega_o_gabarito_nas_colunas():
-    questao = primeira_do_tipo("pareamento")
+# --- a ordem exibida tem que diferir da ordem correta ---
+# Remover o campo de gabarito não basta: nesses dois tipos a ordem É a resposta.
+
+@pytest.mark.parametrize("questao", ORDENACAO, ids=lambda q: q["id"])
+def test_ordenacao_nao_e_exibida_na_ordem_correta(questao):
     visivel = pedagogy.questao_para_exibir(questao)
-
-    assert "pares" not in visivel
-    assert len(visivel["coluna_esquerda"]) == len(questao["pares"])
-    assert len(visivel["coluna_direita"]) == len(questao["pares"])
-    # as colunas não podem sair pareadas na mesma ordem
-    assert visivel["coluna_direita"] != [par[1] for par in questao["pares"]]
-
-
-def test_ordenacao_nao_entrega_a_ordem_correta():
-    questao = primeira_do_tipo("ordenacao")
-    visivel = pedagogy.questao_para_exibir(questao)
+    na_ordem_correta = [questao["itens"][i] for i in questao["ordem_correta"]]
 
     assert "ordem_correta" not in visivel
     assert len(visivel["itens"]) == len(questao["itens"])
+    assert sorted(visivel["itens"]) == sorted(questao["itens"]), "nenhum item sumiu"
+    assert visivel["itens"] != na_ordem_correta, (
+        f"{questao['id']}: confirmar sem mexer acertaria")
+
+
+@pytest.mark.parametrize("questao", PAREAMENTO, ids=lambda q: q["id"])
+def test_pareamento_nao_e_exibido_alinhado(questao):
+    visivel = pedagogy.questao_para_exibir(questao)
+    alinhada = [par[1] for par in questao["pares"]]
+
+    assert "pares" not in visivel
+    assert visivel["coluna_esquerda"] == [par[0] for par in questao["pares"]]
+    assert sorted(visivel["coluna_direita"]) == sorted(alinhada), "nenhum item sumiu"
+    assert visivel["coluna_direita"] != alinhada, (
+        f"{questao['id']}: ligar linha a linha acertaria")
+
+
+def test_exibicao_e_deterministica():
+    """O mesmo item cai sempre no mesmo lugar: a tela não pode dançar."""
+    questao = primeira_do_tipo("ordenacao")
+    assert (pedagogy.questao_para_exibir(questao)["itens"]
+            == pedagogy.questao_para_exibir(questao)["itens"])
+
+
+def test_sorteio_que_cairia_na_ordem_proibida_e_rotacionado():
+    """Cobre o galho em que o embaralho bate justamente na ordem que vazaria."""
+    sorteio = pedagogy._permutar("semente-x", 5, proibida=range(5))
+    rotacionado = pedagogy._permutar("semente-x", 5, proibida=sorteio)
+
+    assert rotacionado != sorteio
+    assert sorted(rotacionado) == list(range(5)), "continua sendo uma permutação"
+
+
+# --- correção: o motor desfaz o embaralho ---
+
+def test_correcao_desfaz_o_embaralho_da_ordenacao():
+    questao = primeira_do_tipo("ordenacao")
+    visivel = pedagogy.questao_para_exibir(questao)
+    mapa = visivel["indices_originais"]
+
+    # o usuário monta a sequência certa escolhendo as posições exibidas
+    resposta_certa = [mapa.index(original) for original in questao["ordem_correta"]]
+    assert pedagogy.conferir(questao, resposta_certa) is True
+
+    # confirmar sem mexer, na ordem em que a tela mostrou, tem que dar errado
+    assert pedagogy.conferir(questao, list(range(len(mapa)))) is False
+
+
+def test_correcao_desfaz_o_embaralho_do_pareamento():
+    questao = primeira_do_tipo("pareamento")
+    visivel = pedagogy.questao_para_exibir(questao)
+    mapa = visivel["indices_direita"]
+
+    resposta_certa = [mapa.index(linha) for linha in range(len(questao["pares"]))]
+    assert pedagogy.conferir(questao, resposta_certa) is True
+    assert pedagogy.conferir(questao, list(range(len(mapa)))) is False
+
+
+def test_correcao_de_alternativa_simples(multipla):
+    assert pedagogy.conferir(multipla, multipla["correta"]) is True
+    assert pedagogy.conferir(multipla, (multipla["correta"] + 1) % 4) is False
+
+
+def test_resposta_de_tamanho_errado_nao_conta_como_acerto():
+    questao = primeira_do_tipo("ordenacao")
+    assert pedagogy.conferir(questao, [0, 1]) is False
 
 
 # --- dicas ---

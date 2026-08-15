@@ -37,10 +37,10 @@
     {
       "id": "0.4.t4",
       "titulo": "LGPD: o que muda no dia a dia de segurança",
-      "texto": "A Lei 13.709/2018 protege dados pessoais e organiza papéis: controlador decide sobre o tratamento, operador trata em nome dele e o encarregado é o canal com titulares e com a ANPD.\n\nTrês princípios do art. 6º aparecem toda semana no trabalho técnico. Finalidade: o dado só serve ao propósito informado. Necessidade: só o mínimo de dado necessário. Segurança: medidas técnicas e administrativas adequadas ao risco.\n\nDado pessoal sensível — saúde, biometria, origem racial, religião, opinião política, vida sexual — tem proteção mais rígida. E incidente com risco relevante aos titulares deve ser comunicado à ANPD e aos afetados em prazo razoável.",
+      "texto": "A Lei 13.709/2018 protege dados pessoais e organiza papéis: controlador decide sobre o tratamento, operador trata em nome dele e o encarregado é o canal com titulares e com a ANPD.\n\nTrês princípios do art. 6º aparecem toda semana no trabalho técnico. Finalidade: o dado só serve ao propósito informado. Necessidade: só o mínimo de dado necessário. Segurança: medidas técnicas e administrativas adequadas ao risco.\n\nDado pessoal sensível — saúde, biometria, origem racial, religião, opinião política, vida sexual — tem proteção mais rígida. E incidente com risco ou dano relevante deve ser comunicado à ANPD e aos titulares afetados em até 3 dias úteis, contados da ciência de que o incidente atingiu dados pessoais.",
       "analogia": "Dado pessoal é coisa emprestada com finalidade combinada, e não material que a empresa passa a possuir.",
       "erro_comum": "Ler a LGPD como exigência de ferramenta específica. Ela exige medidas adequadas ao risco, e não um produto.",
-      "fonte": "LGPD (Lei 13.709/2018), arts. 5º, 6º, 46 e 48"
+      "fonte": "LGPD (Lei 13.709/2018), arts. 5º, 6º, 46 e 48; Resolução CD/ANPD nº 15/2024, arts. 6º e 9º"
     },
     {
       "id": "0.4.t5",
@@ -647,7 +647,7 @@
       "objetivos": [2],
       "enunciado": "Uma empresa sofre vazamento de uma base com nome, CPF e endereço de 50 mil clientes. Qual é a obrigação prevista na LGPD?",
       "alternativas": [
-        "Comunicar à ANPD e aos titulares afetados, em prazo razoável, quando houver risco ou dano relevante",
+        "Comunicar à ANPD e aos titulares afetados em até 3 dias úteis da ciência, quando houver risco ou dano relevante",
         "Comunicar apenas à ANPD, que decide se os titulares devem ser informados",
         "Não há obrigação de comunicar, desde que a empresa corrija a falha rapidamente",
         "Comunicar apenas se o vazamento envolver dados pessoais sensíveis"
@@ -656,17 +656,17 @@
       "dicas": [
         "A lei prevê comunicação a dois destinatários.",
         "Pergunte quem precisa da informação para se proteger.",
-        "A obrigação depende de o dado ser sensível?"
+        "Desde 2024 existe prazo fixado em resolução da ANPD, contado da ciência do incidente."
       ],
       "pergunta_socratica": "Antes de conferir: quem consegue se proteger de fraude com esses dados se souber do vazamento?",
-      "explicacao": "O art. 48 prevê comunicação à ANPD e aos titulares quando o incidente puder acarretar risco ou dano relevante. Nome, CPF e endereço são matéria-prima direta de fraude de identidade, o que caracteriza risco relevante mesmo sem dado sensível envolvido. Corrigir a falha é obrigação separada e não substitui a comunicação — sem ela os titulares não têm como se proteger.",
+      "explicacao": "O art. 48 prevê comunicação à ANPD e aos titulares quando o incidente puder acarretar risco ou dano relevante, e a Resolução CD/ANPD nº 15/2024 fixou o prazo: 3 dias úteis, contados da ciência de que o incidente atingiu dados pessoais, com possibilidade de complementar as informações em até 20 dias úteis. Nome, CPF e endereço são matéria-prima direta de fraude de identidade, o que caracteriza risco relevante mesmo sem dado sensível envolvido. Corrigir a falha é obrigação separada e não substitui a comunicação — sem ela os titulares não têm como se proteger.",
       "por_que_erradas": {
         "1": "A lei prevê comunicação aos titulares, e não apenas à autoridade.",
         "2": "Corrigir a falha não afasta o dever de comunicar.",
         "3": "A obrigação não se limita a dados sensíveis; o critério é risco ou dano relevante."
       },
-      "fonte": "LGPD, art. 48",
-      "tags": ["lgpd", "incidente", "comunicacao", "anpd"]
+      "fonte": "LGPD, art. 48; Resolução CD/ANPD nº 15/2024, arts. 6º e 9º",
+      "tags": ["lgpd", "incidente", "comunicacao", "anpd", "prazo"]
     },
     {
       "id": "0.4.q23",
@@ -766,13 +766,13 @@
         "E os titulares afetados, aparecem em algum item?"
       ],
       "pergunta_socratica": "Antes de conferir: segundo esse procedimento, em quais casos os clientes afetados seriam avisados?",
-      "explicacao": "O art. 48 vincula a comunicação à ocorrência de risco ou dano relevante, e não a qualquer decisão judicial — condicionar a ordem judicial esvazia a obrigação. Há ainda uma omissão grave no mesmo ponto: os titulares afetados não aparecem em lugar nenhum do procedimento, e são justamente quem precisa da informação para se proteger. Conter primeiro e avaliar internamente são passos corretos.",
+      "explicacao": "O art. 48 vincula a comunicação à ocorrência de risco ou dano relevante, e não a qualquer decisão judicial — condicionar a ordem judicial esvazia a obrigação. Pior: a Resolução CD/ANPD nº 15/2024 fixou prazo de 3 dias úteis contados da ciência, e um procedimento que espera decisão judicial estoura esse prazo por definição. Há ainda uma omissão grave no mesmo ponto: os titulares afetados não aparecem em lugar nenhum do procedimento, e são justamente quem precisa da informação para se proteger. Conter primeiro e avaliar internamente são passos corretos.",
       "por_que_erradas": {
         "1": "Conter o incidente primeiro é a ordem correta.",
         "2": "Avaliação interna é adequada; apoio externo é opcional conforme complexidade.",
         "3": "Comunicado interno preparado pela empresa é prática normal."
       },
-      "fonte": "LGPD, art. 48; NIST SP 800-61",
+      "fonte": "LGPD, art. 48; Resolução CD/ANPD nº 15/2024; NIST SP 800-61",
       "tags": ["lgpd", "incidente", "caca-erro", "anpd"]
     },
     {
@@ -955,7 +955,7 @@
         "Um mesmo fato pode ter consequências penais e administrativas."
       ],
       "pergunta_socratica": "Antes de conferir: as obrigações da empresa perante os clientes dependem de o invasor ser identificado?",
-      "explicacao": "Os planos são independentes e cumulativos. A invasão é conduta tipificada e pode gerar responsabilização penal do autor; paralelamente, a empresa tem deveres administrativos próprios — segurança adequada ao risco e comunicação à ANPD e aos titulares quando houver risco relevante. Esses deveres não dependem de identificar quem invadiu, o que raramente acontece cedo.",
+      "explicacao": "Os planos são independentes e cumulativos. A invasão é conduta tipificada e pode gerar responsabilização penal do autor; paralelamente, a empresa tem deveres administrativos próprios — segurança adequada ao risco e comunicação à ANPD e aos titulares em até 3 dias úteis da ciência, quando houver risco relevante. Esses deveres não dependem de identificar quem invadiu, o que raramente acontece cedo — e o prazo corre mesmo com a autoria desconhecida.",
       "por_que_erradas": {
         "1": "A conduta do invasor tem enquadramento penal próprio, além dos deveres da empresa.",
         "2": "Os deveres de proteção de dados existem independentemente da persecução penal.",
