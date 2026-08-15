@@ -130,23 +130,46 @@ def primeira_tentativa(questao_id):
         ).fetchone()
 
 
+# Acerto limpo vale 1, acerto com dica vale 0,5, erro vale 0.
+_SOMA_DOS_PESOS = ("SUM(CASE WHEN acertou = 1 AND usou_dica = 0 THEN 1.0"
+                   "         WHEN acertou = 1 AND usou_dica = 1 THEN 0.5"
+                   "         ELSE 0 END)")
+
+
 def dominio_modulo(modulo_id, total_questoes):
     """(acertos de 1ª sem dica + 0,5 × acertos de 1ª com dica) ÷ total do módulo.
 
-    Revisões do SRS (n_tentativa > 1) não entram na conta: elas mexem na
-    retenção, não no domínio.
+    Esta é a métrica de progresso: mede o quanto do módulo já foi dominado, e
+    por isso divide pelo módulo inteiro. Revisões do SRS (n_tentativa > 1) não
+    entram na conta — elas mexem na retenção, não no domínio.
     """
     if not total_questoes:
         return 0.0
     with conexao() as con:
         pontos = con.execute(
-            "SELECT SUM(CASE WHEN acertou = 1 AND usou_dica = 0 THEN 1.0"
-            "                WHEN acertou = 1 AND usou_dica = 1 THEN 0.5"
-            "                ELSE 0 END)"
-            " FROM tentativas WHERE modulo_id = ? AND n_tentativa = 1",
+            f"SELECT {_SOMA_DOS_PESOS} FROM tentativas"
+            " WHERE modulo_id = ? AND n_tentativa = 1",
             (modulo_id,),
         ).fetchone()[0] or 0.0
     return min(pontos / total_questoes, 1.0)
+
+
+def dominio_sobre_vistas(modulo_id):
+    """Mesma soma de pesos, dividida só pelas questões que já foram vistas.
+
+    Esta é a métrica de desempenho, e não de progresso: responde "como você vai
+    indo no que já fez", sem penalizar quem simplesmente ainda não chegou no
+    resto do módulo. É o que decide se um módulo está fraco.
+    """
+    with conexao() as con:
+        linha = con.execute(
+            f"SELECT {_SOMA_DOS_PESOS} AS pontos, COUNT(*) AS vistas FROM tentativas"
+            " WHERE modulo_id = ? AND n_tentativa = 1",
+            (modulo_id,),
+        ).fetchone()
+    if not linha["vistas"]:
+        return 0.0
+    return (linha["pontos"] or 0.0) / linha["vistas"]
 
 
 def questoes_vistas(modulo_id):

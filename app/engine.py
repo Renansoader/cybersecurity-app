@@ -23,6 +23,7 @@ PESO_ERRO = 0.0
 DOMINIO_CONCLUSAO = 0.7
 DOMINIO_REFORCO = 0.6
 ERROS_PARA_REVISAR_TEORIA = 2
+FRACAO_MINIMA_PARA_JULGAR = 0.3        # abaixo disso não há amostra para julgar
 
 PROPORCAO_REVISAO = 0.6                # 60% revisão vencida, 40% conteúdo novo
 JANELA_DIFICULDADE = 10                # últimas N primeiras tentativas
@@ -96,12 +97,57 @@ def modulo_concluido(modulo):
     return ids <= db.questoes_vistas(modulo["id"])
 
 
+def _fracao_vista(modulo):
+    total = len(modulo["questoes"])
+    return len(db.questoes_vistas(modulo["id"])) / total if total else 0.0
+
+
 def modulo_em_reforco(modulo):
-    """Módulo fraco: domínio abaixo de 60% ou questão errada duas vezes."""
-    if db.questoes_vistas(modulo["id"]) and dominio(modulo) < DOMINIO_REFORCO:
+    """Módulo fraco: desempenho abaixo de 60% no que já foi feito.
+
+    Usa dominio_sobre_vistas, e não o domínio: quem acabou de começar um módulo
+    tem domínio baixo por definição, e chamar isso de fraco marcaria todo mundo
+    nas primeiras questões. Abaixo de 30% do módulo visto, não há amostra que
+    justifique o rótulo — nesses casos a resposta é False.
+
+    A revisão de teoria por segundo erro na mesma questão não depende disto:
+    ela sai imediatamente, no campo `revisar_teoria` de responder().
+    """
+    if _fracao_vista(modulo) < FRACAO_MINIMA_PARA_JULGAR:
+        return False
+    if db.dominio_sobre_vistas(modulo["id"]) < DOMINIO_REFORCO:
         return True
     return any(linha["erros"] >= ERROS_PARA_REVISAR_TEORIA
                for linha in db.srs_do_modulo(modulo["id"]))
+
+
+def pontos_fracos(modulos, quantos=3):
+    """Os módulos com pior desempenho, para o dashboard sugerir o que revisar.
+
+    Mesmo critério do reforço: só entra módulo com amostra suficiente, e a
+    comparação é sobre o que já foi visto.
+    """
+    candidatos = [(db.dominio_sobre_vistas(mid), mid) for mid, modulo in modulos.items()
+                  if _fracao_vista(modulo) >= FRACAO_MINIMA_PARA_JULGAR]
+    return [mid for _, mid in sorted(candidatos)[:quantos]]
+
+
+def modo_da_questao(questao_id, hoje=None):
+    """Como a tela deve abrir a questão. A decisão é do motor, não da view.
+
+    "nova"    — sem primeira tentativa registrada; responde normalmente.
+    "revisao" — já respondida e com revisão vencida no SRS; pode responder de
+                novo, mas isso não toca o domínio.
+    "leitura" — já respondida e sem revisão vencida; mostra o enunciado, a
+                tentativa registrada e a explicação, sem alternativa clicável.
+    """
+    if db.primeira_tentativa(questao_id) is None:
+        return "nova"
+    agendamento = db.srs_obter(questao_id)
+    hoje = hoje or date.today()
+    if agendamento and agendamento["proxima_data"] <= hoje.isoformat():
+        return "revisao"
+    return "leitura"
 
 
 def niveis_desbloqueados(modulos, niveis):

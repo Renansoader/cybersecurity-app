@@ -130,7 +130,90 @@ def test_segundo_erro_na_mesma_questao_manda_revisar_a_teoria(motor, modulos):
     segundo = motor.responder(q, "0.1", acertou=False, usou_dica=False,
                               segundos=20, hoje=HOJE)
     assert segundo["revisar_teoria"] is True
+
+
+# --- reforço: desempenho no que foi visto, não progresso no módulo ---
+
+def modulo_de_dez(mid="9.9"):
+    """Id de questão é único no app inteiro, não só dentro do módulo."""
+    return {"id": mid, "nivel": 0, "pre_requisitos": [],
+            "questoes": [questao(f"{mid}.q{i}") for i in range(10)]}
+
+
+def test_modulo_recem_iniciado_nao_e_marcado_como_fraco(motor):
+    """3 acertos limpos e 7 questões não vistas: domínio 0,3, desempenho 1,0."""
+    modulo = modulo_de_dez()
+    for q in modulo["questoes"][:3]:
+        motor.responder(q, "9.9", acertou=True, usou_dica=False, segundos=10, hoje=HOJE)
+
+    assert motor.dominio(modulo) == pytest.approx(0.3)
+    assert db.dominio_sobre_vistas("9.9") == pytest.approx(1.0)
+    assert motor.modulo_em_reforco(modulo) is False
+
+
+def test_modulo_com_desempenho_ruim_e_marcado_como_fraco(motor):
+    """8 vistas e 2 acertos: desempenho 0,25 sobre uma amostra que já vale."""
+    modulo = modulo_de_dez()
+    for q in modulo["questoes"][:2]:
+        motor.responder(q, "9.9", acertou=True, usou_dica=False, segundos=10, hoje=HOJE)
+    for q in modulo["questoes"][2:8]:
+        motor.responder(q, "9.9", acertou=False, usou_dica=False, segundos=10, hoje=HOJE)
+
+    assert db.dominio_sobre_vistas("9.9") == pytest.approx(0.25)
     assert motor.modulo_em_reforco(modulo) is True
+
+
+def test_amostra_pequena_nao_basta_para_chamar_de_fraco(motor):
+    modulo = modulo_de_dez()
+    for q in modulo["questoes"][:2]:  # 20% do módulo, tudo errado
+        motor.responder(q, "9.9", acertou=False, usou_dica=False, segundos=10, hoje=HOJE)
+
+    assert db.dominio_sobre_vistas("9.9") == 0.0
+    assert motor.modulo_em_reforco(modulo) is False, "20% do módulo não é amostra"
+
+
+def test_pontos_fracos_ignora_modulo_sem_amostra(motor):
+    fraco, bom, novo = modulo_de_dez("9.9"), modulo_de_dez("8.8"), modulo_de_dez("7.7")
+
+    for q in fraco["questoes"][:5]:
+        motor.responder(q, "9.9", acertou=False, usou_dica=False, segundos=10, hoje=HOJE)
+    for q in bom["questoes"][:5]:
+        motor.responder(q, "8.8", acertou=True, usou_dica=False, segundos=10, hoje=HOJE)
+    motor.responder(novo["questoes"][0], "7.7", acertou=False, usou_dica=False,
+                    segundos=10, hoje=HOJE)
+
+    assert motor.pontos_fracos({"9.9": fraco, "8.8": bom, "7.7": novo}) == ["9.9", "8.8"]
+
+
+# --- modo da questão: quem decide é o motor ---
+
+def test_questao_nunca_respondida_e_nova(motor, modulos):
+    assert motor.modo_da_questao("0.1.q1", hoje=HOJE) == "nova"
+
+
+def test_questao_respondida_hoje_volta_como_leitura_hoje(motor, modulos):
+    q = modulos["0.1"]["questoes"][0]
+    motor.responder(q, "0.1", acertou=True, usou_dica=False, segundos=10, hoje=HOJE)
+
+    assert motor.modo_da_questao(q["id"], hoje=HOJE) == "leitura"
+
+
+def test_a_mesma_questao_vira_revisao_na_data_agendada(motor, modulos):
+    q = modulos["0.1"]["questoes"][0]
+    resultado = motor.responder(q, "0.1", acertou=True, usou_dica=False,
+                                segundos=10, hoje=HOJE)
+    agendada = date.fromisoformat(resultado["srs"]["proxima_data"])
+
+    assert motor.modo_da_questao(q["id"], hoje=date(2026, 8, 15)) == "leitura"
+    assert motor.modo_da_questao(q["id"], hoje=agendada) == "revisao"
+
+
+def test_erro_hoje_ja_volta_como_revisao_amanha(motor, modulos):
+    q = modulos["0.1"]["questoes"][0]
+    motor.responder(q, "0.1", acertou=False, usou_dica=False, segundos=10, hoje=HOJE)
+
+    assert motor.modo_da_questao(q["id"], hoje=HOJE) == "leitura"
+    assert motor.modo_da_questao(q["id"], hoje=date(2026, 8, 15)) == "revisao"
 
 
 # --- progressão ---
