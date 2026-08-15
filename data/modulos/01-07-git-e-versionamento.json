@@ -1,0 +1,1033 @@
+{
+  "id": "1.7",
+  "nivel": 1,
+  "titulo": "Git e versionamento",
+  "objetivos": [
+    "Descrever o fluxo básico do Git — área de preparação, commit, ramo e repositório remoto — e o que cada etapa registra",
+    "Explicar por que o histórico é permanente e o que isso significa para conteúdo removido em commits posteriores",
+    "Responder corretamente a um segredo commitado, tratando a credencial como comprometida",
+    "Aplicar medidas preventivas de repositório: ignorar arquivos, verificar antes de commitar e revisar o que é publicado"
+  ],
+  "pre_requisitos": ["1.2"],
+  "teoria": [
+    {
+      "id": "1.7.t1",
+      "titulo": "O fluxo básico e o que cada etapa registra",
+      "texto": "O Git guarda instantâneos do projeto. O ciclo tem três lugares: o diretório de trabalho, onde você edita; a área de preparação, onde você escolhe o que entra no próximo instantâneo; e o repositório, onde o commit é gravado.\n\nUm commit registra o conteúdo, o autor, a data e a mensagem. Ramos são apenas ponteiros para commits, o que torna criar e trocar de ramo uma operação barata. O repositório remoto é uma cópia compartilhada, sincronizada por envio e recebimento.\n\nO detalhe que importa em segurança: cada commit é identificado por um resumo criptográfico do seu conteúdo e do commit anterior. Alterar qualquer coisa no passado muda todos os identificadores seguintes — o histórico é encadeado de propósito.",
+      "analogia": "Um caderno em que cada página é lacrada com o número da página anterior. Arrancar uma folha do meio muda a numeração de todas as seguintes.",
+      "erro_comum": "Achar que o commit guarda apenas a diferença. Ele registra o estado, e a diferença é calculada na hora de exibir.",
+      "fonte": "Documentação do Git"
+    },
+    {
+      "id": "1.7.t2",
+      "titulo": "O histórico é permanente",
+      "texto": "Remover um arquivo e commitar não apaga o conteúdo: cria um commit novo dizendo que, a partir dali, o arquivo não existe mais. Todos os commits anteriores continuam íntegros, e o conteúdo continua recuperável.\n\nIsso é verificável em segundos. Depois de remover um arquivo e commitar, o conteúdo continua acessível pelo commit anterior, aparece em uma busca no histórico e o objeto correspondente segue existindo no repositório.\n\nO mesmo vale para o que parece descartado. Um commit removido do ramo por um desfazimento continua alcançável pelo registro de referências por um bom tempo, e pode ser recuperado inteiro.",
+      "analogia": "Riscar uma linha do livro-caixa não apaga a linha. Ela continua lá, riscada, e qualquer um lê.",
+      "erro_comum": "Commitar a remoção e considerar o problema resolvido. O conteúdo continua a um comando de distância.",
+      "fonte": "Comportamento verificado em execução com git show, git log -S e git cat-file"
+    },
+    {
+      "id": "1.7.t3",
+      "titulo": "Segredo no histórico: a resposta correta",
+      "texto": "Quando uma credencial vai para o repositório, a primeira reação costuma ser errada: apagar o arquivo e commitar. Isso não remove nada — o segredo continua recuperável no histórico, e qualquer clone já feito continua com ele.\n\nA única resposta correta é tratar a credencial como comprometida e rotacioná-la: gerar uma nova, atualizar quem usa, e revogar a antiga. A partir do momento em que o segredo entrou no repositório, você perdeu o controle sobre quantas cópias existem — cada clone, cada backup, cada espelho.\n\nReescrever o histórico para remover o objeto é possível e às vezes desejável, mas é medida complementar e não substitui a rotação: ela não alcança clones já distribuídos nem sistemas que guardaram cópias. Se o repositório é público, considere que o segredo foi coletado por varredura automatizada em minutos.",
+      "analogia": "Descobrir que a chave da sua casa foi fotografada. Você não conserta recolhendo a foto: você troca a fechadura.",
+      "erro_comum": "Fazer um commit removendo o arquivo e não rotacionar a credencial. O segredo continua válido e continua acessível.",
+      "fonte": "Comportamento do histórico verificado em execução; práticas de resposta a vazamento de credenciais"
+    },
+    {
+      "id": "1.7.t4",
+      "titulo": "O que o .gitignore faz — e o que não faz",
+      "texto": "O arquivo .gitignore lista padrões que o Git não deve propor para acompanhamento. Ele evita que arquivos entrem por descuido: configuração local, dependências baixadas, banco de progresso, material de terceiros.\n\nO limite importante: o .gitignore só afeta arquivos ainda não rastreados. Se um arquivo já foi commitado, acrescentar o padrão depois não o remove nem impede que novas alterações apareçam — isso é verificável: um arquivo já rastreado continua aparecendo como modificado mesmo depois de o padrão ser adicionado.\n\nPara parar de acompanhar um arquivo já rastreado, é preciso removê-lo do índice explicitamente — e, se ele contiver segredo, valem as regras do bloco anterior.",
+      "analogia": "Colocar um aviso de \"não receber correspondência\" não devolve as cartas que já estão dentro de casa.",
+      "erro_comum": "Adicionar o padrão ao .gitignore e supor que o arquivo já commitado saiu do repositório.",
+      "fonte": "Comportamento verificado em execução"
+    },
+    {
+      "id": "1.7.t5",
+      "titulo": "Prevenir é muito mais barato",
+      "texto": "Como a remoção é cara e incompleta, o esforço vale mais na entrada. Três medidas simples resolvem a maior parte dos casos.\n\nPrimeira: nunca colocar segredo em arquivo dentro do repositório — use variável de ambiente, arquivo de configuração fora do controle de versão, ou um cofre. Segunda: revisar o que está sendo commitado antes de confirmar, olhando as diferenças em vez de adicionar tudo às cegas. Terceira: manter um .gitignore desde o primeiro commit, com os padrões de arquivos sensíveis do projeto.\n\nEm equipe, vale acrescentar uma verificação automática que procure padrões de segredo antes de aceitar o envio. É mais barato recusar um commit do que rotacionar uma chave de produção.",
+      "analogia": "Conferir a mala antes de despachar custa menos que buscá-la em outro aeroporto.",
+      "erro_comum": "Adicionar tudo de uma vez sem olhar. É assim que arquivos de configuração locais viram commit.",
+      "fonte": "Documentação do Git; teoria 1.6.t6"
+    },
+    {
+      "id": "1.7.t6",
+      "titulo": "Repositório como superfície de ataque",
+      "texto": "Um repositório não guarda só código: guarda a estrutura do sistema, nomes de servidores, caminhos internos, dependências e frequentemente segredos esquecidos. Isso o torna alvo em si.\n\nDois riscos concretos. O primeiro é a exposição do diretório de controle de versão em servidores web — se ele for servido publicamente, é possível reconstruir o código e o histórico a partir da internet. O segundo é a cadeia de dependências: o repositório declara de que bibliotecas o projeto depende, e cada uma é código de terceiro que entra no seu programa.\n\nA higiene aqui é a mesma do resto: saber o que existe, restringir acesso a quem precisa, e revisar periodicamente quem tem permissão de leitura e de escrita.",
+      "analogia": "A planta do prédio é útil para quem constrói — e para quem quer entrar.",
+      "erro_comum": "Tratar repositório privado como cofre. Ele é compartilhado, copiado e frequentemente integrado a outros serviços.",
+      "fonte": "Teoria 0.2.t6; caso SolarWinds (2020)"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "1.7.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "O que é a área de preparação (staging) no Git?",
+      "alternativas": [
+        "Um espaço intermediário onde se escolhe quais alterações entrarão no próximo commit",
+        "Um ramo temporário criado automaticamente antes de cada commit",
+        "Uma cópia de segurança do repositório mantida pelo servidor remoto",
+        "O diretório onde ficam os arquivos que foram removidos do projeto"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Ela fica entre o que você editou e o que você registrou.",
+        "É o que permite commitar parte das alterações.",
+        "Não tem relação com ramos nem com cópias remotas."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você alterou cinco arquivos e quer commitar só dois, onde essa escolha acontece?",
+      "explicacao": "A área de preparação fica entre o diretório de trabalho e o repositório: você edita, escolhe o que entra e então commita. É o que permite separar alterações em commits coerentes em vez de despejar tudo de uma vez — e é também onde a revisão do que está sendo commitado deveria acontecer, para segredo não passar por descuido.",
+      "por_que_erradas": {
+        "1": "Ramos são ponteiros para commits e não são criados automaticamente a cada commit.",
+        "2": "Cópias remotas são outra coisa, sincronizadas por envio e recebimento.",
+        "3": "Arquivos removidos não vão para um diretório especial."
+      },
+      "fonte": "Documentação do Git",
+      "tags": ["git", "fluxo", "vocabulario", "fundamentos"]
+    },
+    {
+      "id": "1.7.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Você commitou por engano um arquivo com uma chave de API e, em seguida, removeu o arquivo com um novo commit. O que aconteceu com a chave?",
+      "alternativas": [
+        "Ela continua no histórico e é recuperável por qualquer pessoa com acesso ao repositório",
+        "Ela foi apagada do repositório junto com o arquivo",
+        "Ela permanece apenas na sua máquina local, e não nos clones",
+        "Ela é automaticamente mascarada pelo Git em commits antigos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que o commit de remoção registra: a ausência a partir dali, ou a exclusão do passado?",
+        "Os commits anteriores continuam íntegros?",
+        "Um comando basta para ver o conteúdo do commit anterior."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o histórico não guardasse o conteúdo anterior, como você voltaria uma versão?",
+      "explicacao": "O commit de remoção registra que, a partir dali, o arquivo não existe — os commits anteriores permanecem íntegros e o conteúdo continua acessível. Verificado em execução: após remover e commitar, o conteúdo do arquivo foi recuperado integralmente a partir do commit anterior, apareceu em busca no histórico e o objeto correspondente continuou existindo no repositório. A chave precisa ser tratada como comprometida.",
+      "por_que_erradas": {
+        "1": "A remoção registra a ausência a partir daquele ponto; o passado permanece.",
+        "2": "Todo clone tem o histórico completo, incluindo os commits anteriores.",
+        "3": "O Git não mascara conteúdo de commits antigos."
+      },
+      "fonte": "Comportamento verificado em execução com git show e git cat-file",
+      "tags": ["git", "historico", "segredos", "vazamento"]
+    },
+    {
+      "id": "1.7.q3",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Uma chave de API de produção foi commitada em um repositório da empresa há duas semanas. Qual é a resposta correta?",
+      "alternativas": [
+        "Tratar a chave como comprometida e rotacioná-la: gerar uma nova, atualizar quem a usa e revogar a antiga",
+        "Remover o arquivo em um novo commit, o que elimina a chave do repositório",
+        "Adicionar o arquivo ao .gitignore, impedindo o acesso ao conteúdo já commitado",
+        "Tornar o repositório privado, o que basta para conter a exposição"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantas cópias desse repositório existem depois de duas semanas?",
+        "Remover em um commit novo apaga o passado?",
+        "A pergunta é sobre a chave, e não sobre o arquivo."
+      ],
+      "pergunta_socratica": "Antes de conferir: você consegue garantir que ninguém copiou essa chave nas últimas duas semanas?",
+      "explicacao": "A partir do momento em que o segredo entra no repositório, você perde o controle sobre quantas cópias existem — clones, backups, espelhos e integrações. A única resposta que restabelece a segurança é rotacionar: nova credencial, atualização de quem usa e revogação da antiga. Remover o arquivo, ajustar o .gitignore ou fechar o repositório não invalidam a chave, e ela continua recuperável no histórico e nos clones já feitos. Reescrever o histórico é medida complementar, não substituta.",
+      "por_que_erradas": {
+        "1": "O commit de remoção não apaga o conteúdo do histórico nem dos clones existentes.",
+        "2": "O .gitignore não afeta o que já foi commitado nem impede a leitura do histórico.",
+        "3": "Fechar o repositório não invalida a chave nem alcança as cópias já distribuídas."
+      },
+      "fonte": "Comportamento do histórico verificado em execução; práticas de resposta a vazamento de credenciais",
+      "tags": ["git", "segredos", "rotacao", "resposta-a-incidentes", "vazamento"]
+    },
+    {
+      "id": "1.7.q4",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual comando recupera o conteúdo de um arquivo como ele estava no commit anterior ao atual?",
+      "alternativas": [
+        "git show HEAD~1:caminho/do/arquivo",
+        "git status caminho/do/arquivo",
+        "git add caminho/do/arquivo",
+        "git remote show origin"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O til seguido de um número indica quantos commits voltar.",
+        "Um dos comandos exibe conteúdo; os outros exibem estado ou alteram o índice.",
+        "A sintaxe com dois-pontos separa o commit do caminho."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses comandos imprime conteúdo de arquivo?",
+      "explicacao": "git show aceita a forma commit:caminho e imprime o conteúdo do arquivo naquele ponto do histórico. Verificado em execução: depois de remover um arquivo com segredo e commitar, esse comando devolveu o conteúdo completo, incluindo a credencial. É a demonstração mais direta de que remoção em commit novo não apaga nada — e a razão de a resposta certa a um segredo vazado ser sempre a rotação.",
+      "por_que_erradas": {
+        "1": "git status mostra o estado do diretório de trabalho, não conteúdo histórico.",
+        "2": "git add coloca alterações na área de preparação.",
+        "3": "git remote show exibe informação sobre o repositório remoto."
+      },
+      "fonte": "Comportamento verificado em execução",
+      "tags": ["git", "comando", "historico", "recuperacao"]
+    },
+    {
+      "id": "1.7.q5",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um arquivo já commitado passa a ser coberto por um padrão no .gitignore. O que acontece?",
+      "alternativas": [
+        "Nada muda: o .gitignore só afeta arquivos ainda não rastreados, e o arquivo continua sendo acompanhado",
+        "O arquivo é removido do repositório automaticamente no próximo commit",
+        "O histórico do arquivo é apagado e ele deixa de existir nos commits anteriores",
+        "O Git passa a mascarar o conteúdo do arquivo nas exibições de diferença"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O nome do arquivo sugere ignorar o quê, exatamente?",
+        "Um arquivo já rastreado continua aparecendo como modificado?",
+        "Parar de acompanhar exige um comando explícito."
+      ],
+      "pergunta_socratica": "Antes de conferir: você altera o arquivo depois de adicionar o padrão. Ele aparece como modificado?",
+      "explicacao": "Verificado em execução: após adicionar o padrão ao .gitignore, um arquivo já rastreado continuou aparecendo como modificado ao ser alterado. O .gitignore evita que arquivos novos entrem por descuido, e não retira do controle de versão o que já entrou — para isso é preciso removê-lo do índice explicitamente. E se o arquivo contiver segredo, remover do índice também não resolve: a credencial precisa ser rotacionada.",
+      "por_que_erradas": {
+        "1": "Não há remoção automática; ela precisa ser feita explicitamente.",
+        "2": "O histórico permanece intacto.",
+        "3": "O Git não mascara conteúdo em nenhuma exibição."
+      },
+      "fonte": "Comportamento verificado em execução",
+      "tags": ["git", "gitignore", "segredos", "fundamentos"]
+    },
+    {
+      "id": "1.7.q6",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [1, 2],
+      "artefato": "$ git ls-files\napp.py\n\n$ git log --oneline\n29b8916 commit 2: remove config.env do repositorio\n6df72d4 commit 1: adiciona config com segredo\n\n$ git show HEAD~1:config.env\nAPI_KEY=sk-segredo-verdadeiro-12345",
+      "enunciado": "O que esta sequência de comandos demonstra?",
+      "alternativas": [
+        "Que o arquivo saiu da árvore atual, mas o segredo continua recuperável no histórico com um único comando",
+        "Que o segredo foi removido com sucesso, já que não aparece mais na listagem de arquivos",
+        "Que o repositório está corrompido, pois exibe um arquivo que não existe mais",
+        "Que o segredo só é visível para quem tem privilégio de administrador no repositório"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare a saída do primeiro comando com a do último.",
+        "Quem consegue executar o terceiro comando?",
+        "A listagem mostra o estado atual; o histórico mostra o quê?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o arquivo sumiu da listagem. O segredo sumiu de onde, exatamente?",
+      "explicacao": "A listagem mostra apenas o estado atual, e o arquivo realmente saiu dela. Mas o histórico continua íntegro: qualquer pessoa com acesso ao repositório — sem privilégio especial — recupera o conteúdo com um comando. Não há corrupção alguma: é o funcionamento normal e desejado do Git, que existe justamente para preservar o passado. A conclusão prática é que a credencial precisa ser rotacionada.",
+      "por_que_erradas": {
+        "1": "Sair da listagem atual não é o mesmo que sair do repositório.",
+        "2": "Não há corrupção: preservar o histórico é o comportamento correto do Git.",
+        "3": "Qualquer pessoa com acesso ao repositório consegue ler o histórico."
+      },
+      "fonte": "Saída verificada em execução",
+      "tags": ["git", "artefato", "historico", "segredos", "vazamento"]
+    },
+    {
+      "id": "1.7.q7",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "O que é um ramo (branch) no Git?",
+      "alternativas": [
+        "Um ponteiro para um commit, que avança conforme novos commits são criados",
+        "Uma cópia completa dos arquivos do projeto, armazenada em outro diretório",
+        "Um espelho do repositório remoto, sincronizado automaticamente",
+        "Um registro das alterações que ainda não foram commitadas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Criar um ramo é uma operação instantânea, mesmo em projetos grandes. Por quê?",
+        "Se fosse cópia de arquivos, quanto tempo levaria?",
+        "Alterações não commitadas ficam em outro lugar."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que criar um ramo é instantâneo em um projeto com milhares de arquivos?",
+      "explicacao": "Um ramo é apenas um ponteiro para um commit, o que torna criar e trocar de ramo operações praticamente instantâneas — não há cópia de arquivos envolvida. Essa leveza é o que viabiliza o hábito de trabalhar em ramos separados, útil também em segurança: revisar uma alteração antes de integrá-la é mais fácil quando ela está isolada.",
+      "por_que_erradas": {
+        "1": "Não há cópia de arquivos; por isso a operação é instantânea.",
+        "2": "Espelho do remoto é outro conceito, e a sincronização não é automática.",
+        "3": "Alterações não commitadas ficam no diretório de trabalho e na área de preparação."
+      },
+      "fonte": "Documentação do Git",
+      "tags": ["git", "ramos", "vocabulario", "fundamentos"]
+    },
+    {
+      "id": "1.7.q8",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "trecho": "PROCEDIMENTO — segredo commitado por engano\n1. Remover o arquivo com git rm e fazer um novo commit.\n2. Adicionar o padrão do arquivo ao .gitignore.\n3. Enviar as alterações para o repositório remoto.\n4. Registrar o incidente e considerar o caso encerrado.",
+      "enunciado": "O que falta neste procedimento?",
+      "alternativas": [
+        "Rotacionar a credencial: nada nos quatro passos invalida o segredo, que continua recuperável no histórico e nos clones existentes",
+        "Nada: os quatro passos resolvem completamente o problema",
+        "Apenas comunicar a equipe sobre a remoção do arquivo",
+        "Apenas verificar se o arquivo foi removido corretamente do diretório de trabalho"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Depois dos quatro passos, a credencial antiga ainda funciona?",
+        "Quantas cópias do repositório existem no momento do envio?",
+        "Passo nenhum toca no sistema que emitiu a credencial."
+      ],
+      "pergunta_socratica": "Antes de conferir: um atacante que já clonou o repositório ontem é afetado por algum desses quatro passos?",
+      "explicacao": "Os quatro passos organizam o repositório e não fazem nada com o segredo: a credencial continua válida, continua recuperável no histórico e já está em todos os clones feitos até aqui. O passo ausente é o único que restabelece a segurança — gerar nova credencial, atualizar quem a usa e revogar a antiga. Se o repositório for público, o segredo deve ser considerado coletado por varredura automatizada.",
+      "por_que_erradas": {
+        "1": "Nenhum dos passos invalida a credencial exposta.",
+        "2": "Comunicar é útil, mas não resolve a validade do segredo.",
+        "3": "Conferir a remoção do arquivo não altera o histórico nem a credencial."
+      },
+      "fonte": "Comportamento verificado em execução; práticas de resposta a vazamento de credenciais",
+      "tags": ["git", "segredos", "caca-erro", "rotacao", "resposta-a-incidentes"]
+    },
+    {
+      "id": "1.7.q9",
+      "tipo": "comando",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Qual comando procura em todo o histórico os commits que adicionaram ou removeram um determinado texto?",
+      "alternativas": [
+        "git log -S \"texto-procurado\" --all",
+        "git status --all \"texto-procurado\"",
+        "git branch --contains \"texto-procurado\"",
+        "git remote -v \"texto-procurado\""
+      ],
+      "correta": 0,
+      "dicas": [
+        "A opção maiúscula procura por mudanças no número de ocorrências de uma string.",
+        "Um dos comandos lista ramos, outro lista remotos.",
+        "git status olha o estado atual, não o histórico."
+      ],
+      "pergunta_socratica": "Antes de conferir: para descobrir quando uma chave entrou no repositório, você precisa olhar o presente ou o passado?",
+      "explicacao": "git log -S percorre o histórico procurando commits em que a quantidade de ocorrências do texto mudou — é a forma direta de descobrir quando um segredo entrou e quando saiu. Verificado em execução: o comando localizou o commit envolvendo o segredo, mesmo depois de o arquivo ter sido removido. É também a ferramenta para auditar um repositório em busca de credenciais esquecidas.",
+      "por_que_erradas": {
+        "1": "git status não aceita busca por texto nem consulta histórico.",
+        "2": "git branch --contains recebe um commit, não um texto.",
+        "3": "git remote lista repositórios remotos configurados."
+      },
+      "fonte": "Comportamento verificado em execução",
+      "tags": ["git", "comando", "auditoria", "segredos", "historico"]
+    },
+    {
+      "id": "1.7.q10",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um commit foi descartado do ramo com um desfazimento. Ele desapareceu do repositório?",
+      "alternativas": [
+        "Não: ele continua alcançável pelo registro de referências por um período e pode ser recuperado inteiro",
+        "Sim: o desfazimento apaga o commit e seus objetos imediatamente",
+        "Sim, desde que o repositório seja enviado para o remoto em seguida",
+        "Não, mas apenas se o commit tiver sido enviado para o repositório remoto antes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Existe um registro que guarda para onde as referências apontaram ao longo do tempo.",
+        "Ele funciona mesmo em repositório puramente local.",
+        "O objetivo desse registro é justamente permitir desfazer enganos."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o desfazimento apagasse tudo imediatamente, como alguém se recuperaria de um erro?",
+      "explicacao": "Verificado em execução: após um desfazimento, o commit sumiu da listagem do ramo, mas continuou registrado no histórico de referências, e o conteúdo do arquivo daquele commit foi recuperado normalmente. O registro é local e funciona mesmo sem repositório remoto. É uma rede de segurança útil no dia a dia — e mais uma razão pela qual segredo que entrou é difícil de remover de verdade.",
+      "por_que_erradas": {
+        "1": "Os objetos permanecem por um período e continuam alcançáveis pelo registro de referências.",
+        "2": "O envio ao remoto não apaga nada localmente.",
+        "3": "O registro de referências é local e independe do repositório remoto."
+      },
+      "fonte": "Comportamento verificado em execução com git reflog e git show",
+      "tags": ["git", "historico", "recuperacao", "segredos"]
+    },
+    {
+      "id": "1.7.q11",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Qual é a forma mais confiável de manter credenciais fora de um repositório?",
+      "alternativas": [
+        "Não escrevê-las em arquivo dentro do projeto: usar variável de ambiente, arquivo de configuração fora do controle de versão ou um cofre de segredos",
+        "Escrevê-las em um arquivo separado e confiar no .gitignore para impedir o commit",
+        "Escrevê-las em comentários no código, que não são interpretados",
+        "Escrevê-las cifradas com uma senha guardada no mesmo repositório"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O .gitignore protege contra descuido; ele impede um add explícito?",
+        "Comentário no código está no arquivo commitado do mesmo jeito.",
+        "Cifrar com a chave ao lado resolve alguma coisa?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas opções falha se alguém rodar um comando de adicionar tudo?",
+      "explicacao": "Não colocar o segredo no projeto é a única medida que não depende de ninguém acertar. O .gitignore ajuda contra descuido, mas não impede uma adição explícita nem cobre quem clonou o projeto antes; comentário está no mesmo arquivo commitado; e cifrar com a chave guardada ao lado apenas move o problema. Variável de ambiente, configuração fora do repositório ou cofre resolvem na origem.",
+      "por_que_erradas": {
+        "1": "O .gitignore não impede adição explícita e não protege contra erro humano.",
+        "2": "Comentários fazem parte do arquivo e são commitados normalmente.",
+        "3": "Guardar a chave junto do conteúdo cifrado anula a proteção."
+      },
+      "fonte": "Teoria 1.7.t5; teoria 1.6.t6",
+      "tags": ["git", "segredos", "boas-praticas", "prevencao"]
+    },
+    {
+      "id": "1.7.q12",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um segredo foi commitado em um repositório público e removido cinco minutos depois. Isso reduz o risco?",
+      "alternativas": [
+        "Muito pouco: repositórios públicos são varridos continuamente por ferramentas automatizadas, e cinco minutos são suficientes para a coleta",
+        "Sim: cinco minutos é uma janela curta demais para que alguém encontre o segredo",
+        "Sim, desde que o commit tenha sido feito fora do horário comercial",
+        "Não faz diferença, porque segredos em repositórios públicos não são exploráveis"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem monitora repositórios públicos, e com que frequência?",
+        "A coleta é feita por pessoas ou por programas?",
+        "O tempo de reação humana é comparável ao de uma ferramenta automatizada?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quanto tempo uma ferramenta automatizada leva para notar um commit novo em um repositório público?",
+      "explicacao": "Repositórios públicos são varridos continuamente por ferramentas que procuram padrões de credencial, e a coleta acontece em minutos. Cinco minutos de exposição devem ser tratados como exposição completa: a credencial precisa ser rotacionada, e vale verificar se houve uso indevido no intervalo. Horário não muda nada, porque quem coleta é programa, não pessoa.",
+      "por_que_erradas": {
+        "1": "A varredura é automatizada e contínua; minutos bastam.",
+        "2": "Ferramentas automatizadas não dependem de horário comercial.",
+        "3": "Segredos expostos são exatamente o que essas varreduras procuram para explorar."
+      },
+      "fonte": "Práticas de resposta a vazamento de credenciais; comportamento do histórico verificado em execução",
+      "tags": ["git", "segredos", "repositorio-publico", "rotacao", "exposicao"]
+    },
+    {
+      "id": "1.7.q13",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Coloque na ordem as etapas da resposta a um segredo commitado em repositório da empresa.",
+      "itens": [
+        "Identificar qual credencial vazou, desde quando e em quais repositórios e clones ela está",
+        "Gerar uma nova credencial e atualizar os sistemas que a utilizam",
+        "Revogar a credencial antiga no sistema que a emitiu",
+        "Verificar nos registros se houve uso indevido durante a janela de exposição",
+        "Remover o segredo do histórico e ajustar as medidas de prevenção do repositório"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "Revogar antes de substituir derruba o serviço.",
+        "A limpeza do histórico é a última etapa, e a menos urgente.",
+        "Verificar uso indevido depende de saber qual credencial e desde quando."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que acontece se você revogar a credencial antiga antes de a nova estar em uso?",
+      "explicacao": "Primeiro entender o alcance, depois criar a nova e migrar quem usa, então revogar a antiga — nessa ordem, para não derrubar o serviço. Em seguida investigar uso indevido na janela de exposição, e por último limpar o histórico e reforçar a prevenção. A limpeza vem no fim justamente porque é a parte que menos reduz risco: a essa altura, a credencial exposta já não vale nada.",
+      "fonte": "Práticas de resposta a vazamento de credenciais; NIST SP 800-61",
+      "tags": ["git", "segredos", "rotacao", "resposta-a-incidentes", "ciclo"]
+    },
+    {
+      "id": "1.7.q14",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "O que identifica um commit no Git?",
+      "alternativas": [
+        "Um resumo criptográfico calculado sobre o conteúdo do commit e sobre o commit anterior",
+        "Um número sequencial atribuído pelo repositório remoto",
+        "A data e a hora em que o commit foi criado",
+        "O nome do autor combinado com o nome do ramo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O identificador é uma sequência hexadecimal longa.",
+        "Ele muda quando qualquer coisa no commit muda.",
+        "Numeração sequencial exigiria um servidor central."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que alterar um commit antigo muda o identificador de todos os seguintes?",
+      "explicacao": "Cada commit é identificado por um resumo criptográfico do seu conteúdo e do commit anterior, o que encadeia o histórico: alterar qualquer coisa no passado muda todos os identificadores seguintes. É isso que torna a reescrita de histórico visível e trabalhosa em repositórios compartilhados — e é também o que garante que um histórico não seja adulterado sem deixar rastro.",
+      "por_que_erradas": {
+        "1": "Não há numeração sequencial; o Git é distribuído e não depende de um servidor central.",
+        "2": "Data e hora fazem parte do commit, mas não o identificam.",
+        "3": "Autor e ramo não compõem o identificador."
+      },
+      "fonte": "Documentação do Git",
+      "tags": ["git", "commit", "integridade", "fundamentos"]
+    },
+    {
+      "id": "1.7.q15",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma equipe quer impedir que segredos cheguem ao repositório. Qual medida é a mais eficaz?",
+      "alternativas": [
+        "Verificação automática que procura padrões de credencial e recusa o commit ou o envio antes de o segredo entrar",
+        "Treinamento anual orientando os desenvolvedores a não commitar segredos",
+        "Revisão manual de todos os commits por um segundo desenvolvedor",
+        "Auditoria trimestral do histórico em busca de credenciais já commitadas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Depois que o segredo entra, a correção é cara e incompleta.",
+        "Qual medida atua antes de o problema existir?",
+        "Auditoria encontra o que já aconteceu."
+      ],
+      "pergunta_socratica": "Antes de conferir: é mais barato recusar um commit ou rotacionar uma chave de produção?",
+      "explicacao": "A verificação automática atua no único momento em que o problema ainda é barato: antes de o segredo entrar. Depois, a correção envolve rotacionar credencial e ainda assim conviver com cópias distribuídas. Treinamento ajuda mas não segura o dia de pressa, revisão manual de tudo não escala e cansa, e auditoria trimestral descobre um vazamento que pode estar ativo há meses.",
+      "por_que_erradas": {
+        "1": "Treinamento reduz a frequência, mas não impede o erro no dia atarefado.",
+        "2": "Revisão manual de todo commit não escala e falha por cansaço.",
+        "3": "Auditoria periódica encontra tarde, com o segredo possivelmente já explorado."
+      },
+      "fonte": "Teoria 1.7.t5",
+      "tags": ["git", "segredos", "prevencao", "automacao", "hardening"]
+    },
+    {
+      "id": "1.7.q16",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que é má prática usar `git add .` sem revisar as alterações?",
+      "alternativas": [
+        "Porque adiciona tudo que estiver no diretório, incluindo arquivos de configuração local, credenciais e material que não deveria ser versionado",
+        "Porque o comando é mais lento que adicionar arquivo por arquivo",
+        "Porque ele impede a criação de ramos posteriormente",
+        "Porque ele adiciona também os arquivos listados no .gitignore"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que existe no seu diretório de trabalho além do código?",
+        "Você olhou o que está sendo adicionado?",
+        "O .gitignore continua sendo respeitado por esse comando."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantos arquivos existem hoje na sua pasta de projeto que você não pretende publicar?",
+      "explicacao": "Adicionar tudo às cegas é como a maioria dos segredos entra em repositório: arquivo de configuração local com senha, exportação de banco, anotação temporária. O hábito correto é revisar as diferenças antes de confirmar, e adicionar de forma deliberada. O comando respeita o .gitignore, mas ele cobre apenas o que alguém lembrou de listar.",
+      "por_que_erradas": {
+        "1": "Desempenho não é a questão.",
+        "2": "Não há relação com a criação de ramos.",
+        "3": "Arquivos cobertos pelo .gitignore continuam sendo ignorados."
+      },
+      "fonte": "Teoria 1.7.t5",
+      "tags": ["git", "segredos", "boas-praticas", "prevencao"]
+    },
+    {
+      "id": "1.7.q17",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 2],
+      "enunciado": "Ao auditar um repositório antigo, você encontra uma senha de banco de dados em um commit de dois anos atrás. O sistema ainda está em produção. Qual é a primeira pergunta a responder?",
+      "alternativas": [
+        "Se aquela credencial ainda é válida hoje — porque, se for, ela está exposta há dois anos a todos que tiveram acesso ao repositório",
+        "Quem foi o autor do commit, para incluir no relatório disciplinar",
+        "Se o commit pode ser removido do histórico sem afetar os demais",
+        "Se o repositório tem cópia de segurança antes de qualquer alteração"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que muda o nível de urgência: quem errou, ou se o segredo ainda funciona?",
+        "Dois anos de exposição significam quantas cópias e quantos acessos?",
+        "As demais perguntas são legítimas, mas depois."
+      ],
+      "pergunta_socratica": "Antes de conferir: se essa senha ainda abrir o banco de produção, quanto tempo você tem?",
+      "explicacao": "A urgência depende de uma só coisa: se a credencial ainda vale. Se valer, há dois anos de exposição a todos que tiveram acesso ao repositório, aos clones e aos backups — e a rotação é imediata, seguida de verificação de uso indevido nos registros. Autoria, limpeza de histórico e cópia de segurança são etapas posteriores, e nenhuma reduz o risco corrente.",
+      "por_que_erradas": {
+        "1": "Identificar o autor não reduz risco; e a resposta a incidente não deve começar por culpa.",
+        "2": "Limpar o histórico é etapa posterior e não invalida a credencial.",
+        "3": "Cópia de segurança é cuidado operacional, não a primeira pergunta de risco."
+      },
+      "fonte": "Práticas de resposta a vazamento de credenciais; NIST SP 800-61",
+      "tags": ["git", "segredos", "auditoria", "rotacao", "priorizacao"]
+    },
+    {
+      "id": "1.7.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que expor o diretório de controle de versão em um servidor web é um risco?",
+      "alternativas": [
+        "Porque permite reconstruir o código e o histórico do projeto a partir da internet, incluindo segredos esquecidos",
+        "Porque faz o servidor web consumir mais memória ao processar requisições",
+        "Porque impede que o site seja indexado por mecanismos de busca",
+        "Porque quebra o funcionamento do repositório para a equipe de desenvolvimento"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que esse diretório contém além do código atual?",
+        "Se alguém puder baixá-lo, o que consegue reconstruir?",
+        "Duas alternativas descrevem efeitos operacionais, não risco."
+      ],
+      "pergunta_socratica": "Antes de conferir: com o histórico completo em mãos, o que um atacante procuraria primeiro?",
+      "explicacao": "O diretório de controle de versão contém o histórico completo do projeto. Servido publicamente, permite reconstruir código, estrutura interna, caminhos, nomes de servidores e credenciais esquecidas em commits antigos — que é exatamente o que uma varredura automatizada procura. A correção é impedir que o servidor web sirva esse diretório, e conferir se ele já esteve exposto.",
+      "por_que_erradas": {
+        "1": "Consumo de memória não é a questão.",
+        "2": "Indexação por buscadores não é impedida por isso — e pode até piorar a exposição.",
+        "3": "A exposição não quebra o funcionamento para a equipe."
+      },
+      "fonte": "Teoria 1.7.t6; teoria 0.2.t1",
+      "tags": ["git", "exposicao", "repositorio", "superficie-de-ataque"]
+    },
+    {
+      "id": "1.7.q19",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [0, 3],
+      "enunciado": "Ligue cada operação do Git ao que ela faz.",
+      "pares": [
+        ["git add", "Coloca alterações na área de preparação, escolhendo o que entra no próximo commit"],
+        ["git commit", "Registra no repositório o instantâneo do que estava preparado"],
+        ["git push", "Envia commits locais para o repositório remoto"],
+        ["git log", "Exibe o histórico de commits"],
+        ["git rm", "Remove o arquivo do acompanhamento e do diretório de trabalho"]
+      ],
+      "dicas": [
+        "Duas operações registram alterações; uma escolhe e a outra grava.",
+        "Uma delas envolve o repositório remoto.",
+        "A última remove do estado atual, e não do histórico."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas operações afeta commits que já existem?",
+      "explicacao": "add prepara, commit registra, push publica, log consulta e rm remove do estado atual. Nenhuma delas altera commits que já existem — inclusive o rm, que apenas registra a ausência a partir dali. É por isso que remover um arquivo com segredo não resolve nada: a operação atua no presente, e o segredo está no passado.",
+      "fonte": "Documentação do Git; comportamento verificado em execução",
+      "tags": ["git", "comandos", "pareamento", "fluxo", "fundamentos"]
+    },
+    {
+      "id": "1.7.q20",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1, 2],
+      "enunciado": "Reescrever o histórico para remover um segredo resolve o problema?",
+      "alternativas": [
+        "Parcialmente: limpa o repositório dali em diante, mas não alcança clones já feitos nem backups, então a rotação da credencial continua obrigatória",
+        "Sim: depois da reescrita, o segredo deixa de existir em qualquer cópia",
+        "Não tem efeito algum, porque o Git impede a alteração de commits antigos",
+        "Sim, desde que todos os desenvolvedores façam um novo clone em seguida"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantas cópias do repositório existem fora do seu controle?",
+        "Backups, espelhos e integrações também guardam o histórico?",
+        "Reescrever altera identificadores; ele alcança quem já clonou?"
+      ],
+      "pergunta_socratica": "Antes de conferir: você consegue obrigar todo clone e todo backup existente a apagar o objeto?",
+      "explicacao": "A reescrita é possível e útil para limpar o repositório dali em diante, mas não alcança clones já distribuídos, backups, espelhos nem serviços integrados que guardaram cópia. Como não há garantia de alcance total, a rotação da credencial continua obrigatória — e é ela, não a limpeza, que efetivamente restabelece a segurança. Novos clones ajudam, mas não desfazem os antigos.",
+      "por_que_erradas": {
+        "1": "Clones e backups anteriores continuam com o objeto.",
+        "2": "A reescrita é possível; ela apenas muda os identificadores dos commits seguintes.",
+        "3": "Novos clones não apagam as cópias que já existiam."
+      },
+      "fonte": "Comportamento verificado em execução; práticas de resposta a vazamento de credenciais",
+      "tags": ["git", "segredos", "historico", "rotacao", "limites"]
+    },
+    {
+      "id": "1.7.q21",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um projeto novo está sendo criado. Qual medida de repositório deve entrar já no primeiro commit?",
+      "alternativas": [
+        "Um .gitignore com os padrões de arquivos sensíveis e gerados do projeto",
+        "Um arquivo de configuração com as credenciais de desenvolvimento, para facilitar a entrada de novos integrantes",
+        "Uma cópia do banco de dados de teste, para o projeto funcionar após o clone",
+        "As chaves de acesso ao ambiente de homologação, em arquivo cifrado no próprio repositório"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual medida custa quase nada e evita a maior parte dos acidentes?",
+        "Três alternativas colocam dado sensível dentro do repositório.",
+        "Facilitar a entrada de novos integrantes vale o risco?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas decisões você conseguiria desfazer facilmente daqui a um ano?",
+      "explicacao": "O .gitignore no primeiro commit é a medida mais barata e a que evita a maior parte dos acidentes, porque age antes de qualquer arquivo indevido ser proposto. As outras três colocam dado sensível dentro do repositório, e uma vez lá o problema passa a ser permanente — inclusive a versão cifrada, se a chave também estiver no projeto ou for compartilhada informalmente.",
+      "por_que_erradas": {
+        "1": "Credenciais de desenvolvimento no repositório vazam junto com ele e costumam valer em outros ambientes.",
+        "2": "Banco de teste frequentemente contém dado real e não deve ser versionado.",
+        "3": "Arquivo cifrado no repositório continua sendo segredo dentro do projeto, e a chave precisa morar em outro lugar."
+      },
+      "fonte": "Teoria 1.7.t5",
+      "tags": ["git", "gitignore", "prevencao", "boas-praticas", "projeto"]
+    },
+    {
+      "id": "1.7.q22",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Por que se diz que o Git é distribuído?",
+      "alternativas": [
+        "Porque cada clone contém o histórico completo do projeto, e não apenas a versão atual",
+        "Porque os arquivos ficam divididos entre vários servidores para reduzir o risco de perda",
+        "Porque cada desenvolvedor recebe apenas a parte do projeto pela qual é responsável",
+        "Porque o repositório remoto distribui automaticamente as alterações a todos os clones"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que você recebe ao clonar um repositório?",
+        "Isso tem uma consequência direta para segredos commitados.",
+        "Não há distribuição automática de alterações."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas cópias completas do histórico existem depois que cinco pessoas clonam o projeto?",
+      "explicacao": "Cada clone traz o histórico inteiro, o que permite trabalhar sem servidor e torna o modelo resiliente. A consequência para segurança é direta: um segredo commitado passa a existir em cada clone, e nenhuma ação no repositório central alcança essas cópias — que é a razão de a rotação da credencial ser inevitável. Não há divisão do projeto entre servidores nem sincronização automática.",
+      "por_que_erradas": {
+        "1": "O projeto não é fatiado entre servidores; cada clone é completo.",
+        "2": "Todos recebem o projeto inteiro, e não uma parte.",
+        "3": "A sincronização é explícita, por envio e recebimento."
+      },
+      "fonte": "Documentação do Git",
+      "tags": ["git", "distribuido", "segredos", "fundamentos"]
+    },
+    {
+      "id": "1.7.q23",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "trecho": "# .gitignore do projeto\n*.log\n__pycache__/\nnode_modules/\n\n# arquivos presentes no repositório:\n# app.py\n# config.py          <- contém a senha do banco de produção\n# .env.example\n# docs/manual.pdf",
+      "enunciado": "Qual é o problema mais grave desta configuração de repositório?",
+      "alternativas": [
+        "config.py está versionado com a senha de produção, e nenhum padrão do .gitignore o cobre — ele já está no histórico",
+        "O arquivo .env.example não deveria existir no repositório",
+        "Faltam padrões para arquivos temporários do editor de texto",
+        "O manual em PDF ocupa espaço desnecessário no repositório"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare a lista de padrões com a lista de arquivos presentes.",
+        "Qual arquivo contém segredo e não está coberto?",
+        "Um arquivo de exemplo sem valores reais é prática recomendada."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses arquivos, se o repositório vazar amanhã, causa dano imediato?",
+      "explicacao": "O .gitignore cobre registros, cache e dependências, e não alcança o config.py — que está versionado com a senha de produção e, portanto, já no histórico e em todos os clones. Acrescentar o padrão agora não resolveria: seria preciso rotacionar a senha e tirar o segredo do projeto. Um arquivo de exemplo sem valores reais é boa prática, e o PDF é apenas peso.",
+      "por_que_erradas": {
+        "1": "Arquivo de exemplo sem valores reais é prática recomendada para documentar a configuração.",
+        "2": "Padrões de editor são desejáveis, mas não são o problema grave aqui.",
+        "3": "Tamanho do repositório é questão operacional, não de segurança."
+      },
+      "fonte": "Comportamento do .gitignore verificado em execução",
+      "tags": ["git", "gitignore", "segredos", "caca-erro", "repositorio"]
+    },
+    {
+      "id": "1.7.q24",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3, 2],
+      "enunciado": "Uma empresa quer reduzir o impacto de um repositório interno eventualmente vazar. Qual medida ajuda mais?",
+      "alternativas": [
+        "Garantir que nenhum segredo esteja no código e que credenciais tenham escopo mínimo e possam ser rotacionadas rapidamente",
+        "Aumentar o tamanho das chaves usadas pelos sistemas da empresa",
+        "Restringir o acesso ao repositório apenas a gerentes e líderes técnicos",
+        "Manter o repositório apenas em servidores locais, sem serviço externo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O vazamento já aconteceu na hipótese. O que reduz o dano?",
+        "Chave maior protege contra o quê, exatamente?",
+        "Restringir demais o acesso impede o trabalho e não elimina o risco."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o repositório vazasse hoje, quanto tempo levaria para invalidar tudo que ele expõe?",
+      "explicacao": "Supondo o vazamento consumado, o que decide o impacto é o que o repositório revela e quão rápido isso pode ser invalidado. Código sem segredos, credenciais com escopo mínimo e capacidade de rotação rápida reduzem o dano a quase nada. Tamanho de chave não tem relação, restringir acesso a poucos impede o trabalho sem eliminar o risco, e hospedagem local apenas troca o conjunto de ameaças.",
+      "por_que_erradas": {
+        "1": "Chave maior protege contra ataque criptográfico, não contra exposição do valor.",
+        "2": "Restringir a poucos inviabiliza o trabalho e não elimina o vazamento por outro caminho.",
+        "3": "Hospedagem local muda o perfil de ameaça, sem reduzir o impacto do vazamento."
+      },
+      "fonte": "Teoria 1.7.t5 e 1.7.t6",
+      "tags": ["git", "segredos", "menor-privilegio", "rotacao", "resiliencia"]
+    },
+    {
+      "id": "1.7.q25",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Qual é a diferença entre um repositório local e um repositório remoto?",
+      "alternativas": [
+        "O local fica na sua máquina e o remoto é uma cópia compartilhada, sincronizada por operações explícitas de envio e recebimento",
+        "O local guarda apenas a versão atual e o remoto guarda o histórico completo",
+        "O local é temporário e é apagado ao fim de cada sessão de trabalho",
+        "O remoto é somente leitura e não aceita novos commits"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Os dois guardam o histórico completo.",
+        "A sincronização acontece automaticamente?",
+        "Repositórios remotos recebem commits o tempo todo."
+      ],
+      "pergunta_socratica": "Antes de conferir: você consegue commitar sem conexão com a internet?",
+      "explicacao": "Ambos têm o histórico completo; a diferença é o papel. O local é onde você trabalha e commita, inclusive sem rede; o remoto é a cópia compartilhada, atualizada por envio e recebimento explícitos. Nada é sincronizado sozinho — o que significa que um segredo commitado localmente ainda não vazou para a equipe, e há uma janela curta para corrigir antes do envio.",
+      "por_que_erradas": {
+        "1": "Os dois guardam o histórico completo.",
+        "2": "O repositório local é permanente até ser removido.",
+        "3": "Repositórios remotos aceitam commits enviados normalmente."
+      },
+      "fonte": "Documentação do Git",
+      "tags": ["git", "remoto", "fluxo", "fundamentos"]
+    },
+    {
+      "id": "1.7.q26",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2, 3],
+      "enunciado": "Você percebeu que commitou um segredo, mas ainda não enviou para o repositório remoto. O que muda?",
+      "alternativas": [
+        "A situação é bem melhor: o segredo ainda não se espalhou, e dá para corrigir o histórico local antes do envio — mas se a credencial for de produção e já existir em algum backup, a rotação continua sendo a decisão prudente",
+        "Nada muda: o segredo já está comprometido do mesmo jeito",
+        "O problema desaparece assim que você fizer um novo commit removendo o arquivo",
+        "Basta enviar assim mesmo e remover no repositório remoto depois"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantas cópias existem antes do envio?",
+        "Corrigir localmente é possível enquanto ninguém mais tem o histórico.",
+        "Backup automático da máquina pode ter capturado o repositório?"
+      ],
+      "pergunta_socratica": "Antes de conferir: antes do envio, quem além de você tem esse commit?",
+      "explicacao": "Antes do envio o histórico está só na sua máquina, então corrigir o commit local resolve de fato — é a única situação em que a limpeza é suficiente. Ainda assim, vale considerar se algum backup automático capturou o repositório e se a credencial é de produção; nesses casos, a rotação continua sendo a decisão prudente. O que nunca funciona é enviar e limpar depois: o envio é exatamente o que torna o problema irreversível.",
+      "por_que_erradas": {
+        "1": "Antes do envio, o alcance é muito menor e a correção local é viável.",
+        "2": "Um commit novo de remoção não apaga o commit anterior do histórico local.",
+        "3": "Enviar primeiro distribui o segredo e transforma um problema local em incidente."
+      },
+      "fonte": "Comportamento verificado em execução",
+      "tags": ["git", "segredos", "prevencao", "historico", "rotacao"]
+    },
+    {
+      "id": "1.7.q27",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Por que a mensagem de commit merece atenção do ponto de vista de segurança?",
+      "alternativas": [
+        "Porque ela é permanente e pode conter informação sensível, como endereços internos, nomes de sistemas ou descrição detalhada de uma vulnerabilidade ainda não corrigida",
+        "Porque mensagens longas aumentam o tamanho do repositório de forma significativa",
+        "Porque o Git rejeita commits com mensagens que contenham caracteres especiais",
+        "Porque a mensagem é usada para calcular a permissão de acesso ao commit"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A mensagem é apagável depois?",
+        "O que uma mensagem como \"corrige falha que permitia ler arquivos de outro usuário\" revela?",
+        "Repositório com histórico público expõe mensagens também."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem lê a sua mensagem de commit, e por quanto tempo ela existirá?",
+      "explicacao": "A mensagem é parte permanente do histórico e frequentemente descreve exatamente o que estava vulnerável — informação valiosa para quem quer explorar sistemas que ainda não foram atualizados. Ela também pode carregar endereços internos e nomes de sistemas. A prática recomendada é descrever a correção sem detalhar o vetor de exploração, especialmente enquanto a atualização não foi distribuída.",
+      "por_que_erradas": {
+        "1": "O tamanho de mensagens é irrelevante para o repositório.",
+        "2": "O Git aceita qualquer texto na mensagem.",
+        "3": "Permissões não têm relação com o conteúdo da mensagem."
+      },
+      "fonte": "Documentação do Git; práticas de divulgação coordenada",
+      "tags": ["git", "commit", "vazamento", "divulgacao-responsavel"]
+    },
+    {
+      "id": "1.7.q28",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma equipe usa um repositório com dependências externas declaradas em arquivo. Qual cuidado de segurança é o mais relevante?",
+      "alternativas": [
+        "Fixar versões e revisar as atualizações, porque cada dependência é código de terceiro que passa a rodar dentro do seu programa",
+        "Reduzir o número de linhas do arquivo de dependências para acelerar a instalação",
+        "Manter sempre a versão mais recente de tudo, automaticamente e sem revisão",
+        "Copiar o código das dependências para dentro do repositório, sem registro de origem"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Relembre a superfície de cadeia de fornecimento.",
+        "O que acontece se uma dependência for comprometida em uma atualização?",
+        "Atualizar sem revisão é o mecanismo que o ataque explora."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantos autores diferentes têm código rodando dentro do seu programa hoje?",
+      "explicacao": "Cada dependência é código de terceiro executando no seu ambiente, e a atualização automática sem revisão é justamente o caminho que ataques de cadeia de fornecimento exploram. Fixar versões e revisar mudanças dá controle sobre quando o código novo entra. Copiar sem registro de origem cria um problema pior: você perde a rastreabilidade e não fica sabendo das correções de segurança.",
+      "por_que_erradas": {
+        "1": "Número de linhas não é critério de segurança.",
+        "2": "Atualizar tudo sem revisão é exatamente o vetor que se quer controlar.",
+        "3": "Copiar sem origem elimina rastreabilidade e o acompanhamento de correções."
+      },
+      "fonte": "Teoria 0.2.t6; caso SolarWinds (2020)",
+      "tags": ["git", "dependencias", "cadeia-de-fornecimento", "boas-praticas"]
+    },
+    {
+      "id": "1.7.q29",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que revisar quem tem permissão de escrita em um repositório é uma prática de segurança?",
+      "alternativas": [
+        "Porque quem escreve no repositório pode introduzir código que será executado em produção, e permissões costumam se acumular ao longo do tempo",
+        "Porque muitos colaboradores tornam o repositório mais lento",
+        "Porque o Git limita o número de pessoas com permissão de escrita",
+        "Porque apenas o autor original deve poder alterar o código"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que o código do repositório vira depois do processo de publicação?",
+        "Alguém já removeu a permissão de quem mudou de área?",
+        "É o mesmo fenômeno de acúmulo de acessos visto em outros contextos."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas pessoas hoje conseguem enviar código que vai para produção na sua empresa?",
+      "explicacao": "Permissão de escrita em repositório frequentemente equivale a capacidade de colocar código em produção, e essas permissões se acumulam a cada projeto, contratação e mudança de área — sem que ninguém as remova. Revisar periodicamente é a mesma prática de gestão de acessos aplicada ao código. Não há limite imposto pela ferramenta, e restringir ao autor original inviabilizaria o trabalho em equipe.",
+      "por_que_erradas": {
+        "1": "Número de colaboradores não afeta o desempenho do repositório.",
+        "2": "Não há limite técnico imposto pelo Git.",
+        "3": "Trabalho em equipe exige múltiplos autores; o controle é por revisão, não por exclusividade."
+      },
+      "fonte": "Teoria 1.7.t6; teoria 0.2.t5",
+      "tags": ["git", "gestao-de-acessos", "menor-privilegio", "revisao"]
+    },
+    {
+      "id": "1.7.q30",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "artefato": "$ git log --oneline -5\n98804b8 adiciona gitignore\n9133feb arquivo rastreado\n29b8916 remove config.env do repositorio\n6df72d4 adiciona config com segredo\n\n$ git status --short\n M rastreado.env",
+      "enunciado": "O arquivo rastreado.env está coberto por um padrão no .gitignore adicionado no último commit. Por que ele aparece como modificado?",
+      "alternativas": [
+        "Porque o .gitignore só afeta arquivos ainda não rastreados, e este já havia sido commitado antes",
+        "Porque o .gitignore só passa a valer no commit seguinte ao que o adicionou",
+        "Porque o padrão usado no .gitignore está sintaticamente incorreto",
+        "Porque arquivos com extensão .env são sempre rastreados pelo Git"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Repare na ordem dos commits: qual veio primeiro?",
+        "O arquivo já estava no repositório quando o padrão foi criado?",
+        "Não há regra especial para nenhuma extensão."
+      ],
+      "pergunta_socratica": "Antes de conferir: o Git ignora um arquivo que ele já está acompanhando?",
+      "explicacao": "Verificado em execução: o arquivo foi commitado antes de o padrão existir, e por isso continua sendo acompanhado — o .gitignore só evita que arquivos ainda não rastreados sejam propostos. Para parar de acompanhá-lo é preciso removê-lo do índice explicitamente, e se ele contiver segredo, a credencial precisa ser rotacionada de todo modo. Não há sintaxe errada nem tratamento especial por extensão.",
+      "por_que_erradas": {
+        "1": "O .gitignore passa a valer imediatamente para arquivos não rastreados.",
+        "2": "O padrão está correto; o problema é o arquivo já estar rastreado.",
+        "3": "O Git não trata extensões de forma especial."
+      },
+      "fonte": "Saída verificada em execução",
+      "tags": ["git", "gitignore", "artefato", "segredos", "diagnostico"]
+    },
+    {
+      "id": "1.7.q31",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 3],
+      "enunciado": "Por que trabalhar em ramos separados e revisar antes de integrar é relevante para segurança?",
+      "alternativas": [
+        "Porque cria um ponto natural de revisão, em que outra pessoa pode notar segredo commitado, dependência nova ou alteração indevida antes de o código chegar à linha principal",
+        "Porque ramos separados cifram o código até a integração",
+        "Porque o Git recusa integrar ramos que contenham credenciais",
+        "Porque ramos reduzem o tamanho do repositório"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que a revisão por outra pessoa consegue notar?",
+        "O Git verifica o conteúdo do que você commita?",
+        "Duas alternativas atribuem ao Git capacidades que ele não tem."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem, além de você, olharia esse commit antes de ele ir para produção?",
+      "explicacao": "O valor está no ponto de revisão: alguém olha as diferenças antes de o código entrar na linha principal, e é ali que segredo esquecido, dependência nova e alteração indevida são notados a um custo baixo. O Git não inspeciona conteúdo nem cifra nada — a verificação automática de segredos, quando existe, é uma camada adicional configurada pela equipe.",
+      "por_que_erradas": {
+        "1": "Ramos não cifram nada.",
+        "2": "O Git não analisa conteúdo em busca de credenciais.",
+        "3": "Ramos são ponteiros e não reduzem o tamanho do repositório."
+      },
+      "fonte": "Documentação do Git; teoria 1.7.t5",
+      "tags": ["git", "revisao", "ramos", "prevencao", "processo"]
+    },
+    {
+      "id": "1.7.q32",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2, 1],
+      "enunciado": "Durante a resposta a um segredo vazado, alguém sugere apenas trocar o valor da credencial no arquivo e commitar. Por que isso é insuficiente?",
+      "alternativas": [
+        "Porque o valor antigo continua no histórico e continua válido no sistema que o emitiu — trocar no arquivo não revoga nada",
+        "Porque o Git recusa commits que alterem valores de credenciais",
+        "Porque o novo valor também será exposto imediatamente",
+        "Porque a alteração precisa ser feita em um ramo separado para valer"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Trocar o texto no arquivo afeta o sistema que emitiu a credencial?",
+        "O valor anterior sai do histórico ao ser substituído?",
+        "Revogar é uma ação em qual lugar?"
+      ],
+      "pergunta_socratica": "Antes de conferir: depois desse commit, a credencial antiga ainda abre a porta?",
+      "explicacao": "Alterar o texto no arquivo não fala com o sistema que emitiu a credencial: o valor antigo continua válido e continua recuperável no histórico. A revogação acontece no serviço que emitiu — é lá que a credencial antiga precisa deixar de funcionar. Trocar o valor no arquivo é apenas o passo de atualizar quem usa, e sozinho não resolve nada.",
+      "por_que_erradas": {
+        "1": "O Git não inspeciona nem recusa commits por conteúdo.",
+        "2": "O novo valor não é exposto automaticamente — desde que não seja commitado.",
+        "3": "O ramo em que a alteração é feita não tem relação com a revogação."
+      },
+      "fonte": "Comportamento verificado em execução; práticas de resposta a vazamento de credenciais",
+      "tags": ["git", "segredos", "rotacao", "revogacao", "resposta-a-incidentes"]
+    },
+    {
+      "id": "1.7.q33",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [2, 3],
+      "enunciado": "Ligue cada situação à ação correta.",
+      "pares": [
+        ["Segredo commitado e enviado ao remoto", "Rotacionar a credencial imediatamente e depois limpar o histórico"],
+        ["Segredo commitado apenas localmente", "Corrigir o histórico local antes de enviar, avaliando se a rotação ainda é prudente"],
+        ["Arquivo sensível ainda não commitado", "Acrescentar o padrão ao .gitignore e manter o arquivo fora do projeto"],
+        ["Arquivo sensível já rastreado há meses", "Remover do índice e tratar o conteúdo como exposto"]
+      ],
+      "dicas": [
+        "A urgência muda conforme o segredo já se espalhou ou não.",
+        "Uma das situações ainda permite correção limpa.",
+        "Arquivo rastreado há meses está em quantos clones?"
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual dessas situações limpar o histórico realmente resolve?",
+      "explicacao": "A ação certa depende de quanto o segredo se espalhou. Enviado ao remoto: rotação imediata, limpeza depois. Só local: correção do histórico ainda funciona, com avaliação sobre backups e criticidade. Ainda não commitado: prevenção pura. Rastreado há meses: o conteúdo deve ser considerado exposto, porque está em todos os clones e backups do período.",
+      "fonte": "Comportamento verificado em execução; práticas de resposta a vazamento de credenciais",
+      "tags": ["git", "segredos", "pareamento", "rotacao", "decisao"]
+    },
+    {
+      "id": "1.7.q34",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "O que deve entrar no .gitignore de um projeto, do ponto de vista de segurança?",
+      "alternativas": [
+        "Arquivos de configuração local com credenciais, bancos de dados locais, material de terceiros e qualquer artefato gerado que possa conter dado sensível",
+        "Todos os arquivos de código-fonte que ainda estão em desenvolvimento",
+        "Os arquivos de documentação, que não fazem parte do produto",
+        "Os arquivos de teste, que não vão para produção"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no que existe na sua pasta e não deveria ser publicado.",
+        "Código, documentação e testes fazem parte do projeto.",
+        "Artefato gerado pode conter dado real."
+      ],
+      "pergunta_socratica": "Antes de conferir: dos arquivos na sua pasta agora, quais causariam dano se ficassem públicos?",
+      "explicacao": "O .gitignore deve cobrir o que não pertence ao repositório ou não pode ser publicado: configuração local com credenciais, banco de dados local, material de terceiros e artefatos gerados que possam conter dado real — como despejos e exportações. Código, documentação e testes fazem parte do projeto e devem ser versionados; excluí-los prejudicaria a colaboração sem ganho de segurança.",
+      "por_que_erradas": {
+        "1": "Código em desenvolvimento é justamente o que o versionamento existe para acompanhar.",
+        "2": "Documentação deve ser versionada junto do projeto.",
+        "3": "Testes fazem parte do projeto e devem ser versionados."
+      },
+      "fonte": "Teoria 1.7.t4 e 1.7.t5",
+      "tags": ["git", "gitignore", "prevencao", "boas-praticas"]
+    },
+    {
+      "id": "1.7.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Você foi chamado para revisar as práticas de repositório de uma equipe pequena. Quais quatro verificações rendem mais?",
+      "alternativas": [
+        "Procurar segredos no histórico, conferir se há credencial em arquivo versionado hoje, revisar quem tem permissão de escrita, e verificar se existe .gitignore adequado desde o início",
+        "Conferir se as mensagens de commit seguem um padrão de formatação definido",
+        "Verificar se o número de ramos ativos está dentro de um limite razoável",
+        "Medir o tamanho do repositório e propor a remoção de arquivos grandes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Duas verificações olham o passado e duas olham o presente.",
+        "Qual delas pode revelar uma credencial de produção ainda válida?",
+        "Formatação e tamanho importam, mas mudam o risco?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro verificações pode terminar com uma rotação de credencial urgente?",
+      "explicacao": "As quatro cobrem passado e presente: busca de segredos no histórico pode revelar credencial ainda válida e exigir rotação imediata; conferir arquivos versionados hoje pega o que está ativo; revisar permissão de escrita trata de quem pode colocar código em produção; e o .gitignore evita a próxima ocorrência. Padrão de mensagem, número de ramos e tamanho do repositório são revisões legítimas de organização, sem efeito sobre risco.",
+      "por_que_erradas": {
+        "1": "Padrão de mensagem melhora legibilidade, sem alterar risco.",
+        "2": "Número de ramos é questão de organização do trabalho.",
+        "3": "Tamanho do repositório é questão operacional."
+      },
+      "fonte": "Comportamentos verificados em execução; teoria 1.7.t5 e 1.7.t6",
+      "tags": ["git", "revisao", "segredos", "auditoria", "carreira"]
+    }
+  ]
+}

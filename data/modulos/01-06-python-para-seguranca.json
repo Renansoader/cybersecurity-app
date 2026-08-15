@@ -1,0 +1,1041 @@
+{
+  "id": "1.6",
+  "nivel": 1,
+  "titulo": "Python para segurança",
+  "objetivos": [
+    "Usar sockets para testar conectividade e portas, tratando tempo limite e erros de resolução",
+    "Extrair informação de arquivos de log com leitura em fluxo e expressões regulares resistentes a variação de formato",
+    "Calcular e comparar hashes de arquivos para verificação de integridade",
+    "Executar comandos e tratar entrada externa sem abrir caminho para injeção"
+  ],
+  "pre_requisitos": ["1.2", "1.4"],
+  "teoria": [
+    {
+      "id": "1.6.t1",
+      "titulo": "Socket: falar direto com a rede",
+      "texto": "O módulo socket da biblioteca padrão permite abrir conexões TCP sem depender de nada externo. O fluxo é sempre o mesmo: criar o socket, definir um tempo limite, tentar conectar e fechar.\n\nDuas formas de tentar conectar, com comportamentos diferentes. O método connect levanta exceção quando falha, o que exige tratamento. O método connect_ex devolve um código numérico: zero significa conexão estabelecida, e qualquer outro valor significa recusa, filtragem ou tempo esgotado. Em varredura, connect_ex costuma ser mais prático.\n\nO tempo limite não é detalhe: sem ele, uma porta filtrada trava a execução até o limite do sistema. Com settimeout, a espera é sua e é curta.",
+      "analogia": "Bater na porta com um cronômetro na mão: se ninguém abrir em três segundos, você segue para a próxima.",
+      "erro_comum": "Esquecer o tempo limite e concluir que o script travou. Ele está esperando por uma resposta que nunca virá.",
+      "fonte": "Biblioteca padrão do Python, módulo socket; comportamento verificado em execução"
+    },
+    {
+      "id": "1.6.t2",
+      "titulo": "Erros de rede: quais exceções esperar",
+      "texto": "Resolver um nome que não existe levanta socket.gaierror. Conectar a um host inalcançável ou esgotar o tempo levanta uma exceção da família OSError — TimeoutError é uma delas.\n\nA hierarquia ajuda: gaierror e TimeoutError são subclasses de OSError, então capturar OSError cobre as duas. Capturar apenas Exception cobre também erros de programação, que é justamente o que você não quer esconder.\n\nA regra prática de uma ferramenta de rede é tratar o erro esperado e deixar o inesperado aparecer. Um script que engole toda exceção devolve uma lista vazia de portas abertas e não diz se isso significa rede limpa ou script quebrado.",
+      "analogia": "Um pronto-socorro que trata o que sabe tratar e encaminha o resto, em vez de mandar todo mundo para casa.",
+      "erro_comum": "Escrever except Exception: pass e nunca descobrir que o script parou de funcionar.",
+      "fonte": "Biblioteca padrão do Python, módulo socket; hierarquia verificada em execução"
+    },
+    {
+      "id": "1.6.t3",
+      "titulo": "Faixas de portas e o erro de um a menos",
+      "texto": "A função range vai até o valor anterior ao limite superior: range(20, 25) devolve 20, 21, 22, 23 e 24. Para incluir a porta 25, é preciso range(20, 26).\n\nEsse detalhe produz um erro silencioso em ferramentas de varredura. O script roda, não acusa nada, e a última porta da faixa simplesmente nunca é testada — o que pode ser exatamente a porta que importava.\n\nA forma defensiva é receber início e fim do usuário e escrever range(inicio, fim + 1), deixando explícito no código que o limite é inclusivo. Melhor ainda é ter um teste que confira o tamanho da lista gerada.",
+      "analogia": "Um contador que para no penúltimo degrau da escada e jura que chegou ao topo.",
+      "erro_comum": "Escrever range(inicio, fim) e perder a última porta da faixa, sem nenhuma mensagem de erro.",
+      "fonte": "Comportamento verificado em execução"
+    },
+    {
+      "id": "1.6.t4",
+      "titulo": "Ler arquivos grandes e extrair com expressão regular",
+      "texto": "Ler um log inteiro para a memória com read não escala. O caminho é iterar linha a linha, dentro de um bloco with, que garante o fechamento do arquivo mesmo se algo falhar no meio.\n\nPara extrair campos, a lição do módulo de shell vale igual: posição fixa é frágil. Em linhas de autenticação, split()[10] devolve o nome do usuário em umas linhas e o endereço em outras, porque \"invalid user\" acrescenta duas palavras. Uma expressão regular ancorada no contexto — procurar o que vem depois da palavra from — funciona nos dois formatos.\n\nExpressão regular também erra quando é frouxa demais. Procurar quatro grupos de dígitos separados por ponto casa com o que parece endereço; validar de verdade é outro passo.",
+      "analogia": "Contar palavras a partir do começo da frase quebra quando alguém acrescenta um adjetivo. Procurar pela palavra-chave, não.",
+      "erro_comum": "Usar índice fixo de campo e obter uma saída que mistura tipos diferentes de valor, sem nenhum erro visível.",
+      "fonte": "Comportamento verificado em execução sobre amostra de auth.log"
+    },
+    {
+      "id": "1.6.t5",
+      "titulo": "Hash de arquivo: integridade na prática",
+      "texto": "O módulo hashlib calcula resumos. Para verificar integridade, use SHA-256 e não MD5 — MD5 tem colisões conhecidas e não serve para decidir se um arquivo foi adulterado.\n\nArquivos grandes devem ser lidos em blocos, alimentando o objeto de hash aos poucos, em vez de carregar tudo na memória. O digest final é o mesmo, e o consumo fica constante.\n\nAo comparar um hash calculado com um valor esperado, prefira hmac.compare_digest à comparação com igual-igual. A comparação comum interrompe no primeiro byte diferente, e esse tempo variável pode vazar informação quando o valor comparado é um segredo.",
+      "analogia": "Conferir a impressão digital de um arquivo, e conferir sem deixar claro em que dedo você parou de comparar.",
+      "erro_comum": "Usar MD5 por hábito. Ele ainda serve para detectar corrupção acidental, mas não para decidir sobre adulteração.",
+      "fonte": "Biblioteca padrão do Python, módulos hashlib e hmac; comportamento verificado em execução"
+    },
+    {
+      "id": "1.6.t6",
+      "titulo": "Executar comandos sem abrir buraco",
+      "texto": "O módulo subprocess executa programas. A diferença que importa é entre passar uma lista de argumentos e passar uma string com shell=True.\n\nCom lista, o sistema recebe o programa e os argumentos separadamente: um valor com ponto e vírgula vira apenas texto dentro do argumento. Com shell=True, a string inteira vai para o interpretador de comandos, e os metacaracteres passam a valer — entrada de usuário nesse caminho é injeção de comando pronta.\n\nOutro detalhe: por padrão, código de retorno diferente de zero não levanta exceção. O script segue como se tivesse dado certo. Use check=True quando a falha deve interromper o fluxo.",
+      "analogia": "Entregar o formulário preenchido ao atendente, em vez de deixar o cliente ditar a frase inteira que o sistema vai executar.",
+      "erro_comum": "Usar shell=True porque \"foi o que funcionou\", com um trecho vindo de entrada externa no meio da string.",
+      "fonte": "Biblioteca padrão do Python, módulo subprocess; comportamento verificado em execução"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "1.6.q1",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Qual é a diferença entre `sock.connect((host, porta))` e `sock.connect_ex((host, porta))`?",
+      "alternativas": [
+        "connect levanta exceção quando falha; connect_ex devolve um código numérico, sendo 0 conexão estabelecida",
+        "connect usa TCP e connect_ex usa UDP",
+        "connect_ex é assíncrono e retorna antes de a conexão ser tentada",
+        "connect_ex cifra a conexão e connect não"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O sufixo ex indica retorno de código de erro, em vez de exceção.",
+        "Em varredura de muitas portas, tratar exceção a cada tentativa é incômodo.",
+        "Nenhum dos dois altera o protocolo nem cifra nada."
+      ],
+      "pergunta_socratica": "Antes de conferir: ao varrer mil portas, você prefere tratar mil exceções ou comparar mil números?",
+      "explicacao": "connect levanta exceção da família OSError quando falha — em teste com porta fechada e tempo limite curto, foi TimeoutError. connect_ex não levanta: devolve 0 quando conectou e um código de erro do sistema em qualquer outro caso. Por isso connect_ex é mais confortável em varredura, onde a falha é o resultado esperado na maioria das tentativas.",
+      "por_que_erradas": {
+        "1": "O protocolo é definido na criação do socket, não no método de conexão.",
+        "2": "connect_ex é síncrono: ele tenta e devolve o resultado.",
+        "3": "Nenhum dos dois cifra; cifra viria do módulo ssl."
+      },
+      "fonte": "Módulo socket da biblioteca padrão; comportamento verificado em execução",
+      "tags": ["python", "socket", "comando", "redes", "varredura"]
+    },
+    {
+      "id": "1.6.q2",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "trecho": "import socket\n\ndef portas_abertas(host, inicio, fim):\n    abertas = []\n    for porta in range(inicio, fim):\n        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n        if s.connect_ex((host, porta)) == 0:\n            abertas.append(porta)\n        s.close()\n    return abertas\n\nprint(portas_abertas(\"10.0.0.5\", 20, 25))",
+      "enunciado": "Este código tem dois defeitos que não geram mensagem de erro. Quais são?",
+      "alternativas": [
+        "Não define tempo limite, então portas filtradas travam a execução; e range(inicio, fim) nunca testa a porta 25",
+        "Usa connect_ex em vez de connect, o que impede detectar portas abertas",
+        "Não fecha o socket, o que esgota os descritores do sistema",
+        "Usa SOCK_STREAM, que só funciona para UDP"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que acontece quando um firewall descarta o pacote em silêncio?",
+        "Escreva a lista que range(20, 25) produz.",
+        "O socket é fechado: veja a chamada a close."
+      ],
+      "pergunta_socratica": "Antes de conferir: a função foi chamada com 20 e 25. Quantas portas ela realmente testa?",
+      "explicacao": "Dois erros silenciosos. Sem settimeout, uma porta filtrada não responde e a execução fica presa até o limite do sistema — o script parece travado. E range(20, 25) produz 20, 21, 22, 23 e 24: a porta 25 nunca é testada, o que foi verificado em execução. A correção é chamar s.settimeout(0.5) antes de conectar e usar range(inicio, fim + 1). O socket é fechado corretamente, e SOCK_STREAM é justamente TCP.",
+      "por_que_erradas": {
+        "1": "connect_ex detecta portas abertas normalmente, devolvendo 0.",
+        "2": "O código chama s.close() ao fim de cada iteração.",
+        "3": "SOCK_STREAM é TCP; UDP seria SOCK_DGRAM."
+      },
+      "fonte": "Módulo socket; comportamentos verificados em execução",
+      "tags": ["python", "socket", "caca-erro", "timeout", "off-by-one"]
+    },
+    {
+      "id": "1.6.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Qual exceção o Python levanta ao tentar resolver um nome de host que não existe?",
+      "alternativas": [
+        "socket.gaierror, que é subclasse de OSError",
+        "ValueError, por o nome ser inválido",
+        "ConnectionRefusedError, pois não houve resposta",
+        "KeyError, pois o nome não foi encontrado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A sigla gai vem de get address info.",
+        "Erros de sistema em Python descendem de uma classe comum.",
+        "Recusa de conexão pressupõe que o endereço foi resolvido."
+      ],
+      "pergunta_socratica": "Antes de conferir: falhar em traduzir o nome acontece antes ou depois de tentar conectar?",
+      "explicacao": "socket.gaierror é levantada na resolução do nome, antes de qualquer tentativa de conexão — verificado em execução, e confirmado que é subclasse de OSError. Isso permite capturar OSError e cobrir tanto falha de resolução quanto falha de conexão. ConnectionRefusedError pressupõe que o endereço já foi resolvido e a máquina respondeu recusando.",
+      "por_que_erradas": {
+        "1": "ValueError trata de valor inadequado a uma operação, não de falha de resolução.",
+        "2": "Recusa de conexão só ocorre depois de o nome ser resolvido.",
+        "3": "KeyError é de acesso a chave inexistente em mapeamento."
+      },
+      "fonte": "Módulo socket; hierarquia de exceções verificada em execução",
+      "tags": ["python", "socket", "excecoes", "erros"]
+    },
+    {
+      "id": "1.6.q4",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [0, 3],
+      "trecho": "import socket\n\ndef testar(host, porta):\n    try:\n        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n        s.settimeout(1)\n        s.connect((host, porta))\n        s.close()\n        return True\n    except Exception:\n        pass\n    return False",
+      "enunciado": "Qual é o problema mais grave do tratamento de erro deste código?",
+      "alternativas": [
+        "Capturar Exception e silenciar tudo esconde erros de programação: um nome de variável errado devolveria False como se a porta estivesse fechada",
+        "O tempo limite de 1 segundo é curto demais para qualquer rede",
+        "O socket não deveria ser criado dentro do bloco try",
+        "A função deveria retornar None em vez de False quando falha"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quais tipos de erro Exception cobre além dos erros de rede?",
+        "Se você digitasse errado o nome de um método, o que a função devolveria?",
+        "Existe uma classe mais específica que cobre os erros de rede esperados."
+      ],
+      "pergunta_socratica": "Antes de conferir: com esse código, como você distinguiria \"porta fechada\" de \"meu script está quebrado\"?",
+      "explicacao": "except Exception captura tudo — inclusive AttributeError, NameError e erros de digitação — e o pass descarta a informação. O resultado é uma função que devolve False por qualquer motivo, e uma varredura que \"não encontrou nada\" sem que ninguém saiba se a rede está limpa ou o script quebrado. O correto é capturar OSError, que cobre gaierror e TimeoutError, e deixar o inesperado aparecer.",
+      "por_que_erradas": {
+        "1": "Um segundo é um tempo limite razoável para varredura em rede local.",
+        "2": "Criar o socket dentro do try é aceitável; o problema é o que se captura.",
+        "3": "Retornar False é adequado para uma função de teste booleano."
+      },
+      "fonte": "Módulo socket; hierarquia de exceções verificada em execução",
+      "tags": ["python", "excecoes", "caca-erro", "boas-praticas", "diagnostico"]
+    },
+    {
+      "id": "1.6.q5",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual expressão gera a lista de portas de 20 a 25, inclusive?",
+      "alternativas": [
+        "range(20, 26)",
+        "range(20, 25)",
+        "range(20, 25, 1)",
+        "range(21, 26)"
+      ],
+      "correta": 0,
+      "dicas": [
+        "range exclui o limite superior.",
+        "Escreva a lista que cada opção produz.",
+        "O passo 1 é o padrão e não altera o limite."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantos números há entre 20 e 25, contando os dois extremos?",
+      "explicacao": "range(20, 26) produz 20, 21, 22, 23, 24 e 25 — verificado em execução. As formas com limite 25 param no 24, e range(21, 26) perde o 20. Em ferramenta de varredura, esse detalhe cria um erro silencioso: a última porta da faixa simplesmente não é testada, e nada indica isso na saída.",
+      "por_que_erradas": {
+        "1": "Produz de 20 a 24: a porta 25 fica de fora.",
+        "2": "O passo explícito não muda o limite superior exclusivo.",
+        "3": "Começa em 21 e perde a porta 20."
+      },
+      "fonte": "Comportamento verificado em execução",
+      "tags": ["python", "range", "comando", "off-by-one", "varredura"]
+    },
+    {
+      "id": "1.6.q6",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "# objetivo: extrair o IP de origem de cada linha de falha de autenticacao\nfor linha in open(\"auth.log\"):\n    if \"Failed password\" in linha:\n        print(linha.split()[10])\n\n# saida obtida:\n# admin\n# oracle\n# 198.51.100.7",
+      "enunciado": "Por que a saída mistura nomes de usuário com endereços?",
+      "alternativas": [
+        "Linhas com \"invalid user\" têm duas palavras a mais, então o índice fixo aponta para campos diferentes conforme a linha",
+        "O método split não funciona corretamente com linhas longas",
+        "O arquivo precisa ser lido com readlines para que os índices fiquem corretos",
+        "O índice 10 está fora do intervalo e o Python devolve o último campo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare palavra a palavra uma linha com \"invalid user\" e outra sem.",
+        "Índice fixo pressupõe que todas as linhas tenham o mesmo formato.",
+        "Se o índice estivesse fora do intervalo, haveria exceção."
+      ],
+      "pergunta_socratica": "Antes de conferir: as duas variações da linha têm o mesmo número de palavras antes do endereço?",
+      "explicacao": "Verificado em execução: na linha com \"invalid user\", o campo 10 é o nome do usuário; na linha sem, é o endereço. As duas palavras extras deslocam tudo. A correção é ancorar no contexto com expressão regular, procurando o que vem depois da palavra from — o padrão r\"from (\\d{1,3}(?:\\.\\d{1,3}){3})\" extraiu corretamente 203.0.113.45 e 198.51.100.7 nas duas variações. Índice fora do intervalo levantaria IndexError, e não devolveria o último campo. Este arquivo também deveria ser aberto com with, para garantir o fechamento.",
+      "por_que_erradas": {
+        "1": "split funciona igualmente bem em qualquer comprimento de linha.",
+        "2": "readlines carrega tudo na memória e não altera a posição dos campos.",
+        "3": "Índice inválido levantaria IndexError; não há retorno silencioso do último campo."
+      },
+      "fonte": "Comportamento verificado em execução sobre amostra de auth.log",
+      "tags": ["python", "caca-erro", "analise-de-log", "regex", "formato"]
+    },
+    {
+      "id": "1.6.q7",
+      "tipo": "comando",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Qual expressão regular extrai o endereço IP de linhas como \"... from 203.0.113.45 port 51422 ssh2\", funcionando também quando a linha traz \"invalid user\"?",
+      "alternativas": [
+        "r\"from (\\d{1,3}(?:\\.\\d{1,3}){3})\"",
+        "r\"^(\\d{1,3}(?:\\.\\d{1,3}){3})\"",
+        "r\"(\\w+) port\"",
+        "r\"from (.*)\""
+      ],
+      "correta": 0,
+      "dicas": [
+        "Ancorar no contexto resolve o deslocamento de campos.",
+        "O acento circunflexo prende o padrão ao início da linha.",
+        "Um dos padrões captura tudo até o fim da linha."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual palavra sempre aparece imediatamente antes do endereço, nas duas variações da linha?",
+      "explicacao": "A palavra from precede o endereço nos dois formatos, então ancorar nela resolve o problema do deslocamento — verificado em execução, extraindo corretamente nas duas variações. O padrão preso ao início da linha nunca casa, porque a linha começa com a data. O padrão com \\w+ antes de port captura o número da porta, e o último captura todo o resto da linha, e não só o endereço.",
+      "por_que_erradas": {
+        "1": "O acento circunflexo exige que a linha comece com o endereço, o que não acontece.",
+        "2": "Captura o que vier antes da palavra port, que é o número da porta.",
+        "3": "Captura tudo o que vem depois de from, incluindo porta e protocolo."
+      },
+      "fonte": "Comportamento verificado em execução",
+      "tags": ["python", "regex", "comando", "analise-de-log"]
+    },
+    {
+      "id": "1.6.q8",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Por que usar `with open(caminho) as arquivo:` em vez de `arquivo = open(caminho)`?",
+      "alternativas": [
+        "Porque o with garante o fechamento do arquivo ao sair do bloco, inclusive se ocorrer uma exceção no meio",
+        "Porque o with lê o arquivo mais rápido, carregando tudo na memória",
+        "Porque o with converte automaticamente a codificação do arquivo para UTF-8",
+        "Porque o with impede que outros processos alterem o arquivo durante a leitura"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que acontece com o arquivo se uma exceção interromper o processamento?",
+        "O with é um gerenciador de contexto: ele tem uma etapa de saída garantida.",
+        "Codificação continua sendo responsabilidade do parâmetro encoding."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o script quebrar na terceira linha do arquivo, quem fecha o arquivo?",
+      "explicacao": "O with garante o fechamento ao sair do bloco, com ou sem exceção — verificado em execução: dentro do bloco o arquivo aparece como aberto, e imediatamente após, como fechado. Isso evita descritores vazando em scripts longos e garante que o conteúdo escrito seja efetivamente gravado. Ele não altera desempenho, não trata codificação e não bloqueia outros processos.",
+      "por_que_erradas": {
+        "1": "O with não altera a estratégia de leitura nem carrega tudo na memória.",
+        "2": "A codificação é definida pelo parâmetro encoding.",
+        "3": "O with não impede acesso concorrente ao arquivo."
+      },
+      "fonte": "Comportamento verificado em execução",
+      "tags": ["python", "arquivos", "boas-praticas", "fundamentos"]
+    },
+    {
+      "id": "1.6.q9",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que SHA-256 deve ser preferido a MD5 para verificar se um arquivo foi adulterado?",
+      "alternativas": [
+        "Porque MD5 tem colisões conhecidas e práticas: é possível produzir dois conteúdos diferentes com o mesmo resumo",
+        "Porque MD5 produz um resumo maior e mais lento de calcular",
+        "Porque MD5 não funciona com arquivos binários",
+        "Porque MD5 depende de uma chave secreta que precisa ser distribuída"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que quebra em MD5 é a dificuldade de encontrar dois conteúdos com o mesmo resumo.",
+        "Compare o tamanho dos dois resumos.",
+        "Nenhum dos dois usa chave."
+      ],
+      "pergunta_socratica": "Antes de conferir: se alguém consegue fabricar um arquivo diferente com o mesmo resumo, o que a conferência ainda prova?",
+      "explicacao": "MD5 tem colisões práticas conhecidas, então um resumo igual deixou de ser evidência de conteúdo igual — o que anula seu uso para decidir sobre adulteração. Ele ainda detecta corrupção acidental. SHA-256 produz resumo maior, de 32 bytes conforme verificado em execução, e não tem colisões práticas conhecidas. Nenhum dos dois usa chave: para isso existe HMAC.",
+      "por_que_erradas": {
+        "1": "MD5 produz um resumo menor, de 16 bytes, e é mais rápido.",
+        "2": "Ambos funcionam sobre qualquer sequência de bytes.",
+        "3": "Funções de hash simples não usam chave."
+      },
+      "fonte": "Módulo hashlib; tamanho do digest verificado em execução",
+      "tags": ["python", "hash", "integridade", "criptografia"]
+    },
+    {
+      "id": "1.6.q10",
+      "tipo": "comando",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Qual trecho calcula o SHA-256 de um arquivo grande sem carregá-lo inteiro na memória?",
+      "alternativas": [
+        "h = hashlib.sha256()\nwith open(caminho, \"rb\") as arq:\n    for bloco in iter(lambda: arq.read(8192), b\"\"):\n        h.update(bloco)",
+        "h = hashlib.sha256(open(caminho, \"rb\").read())",
+        "h = hashlib.sha256()\nh.update(caminho)",
+        "h = hashlib.sha256(open(caminho).read().encode())"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Carregar tudo de uma vez é exatamente o que se quer evitar.",
+        "O objeto de hash pode ser alimentado aos poucos com update.",
+        "Passar o caminho calcula o hash do nome, e não do conteúdo."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das opções nunca segura o arquivo inteiro na memória?",
+      "explicacao": "O primeiro trecho lê em blocos de 8192 bytes e alimenta o objeto de hash com update, mantendo consumo constante — verificado em execução. A segunda opção carrega tudo na memória, a terceira calcula o hash do nome do arquivo em vez do conteúdo, e a quarta abre em modo texto, o que corrompe binários por conversão de codificação e de fim de linha.",
+      "por_que_erradas": {
+        "1": "Carrega o arquivo inteiro na memória, que é o que se quer evitar.",
+        "2": "Calcula o hash do caminho, não do conteúdo — e falharia por receber texto.",
+        "3": "Abrir em modo texto altera bytes de arquivos binários."
+      },
+      "fonte": "Módulo hashlib; trecho verificado em execução",
+      "tags": ["python", "hash", "comando", "arquivos", "integridade"]
+    },
+    {
+      "id": "1.6.q11",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Por que comparar hashes com `hmac.compare_digest` em vez de `==`?",
+      "alternativas": [
+        "Porque a comparação comum termina no primeiro byte diferente, e o tempo variável pode vazar informação sobre o valor esperado",
+        "Porque o operador == não funciona com strings hexadecimais longas",
+        "Porque compare_digest normaliza maiúsculas e minúsculas antes de comparar",
+        "Porque compare_digest calcula o hash novamente antes de comparar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quanto tempo leva comparar duas strings que diferem no primeiro caractere? E no último?",
+        "Esse tempo é observável por quem faz muitas tentativas.",
+        "A função não altera nem recalcula nada."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o atacante medir o tempo de resposta a milhares de tentativas, o que ele aprende?",
+      "explicacao": "A comparação comum interrompe no primeiro byte diferente, então valores que acertam mais bytes iniciais demoram um pouco mais. Medindo essa diferença em muitas tentativas, um atacante consegue descobrir o valor esperado byte a byte. compare_digest compara em tempo constante — verificado em execução, devolvendo True para iguais e False para diferentes. Ela não recalcula nada nem normaliza texto.",
+      "por_que_erradas": {
+        "1": "O operador == funciona com qualquer string; o problema é o tempo variável.",
+        "2": "compare_digest não normaliza maiúsculas e minúsculas.",
+        "3": "Ela apenas compara; o cálculo do hash é anterior."
+      },
+      "fonte": "Módulo hmac; comportamento verificado em execução",
+      "tags": ["python", "hash", "canal-lateral", "criptografia", "boas-praticas"]
+    },
+    {
+      "id": "1.6.q12",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "trecho": "import subprocess\n\nnome = input(\"arquivo para analisar: \")\nsubprocess.run(f\"strings {nome} | head -20\", shell=True)",
+      "enunciado": "Qual é a falha deste código, e o que a torna explorável?",
+      "alternativas": [
+        "Com shell=True, a entrada do usuário é interpretada pelo shell: um valor como \"a.txt; comando\" executa o comando adicional",
+        "O uso de f-string impede que o subprocess encontre o executável strings",
+        "A função input não deveria ser usada em scripts, apenas em modo interativo",
+        "O comando head não existe em todos os sistemas, o que causa erro"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que o shell faz com um ponto e vírgula no meio da string?",
+        "Quem controla o conteúdo da variável nome?",
+        "Compare com passar uma lista de argumentos."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o usuário digitar um ponto e vírgula seguido de outro comando, quem interpreta isso?",
+      "explicacao": "Com shell=True a string inteira vai para o interpretador de comandos, e os metacaracteres passam a valer — verificado em execução: um encadeamento na string produziu a execução do comando extra. Com lista de argumentos, o mesmo valor com ponto e vírgula é tratado como texto dentro de um único argumento, conforme também verificado. A correção é montar a lista de argumentos e evitar o pipe, ou usar shlex.quote quando o shell for realmente necessário.",
+      "por_que_erradas": {
+        "1": "A f-string apenas monta o texto; ela não impede a localização do executável.",
+        "2": "input funciona normalmente em scripts.",
+        "3": "Ausência do head causaria erro de execução, não a falha de segurança descrita."
+      },
+      "fonte": "Módulo subprocess; comportamentos verificados em execução",
+      "tags": ["python", "subprocess", "injecao-de-comando", "caca-erro", "entrada-nao-confiavel"]
+    },
+    {
+      "id": "1.6.q13",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Qual chamada executa um programa passando um valor de entrada externa de forma segura?",
+      "alternativas": [
+        "subprocess.run([\"grep\", padrao, caminho], capture_output=True, text=True)",
+        "subprocess.run(f\"grep {padrao} {caminho}\", shell=True)",
+        "subprocess.run(\"grep \" + padrao + \" \" + caminho, shell=True)",
+        "os.system(f\"grep {padrao} {caminho}\")"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Três opções montam uma string que será interpretada por um shell.",
+        "A lista separa programa e argumentos antes de chegar ao sistema.",
+        "os.system sempre passa pelo shell."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual das opções um espaço ou um ponto e vírgula no valor deixa de ser um problema?",
+      "explicacao": "Passar lista faz o sistema receber programa e argumentos separadamente, então metacaracteres viram texto comum — verificado em execução, com um valor contendo ponto e vírgula chegando intacto como argumento único. As outras três montam uma linha de comando interpretada pelo shell, e qualquer valor externo no meio abre caminho para injeção.",
+      "por_que_erradas": {
+        "1": "shell=True faz o interpretador processar metacaracteres do valor.",
+        "2": "Concatenar strings tem o mesmo problema da f-string com shell=True.",
+        "3": "os.system executa sempre por meio do shell, com o mesmo risco."
+      },
+      "fonte": "Módulo subprocess; comportamento verificado em execução",
+      "tags": ["python", "subprocess", "comando", "injecao-de-comando", "boas-praticas"]
+    },
+    {
+      "id": "1.6.q14",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por padrão, o que `subprocess.run` faz quando o programa executado termina com código diferente de zero?",
+      "alternativas": [
+        "Nada de especial: devolve o resultado com o código em returncode, e o script segue normalmente",
+        "Levanta CalledProcessError imediatamente",
+        "Encerra o script com o mesmo código de saída",
+        "Repete a execução automaticamente até obter sucesso"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Existe um parâmetro que muda esse comportamento.",
+        "O nome do parâmetro sugere verificação.",
+        "Sem ele, a falha passa despercebida."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o comando falhar no meio do seu script de backup, o script para ou continua?",
+      "explicacao": "Por padrão a falha é silenciosa: o código fica em returncode e o script continua como se tudo tivesse dado certo — verificado em execução, com returncode 3 e nenhuma exceção. Com check=True, a mesma execução levanta CalledProcessError, também verificado. É a diferença entre um script de automação que avisa quando falha e um que registra sucesso mesmo tendo falhado.",
+      "por_que_erradas": {
+        "1": "A exceção só é levantada com check=True.",
+        "2": "O script chamador não é encerrado automaticamente.",
+        "3": "Não há repetição automática."
+      },
+      "fonte": "Módulo subprocess; comportamento verificado em execução",
+      "tags": ["python", "subprocess", "erros", "automacao"]
+    },
+    {
+      "id": "1.6.q15",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Por que `eval` não deve ser usado para converter entrada do usuário em número?",
+      "alternativas": [
+        "Porque eval executa qualquer expressão recebida, então uma entrada maliciosa vira código executado; int() valida e recusa o que não for número",
+        "Porque eval é mais lento que int() em números grandes",
+        "Porque eval não consegue converter strings em inteiros",
+        "Porque eval só funciona dentro de funções"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que eval faz com uma string que não é um número?",
+        "Qual das duas funções recusa a entrada inválida?",
+        "Pense em quem controla o texto que chega."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o usuário digitar algo que não é número, qual das duas funções te avisa?",
+      "explicacao": "eval avalia a expressão recebida como código — verificado em execução com uma expressão aritmética simples, e o mesmo mecanismo executaria qualquer coisa que o usuário digitasse. int() faz a única coisa desejada e recusa o resto: com \"80x\" ela levanta ValueError, também verificado. Validar entrada é justamente recusar o que não se encaixa, e eval é o oposto disso.",
+      "por_que_erradas": {
+        "1": "Desempenho não é a questão; o problema é execução de código arbitrário.",
+        "2": "eval converte strings numéricas normalmente — o problema é converter também o resto.",
+        "3": "eval funciona em qualquer escopo."
+      },
+      "fonte": "Comportamento verificado em execução",
+      "tags": ["python", "eval", "entrada-nao-confiavel", "validacao", "boas-praticas"]
+    },
+    {
+      "id": "1.6.q16",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Por que o módulo `secrets` deve ser usado em vez de `random` para gerar tokens e senhas?",
+      "alternativas": [
+        "Porque random é determinístico: com a mesma semente produz a mesma sequência, e é previsível para uso em segurança",
+        "Porque random não consegue gerar números grandes o suficiente",
+        "Porque secrets gera valores mais rapidamente que random",
+        "Porque random só funciona com números inteiros"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que acontece ao fixar a semente e gerar a sequência duas vezes?",
+        "Previsibilidade é um problema em qual contexto?",
+        "Velocidade não é critério de segurança aqui."
+      ],
+      "pergunta_socratica": "Antes de conferir: se alguém descobrir a semente usada, o que consegue prever?",
+      "explicacao": "random é um gerador determinístico voltado a simulação: verificado em execução, com a mesma semente ele repete exatamente a mesma sequência. Isso significa que valores gerados por ele são previsíveis para quem descobrir ou adivinhar a semente — inadequado para token, senha ou identificador de sessão. secrets usa a fonte de aleatoriedade do sistema operacional, adequada para segurança.",
+      "por_que_erradas": {
+        "1": "random gera números de qualquer magnitude necessária.",
+        "2": "Velocidade não é a razão, e não é critério de escolha aqui.",
+        "3": "random gera também valores em ponto flutuante e seleções de sequências."
+      },
+      "fonte": "Módulos random e secrets; determinismo verificado em execução",
+      "tags": ["python", "aleatoriedade", "secrets", "criptografia", "boas-praticas"]
+    },
+    {
+      "id": "1.6.q17",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um script de varredura de portas roda muito devagar em uma faixa de rede filtrada. Qual é a causa mais provável e a correção?",
+      "alternativas": [
+        "O tempo limite está alto ou ausente: portas filtradas não respondem e cada tentativa espera até o limite; reduzir o tempo limite resolve",
+        "O Python é lento demais para varredura e a solução é reescrever em outra linguagem",
+        "O sistema operacional limita o número de sockets e a solução é reiniciar a máquina",
+        "A rede está com perda de pacotes e não há nada a fazer no script"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que acontece quando um firewall descarta o pacote em silêncio?",
+        "Quanto tempo o script espera por uma resposta que nunca vem?",
+        "A diferença entre porta fechada e filtrada aparece justamente aqui."
+      ],
+      "pergunta_socratica": "Antes de conferir: porta fechada responde rápido; porta filtrada responde o quê?",
+      "explicacao": "Porta fechada responde com recusa quase imediata; porta filtrada não responde nada, e a tentativa só termina quando o tempo limite expira. Sem settimeout, esse limite é o do sistema, que pode chegar a dezenas de segundos por porta. Definir um tempo limite curto é a correção direta, e paralelizar as tentativas é o passo seguinte.",
+      "por_que_erradas": {
+        "1": "O gargalo é espera de rede, não velocidade da linguagem.",
+        "2": "Limite de sockets produziria erro, e não lentidão uniforme.",
+        "3": "O script controla quanto tempo espera por resposta."
+      },
+      "fonte": "Módulo socket; comportamento verificado em execução",
+      "tags": ["python", "socket", "timeout", "varredura", "diagnostico"]
+    },
+    {
+      "id": "1.6.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Por que iterar sobre o arquivo linha a linha é preferível a `arquivo.read()` ao processar logs grandes?",
+      "alternativas": [
+        "Porque a iteração mantém o consumo de memória constante, enquanto read carrega o arquivo inteiro de uma vez",
+        "Porque read não consegue ler arquivos com mais de mil linhas",
+        "Porque a iteração processa as linhas em ordem alfabética",
+        "Porque read remove as quebras de linha do conteúdo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense em um arquivo de 4 GB e na memória disponível.",
+        "A iteração entrega uma linha por vez.",
+        "Nenhum dos dois reordena o conteúdo."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que acontece ao chamar read em um log de 4 GB numa máquina com 8 GB?",
+      "explicacao": "read traz todo o conteúdo para a memória, o que é inviável em logs grandes. Iterar sobre o arquivo entrega uma linha por vez, com consumo constante, e é o padrão para análise de log — combinado com o bloco with, que garante o fechamento. A ordem é a do arquivo nos dois casos, e as quebras de linha permanecem em ambos.",
+      "por_que_erradas": {
+        "1": "read não tem limite de número de linhas; o limite é a memória.",
+        "2": "A iteração respeita a ordem do arquivo, sem reordenar.",
+        "3": "read preserva as quebras de linha no texto lido."
+      },
+      "fonte": "Comportamento verificado em execução",
+      "tags": ["python", "arquivos", "analise-de-log", "desempenho"]
+    },
+    {
+      "id": "1.6.q19",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "artefato": "$ python verificar.py instalador.bin\nSHA-256 calculado : 55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251\nSHA-256 publicado : 55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251\nResultado         : correspondem",
+      "enunciado": "O que essa verificação prova, e o que ela não prova?",
+      "alternativas": [
+        "Prova que o arquivo baixado é idêntico ao que gerou o valor publicado; não prova que o arquivo publicado é confiável nem que o site de origem não foi comprometido",
+        "Prova que o arquivo está livre de código malicioso, já que os resumos coincidem",
+        "Prova que o arquivo foi assinado digitalmente pelo fabricante",
+        "Não prova nada, porque hashes coincidem por acaso com frequência"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O valor publicado veio de onde?",
+        "Se o atacante controlasse o site, ele publicaria qual resumo?",
+        "Hash é diferente de assinatura digital."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o atacante trocasse o instalador no próprio site, o que aconteceria com o valor publicado ao lado dele?",
+      "explicacao": "A conferência prova integridade em relação ao valor publicado: o que você baixou é igual ao que gerou aquele resumo. Ela não diz nada sobre a idoneidade do arquivo original, e não protege contra comprometimento do site que publica os dois — o atacante trocaria arquivo e resumo juntos. Assinatura digital resolve isso, porque a chave de assinatura não está no site. Colisão acidental em SHA-256 não acontece na prática.",
+      "por_que_erradas": {
+        "1": "Hash igual não diz nada sobre o conteúdo ser malicioso ou não.",
+        "2": "Hash não é assinatura: não há prova de autoria envolvida.",
+        "3": "Colisões acidentais em SHA-256 não ocorrem na prática."
+      },
+      "fonte": "Módulo hashlib; valor de digest verificado em execução",
+      "tags": ["python", "hash", "integridade", "artefato", "cadeia-de-fornecimento"]
+    },
+    {
+      "id": "1.6.q20",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um script recebe um nome de arquivo por parâmetro e o repassa a um comando externo. Qual defesa é mais robusta?",
+      "alternativas": [
+        "Passar os argumentos como lista para o subprocess e validar o valor recebido contra uma lista de caminhos permitidos",
+        "Remover apenas o caractere de ponto e vírgula do valor recebido",
+        "Aumentar as permissões do script para que ele consiga tratar qualquer caminho",
+        "Executar o script como root, evitando erros de acesso"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Remover um caractere específico cobre todos os metacaracteres do shell?",
+        "Existe uma forma que dispensa o shell por completo.",
+        "Aumentar privilégio piora a consequência da falha."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantos caracteres especiais um shell interpreta, além do ponto e vírgula?",
+      "explicacao": "Passar lista elimina o shell da equação, e validar contra caminhos permitidos limita o que pode ser processado — as duas medidas combinadas atacam causa e alcance. Filtrar um caractere específico é frágil, porque o shell interpreta muitos outros. E elevar privilégio não corrige a falha: apenas amplia o estrago quando ela for explorada.",
+      "por_que_erradas": {
+        "1": "Filtrar um caractere deixa passar todos os demais metacaracteres.",
+        "2": "Permissões maiores não impedem injeção; ampliam a consequência.",
+        "3": "Executar como root transforma qualquer falha em comprometimento total."
+      },
+      "fonte": "Módulo subprocess; comportamento verificado em execução",
+      "tags": ["python", "subprocess", "injecao-de-comando", "validacao", "menor-privilegio"]
+    },
+    {
+      "id": "1.6.q21",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [0, 2, 3],
+      "enunciado": "Ligue cada módulo da biblioteca padrão à tarefa para a qual ele é indicado.",
+      "pares": [
+        ["socket", "Abrir conexões de rede e testar portas"],
+        ["hashlib", "Calcular resumos de arquivos e dados"],
+        ["hmac", "Comparar valores sensíveis em tempo constante"],
+        ["subprocess", "Executar programas externos com argumentos controlados"],
+        ["secrets", "Gerar tokens e senhas com aleatoriedade adequada a segurança"]
+      ],
+      "dicas": [
+        "Dois módulos tratam de hash, mas um deles resolve a comparação segura.",
+        "Um deles substitui o random em contexto de segurança.",
+        "Um deles é o que se usa em vez de os.system."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantos desses você precisaria instalar com pip?",
+      "explicacao": "Todos são da biblioteca padrão, o que importa em segurança: menos dependências externas significa menos superfície de cadeia de fornecimento. socket para rede, hashlib para resumos, hmac para comparação em tempo constante, subprocess para execução com argumentos separados e secrets para aleatoriedade adequada. Uma ferramenta de segurança útil raramente precisa de mais que isso.",
+      "fonte": "Biblioteca padrão do Python; módulos verificados em execução",
+      "tags": ["python", "biblioteca-padrao", "pareamento", "ferramentas"]
+    },
+    {
+      "id": "1.6.q22",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "trecho": "import hashlib\n\ndef senha_correta(digitada, hash_esperado):\n    calculado = hashlib.md5(digitada.encode()).hexdigest()\n    return calculado == hash_esperado",
+      "enunciado": "Quantos problemas de segurança este trecho tem?",
+      "alternativas": [
+        "Três: MD5 é inadequado para senha, não há sal, e a comparação com == é vulnerável a medição de tempo",
+        "Um: apenas o uso de MD5, que deveria ser SHA-256",
+        "Nenhum: a função cumpre corretamente o que se propõe",
+        "Dois: falta tratamento de exceção e a função deveria receber bytes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Hash de senha exige mais que um algoritmo forte: exige lentidão proposital e valor único por senha.",
+        "O que impede duas senhas iguais de terem o mesmo resumo armazenado?",
+        "A comparação final tem o mesmo problema visto na verificação de integridade."
+      ],
+      "pergunta_socratica": "Antes de conferir: trocar MD5 por SHA-256 tornaria essa função adequada para senhas?",
+      "explicacao": "São três. MD5 é rápido e quebrado, mas trocar por SHA-256 não resolveria: hash de senha precisa de função deliberadamente lenta, como bcrypt, scrypt ou Argon2. Falta sal, então senhas iguais produzem resumos iguais e viabilizam ataque por tabela pré-calculada. E a comparação com == vaza tempo, como verificado no uso de compare_digest. Este assunto é aprofundado no nível 2.",
+      "por_que_erradas": {
+        "1": "Trocar por SHA-256 não bastaria: falta lentidão proposital, sal e comparação segura.",
+        "2": "A função tem falhas graves em três frentes distintas.",
+        "3": "Tratamento de exceção e tipo de entrada não são os problemas de segurança aqui."
+      },
+      "fonte": "Módulos hashlib e hmac; NIST SP 800-63B",
+      "tags": ["python", "senhas", "hash", "caca-erro", "criptografia"]
+    },
+    {
+      "id": "1.6.q23",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1, 3],
+      "enunciado": "Um script que analisa logs diariamente parou de gerar alertas e ninguém percebeu por três semanas. Qual prática teria evitado isso?",
+      "alternativas": [
+        "Registrar o resultado de cada execução, inclusive o número de linhas processadas, e alertar quando o script não rodar ou processar zero linhas",
+        "Aumentar a frequência de execução para de hora em hora",
+        "Executar o script como root, evitando falhas por permissão",
+        "Reescrever o script usando apenas expressões regulares"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um script que não roda produz o mesmo silêncio de um script que não encontrou nada.",
+        "Como distinguir \"nada de errado\" de \"nada foi verificado\"?",
+        "Rodar com mais frequência resolve o problema de não perceber?"
+      ],
+      "pergunta_socratica": "Antes de conferir: ausência de alerta significa que está tudo bem, ou que ninguém olhou?",
+      "explicacao": "O problema é a ambiguidade do silêncio: script parado e script sem achados produzem a mesma saída. Registrar cada execução, com contagem de linhas processadas, e alertar quando a execução não acontece ou processa zero linhas transforma o silêncio em sinal. É a mesma lição do script que declara sucesso sem verificar o código de retorno.",
+      "por_que_erradas": {
+        "1": "Mais frequência apenas repete o mesmo silêncio com mais intervalos.",
+        "2": "Executar como root é privilégio desnecessário e não trata a falta de visibilidade.",
+        "3": "A ferramenta de extração não tem relação com perceber que o script parou."
+      },
+      "fonte": "Teoria 1.2.t6; NIST Cybersecurity Framework (detectar)",
+      "tags": ["python", "automacao", "monitoramento", "falha-silenciosa"]
+    },
+    {
+      "id": "1.6.q24",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que chamar `s.settimeout(0.5)` antes de `s.connect_ex(...)` em uma varredura?",
+      "alternativas": [
+        "Para que portas filtradas, que não respondem, não travem a execução até o limite do sistema",
+        "Para reduzir o consumo de memória de cada socket criado",
+        "Para permitir que o socket aceite conexões de entrada",
+        "Para cifrar a conexão antes do envio dos dados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Porta fechada responde; porta filtrada não responde nada.",
+        "Sem limite próprio, quem decide quanto tempo esperar?",
+        "settimeout não altera memória nem cifra."
+      ],
+      "pergunta_socratica": "Antes de conferir: quanto tempo você aceita esperar por uma porta que nunca vai responder?",
+      "explicacao": "Sem tempo limite explícito, a tentativa fica presa ao limite do sistema, que pode ser de dezenas de segundos — e uma faixa filtrada torna a varredura impraticável. Com meio segundo, o custo de cada porta silenciosa é conhecido e pequeno. O parâmetro não tem relação com memória, com aceitar conexões nem com cifra.",
+      "por_que_erradas": {
+        "1": "O tempo limite não afeta o consumo de memória do socket.",
+        "2": "Aceitar conexões de entrada exige bind e listen.",
+        "3": "Cifra viria do módulo ssl, não do tempo limite."
+      },
+      "fonte": "Módulo socket; comportamento verificado em execução",
+      "tags": ["python", "socket", "timeout", "comando", "varredura"]
+    },
+    {
+      "id": "1.6.q25",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um script de segurança precisa de uma biblioteca externa que faz algo já disponível na biblioteca padrão. Qual é o argumento contra adicionar a dependência?",
+      "alternativas": [
+        "Cada dependência acrescenta código de terceiros ao seu programa, ampliando a superfície de cadeia de fornecimento e o esforço de manutenção",
+        "Bibliotecas externas são sempre mais lentas que a biblioteca padrão",
+        "O Python não permite instalar bibliotecas em ambientes de produção",
+        "Bibliotecas externas não funcionam com scripts executados por cron"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Relembre o que a superfície de fornecedores acrescenta à sua superfície.",
+        "Quem publica atualizações dessa biblioteca, e quem revisa?",
+        "Duas alternativas afirmam limitações técnicas que não existem."
+      ],
+      "pergunta_socratica": "Antes de conferir: se essa biblioteca for comprometida em uma atualização, o que acontece com o seu script?",
+      "explicacao": "Cada dependência traz código que você não escreveu e cujas atualizações você não controla — um comprometimento do pacote vira execução no seu ambiente, que é exatamente o padrão dos ataques de cadeia de fornecimento. Quando a biblioteca padrão resolve, a escolha conservadora é usá-la. Não há impedimento técnico a instalar bibliotecas, e desempenho não é a questão.",
+      "por_que_erradas": {
+        "1": "Bibliotecas externas frequentemente são mais rápidas; desempenho não é o critério.",
+        "2": "Instalar bibliotecas em produção é prática normal.",
+        "3": "Bibliotecas externas funcionam sob cron, desde que o ambiente esteja correto."
+      },
+      "fonte": "Teoria 0.2.t6; caso SolarWinds (2020)",
+      "tags": ["python", "dependencias", "cadeia-de-fornecimento", "boas-praticas"]
+    },
+    {
+      "id": "1.6.q26",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 3],
+      "enunciado": "Você escreveu um verificador de portas para usar no trabalho. Qual cuidado é indispensável antes de executá-lo?",
+      "alternativas": [
+        "Ter autorização por escrito para varrer aqueles alvos, com escopo e janela definidos",
+        "Executar como root, para que todas as portas possam ser testadas",
+        "Desabilitar o firewall local durante a execução",
+        "Avisar apenas o gestor imediato, verbalmente, antes de começar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Relembre o que separa teste profissional de acesso não autorizado.",
+        "Varredura em alvo alheio é atividade de reconhecimento.",
+        "Autorização verbal cobre você depois?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se a varredura derrubar um serviço, o que você mostra a quem pedir explicação?",
+      "explicacao": "Varredura é atividade de reconhecimento e exige autorização prévia, por escrito, de quem tem alçada, com alvos e janela definidos — inclusive dentro da própria empresa, onde ela pode disparar alertas e afetar serviços. Autorização verbal não deixa prova e pode não ter competência. Elevar privilégio ou desligar o firewall não são requisitos, e a segunda é uma alteração de configuração que ninguém autorizou.",
+      "por_que_erradas": {
+        "1": "Privilégio elevado não é necessário para conexões TCP comuns.",
+        "2": "Desabilitar o firewall é alteração não autorizada e desnecessária.",
+        "3": "Autorização verbal não deixa registro nem garante alçada."
+      },
+      "fonte": "Teoria 0.4.t1 e 0.4.t2; Código Penal, art. 154-A",
+      "tags": ["python", "etica", "autorizacao", "varredura", "escopo"]
+    },
+    {
+      "id": "1.6.q27",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual é o risco de uma expressão regular frouxa como `\\d+\\.\\d+\\.\\d+\\.\\d+` para identificar endereços IP?",
+      "alternativas": [
+        "Ela casa com sequências que não são endereços válidos, como 999.999.1.1, e pode capturar trechos indevidos da linha",
+        "Ela não consegue casar com endereços que comecem com 1",
+        "Ela consome memória proporcional ao tamanho do arquivo inteiro",
+        "Ela só funciona quando o endereço está no início da linha"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O padrão restringe o valor de cada grupo de dígitos?",
+        "Quantos dígitos \\d+ aceita?",
+        "Extrair não é o mesmo que validar."
+      ],
+      "pergunta_socratica": "Antes de conferir: 999.999.1.1 é um endereço IPv4 válido? O padrão recusaria?",
+      "explicacao": "O padrão aceita qualquer quantidade de dígitos em cada grupo, então casa com valores impossíveis e pode capturar pedaços de outros números presentes na linha. Para extração em log controlado isso costuma bastar, desde que ancorado no contexto; quando o valor precisa ser confiável, a validação é um passo separado — em Python, o módulo ipaddress recusa endereços inválidos.",
+      "por_que_erradas": {
+        "1": "O padrão casa com qualquer dígito inicial.",
+        "2": "O consumo depende do texto processado por vez, não do arquivo inteiro.",
+        "3": "Sem âncora de início, o padrão casa em qualquer posição da linha."
+      },
+      "fonte": "Módulo re; módulo ipaddress",
+      "tags": ["python", "regex", "validacao", "analise-de-log"]
+    },
+    {
+      "id": "1.6.q28",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Uma equipe quer detectar alteração não autorizada em arquivos de configuração de servidores. Qual abordagem funciona?",
+      "alternativas": [
+        "Guardar o hash de cada arquivo em um local separado e comparar periodicamente, alertando sobre diferenças",
+        "Verificar a data de modificação dos arquivos a cada semana",
+        "Guardar uma cópia dos arquivos no mesmo servidor e comparar por tamanho",
+        "Registrar quem tem permissão de escrita nos arquivos e revisar anualmente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Data de modificação pode ser alterada por quem tem privilégio.",
+        "Tamanho igual significa conteúdo igual?",
+        "Onde a referência deve ficar para não ser adulterada junto?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se o atacante tem privilégio no servidor, o que ele consegue alterar além do arquivo?",
+      "explicacao": "Comparar hashes detecta qualquer alteração de conteúdo, inclusive as que preservam tamanho, e guardar a referência fora do servidor impede que o atacante ajuste a referência junto com o arquivo. Data de modificação é falsificável por quem tem privilégio, comparação por tamanho não detecta troca de mesmo comprimento, e revisão anual de permissões é controle preventivo, não detecção.",
+      "por_que_erradas": {
+        "1": "Data de modificação pode ser alterada por quem tem privilégio administrativo.",
+        "2": "Cópia no mesmo servidor é adulterável, e tamanho igual não garante conteúdo igual.",
+        "3": "Revisão de permissões previne, mas não detecta a alteração ocorrida."
+      },
+      "fonte": "Módulo hashlib; NIST Cybersecurity Framework (detectar)",
+      "tags": ["python", "hash", "integridade", "deteccao", "monitoramento"]
+    },
+    {
+      "id": "1.6.q29",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que credenciais não devem ser escritas diretamente no código de um script?",
+      "alternativas": [
+        "Porque o código costuma ir para repositórios e ser compartilhado, e a credencial passa a existir em cópias e no histórico de versões",
+        "Porque o Python não consegue processar strings longas com caracteres especiais",
+        "Porque credenciais em código tornam o script mais lento ao iniciar",
+        "Porque o interpretador exibe as variáveis do script em mensagens de erro"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Para onde o arquivo vai depois de escrito?",
+        "Quantas cópias de um repositório existem depois de um mês de trabalho?",
+        "Pense no histórico de versões, e não só no arquivo atual."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas pessoas e máquinas terão uma cópia desse arquivo em seis meses?",
+      "explicacao": "Código é copiado, versionado e compartilhado. Uma credencial escrita nele passa a existir em cada clone do repositório, em backups e no histórico de versões — de onde é recuperável mesmo depois de removida do arquivo atual. As alternativas são variável de ambiente, arquivo de configuração fora do repositório com permissão restrita, ou um cofre de segredos.",
+      "por_que_erradas": {
+        "1": "O Python trata strings com qualquer caractere sem dificuldade.",
+        "2": "Não há impacto de desempenho relevante.",
+        "3": "Mensagens de erro podem expor contexto, mas não é a razão principal."
+      },
+      "fonte": "Teoria 1.2.t1; teoria 1.7 (histórico de versões)",
+      "tags": ["python", "segredos", "boas-praticas", "repositorio"]
+    },
+    {
+      "id": "1.6.q30",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [1, 2],
+      "enunciado": "Coloque na ordem as etapas de um script que verifica integridade de arquivos e alerta sobre mudanças.",
+      "itens": [
+        "Ler a lista de arquivos a monitorar e os hashes de referência guardados fora do servidor",
+        "Percorrer cada arquivo, lendo em blocos e calculando o hash atual",
+        "Comparar o hash atual com o de referência usando comparação em tempo constante",
+        "Registrar o resultado da execução, inclusive quantos arquivos foram verificados",
+        "Alertar sobre as diferenças encontradas e sobre arquivos que não puderam ser lidos"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "A referência precisa estar carregada antes de qualquer comparação.",
+        "O registro da execução vem antes do alerta, para existir mesmo quando não há diferença.",
+        "Arquivo que não pôde ser lido também é um achado."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o script não conseguir ler um dos arquivos, isso deve ser silêncio ou alerta?",
+      "explicacao": "Carregar a referência, calcular, comparar em tempo constante, registrar a execução e alertar. Registrar antes de alertar importa porque o registro precisa existir mesmo quando nada mudou — é ele que distingue \"tudo certo\" de \"o script não rodou\". E arquivo ilegível é achado, não exceção a ignorar: pode indicar remoção ou alteração de permissão pelo atacante.",
+      "fonte": "Módulos hashlib e hmac; teoria 1.6.t5",
+      "tags": ["python", "hash", "integridade", "ciclo", "monitoramento"]
+    },
+    {
+      "id": "1.6.q31",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Por que carregar dados de fonte não confiável com `pickle` é perigoso?",
+      "alternativas": [
+        "Porque a desserialização pode executar código embutido no dado, transformando o carregamento em execução arbitrária",
+        "Porque pickle é mais lento que os formatos de texto e trava o script",
+        "Porque pickle não preserva a estrutura dos objetos ao recarregar",
+        "Porque pickle só funciona com objetos criados na mesma versão do Python"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O formato guarda instruções sobre como reconstruir o objeto.",
+        "Reconstruir pode significar chamar código.",
+        "A pergunta é sobre quem escreveu o arquivo que você está lendo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o dado descreve como se reconstruir, quem controla o que será executado?",
+      "explicacao": "O formato do pickle descreve como reconstruir objetos, e essa reconstrução pode incluir chamadas de código — então carregar um arquivo vindo de fonte não confiável equivale a executar o que o autor daquele arquivo quiser. Para dados externos, o caminho é um formato de dados puro como JSON. Compatibilidade entre versões existe como limitação, mas não é o risco de segurança.",
+      "por_que_erradas": {
+        "1": "Desempenho não é o problema; pickle costuma ser rápido.",
+        "2": "pickle preserva a estrutura dos objetos, e é justamente esse poder que cria o risco.",
+        "3": "Há limitações de compatibilidade, mas não é a questão de segurança."
+      },
+      "fonte": "Documentação do módulo pickle",
+      "tags": ["python", "desserializacao", "entrada-nao-confiavel", "execucao"]
+    },
+    {
+      "id": "1.6.q32",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1],
+      "enunciado": "Você precisa de um script que verifique diariamente se serviços críticos continuam respondendo em três servidores. Quais decisões de projeto são as mais importantes?",
+      "alternativas": [
+        "Tempo limite curto por tentativa, tratamento de OSError sem engolir erros inesperados, registro de cada execução com resultado, e alerta quando o próprio script falhar",
+        "Executar como root e sem tempo limite, para garantir que nenhuma verificação seja perdida",
+        "Usar shell=True para reaproveitar comandos de rede já existentes no sistema",
+        "Capturar todas as exceções com except Exception e continuar, para o script nunca parar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Relembre as três falhas silenciosas já vistas: sem tempo limite, exceção engolida e sucesso não verificado.",
+        "Como você saberia que o próprio verificador parou?",
+        "Duas alternativas repetem justamente os erros do módulo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o script parar de rodar amanhã, quanto tempo até alguém perceber?",
+      "explicacao": "As quatro decisões atacam as formas conhecidas de esse tipo de script falhar em silêncio: espera indefinida por porta filtrada, exceção capturada demais que esconde erro de programação, ausência de registro que impede distinguir \"tudo bem\" de \"não rodou\", e nenhum aviso quando o próprio verificador morre. Root sem tempo limite, shell=True e except Exception são exatamente as três armadilhas do módulo.",
+      "por_que_erradas": {
+        "1": "Sem tempo limite o script trava, e root é privilégio desnecessário.",
+        "2": "shell=True abre caminho para injeção quando há qualquer valor externo.",
+        "3": "Capturar tudo esconde erros de programação e produz falso silêncio."
+      },
+      "fonte": "Módulos socket e subprocess; comportamentos verificados em execução",
+      "tags": ["python", "automacao", "monitoramento", "boas-praticas", "projeto"]
+    },
+    {
+      "id": "1.6.q33",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual construção monta um caminho de arquivo de forma portátil entre sistemas?",
+      "alternativas": [
+        "Path(\"/var/log\") / \"auth.log\", do módulo pathlib",
+        "\"/var/log\" + \"auth.log\"",
+        "\"/var/log\" + \"\\\\\" + \"auth.log\"",
+        "\"/var/log\".join(\"auth.log\")"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Concatenar diretamente esquece o separador.",
+        "Fixar o separador quebra em outro sistema.",
+        "O método join de string não faz o que parece com dois caminhos."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que a segunda opção produz, exatamente?",
+      "explicacao": "pathlib monta caminhos com o separador correto do sistema — verificado em execução, produzindo /var/log/auth.log. Concatenar direto gera um caminho colado sem separador, fixar a barra invertida quebra fora do Windows, e o método join de string intercala a string base entre os caracteres do argumento, produzindo algo completamente diferente do esperado.",
+      "por_que_erradas": {
+        "1": "Produz um caminho sem separador entre diretório e arquivo.",
+        "2": "Fixa um separador específico de sistema, quebrando a portabilidade.",
+        "3": "O join de string opera sobre uma sequência, intercalando a base entre os elementos."
+      },
+      "fonte": "Módulo pathlib; comportamento verificado em execução",
+      "tags": ["python", "pathlib", "comando", "portabilidade"]
+    },
+    {
+      "id": "1.6.q34",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Uma ferramenta de segurança escrita por você será usada por colegas. Qual prática mais reduz o risco de uso indevido?",
+      "alternativas": [
+        "Deixar explícito no próprio programa que ele exige autorização, exigir confirmação do escopo e registrar o que foi executado e contra quais alvos",
+        "Distribuir o programa como binário, para que ninguém veja o código",
+        "Remover todas as mensagens de saída, para não expor informação",
+        "Permitir que o programa aceite qualquer alvo sem parâmetros obrigatórios"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Ferramenta que varre alvos precisa deixar rastro de quem a usou e onde.",
+        "Esconder o código dificulta a revisão, e não o uso indevido.",
+        "Facilitar apontar para qualquer alvo aumenta ou reduz o risco?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se alguém usar a sua ferramenta contra um alvo não autorizado, o que sobra como registro?",
+      "explicacao": "Ferramentas ofensivas de uso interno devem lembrar o requisito de autorização, exigir escopo explícito e registrar execuções com alvo e responsável — isso reduz uso descuidado e preserva a rastreabilidade quando algo dá errado. Distribuir como binário só dificulta a revisão do próprio código, remover saída elimina evidência útil, e aceitar qualquer alvo sem parâmetro obrigatório facilita justamente o erro que se quer evitar.",
+      "por_que_erradas": {
+        "1": "Ocultar o código impede revisão e não impede uso indevido.",
+        "2": "Remover saída elimina a informação necessária para auditoria.",
+        "3": "Facilitar apontar para qualquer alvo amplia o risco de uso fora de escopo."
+      },
+      "fonte": "Teoria 0.4.t1 e 0.4.t2",
+      "tags": ["python", "etica", "ferramentas", "auditoria", "escopo"]
+    },
+    {
+      "id": "1.6.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Revisando um script de automação de segurança de um colega, quais quatro pontos você verificaria primeiro?",
+      "alternativas": [
+        "Se há credencial no código, se a entrada externa chega a comandos ou a eval, se os erros esperados são tratados sem engolir os demais, e se a execução deixa registro",
+        "Se o código segue o estilo de formatação da equipe e tem comentários suficientes",
+        "Se o script usa as bibliotecas mais recentes disponíveis no repositório de pacotes",
+        "Se o script roda mais rápido que a versão anterior"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense nas quatro falhas recorrentes do módulo.",
+        "Estilo e desempenho importam, mas mudam o risco?",
+        "Uma delas transforma o script em porta de entrada."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses quatro pontos, se estiver errado, transforma o script em vulnerabilidade?",
+      "explicacao": "Os quatro pontos cobrem o que costuma quebrar: segredo no código, que vaza pelo repositório; entrada externa alcançando shell ou eval, que vira execução; tratamento de erro amplo demais, que esconde falha; e ausência de registro, que impede perceber que o script parou. Estilo, versão de bibliotecas e desempenho são revisões legítimas, porém de outra natureza — e nenhuma delas evita um incidente.",
+      "por_que_erradas": {
+        "1": "Estilo e comentários melhoram manutenção, sem alterar risco de segurança.",
+        "2": "Usar as versões mais recentes é bom, mas mais dependências ampliam a superfície.",
+        "3": "Desempenho não é critério de segurança."
+      },
+      "fonte": "Comportamentos verificados em execução; teoria 1.6.t2 e 1.6.t6",
+      "tags": ["python", "revisao", "boas-praticas", "segredos", "carreira"]
+    }
+  ]
+}

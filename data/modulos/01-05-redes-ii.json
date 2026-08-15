@@ -1,0 +1,1028 @@
+{
+  "id": "1.5",
+  "nivel": 1,
+  "titulo": "Redes II — transporte, HTTP e TLS",
+  "objetivos": [
+    "Escolher entre TCP e UDP a partir das garantias que cada um oferece, e descrever o estabelecimento de conexão do TCP",
+    "Reconhecer portas e serviços comuns e interpretar o que uma porta aberta revela",
+    "Explicar a diferença entre HTTP e HTTPS e o que o certificado prova — e o que ele não prova",
+    "Descrever o handshake do TLS 1.3 e o que mudou em relação ao modelo do TLS 1.2"
+  ],
+  "pre_requisitos": ["1.4"],
+  "teoria": [
+    {
+      "id": "1.5.t1",
+      "titulo": "TCP e UDP: duas promessas diferentes",
+      "texto": "TCP estabelece conexão antes de transmitir e promete entrega ordenada e confiável: numera os segmentos, confirma recebimento e retransmite o que se perdeu. UDP não estabelece nada e não promete nada — envia e segue adiante.\n\nA escolha é de compromisso. Transferência de arquivo, página web e e-mail usam TCP porque perder um pedaço é inaceitável. Consulta de DNS, voz e vídeo ao vivo usam UDP porque a latência de reenviar custa mais que o pedaço perdido.\n\nEm segurança, a diferença importa por dois motivos práticos: forjar o endereço de origem é muito mais fácil em UDP, onde não há aperto de mão que comprove o retorno — daí os ataques de amplificação; e o estabelecimento de conexão do TCP dá aos equipamentos de rede um estado a acompanhar.",
+      "analogia": "TCP é carta registrada com aviso de recebimento. UDP é panfleto jogado por baixo da porta.",
+      "erro_comum": "Achar que UDP é \"inseguro\" e TCP é \"seguro\". Nenhum dos dois protege conteúdo; a diferença é de confiabilidade da entrega.",
+      "fonte": "RFC 9293 (TCP); RFC 768 (UDP)"
+    },
+    {
+      "id": "1.5.t2",
+      "titulo": "O estabelecimento de conexão em três passos",
+      "texto": "Para abrir uma conexão TCP, o cliente envia um segmento com o sinalizador SYN e um número de sequência inicial. O servidor responde com SYN e ACK, confirmando o do cliente e enviando o seu. O cliente responde com ACK, e a conexão está estabelecida.\n\nA sequência tem consequências diretas. Uma porta fechada normalmente responde com RST, o que é a base da varredura: a resposta diz se há alguém escutando. E completar ou não o terceiro passo distingue tipos de varredura — a que completa é mais confiável e deixa mais rastro nos registros da aplicação.\n\nO encerramento é separado, com FIN de cada lado. Um RST não é encerramento negociado: é interrupção.",
+      "analogia": "Você chama, a pessoa responde chamando de volta e você confirma. Só então a conversa começa.",
+      "erro_comum": "Confundir o encerramento com o RST. RST é porta na cara; FIN é despedida combinada.",
+      "fonte": "RFC 9293, que substituiu a RFC 793"
+    },
+    {
+      "id": "1.5.t3",
+      "titulo": "Portas: o que uma porta aberta diz",
+      "texto": "A porta identifica o serviço dentro da máquina. Algumas aparecem em toda análise: 22 para SSH, 25 para SMTP, 53 para DNS, 80 para HTTP, 443 para HTTPS, 445 para compartilhamento de arquivos do Windows, 3389 para área de trabalho remota.\n\nUma porta aberta significa que algum processo está escutando ali. Ela não diz se o serviço está atualizado, se exige autenticação nem se aquele serviço deveria existir naquela máquina — e essas três perguntas é que interessam.\n\nA leitura útil é de superfície: cada porta aberta é um ponto de contato que precisa ser corrigido, monitorado e justificado. Serviço de administração exposto na internet é o achado mais comum e mais barato de corrigir.",
+      "analogia": "Portas numeradas em um prédio. Saber que a 443 está destrancada não diz nada sobre quem está do outro lado.",
+      "erro_comum": "Concluir que porta fechada é sinônimo de segurança. O problema costuma estar no serviço que precisa mesmo ficar aberto.",
+      "fonte": "Registro de nomes de serviço e portas da IANA; portas conferidas no arquivo de serviços do sistema"
+    },
+    {
+      "id": "1.5.t4",
+      "titulo": "HTTP e HTTPS",
+      "texto": "HTTP é o protocolo da web: o cliente faz uma requisição com método e caminho, o servidor responde com um código de status e um corpo. Os métodos mais comuns são GET, para obter, e POST, para enviar. Os códigos se organizam por faixa: 2xx sucesso, 3xx redirecionamento, 4xx erro do cliente, 5xx erro do servidor.\n\nHTTPS é o mesmo HTTP dentro de um túnel TLS. O que muda: o conteúdo trafega cifrado, a integridade é verificável, e o servidor apresenta um certificado que prova o controle sobre aquele domínio.\n\nSem HTTPS, qualquer ponto do caminho lê e altera o tráfego — rede sem fio compartilhada, provedor, equipamento intermediário. Com HTTPS, o caminho deixa de ver o conteúdo, mas continua vendo com quem você fala.",
+      "analogia": "Cartão-postal contra envelope lacrado. O carteiro continua sabendo para quem você escreveu.",
+      "erro_comum": "Achar que HTTPS esconde tudo. O nome do domínio de destino continua observável, e o tamanho e o ritmo do tráfego também.",
+      "fonte": "RFC 9110 (semântica do HTTP, incluindo métodos e códigos de status)"
+    },
+    {
+      "id": "1.5.t5",
+      "titulo": "O que o cadeado prova — e o que não prova",
+      "texto": "O certificado apresentado por um site prova duas coisas: que a conexão está cifrada e íntegra, e que quem responde controla aquele nome de domínio. É exatamente isso, e nada além.\n\nO que ele não prova: que a empresa por trás é idônea, que o site não é uma fraude, que o produto será entregue, que os dados serão bem tratados. Certificados de domínio são emitidos de forma automática e gratuita em minutos — inclusive para domínios criados para enganar.\n\nA consequência prática é séria, porque a orientação antiga de \"procure o cadeado\" virou um risco: hoje a maioria dos sites de phishing usa HTTPS válido, e o cadeado dá ao usuário exatamente a confiança que o golpe precisa. A verificação que importa é o nome do domínio, lido com atenção, e não o ícone ao lado dele.",
+      "analogia": "Um envelope lacrado prova que ninguém abriu a carta no caminho. Não prova que quem escreveu é quem diz ser, nem que está falando a verdade.",
+      "erro_comum": "Ensinar \"site com cadeado é site seguro\". É a orientação que mais ajuda o phishing moderno.",
+      "fonte": "RFC 9110; práticas atuais de emissão automatizada de certificados"
+    },
+    {
+      "id": "1.5.t6",
+      "titulo": "O handshake do TLS 1.3",
+      "texto": "O TLS 1.3, definido na RFC 8446, é a versão que se deve assumir como padrão. O handshake completa em um único ida e volta.\n\nO cliente envia o ClientHello já com sua parcela de troca de chaves. O servidor responde com o ServerHello, também com a parcela dele, e a partir daí tudo já vai cifrado: EncryptedExtensions, opcionalmente um pedido de certificado do cliente, o Certificate, o CertificateVerify — que é a assinatura provando a posse da chave privada — e o Finished. O cliente responde com o seu Finished, e os dados de aplicação começam.\n\nO que saiu em relação ao TLS 1.2: a troca de chave por RSA, as suítes sem sigilo futuro, a renegociação, a compressão e as cifras que não são autenticadas. No modelo antigo o servidor podia cifrar a chave de sessão com RSA, e quem obtivesse a chave privada depois conseguia decifrar tráfego gravado no passado. No 1.3 toda troca de chave dá sigilo futuro, então isso deixa de ser possível.",
+      "analogia": "Na versão antiga havia mais rodadas de apresentação antes de baixar a voz. Na nova, os dois já se identificam sussurrando desde a segunda fala.",
+      "erro_comum": "Estudar o handshake do TLS 1.2 como se fosse o atual. Material desatualizado ainda descreve etapas que o 1.3 eliminou.",
+      "fonte": "RFC 8446, seções 1.2 e 2 (verificado)"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "1.5.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Qual é a diferença fundamental entre TCP e UDP?",
+      "alternativas": [
+        "TCP estabelece conexão e garante entrega ordenada e confiável; UDP envia sem estabelecer conexão e sem essas garantias",
+        "TCP cifra o conteúdo transmitido e UDP transmite em texto claro",
+        "TCP é usado em redes locais e UDP em redes de longa distância",
+        "TCP funciona apenas com endereços públicos e UDP com endereços privados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A diferença é sobre garantias de entrega, não sobre proteção de conteúdo.",
+        "Um dos dois numera os segmentos e retransmite o que se perde.",
+        "Nenhum dos dois cifra nada por conta própria."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dos dois você escolheria para transferir um arquivo, e por quê?",
+      "explicacao": "TCP estabelece conexão, numera segmentos, confirma recebimento e retransmite o que falta; UDP simplesmente envia. Nenhum dos dois cifra: proteção de conteúdo vem de TLS, em uma camada acima. Confundir confiabilidade com segurança é o engano mais comum aqui.",
+      "por_que_erradas": {
+        "1": "Nenhum dos dois cifra conteúdo; isso é função do TLS.",
+        "2": "Ambos funcionam em qualquer abrangência de rede.",
+        "3": "O tipo de endereço não tem relação com a escolha do protocolo de transporte."
+      },
+      "fonte": "RFC 9293 (TCP); RFC 768 (UDP)",
+      "tags": ["redes", "tcp", "udp", "transporte", "fundamentos"]
+    },
+    {
+      "id": "1.5.q2",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Coloque na ordem os três passos do estabelecimento de uma conexão TCP (three-way handshake), conforme a RFC 9293.",
+      "itens": [
+        "O cliente envia um segmento com o sinalizador SYN e seu número de sequência inicial",
+        "O servidor responde com SYN e ACK: confirma o número do cliente e envia o seu",
+        "O cliente responde com ACK, confirmando o número do servidor, e a conexão fica estabelecida"
+      ],
+      "ordem_correta": [0, 1, 2],
+      "dicas": [
+        "Quem inicia a conexão é quem quer falar.",
+        "A segunda mensagem faz duas coisas ao mesmo tempo.",
+        "A terceira apenas confirma."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que são necessários três passos, e não dois?",
+      "explicacao": "A sequência é SYN, SYN-ACK e ACK. São três porque cada lado precisa anunciar seu número de sequência inicial e receber confirmação dele — dois passos bastariam para um sentido só. Essa troca também é o que dá ao TCP um estado observável, e é por isso que responder ou não ao terceiro passo distingue tipos de varredura de portas.",
+      "fonte": "RFC 9293, que substituiu a RFC 793 (verificado)",
+      "tags": ["redes", "tcp", "handshake", "ciclo", "fundamentos"]
+    },
+    {
+      "id": "1.5.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que ataques de amplificação costumam usar UDP, e não TCP?",
+      "alternativas": [
+        "Porque UDP não tem estabelecimento de conexão, então o endereço de origem pode ser forjado e a resposta vai para a vítima escolhida",
+        "Porque UDP transmite dados maiores que o TCP em cada pacote",
+        "Porque servidores UDP respondem mais rápido que servidores TCP",
+        "Porque o TCP proíbe respostas maiores que a requisição"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que o aperto de mão do TCP comprova sobre quem está do outro lado?",
+        "Se o atacante forjar a origem em TCP, ele recebe a resposta?",
+        "A amplificação depende de a resposta ir para outro lugar."
+      ],
+      "pergunta_socratica": "Antes de conferir: em TCP, o atacante conseguiria completar o aperto de mão usando um endereço de origem que não é dele?",
+      "explicacao": "O aperto de mão do TCP exige que quem inicia receba a resposta e confirme, o que na prática impede forjar a origem em conexões comuns. UDP não tem essa etapa: basta enviar uma consulta pequena com o endereço da vítima como origem, e o servidor manda a resposta grande para ela. Combinando muitos servidores, o atacante multiplica o tráfego — é o mecanismo por trás do problema do resolvedor de DNS aberto.",
+      "por_que_erradas": {
+        "1": "O tamanho do pacote não é o diferencial; a assimetria vem da relação entre consulta e resposta.",
+        "2": "Velocidade de resposta não é o que viabiliza a amplificação.",
+        "3": "O TCP não impõe essa proibição; o que ele impõe é o aperto de mão."
+      },
+      "fonte": "RFC 9293; RFC 768; teoria 1.4.t5",
+      "tags": ["redes", "udp", "amplificacao", "negacao-de-servico"]
+    },
+    {
+      "id": "1.5.q4",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Em uma conexão TCP, o que normalmente indica um segmento com o sinalizador RST?",
+      "alternativas": [
+        "Interrupção abrupta da conexão, como resposta a uma tentativa de acesso a uma porta sem serviço escutando",
+        "Encerramento negociado da conexão, após ambos os lados concordarem",
+        "Confirmação de recebimento de todos os segmentos anteriores",
+        "Pedido de retransmissão de um segmento perdido"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O encerramento combinado usa outro sinalizador.",
+        "RST vem de reset.",
+        "Pense no que acontece ao bater numa porta onde não há ninguém."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual resposta um varredor de portas recebe quando a porta está fechada?",
+      "explicacao": "RST interrompe: é a resposta típica quando não há serviço escutando naquela porta, ou quando um dos lados abandona a conexão. O encerramento negociado usa FIN de cada lado. Essa diferença é a base da varredura de portas: RST significa fechada, resposta com SYN-ACK significa aberta, e silêncio costuma indicar filtragem.",
+      "por_que_erradas": {
+        "1": "Encerramento negociado usa FIN, não RST.",
+        "2": "Confirmação de recebimento é função do ACK.",
+        "3": "Retransmissão é tratada por confirmação e temporização, não por RST."
+      },
+      "fonte": "RFC 9293",
+      "tags": ["redes", "tcp", "varredura", "diagnostico"]
+    },
+    {
+      "id": "1.5.q5",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "O que uma porta aberta em um servidor efetivamente indica?",
+      "alternativas": [
+        "Que há um processo escutando naquela porta — sem dizer se ele está atualizado, se exige autenticação ou se deveria existir ali",
+        "Que o serviço correspondente está vulnerável e pode ser explorado",
+        "Que qualquer pessoa na internet consegue acessar os dados daquele serviço",
+        "Que o firewall da máquina está desabilitado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Porta aberta é um fato sobre escuta, não sobre qualidade do serviço.",
+        "As perguntas que interessam vêm depois de saber que ela está aberta.",
+        "Duas alternativas transformam um fato em conclusão exagerada."
+      ],
+      "pergunta_socratica": "Antes de conferir: depois de descobrir que a porta 443 está aberta, o que você ainda não sabe?",
+      "explicacao": "Porta aberta significa apenas que algo escuta ali. Se o serviço está corrigido, se exige autenticação, se está exposto por engano e se deveria existir naquela máquina são perguntas separadas — e são elas que decidem o risco. Concluir vulnerabilidade a partir da porta aberta é o erro clássico de quem lê uma varredura pela primeira vez.",
+      "por_que_erradas": {
+        "1": "Porta aberta não implica vulnerabilidade; o serviço pode estar atualizado e bem configurado.",
+        "2": "Acesso depende de autenticação e de regras de rede, não apenas da porta.",
+        "3": "Uma porta aberta pode ser exatamente o que a regra de firewall permite."
+      },
+      "fonte": "Teoria 1.5.t3; teoria 0.2.t1",
+      "tags": ["redes", "portas", "superficie-de-ataque", "interpretacao"]
+    },
+    {
+      "id": "1.5.q6",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Ligue cada porta ao serviço que a utiliza por padrão.",
+      "pares": [
+        ["22", "SSH — acesso remoto por linha de comando"],
+        ["25", "SMTP — envio de correio eletrônico entre servidores"],
+        ["445", "Compartilhamento de arquivos do Windows"],
+        ["3389", "Área de trabalho remota"],
+        ["443", "HTTPS — web sobre TLS"]
+      ],
+      "dicas": [
+        "Duas dessas portas aparecem com frequência em incidentes com ransomware.",
+        "Uma delas é a porta mais comum na internet hoje.",
+        "A menor da lista é usada para administrar servidores."
+      ],
+      "pergunta_socratica": "Antes de conferir: quais dessas portas nunca deveriam estar expostas diretamente à internet?",
+      "explicacao": "SSH na 22, SMTP na 25, compartilhamento do Windows na 445, área de trabalho remota na 3389 e HTTPS na 443. As portas 445 e 3389 são especialmente relevantes: expostas à internet, estão entre os caminhos de entrada mais explorados em campanhas de ransomware, e quase nunca há motivo legítimo para deixá-las acessíveis de fora.",
+      "fonte": "Portas conferidas no arquivo de serviços do sistema, derivado da lista da IANA",
+      "tags": ["redes", "portas", "pareamento", "servicos", "exposicao"]
+    },
+    {
+      "id": "1.5.q7",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [2],
+      "enunciado": "O que HTTPS acrescenta ao HTTP?",
+      "alternativas": [
+        "Cifra o conteúdo, permite verificar a integridade e apresenta um certificado que prova o controle sobre o domínio",
+        "Torna o site mais rápido ao comprimir as respostas do servidor",
+        "Garante que o conteúdo publicado no site é verdadeiro e confiável",
+        "Impede que o site colete dados pessoais do visitante"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O S vem de segurança do transporte, não de veracidade do conteúdo.",
+        "O certificado prova controle sobre o quê, exatamente?",
+        "Duas alternativas atribuem ao HTTPS garantias sobre o comportamento do site."
+      ],
+      "pergunta_socratica": "Antes de conferir: o HTTPS opina sobre o que está escrito na página?",
+      "explicacao": "HTTPS é HTTP dentro de um túnel TLS: cifra o conteúdo, permite detectar alteração no caminho e apresenta um certificado que comprova controle sobre aquele nome de domínio. Ele não diz nada sobre a veracidade do conteúdo, sobre a idoneidade de quem publica ou sobre o que o site faz com os dados coletados.",
+      "por_que_erradas": {
+        "1": "Compressão é recurso à parte e não é o propósito do HTTPS.",
+        "2": "Veracidade do conteúdo está fora do alcance do protocolo.",
+        "3": "O site continua podendo coletar dados normalmente."
+      },
+      "fonte": "RFC 9110; RFC 8446",
+      "tags": ["redes", "https", "tls", "fundamentos"]
+    },
+    {
+      "id": "1.5.q8",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um usuário recebe um link, abre a página, vê o cadeado no navegador e conclui que o site é confiável para digitar a senha do banco. Qual é o erro?",
+      "alternativas": [
+        "O cadeado indica que a conexão é cifrada e que o servidor controla aquele domínio — não que o site seja legítimo; sites de phishing usam HTTPS válido rotineiramente",
+        "O cadeado só aparece em sites legítimos, então a conclusão está correta",
+        "O erro é que o cadeado só é confiável em conexões feitas por rede cabeada",
+        "O erro é que o cadeado indica apenas que o site aceita cartões de crédito"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem consegue emitir um certificado hoje, e em quanto tempo?",
+        "O certificado prova controle sobre o domínio. Qual domínio?",
+        "Um golpista consegue controlar um domínio que ele mesmo registrou?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se o golpista registrou o domínio, ele consegue obter um certificado válido para ele?",
+      "explicacao": "Certificados de validação de domínio são emitidos de forma automática e gratuita em minutos, para qualquer domínio que o solicitante controle — inclusive um registrado para enganar. O cadeado prova cifra e controle do domínio, e nada mais. Hoje a maioria das páginas de phishing usa HTTPS, e a orientação antiga de \"procure o cadeado\" passou a ajudar o golpe: o que precisa ser verificado é o nome do domínio, lido com atenção, e não o ícone ao lado dele.",
+      "por_que_erradas": {
+        "1": "Qualquer um que controle um domínio obtém certificado para ele, legítimo ou não.",
+        "2": "O meio de conexão não altera o significado do certificado.",
+        "3": "O cadeado não tem relação com meios de pagamento aceitos."
+      },
+      "fonte": "RFC 9110; práticas atuais de emissão automatizada de certificados; teoria 1.5.t5",
+      "tags": ["redes", "https", "phishing", "certificados", "engenharia-social"]
+    },
+    {
+      "id": "1.5.q9",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um certificado de validação de domínio prova exatamente o quê?",
+      "alternativas": [
+        "Que quem apresenta o certificado controla aquele nome de domínio, e que a conexão com ele é cifrada e íntegra",
+        "Que a empresa dona do site foi verificada juridicamente pela autoridade certificadora",
+        "Que o conteúdo do site foi analisado e considerado livre de código malicioso",
+        "Que o site cumpre a legislação de proteção de dados aplicável"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O nome do tipo de certificado já diz o que foi validado.",
+        "Verificação jurídica da empresa é outro tipo de certificado, mais caro e mais raro.",
+        "Nenhuma autoridade certificadora analisa conteúdo de site."
+      ],
+      "pergunta_socratica": "Antes de conferir: para emitir esse certificado, a autoridade precisou verificar o quê?",
+      "explicacao": "Validação de domínio significa que a autoridade verificou apenas o controle sobre aquele nome — normalmente por um desafio automático. Não há verificação da empresa, do conteúdo ou de conformidade legal. Existem certificados com validação organizacional, que checam a entidade, mas são minoria e a distinção deixou de ser exibida com destaque pelos navegadores, o que reforça: o cadeado não classifica o site.",
+      "por_que_erradas": {
+        "1": "Verificação jurídica corresponde a outros tipos de certificado, não ao de validação de domínio.",
+        "2": "Autoridades certificadoras não analisam o conteúdo dos sites.",
+        "3": "Conformidade legal não é objeto de certificação por autoridade certificadora."
+      },
+      "fonte": "Práticas de emissão de certificados; RFC 9110",
+      "tags": ["redes", "certificados", "https", "phishing"]
+    },
+    {
+      "id": "1.5.q10",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Coloque na ordem as mensagens do handshake do TLS 1.3 (RFC 8446), em uma conexão sem retomada de sessão. Atenção: esta é a versão 1.3, não o modelo do TLS 1.2.",
+      "itens": [
+        "ClientHello, já com a parcela de troca de chaves do cliente",
+        "ServerHello, com a parcela de troca de chaves do servidor",
+        "EncryptedExtensions, já protegido pelas chaves de handshake",
+        "Certificate: o servidor apresenta sua cadeia de certificados",
+        "CertificateVerify: assinatura que prova a posse da chave privada",
+        "Finished do servidor, encerrando o lado dele do handshake",
+        "Finished do cliente, após o qual os dados de aplicação começam"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4, 5, 6],
+      "dicas": [
+        "No TLS 1.3, a parcela de troca de chaves vai já na primeira mensagem — é isso que permite fechar em um ida e volta.",
+        "Tudo o que vem depois do ServerHello já está cifrado.",
+        "A assinatura que prova a posse da chave privada vem depois de o certificado ser apresentado."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que o cliente já envia sua parcela de chave na primeira mensagem, em vez de esperar o servidor escolher os parâmetros?",
+      "explicacao": "A ordem é ClientHello, ServerHello, EncryptedExtensions, Certificate, CertificateVerify, Finished do servidor e Finished do cliente. Enviar a parcela de troca de chaves já no ClientHello é o que permite ao TLS 1.3 completar em um único ida e volta, contra dois do modelo anterior — e tudo após o ServerHello já viaja cifrado. Um pedido de certificado do cliente, quando existe, entra entre o EncryptedExtensions e o Certificate.",
+      "fonte": "RFC 8446, seção 2 (verificado)",
+      "tags": ["redes", "tls", "tls13", "handshake", "ciclo"]
+    },
+    {
+      "id": "1.5.q11",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "O que foi removido no TLS 1.3 em relação ao TLS 1.2?",
+      "alternativas": [
+        "A troca de chave por RSA, as suítes sem sigilo futuro, a renegociação, a compressão e as cifras que não são autenticadas",
+        "O uso de certificados, substituídos por chaves compartilhadas previamente",
+        "A verificação de integridade das mensagens, que passou a ser opcional",
+        "O suporte a conexões pela porta 443, migrada para uma porta própria"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Uma das remoções elimina a possibilidade de decifrar tráfego gravado no passado.",
+        "Outra elimina uma fonte histórica de vulnerabilidades em cabeçalhos comprimidos.",
+        "Certificados continuam existindo normalmente."
+      ],
+      "pergunta_socratica": "Antes de conferir: no modelo antigo, o que acontecia com tráfego gravado se a chave privada do servidor vazasse depois?",
+      "explicacao": "O TLS 1.3 removeu a troca de chave por RSA e todas as suítes sem sigilo futuro, além de proibir renegociação, eliminar a compressão e restringir as cifras às autenticadas. A consequência mais importante é o sigilo futuro obrigatório: no modelo antigo, quem gravasse o tráfego e obtivesse a chave privada do servidor depois conseguia decifrar tudo retroativamente; no 1.3 isso deixa de ser possível. Certificados continuam, a integridade continua obrigatória e a porta segue a 443.",
+      "por_que_erradas": {
+        "1": "Certificados continuam sendo usados; chaves previamente compartilhadas são uma opção adicional, para retomada.",
+        "2": "Integridade é obrigatória, e as cifras autenticadas passaram a ser as únicas admitidas.",
+        "3": "HTTPS continua na porta 443."
+      },
+      "fonte": "RFC 8446, seção 1.2 (verificado)",
+      "tags": ["redes", "tls", "tls13", "criptografia", "sigilo-futuro"]
+    },
+    {
+      "id": "1.5.q12",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "O que significa sigilo futuro (forward secrecy) em uma conexão TLS?",
+      "alternativas": [
+        "Que o comprometimento posterior da chave privada do servidor não permite decifrar tráfego gravado anteriormente",
+        "Que a conexão passa a usar uma cifra mais forte a cada nova sessão estabelecida",
+        "Que o certificado do servidor é renovado automaticamente antes de expirar",
+        "Que o cliente pode continuar a sessão em outra rede sem refazer o handshake"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A propriedade fala sobre o passado, e não sobre o futuro das cifras.",
+        "Pense em alguém que grava tráfego hoje e obtém a chave privada daqui a dois anos.",
+        "É o que se perde quando a chave de sessão é transportada cifrada com RSA."
+      ],
+      "pergunta_socratica": "Antes de conferir: se alguém gravar sua conexão hoje e roubar a chave do servidor em 2030, o que consegue ler?",
+      "explicacao": "Com sigilo futuro, cada sessão negocia material de chave efêmero, e a chave privada de longo prazo do servidor serve apenas para autenticar — não para transportar a chave de sessão. Quem gravar o tráfego e obtiver a chave privada depois não consegue decifrar nada retroativamente. É exatamente o que a remoção da troca de chave por RSA no TLS 1.3 tornou obrigatório.",
+      "por_que_erradas": {
+        "1": "A força da cifra não aumenta progressivamente a cada sessão.",
+        "2": "Renovação de certificado é tarefa operacional, sem relação com a propriedade.",
+        "3": "Retomada de sessão é outro recurso, e mal utilizada pode até enfraquecer garantias."
+      },
+      "fonte": "RFC 8446, seção 1.2 (verificado)",
+      "tags": ["redes", "tls", "sigilo-futuro", "criptografia"]
+    },
+    {
+      "id": "1.5.q13",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que uma faixa de código de status HTTP 4xx indica?",
+      "alternativas": [
+        "Erro atribuído à requisição do cliente, como recurso inexistente ou falta de autorização",
+        "Erro interno do servidor ao processar uma requisição válida",
+        "Redirecionamento para outro endereço",
+        "Sucesso no processamento da requisição"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As faixas são organizadas por responsabilidade e por resultado.",
+        "5xx é a faixa do servidor.",
+        "3xx trata de mudança de endereço."
+      ],
+      "pergunta_socratica": "Antes de conferir: um código 404 aponta o problema para qual lado da conversa?",
+      "explicacao": "A faixa 2xx é sucesso, 3xx é redirecionamento, 4xx atribui o erro à requisição do cliente — recurso inexistente, falta de autenticação ou de autorização — e 5xx indica falha do servidor. Em análise de log, a distinção orienta a investigação: muitos 4xx de uma mesma origem sugerem varredura ou tentativa de acesso indevido, enquanto muitos 5xx apontam problema na própria aplicação.",
+      "por_que_erradas": {
+        "1": "Erro do servidor corresponde à faixa 5xx.",
+        "2": "Redirecionamento corresponde à faixa 3xx.",
+        "3": "Sucesso corresponde à faixa 2xx."
+      },
+      "fonte": "RFC 9110, seção 15 (semântica do HTTP)",
+      "tags": ["redes", "http", "status", "analise-de-log"]
+    },
+    {
+      "id": "1.5.q14",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [2, 1],
+      "artefato": "203.0.113.45 - - [12/Mar/2026:03:12:41] \"GET /admin HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:41] \"GET /wp-admin HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:42] \"GET /.git/config HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:42] \"GET /backup.zip HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:43] \"GET /.env HTTP/1.1\" 200 419",
+      "enunciado": "Qual é a leitura mais preocupante deste trecho de log de servidor web?",
+      "alternativas": [
+        "Uma varredura por caminhos comuns termina em 200 no /.env — um arquivo de configuração que costuma conter credenciais foi entregue com sucesso",
+        "O servidor está sobrecarregado, já que respondeu a cinco requisições em três segundos",
+        "Os códigos 404 indicam falha da aplicação e devem ser corrigidos com prioridade",
+        "O endereço de origem é interno, o que descarta a hipótese de ataque externo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o código de status da última linha com o das anteriores.",
+        "O que costuma existir dentro de um arquivo chamado .env?",
+        "O tamanho da resposta da última linha é diferente das demais."
+      ],
+      "pergunta_socratica": "Antes de conferir: quatro tentativas falharam e uma funcionou. Qual delas importa?",
+      "explicacao": "As quatro primeiras linhas são varredura automatizada por caminhos conhecidos, e retornam 404 — ruído comum na internet. A quinta é o achado: 200 com 419 bytes significa que o arquivo .env foi entregue, e arquivos com esse nome tipicamente guardam credenciais de banco e chaves de API. A resposta correta é tratar tudo que estava nesse arquivo como comprometido e rotacionar, além de remover o arquivo da raiz servida.",
+      "por_que_erradas": {
+        "1": "Cinco requisições em três segundos não caracterizam sobrecarga.",
+        "2": "Os 404 estão corretos: o servidor recusou caminhos inexistentes, que é o comportamento desejado.",
+        "3": "203.0.113.0/24 é faixa reservada a documentação, e a origem externa não descarta nada."
+      },
+      "fonte": "RFC 9110; RFC 5737 (faixas para documentação)",
+      "tags": ["redes", "http", "artefato", "varredura", "exposicao", "segredos"]
+    },
+    {
+      "id": "1.5.q15",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Mesmo com HTTPS, o que um observador no caminho da conexão ainda consegue perceber?",
+      "alternativas": [
+        "Com quem você está falando, além do volume e do ritmo do tráfego",
+        "O conteúdo completo das páginas visitadas",
+        "As credenciais digitadas nos formulários",
+        "Nada: o HTTPS torna a conexão completamente opaca"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O túnel esconde o conteúdo. Ele esconde o destino?",
+        "Pense no que o roteador precisa saber para entregar o pacote.",
+        "Tamanho e frequência do tráfego são observáveis mesmo sem ler o conteúdo."
+      ],
+      "pergunta_socratica": "Antes de conferir: para entregar seus pacotes, a rede precisa saber para onde eles vão?",
+      "explicacao": "O conteúdo fica protegido, mas o destino não: endereço, e frequentemente o nome do domínio, permanecem observáveis, assim como volume e ritmo do tráfego. Isso basta para inferir bastante coisa — quais serviços você usa e quando. É por isso que registro de consultas de DNS continua sendo fonte de detecção mesmo em uma rede toda cifrada.",
+      "por_que_erradas": {
+        "1": "O conteúdo das páginas é justamente o que o HTTPS protege.",
+        "2": "Credenciais enviadas por HTTPS não são legíveis no caminho.",
+        "3": "Metadados continuam visíveis; a conexão não é opaca."
+      },
+      "fonte": "RFC 8446; RFC 9110",
+      "tags": ["redes", "https", "metadados", "privacidade", "deteccao"]
+    },
+    {
+      "id": "1.5.q16",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um site interno apresenta aviso de certificado inválido e a equipe orienta os usuários a \"clicar em avançar e continuar\". Qual é o problema dessa orientação?",
+      "alternativas": [
+        "Treina os usuários a ignorar o único sinal que os avisaria de uma interceptação real, inclusive fora da empresa",
+        "Nenhum: avisos de certificado em sites internos são sempre falsos positivos",
+        "O problema é apenas estético, já que o aviso deixa a navegação mais lenta",
+        "O problema é que o aviso impede o funcionamento de formulários na página"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que esse aviso significaria em um site externo?",
+        "Hábitos aprendidos no trabalho vão para casa.",
+        "O aviso é o único sinal visível de interceptação para o usuário comum."
+      ],
+      "pergunta_socratica": "Antes de conferir: depois de clicar em avançar cinquenta vezes no trabalho, o que o usuário faz diante do mesmo aviso no banco?",
+      "explicacao": "O aviso de certificado é, para o usuário comum, o único indício visível de que alguém pode estar no meio da conexão. Ensinar a ignorá-lo cria um hábito que ele leva para fora da empresa, exatamente onde o aviso importaria. A correção é técnica e barata: emitir certificados válidos para os sistemas internos, por autoridade própria distribuída às máquinas ou por certificados públicos.",
+      "por_que_erradas": {
+        "1": "Avisos internos costumam ter causa de configuração, mas ignorá-los como regra é o problema.",
+        "2": "O aviso não é estético nem causa lentidão.",
+        "3": "O aviso não impede formulários; ele alerta sobre a validação do certificado."
+      },
+      "fonte": "RFC 8446; teoria 1.5.t5",
+      "tags": ["redes", "certificados", "cultura", "interceptacao", "usabilidade"]
+    },
+    {
+      "id": "1.5.q17",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2, 1],
+      "enunciado": "Uma aplicação web ainda aceita conexões em HTTP além de HTTPS. Qual medida trata melhor o risco?",
+      "alternativas": [
+        "Redirecionar todo HTTP para HTTPS e instruir o navegador a usar apenas HTTPS naquele domínio nas próximas visitas",
+        "Manter as duas portas abertas e orientar os usuários a digitar sempre o endereço com https",
+        "Desligar o HTTPS e manter apenas HTTP, simplificando a configuração",
+        "Bloquear a porta 443 e usar uma porta alternativa para o tráfego cifrado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A primeira requisição do usuário costuma ser em HTTP, antes do redirecionamento.",
+        "Existe um mecanismo que faz o navegador nem tentar HTTP nas visitas seguintes.",
+        "Orientar o usuário a digitar corretamente é controle de intenção, não de mecanismo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o usuário digita o endereço sem o https, qual é a primeira conexão que sai da máquina dele?",
+      "explicacao": "Redirecionar resolve a partir da segunda etapa, mas a primeira requisição ainda sai em texto claro e pode ser interceptada. Instruir o navegador a usar apenas HTTPS naquele domínio elimina essa janela nas visitas seguintes. Depender de o usuário digitar o endereço corretamente é controle de intenção, e usar porta alternativa apenas dificulta o acesso legítimo sem reduzir risco.",
+      "por_que_erradas": {
+        "1": "Depender da digitação do usuário não é controle confiável.",
+        "2": "Desligar o HTTPS elimina toda a proteção de transporte.",
+        "3": "Trocar a porta não protege o transporte e atrapalha o acesso legítimo."
+      },
+      "fonte": "RFC 9110; RFC 6797 (política de transporte estrito)",
+      "tags": ["redes", "https", "hardening", "interceptacao"]
+    },
+    {
+      "id": "1.5.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Por que o DNS usa UDP para consultas comuns e TCP em algumas situações?",
+      "alternativas": [
+        "UDP é mais leve e basta para consultas e respostas curtas; TCP entra quando a resposta é grande ou em transferência de zona",
+        "UDP é usado por clientes e TCP exclusivamente por servidores raiz",
+        "UDP é usado quando o servidor está na mesma rede e TCP quando está na internet",
+        "UDP é usado para consultas cifradas e TCP para consultas em texto claro"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Consulta de nome é uma troca curta: vale a pena estabelecer conexão?",
+        "O que acontece quando a resposta não cabe em um datagrama?",
+        "Transferência de zona move um volume bem maior de dados."
+      ],
+      "pergunta_socratica": "Antes de conferir: para uma pergunta de uma linha, compensa fazer um aperto de mão de três passos?",
+      "explicacao": "Consulta e resposta de DNS costumam ser curtas, e o custo do estabelecimento de conexão do TCP não se justifica — daí o uso de UDP. Quando a resposta é grande demais ou em transferência de zona entre servidores, o TCP é usado. A escolha por UDP é também o que viabiliza os ataques de amplificação, já que forjar a origem fica trivial.",
+      "por_que_erradas": {
+        "1": "A escolha não depende do papel do servidor na hierarquia.",
+        "2": "A distância ou a localização da rede não determina o transporte.",
+        "3": "Cifra de consultas de DNS é assunto de protocolos específicos, e não do transporte escolhido."
+      },
+      "fonte": "RFC 1035; RFC 9293",
+      "tags": ["redes", "dns", "tcp", "udp", "transporte"]
+    },
+    {
+      "id": "1.5.q19",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "trecho": "GUIA DE SEGURANÇA PARA USUÁRIOS — versão 2\n1. Antes de digitar sua senha, confira se o site tem o cadeado no navegador.\n2. Site com cadeado é site seguro e pode receber seus dados.\n3. Se aparecer aviso de certificado, clique em avançar; costuma ser problema do navegador.\n4. Prefira redes sem fio abertas apenas para navegação, nunca para acessar o banco.",
+      "enunciado": "Quais itens deste guia orientam mal o usuário?",
+      "alternativas": [
+        "Os itens 1, 2 e 3: o cadeado prova cifra e controle do domínio, não idoneidade, e ensinar a ignorar avisos de certificado remove o único sinal de interceptação",
+        "Apenas o item 4, pois redes abertas não devem ser usadas nem para navegação",
+        "Apenas o item 3, já que os itens 1 e 2 estão corretos",
+        "Nenhum: o guia reflete as boas práticas atuais de orientação a usuários"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Sites de phishing têm cadeado hoje?",
+        "O item 2 transforma uma propriedade técnica em julgamento sobre o site.",
+        "O item 3 desativa o único aviso que o usuário veria."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses conselhos um golpista gostaria que a sua empresa ensinasse?",
+      "explicacao": "Três itens estão errados e se reforçam. O cadeado prova cifra e controle do domínio, então procurar por ele não distingue site legítimo de fraude — hoje a maioria das páginas de phishing usa HTTPS válido. O item 2 é o erro conceitual central, e o 3 elimina o único sinal visível de interceptação. A orientação correta é ler o nome do domínio com atenção, desconfiar de links recebidos e nunca ignorar aviso de certificado. O item 4 é razoável, embora HTTPS proteja o transporte também em rede aberta.",
+      "por_que_erradas": {
+        "1": "O item 4 é uma orientação conservadora e defensável, não o principal problema.",
+        "2": "Os itens 1 e 2 são justamente a raiz do problema.",
+        "3": "O guia repete a orientação antiga que hoje favorece o phishing."
+      },
+      "fonte": "RFC 8446; práticas atuais de emissão de certificados; teoria 1.5.t5",
+      "tags": ["redes", "https", "phishing", "caca-erro", "cultura"]
+    },
+    {
+      "id": "1.5.q20",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "No TLS 1.3, a partir de que ponto do handshake as mensagens já trafegam cifradas?",
+      "alternativas": [
+        "A partir do ServerHello: tudo o que vem depois dele já é protegido por chaves de handshake",
+        "Somente após o Finished do cliente, quando os dados de aplicação começam",
+        "Desde o ClientHello, incluindo a primeira mensagem",
+        "Apenas o certificado é cifrado; as demais mensagens seguem em texto claro"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Para cifrar, os dois lados precisam ter trocado suas parcelas de chave.",
+        "Em qual mensagem o servidor envia a parcela dele?",
+        "O ClientHello precisa ser legível para o servidor entender o que foi proposto."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual é a primeira mensagem depois da qual os dois lados já conseguem derivar uma chave comum?",
+      "explicacao": "O ClientHello e o ServerHello viajam em claro porque carregam as parcelas de troca de chaves; a partir do ServerHello os dois lados já derivam chaves de handshake, e todo o restante — EncryptedExtensions, Certificate, CertificateVerify e Finished — vai protegido. É uma diferença importante frente ao modelo do TLS 1.2, em que o certificado do servidor trafegava em claro.",
+      "por_que_erradas": {
+        "1": "A proteção começa antes disso, já nas mensagens de handshake após o ServerHello.",
+        "2": "O ClientHello precisa ser legível: é ele que propõe parâmetros e carrega a parcela de chave.",
+        "3": "Não é só o certificado: todas as mensagens após o ServerHello são protegidas."
+      },
+      "fonte": "RFC 8446, seção 2 (verificado)",
+      "tags": ["redes", "tls", "tls13", "handshake", "criptografia"]
+    },
+    {
+      "id": "1.5.q21",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Por que estudar o handshake do TLS 1.2 como se fosse o atual pode levar a conclusões erradas?",
+      "alternativas": [
+        "Porque etapas e mecanismos daquele modelo, como a troca de chave por RSA, foram removidos no 1.3, e o número de idas e voltas mudou",
+        "Porque o TLS 1.2 nunca foi usado em produção, tendo sido apenas uma proposta",
+        "Porque o TLS 1.2 e o 1.3 usam portas diferentes, o que muda a configuração de firewall",
+        "Porque o TLS 1.3 não usa certificados, tornando todo o modelo anterior irrelevante"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que foi removido muda o que se deve procurar em uma análise.",
+        "O número de idas e voltas do handshake é o mesmo nas duas versões?",
+        "Certificados continuam existindo no 1.3."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você procurar por uma mensagem que não existe mais, o que conclui ao não encontrá-la?",
+      "explicacao": "O TLS 1.3 fecha em um ida e volta, removeu a troca de chave por RSA e as suítes sem sigilo futuro, proibiu renegociação e eliminou a compressão, além de proteger tudo após o ServerHello. Estudar o modelo antigo como atual leva a procurar mensagens que não existem mais e a recomendar controles para riscos já eliminados. O TLS 1.2 foi e ainda é amplamente usado, e continua sendo importante reconhecê-lo — como versão anterior, e nomeada.",
+      "por_que_erradas": {
+        "1": "O TLS 1.2 foi e continua sendo usado em produção em larga escala.",
+        "2": "Ambas as versões usam as mesmas portas.",
+        "3": "O TLS 1.3 continua usando certificados."
+      },
+      "fonte": "RFC 8446, seções 1.2 e 2 (verificado)",
+      "tags": ["redes", "tls", "tls13", "versoes", "atualizacao"]
+    },
+    {
+      "id": "1.5.q22",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 0],
+      "enunciado": "Uma varredura mostra a porta 3389 aberta em um servidor acessível pela internet. Qual é a avaliação e a ação correta?",
+      "alternativas": [
+        "Área de trabalho remota exposta é um dos caminhos de entrada mais explorados; a ação é retirar da internet e exigir acesso por rede privada ou canal intermediário controlado",
+        "Porta 3389 é usada por servidores web e não representa risco adicional",
+        "A porta pode permanecer aberta desde que a senha do administrador seja longa",
+        "A ação correta é trocar a porta para um número alto, o que resolve a exposição"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual serviço usa essa porta, e o que ele dá a quem consegue autenticar?",
+        "Trocar o número da porta esconde de quem?",
+        "Senha longa protege contra adivinhação; e contra falha do serviço?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quem conseguir autenticar nessa porta ganha o quê, exatamente?",
+      "explicacao": "A 3389 é a porta da área de trabalho remota, e quem autentica nela ganha sessão interativa no servidor — por isso está entre os vetores de entrada mais usados em campanhas de ransomware. Senha longa não protege contra falha no próprio serviço, e mudar o número é obscuridade: varreduras percorrem todas as portas. A correção é retirar da internet e exigir passagem por rede privada ou por um ponto de acesso controlado com múltiplo fator.",
+      "por_que_erradas": {
+        "1": "3389 é de área de trabalho remota; servidores web usam 80 e 443.",
+        "2": "Senha forte não cobre vulnerabilidade no serviço exposto.",
+        "3": "Varreduras cobrem todas as portas; trocar o número não reduz exposição."
+      },
+      "fonte": "Porta conferida no arquivo de serviços do sistema; teoria 0.2.t5",
+      "tags": ["redes", "portas", "rdp", "exposicao", "hardening"]
+    },
+    {
+      "id": "1.5.q23",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que equipamentos de rede conseguem acompanhar o estado de conexões TCP, mas não de tráfego UDP da mesma forma?",
+      "alternativas": [
+        "Porque o TCP tem estabelecimento e encerramento explícitos, o que define começo e fim de uma conexão; o UDP não tem esse conceito",
+        "Porque o UDP é cifrado por padrão e o equipamento não consegue inspecioná-lo",
+        "Porque o UDP usa portas dinâmicas e o TCP usa portas fixas",
+        "Porque o TCP transmite menos dados e é mais fácil de acompanhar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que marca o início e o fim de uma conexão TCP?",
+        "Existe algo equivalente no UDP?",
+        "Nenhum dos dois é cifrado por padrão."
+      ],
+      "pergunta_socratica": "Antes de conferir: como um firewall sabe que uma conexão UDP terminou?",
+      "explicacao": "O TCP tem aperto de mão para abrir e troca de FIN para fechar, o que dá ao firewall marcos claros para criar e remover uma entrada de estado. O UDP não tem nada disso: o equipamento precisa recorrer a tempo de expiração para decidir quando esquecer um fluxo. Daí a filtragem de UDP ser mais grosseira e ataques com origem forjada serem mais difíceis de conter nesse protocolo.",
+      "por_que_erradas": {
+        "1": "Nenhum dos dois é cifrado por padrão.",
+        "2": "Ambos usam portas fixas para serviços e dinâmicas para clientes.",
+        "3": "O volume transmitido não é o critério; o que falta ao UDP é a noção de conexão."
+      },
+      "fonte": "RFC 9293; RFC 768",
+      "tags": ["redes", "tcp", "udp", "firewall", "estado"]
+    },
+    {
+      "id": "1.5.q24",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Qual é a diferença prática entre os métodos GET e POST em HTTP?",
+      "alternativas": [
+        "GET pede um recurso e seus parâmetros costumam ir na própria URL; POST envia dados no corpo da requisição",
+        "GET é cifrado e POST trafega em texto claro",
+        "GET só funciona em HTTPS e POST só funciona em HTTP",
+        "GET envia dados ao servidor e POST apenas recupera informação"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Onde os parâmetros de uma busca aparecem quando você usa um site?",
+        "Cifra depende do protocolo de transporte, não do método.",
+        "Uma alternativa inverte os papéis dos dois métodos."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que enviar uma senha por GET seria uma má ideia?",
+      "explicacao": "GET recupera recursos e seus parâmetros costumam viajar na URL, que é registrada em logs de servidor, histórico do navegador e cabeçalhos de referência. POST envia dados no corpo, que não vai para essas mesmas fontes. Nenhum dos dois cifra: isso é papel do HTTPS. É por isso que dados sensíveis não devem ir na URL, mesmo sob HTTPS — o transporte está protegido, mas os registros continuam guardando o endereço completo.",
+      "por_que_erradas": {
+        "1": "Cifra vem do HTTPS, e vale igualmente para os dois métodos.",
+        "2": "Ambos funcionam nos dois protocolos.",
+        "3": "A descrição está invertida."
+      },
+      "fonte": "RFC 9110, seção 9 (métodos)",
+      "tags": ["redes", "http", "metodos", "segredos", "logs"]
+    },
+    {
+      "id": "1.5.q25",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2, 1],
+      "enunciado": "Uma equipe quer reduzir o risco de interceptação em redes sem fio compartilhadas usadas por funcionários em viagem. Qual medida é mais eficaz?",
+      "alternativas": [
+        "Exigir que todo acesso a sistemas corporativos passe por um túnel cifrado, e garantir HTTPS obrigatório nas aplicações",
+        "Orientar os funcionários a usar apenas redes sem fio com senha divulgada pelo estabelecimento",
+        "Instalar antivírus atualizado nos notebooks usados em viagem",
+        "Reduzir o tempo de sessão das aplicações para 15 minutos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Rede com senha compartilhada protege contra quem, exatamente?",
+        "O que impede a leitura do tráfego mesmo em uma rede hostil?",
+        "Antivírus atua sobre código malicioso, não sobre escuta de rede."
+      ],
+      "pergunta_socratica": "Antes de conferir: numa rede em que o atacante também é cliente, o que ainda protege o seu tráfego?",
+      "explicacao": "Cifra fim a fim é o que protege em rede não confiável: o túnel corporativo e o HTTPS obrigatório tornam o tráfego ilegível para quem está no caminho, inclusive para outro cliente da mesma rede. Senha divulgada pelo estabelecimento não ajuda — todos a conhecem, inclusive o atacante. Antivírus trata de outro vetor, e sessão curta reduz a janela sem impedir a leitura.",
+      "por_que_erradas": {
+        "1": "Senha compartilhada com todos os clientes não protege contra os próprios clientes.",
+        "2": "Antivírus não impede interceptação de tráfego.",
+        "3": "Sessão curta limita a janela, sem tornar o tráfego ilegível."
+      },
+      "fonte": "RFC 8446; teoria 1.5.t4",
+      "tags": ["redes", "https", "vpn", "interceptacao", "mobilidade"]
+    },
+    {
+      "id": "1.5.q26",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3, 2],
+      "enunciado": "Qual é o papel da mensagem CertificateVerify no handshake do TLS 1.3?",
+      "alternativas": [
+        "Provar que quem enviou o certificado possui a chave privada correspondente, assinando os dados do handshake",
+        "Verificar se o certificado apresentado não está na lista de certificados revogados",
+        "Confirmar que a cadeia de certificados chega a uma autoridade confiável",
+        "Negociar qual algoritmo de cifra será usado para os dados de aplicação"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Apresentar um certificado é fácil; qualquer um pode copiar um certificado público.",
+        "O que distingue quem apresenta o certificado de quem realmente é o dono dele?",
+        "Verificação de revogação e validação de cadeia são etapas do cliente, não mensagens do protocolo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se certificados são públicos, o que impede um impostor de simplesmente apresentar o certificado de outro site?",
+      "explicacao": "Certificados são públicos, então apresentá-los não prova nada por si. O CertificateVerify traz uma assinatura sobre os dados do handshake, feita com a chave privada correspondente ao certificado — é isso que amarra a identidade àquela conexão específica. Validação de cadeia e checagem de revogação são verificações feitas pelo cliente, e a negociação de algoritmos acontece nas mensagens Hello.",
+      "por_que_erradas": {
+        "1": "Revogação é verificada pelo cliente por outros mecanismos.",
+        "2": "A validação da cadeia é feita pelo cliente ao avaliar o certificado recebido.",
+        "3": "A negociação de parâmetros ocorre no ClientHello e no ServerHello."
+      },
+      "fonte": "RFC 8446, seção 2 (verificado)",
+      "tags": ["redes", "tls", "tls13", "certificados", "autenticacao"]
+    },
+    {
+      "id": "1.5.q27",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1, 0],
+      "enunciado": "Um servidor de banco de dados interno aparece com a porta de administração acessível a partir de toda a rede da empresa. Qual é a leitura correta?",
+      "alternativas": [
+        "É superfície desnecessária: o acesso deveria ser restrito às máquinas que realmente precisam, mesmo dentro da rede interna",
+        "Não há risco, porque a porta não está exposta à internet",
+        "É a configuração recomendada, pois facilita o trabalho da equipe de suporte",
+        "O risco só existe se o banco de dados não tiver senha configurada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem já está dentro da rede alcança essa porta?",
+        "Relembre a defesa contra movimento lateral.",
+        "Senha protege contra acesso; ela protege contra falha no serviço?"
+      ],
+      "pergunta_socratica": "Antes de conferir: uma estação comprometida no setor comercial precisa alcançar a porta de administração do banco?",
+      "explicacao": "Rede interna não é zona confiável: qualquer máquina comprometida ali alcança essa porta e ganha um alvo direto. Restringir o acesso às origens que realmente precisam é aplicação de menor privilégio no nível de rede, e é o que transforma um comprometimento pontual em algo contido. Senha é necessária, mas não cobre falha no próprio serviço.",
+      "por_que_erradas": {
+        "1": "A maior parte do movimento lateral acontece justamente dentro da rede interna.",
+        "2": "Facilitar o suporte não justifica exposição ampla; restrição por origem preserva a operação.",
+        "3": "Senha configurada não protege contra vulnerabilidade no serviço nem contra credencial vazada."
+      },
+      "fonte": "NIST Cybersecurity Framework (proteger); teoria 0.2.t5",
+      "tags": ["redes", "portas", "segmentacao", "menor-privilegio", "movimento-lateral"]
+    },
+    {
+      "id": "1.5.q28",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Ligue cada faixa de código de status HTTP ao seu significado.",
+      "pares": [
+        ["2xx", "Sucesso: a requisição foi recebida, entendida e atendida"],
+        ["3xx", "Redirecionamento: é preciso outra ação para completar a requisição"],
+        ["4xx", "Erro atribuído ao cliente, como recurso inexistente ou falta de autorização"],
+        ["5xx", "Erro do servidor ao processar uma requisição aparentemente válida"]
+      ],
+      "dicas": [
+        "As faixas seguem uma progressão: sucesso, desvio, culpa do cliente, culpa do servidor.",
+        "404 e 403 pertencem à mesma faixa.",
+        "500 e 503 pertencem a outra."
+      ],
+      "pergunta_socratica": "Antes de conferir: muitos códigos da terceira faixa vindos de uma única origem sugerem o quê?",
+      "explicacao": "2xx sucesso, 3xx redirecionamento, 4xx erro do cliente e 5xx erro do servidor. Em análise de log a distinção orienta a conclusão: sequência de 4xx de uma mesma origem costuma indicar varredura por caminhos, enquanto muitos 5xx apontam problema na aplicação — e um 200 no meio de uma sequência de 404 é justamente o que merece atenção.",
+      "fonte": "RFC 9110, seção 15",
+      "tags": ["redes", "http", "status", "pareamento", "analise-de-log"]
+    },
+    {
+      "id": "1.5.q29",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "O TLS 1.3 permite retomar sessões anteriores e enviar dados já na primeira mensagem, sem esperar o handshake completo. Qual é o cuidado associado a esse recurso?",
+      "alternativas": [
+        "Os dados enviados antes da conclusão do handshake podem ser reenviados por um atacante, então não devem disparar operações que causem efeito ao serem repetidas",
+        "O recurso desabilita a verificação do certificado do servidor",
+        "O recurso só funciona em conexões sem cifra",
+        "O recurso impede o uso de sigilo futuro em todas as conexões seguintes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que significa enviar dados antes de o outro lado provar quem é?",
+        "Pense em uma requisição que transfere dinheiro sendo enviada duas vezes.",
+        "O problema é de repetição, não de identidade do servidor."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um atacante gravar essa primeira mensagem e reenviá-la depois, o servidor consegue perceber?",
+      "explicacao": "Os dados enviados na primeira mensagem, antes da conclusão do handshake, não têm as mesmas garantias do restante da conexão e podem ser capturados e reenviados por um atacante. Por isso só devem carregar operações cuja repetição não cause efeito — uma leitura, por exemplo, e nunca uma transferência. A verificação do certificado continua acontecendo, e o recurso não elimina o sigilo futuro das conexões completas.",
+      "por_que_erradas": {
+        "1": "A verificação do certificado continua existindo no handshake.",
+        "2": "O recurso opera dentro do TLS, com dados protegidos por chaves derivadas da sessão anterior.",
+        "3": "Conexões completas continuam com sigilo futuro."
+      },
+      "fonte": "RFC 8446 (verificado)",
+      "tags": ["redes", "tls", "tls13", "repeticao", "criptografia"]
+    },
+    {
+      "id": "1.5.q30",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "artefato": "Certificado apresentado por: pagamento-banc0-seguro.com\nEmitido para . . . : pagamento-banc0-seguro.com\nEmitido por. . . . : autoridade certificadora automatizada e gratuita\nVálido de . . . . : 12/03/2026\nVálido até . . . . : 10/06/2026\nStatus da conexão. : cifrada, certificado válido",
+      "enunciado": "O usuário chegou a esta página por um link recebido por mensagem. O que este certificado permite concluir?",
+      "alternativas": [
+        "Apenas que a conexão está cifrada e que quem responde controla esse domínio; o nome do domínio, com zero no lugar da letra o, é o indício que importa",
+        "Que o site pertence ao banco, já que o certificado é válido e a conexão está cifrada",
+        "Que o certificado é falso, pois autoridades gratuitas não emitem certificados válidos",
+        "Que o site é seguro para digitar a senha, pois o certificado ainda está dentro da validade"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia o nome do domínio caractere por caractere.",
+        "Certificado válido prova controle sobre qual nome, exatamente?",
+        "Emissão gratuita e automatizada produz certificados tecnicamente válidos."
+      ],
+      "pergunta_socratica": "Antes de conferir: o certificado é válido para qual domínio — e é esse o domínio do seu banco?",
+      "explicacao": "O certificado é tecnicamente válido e prova exatamente uma coisa: quem responde controla o domínio escrito ali. O problema está no próprio nome, com um zero no lugar da letra o — domínio registrado pelo golpista, para o qual ele obtém certificado legitimamente em minutos. Emissão gratuita e automatizada é prática normal e não indica fraude. O sinal decisivo é a leitura atenta do domínio, somada ao fato de o acesso ter vindo de um link recebido.",
+      "por_que_erradas": {
+        "1": "O certificado prova controle sobre aquele domínio, e o domínio não é o do banco.",
+        "2": "Autoridades gratuitas e automatizadas emitem certificados plenamente válidos.",
+        "3": "Validade do certificado não diz nada sobre a legitimidade do site."
+      },
+      "fonte": "RFC 8446; práticas atuais de emissão de certificados; teoria 1.5.t5",
+      "tags": ["redes", "certificados", "phishing", "artefato", "https"]
+    },
+    {
+      "id": "1.5.q31",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Em uma varredura de portas, o que costuma diferenciar uma porta filtrada de uma porta fechada?",
+      "alternativas": [
+        "A porta fechada responde com RST; a filtrada normalmente não responde nada, porque um equipamento descartou o pacote",
+        "A porta filtrada responde mais devagar, mas sempre responde",
+        "A porta fechada não responde e a filtrada responde com RST",
+        "Não há diferença observável entre as duas situações"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem descarta silenciosamente um pacote não gera resposta.",
+        "A resposta de recusa vem do próprio sistema operacional do alvo.",
+        "Uma alternativa inverte os dois comportamentos."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um firewall descarta o pacote antes de chegar ao servidor, quem responderia?",
+      "explicacao": "Porta fechada significa que o pacote chegou ao sistema e ele recusou explicitamente, com RST. Porta filtrada significa que algo no caminho descartou o pacote em silêncio, então não há resposta e o varredor conclui por tempo esgotado. A distinção importa em levantamento: ausência de resposta indica presença de filtragem, o que já é informação sobre a arquitetura da rede.",
+      "por_que_erradas": {
+        "1": "Filtragem por descarte não gera resposta alguma.",
+        "2": "A descrição está invertida.",
+        "3": "A diferença é observável e é justamente o que orienta a leitura da varredura."
+      },
+      "fonte": "RFC 9293",
+      "tags": ["redes", "varredura", "tcp", "firewall", "enumeracao"]
+    },
+    {
+      "id": "1.5.q32",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "enunciado": "Uma aplicação interna usa HTTPS com um certificado assinado por uma autoridade própria da empresa, instalada em todas as máquinas corporativas. Isso é aceitável?",
+      "alternativas": [
+        "Sim: a autoridade própria é confiável para as máquinas que a reconhecem, e o cuidado central passa a ser proteger a chave privada dessa autoridade",
+        "Não: certificados só são válidos se emitidos por autoridades públicas reconhecidas pelos navegadores",
+        "Sim, e sem cuidados adicionais, pois certificados internos não podem ser usados para interceptação",
+        "Não: autoridades próprias não conseguem emitir certificados compatíveis com TLS 1.3"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Confiança em certificado depende de quem o cliente aceita como autoridade.",
+        "O que alguém faria de posse da chave privada dessa autoridade?",
+        "Autoridade própria é prática comum em ambiente corporativo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a chave dessa autoridade vazar, para quais domínios o atacante consegue emitir certificado aceito pelas máquinas da empresa?",
+      "explicacao": "Autoridade própria é prática normal e resolve o problema de certificados internos sem treinar o usuário a ignorar avisos. Mas ela concentra um poder grande: quem tiver a chave privada dessa autoridade pode emitir certificado aceito pelas máquinas da empresa para qualquer domínio, inclusive externos — o que viabiliza interceptação silenciosa. Por isso a chave precisa de proteção rígida, e o alcance da autoridade deve ser limitado.",
+      "por_que_erradas": {
+        "1": "Autoridades próprias são válidas para os clientes que as reconhecem.",
+        "2": "Justamente por poderem ser usadas para interceptação é que exigem cuidado com a chave.",
+        "3": "Autoridades próprias emitem certificados compatíveis com TLS 1.3 normalmente."
+      },
+      "fonte": "RFC 8446; teoria 1.5.t5",
+      "tags": ["redes", "certificados", "pki", "interceptacao", "hardening"]
+    },
+    {
+      "id": "1.5.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Por que serviços de administração devem ficar fora da internet mesmo quando exigem autenticação forte?",
+      "alternativas": [
+        "Porque a autenticação só protege se o serviço estiver íntegro: uma falha no próprio serviço é explorável antes de qualquer login",
+        "Porque autenticação forte torna o acesso lento demais para uso remoto",
+        "Porque serviços de administração não funcionam corretamente sobre a internet",
+        "Porque a autenticação forte só funciona em redes internas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Uma vulnerabilidade antes da autenticação é explorada por quem?",
+        "Estar exposto significa estar alcançável por todo mundo o tempo todo.",
+        "Reduzir superfície e proteger a superfície são coisas diferentes."
+      ],
+      "pergunta_socratica": "Antes de conferir: se sair uma falha crítica nesse serviço amanhã, quantas pessoas no mundo conseguem tentar explorá-la?",
+      "explicacao": "Autenticação protege o que vem depois dela; uma falha na parte do serviço que responde antes do login é explorável por qualquer um que alcance a porta. Estando na internet, isso significa o mundo inteiro, continuamente, por ferramentas automatizadas. Retirar da internet reduz o conjunto de quem pode sequer tentar — é redução de superfície, e não substituto da autenticação.",
+      "por_que_erradas": {
+        "1": "Autenticação forte não impõe lentidão relevante.",
+        "2": "Esses serviços funcionam sobre a internet; o problema é a exposição.",
+        "3": "Autenticação forte funciona em qualquer rede."
+      },
+      "fonte": "Teoria 0.2.t5; teoria 1.5.t3",
+      "tags": ["redes", "portas", "exposicao", "hardening", "autenticacao"]
+    },
+    {
+      "id": "1.5.q34",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "enunciado": "Uma organização quer reduzir o risco de os usuários caírem em páginas de phishing com HTTPS válido. Qual conjunto de medidas ajuda mais?",
+      "alternativas": [
+        "Múltiplo fator resistente a phishing, filtro de domínios recém-registrados e treinamento que ensine a ler o domínio em vez de procurar o cadeado",
+        "Orientar os usuários a verificar sempre o cadeado antes de digitar credenciais",
+        "Bloquear todo tráfego HTTPS que não venha de sites conhecidos da empresa",
+        "Exigir que os usuários troquem a senha semanalmente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O cadeado está presente na página de phishing também.",
+        "O que ainda protege o usuário depois que ele digita a senha no lugar errado?",
+        "Domínio criado ontem é um sinal mais útil que a presença de cifra."
+      ],
+      "pergunta_socratica": "Antes de conferir: supondo que o usuário vai digitar a senha na página falsa, o que impede o atacante de usá-la?",
+      "explicacao": "As três medidas atuam em camadas distintas: o múltiplo fator resistente a phishing impede que a credencial digitada no site falso sirva de alguma coisa, o filtro por idade de domínio ataca a característica mais estável dessas páginas, e o treinamento corrige a orientação que hoje trabalha a favor do golpe. Insistir no cadeado é repetir o erro, bloquear todo HTTPS desconhecido inviabiliza o trabalho, e rotação semanal de senha é desaconselhada pelo NIST e não ajuda em nada aqui.",
+      "por_que_erradas": {
+        "1": "O cadeado está presente também nas páginas de phishing; a orientação ajuda o golpe.",
+        "2": "Bloquear todo HTTPS não conhecido inviabiliza o trabalho normal.",
+        "3": "Rotação frequente é desaconselhada pelo NIST SP 800-63B e não impede o roubo da credencial."
+      },
+      "fonte": "NIST SP 800-63B; teoria 1.5.t5",
+      "tags": ["redes", "phishing", "mfa", "https", "defesa-em-profundidade"]
+    },
+    {
+      "id": "1.5.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Você vai revisar a exposição de rede de uma aplicação web corporativa. Quais verificações rendem mais nas primeiras horas?",
+      "alternativas": [
+        "Quais portas estão realmente acessíveis de fora, se o HTTP redireciona para HTTPS com política de transporte estrito, qual versão de TLS é aceita, e se serviços administrativos estão expostos",
+        "Qual é a marca do firewall utilizado e se existe contrato de suporte vigente",
+        "Se a aplicação usa GET ou POST nos formulários de login",
+        "Se o certificado foi emitido por autoridade gratuita ou paga"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Comece pelo que está alcançável, e depois pela qualidade do que está alcançável.",
+        "Uma das alternativas confunde preço de certificado com segurança.",
+        "Método de formulário importa, mas é detalhe diante da exposição."
+      ],
+      "pergunta_socratica": "Antes de conferir: das quatro verificações, qual você não conseguiria responder sem varrer a máquina de fora?",
+      "explicacao": "A revisão útil começa pela exposição real — o que responde de fora, e não o que a documentação diz — e segue para a qualidade dessa exposição: redirecionamento com política de transporte estrito, versão de TLS aceita e ausência de serviços administrativos alcançáveis. Marca de firewall e preço do certificado não medem risco, e o método do formulário de login é detalhe frente a um painel administrativo aberto na internet.",
+      "por_que_erradas": {
+        "1": "Marca e contrato não indicam o que está exposto nem como.",
+        "2": "O método do formulário é relevante, mas muito menor que a exposição de serviços.",
+        "3": "Certificado gratuito é tecnicamente equivalente ao pago para validação de domínio."
+      },
+      "fonte": "RFC 8446; RFC 9110; RFC 6797",
+      "tags": ["redes", "revisao", "https", "tls", "exposicao", "carreira"]
+    }
+  ]
+}
