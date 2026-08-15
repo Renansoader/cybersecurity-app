@@ -1,0 +1,10 @@
+# material de terceiros (PDFs e prints de referencia)
+docs/
+
+# progresso local do usuario
+progress.db
+
+# python
+__pycache__/
+*.pyc
+.venv/
