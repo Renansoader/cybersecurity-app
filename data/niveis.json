@@ -1,0 +1,40 @@
+{
+  "niveis": [
+    {
+      "id": 0,
+      "nome": "Alicerce — o campo de batalha",
+      "resumo": "Do zero absoluto: o que é cibersegurança, onde ela falha, quem ataca e o que a lei permite.",
+      "desbloqueio": { "tipo": "aberto" }
+    },
+    {
+      "id": 1,
+      "nome": "Base técnica — Linux, redes e código",
+      "resumo": "O terreno onde tudo acontece: sistema, linha de comando, protocolos e automação em Python.",
+      "desbloqueio": { "tipo": "dominio", "niveis": [0], "minimo": 0.7 }
+    },
+    {
+      "id": 2,
+      "nome": "Núcleo de segurança — cripto, identidade e acesso",
+      "resumo": "Os mecanismos que sustentam a confiança: cifra, hash, autenticação, controle de acesso e o fator humano.",
+      "desbloqueio": { "tipo": "dominio", "niveis": [1], "minimo": 0.7 }
+    },
+    {
+      "id": 3,
+      "nome": "Ofensivo — pensar como atacante",
+      "resumo": "Metodologia de pentest, reconhecimento, falhas web e quebra de senhas.",
+      "desbloqueio": { "tipo": "dominio", "niveis": [2], "minimo": 0.7 }
+    },
+    {
+      "id": 4,
+      "nome": "Defensivo — Blue Team e operação",
+      "resumo": "Hardening, monitoramento, MITRE ATT&CK, resposta a incidentes e forense.",
+      "desbloqueio": { "tipo": "dominio", "niveis": [2], "minimo": 0.7 }
+    },
+    {
+      "id": 5,
+      "nome": "Engenharia, risco e carreira",
+      "resumo": "Desenvolvimento seguro, nuvem, modelagem de ameaças, GRC e o caminho profissional.",
+      "desbloqueio": { "tipo": "dominio", "niveis": [3, 4], "minimo": 0.6 }
+    }
+  ]
+}

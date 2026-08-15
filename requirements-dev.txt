@@ -1,0 +1,2 @@
+# Dependencias so de desenvolvimento. O app em si roda com requirements.txt.
+pytest

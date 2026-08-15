@@ -2,7 +2,7 @@
 
 import customtkinter as ctk
 
-from app import theme
+from app import db, theme
 from app.views import (desafio, ferramentas, glossario, home, modulo,
                        progresso, sessao, trilha)
 
@@ -83,4 +83,5 @@ class App:
 
 
 if __name__ == "__main__":
+    db.iniciar()  # cria progress.db e o esquema no primeiro uso
     App().run()

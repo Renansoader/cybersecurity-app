@@ -1,0 +1,204 @@
+{
+  "id": "0.1",
+  "nivel": 0,
+  "titulo": "O que é cibersegurança",
+  "objetivos": [
+    "Explicar as três propriedades da tríade CIA e reconhecer qual delas falhou em um caso concreto",
+    "Distinguir segurança da informação de cibersegurança",
+    "Justificar por que segurança é processo e não produto",
+    "Identificar os três pilares — pessoas, processo e tecnologia — em uma falha real"
+  ],
+  "pre_requisitos": [],
+  "teoria": [
+    {
+      "id": "0.1.t1",
+      "titulo": "A tríade CIA: as três perguntas de sempre",
+      "texto": "Segurança não é um estado, é a proteção de três propriedades. Confidencialidade (confidentiality): só quem tem direito consegue ler. Integridade (integrity): o dado não é alterado sem autorização, e dá para perceber se foi. Disponibilidade (availability): quem tem direito consegue acessar quando precisa.\n\nDiante de qualquer incidente, a primeira pergunta útil é: qual das três caiu? A resposta muda quem você chama, o que você mede e como você conserta.",
+      "analogia": "Um prontuário médico. Confidencialidade é o armário trancado. Integridade é a certeza de que ninguém rasurou a dosagem. Disponibilidade é o prontuário estar na mão do plantonista às 3 da manhã.",
+      "erro_comum": "Tratar segurança como sinônimo de sigilo. Um sistema fora do ar não vazou nada e mesmo assim está inseguro.",
+      "fonte": "Security Engineering, 3ª ed. (Ross Anderson), cap. 1"
+    },
+    {
+      "id": "0.1.t2",
+      "titulo": "Segurança da informação e cibersegurança não são a mesma coisa",
+      "texto": "Segurança da informação protege a informação em qualquer suporte: papel, conversa, crachá, backup em fita. Cibersegurança é o recorte digital dela — sistemas, redes e dados eletrônicos.\n\nA distinção importa na prática: um contrato impresso esquecido na impressora é um incidente de segurança da informação sem nenhum componente digital. Quem só olha para o firewall não enxerga esse risco.",
+      "analogia": "Segurança da informação é a segurança do prédio inteiro. Cibersegurança é a segurança da sala dos servidores.",
+      "erro_comum": "Usar os dois termos como intercambiáveis e, com isso, deixar o mundo físico e o humano fora do escopo.",
+      "fonte": "cyber security.pdf (material introdutório em português)"
+    },
+    {
+      "id": "0.1.t3",
+      "titulo": "Segurança é processo, não produto",
+      "texto": "Nenhuma compra encerra o assunto. O ambiente muda: entra sistema novo, sai funcionário, aparece vulnerabilidade em uma biblioteca que já estava lá há anos. Um controle que funcionava ontem pode estar irrelevante hoje.\n\nPor isso segurança se mede em ciclo: identificar o que existe, proteger, detectar o que passou, responder e recuperar. Ferramenta é insumo do ciclo, não substituto dele.",
+      "analogia": "Comprar uma fechadura cara não é o mesmo que ter o hábito de trancar a porta.",
+      "erro_comum": "Achar que instalar uma ferramenta cara resolve. Ferramenta mal configurada e sem ninguém lendo o alerta é só uma despesa.",
+      "fonte": "NIST Cybersecurity Framework (funções: identificar, proteger, detectar, responder, recuperar)"
+    },
+    {
+      "id": "0.1.t4",
+      "titulo": "Pessoas, processo e tecnologia",
+      "texto": "Toda falha real encaixa em pelo menos um desses três pilares. Tecnologia é o software e o equipamento. Processo é a regra combinada: quem aprova, quem revisa, com que frequência. Pessoas é quem opera, erra, tem pressa e é enganado.\n\nA maioria dos incidentes conhecidos não começa por matemática quebrada: começa por um patch que ninguém aplicou, um acesso que ninguém revogou, ou um clique que parecia inofensivo.",
+      "analogia": "Um cofre excelente (tecnologia), sem regra de quem guarda a chave (processo), com a senha anotada no monitor (pessoas).",
+      "erro_comum": "Investir só no pilar tecnológico, que é o mais fácil de comprar, e deixar os outros dois no lugar em que estavam.",
+      "fonte": "Security Engineering, 3ª ed. (Ross Anderson), cap. 1 e 2"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "0.1.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "enunciado": "Um funcionário fotografa a tela com a lista de clientes e envia a imagem para um contato pessoal por aplicativo de mensagens. Qual propriedade da tríade CIA foi violada?",
+      "alternativas": [
+        "Confidencialidade",
+        "Integridade",
+        "Disponibilidade",
+        "Nenhuma: como não houve invasão de sistema, não é incidente de segurança"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte o que exatamente aconteceu com o dado: ele mudou, sumiu, ou apenas foi visto por quem não devia?",
+        "As três propriedades respondem a perguntas diferentes: quem pode ler, quem pode alterar, quem consegue acessar.",
+        "O dado continuou íntegro e disponível na tela. O que ele deixou de ter foi restrição de quem podia lê-lo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você fosse o dono desse dado, o que exatamente você perdeu nesse episódio?",
+      "explicacao": "A lista continuou correta e acessível para a empresa — integridade e disponibilidade intactas. O que se perdeu foi o controle sobre quem pode ler o dado, que é a definição de confidencialidade. Repare que não houve invasão nenhuma: a violação partiu de dentro, com acesso legítimo usado para um fim ilegítimo.",
+      "por_que_erradas": {
+        "1": "Integridade é sobre alteração não autorizada do dado. A lista não foi modificada.",
+        "2": "Disponibilidade é sobre o acesso de quem tem direito. Ninguém ficou sem acesso à lista.",
+        "3": "Incidente de segurança não exige invasão. Acesso legítimo usado para um fim indevido é justamente o caso do insider."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1",
+      "tags": ["triade-cia", "confidencialidade", "fundamentos", "insider"]
+    },
+    {
+      "id": "0.1.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "enunciado": "Qual dos casos abaixo é um incidente de segurança da informação que está FORA do recorte de cibersegurança?",
+      "alternativas": [
+        "Um contrato impresso com dados pessoais é esquecido na bandeja da impressora do corredor",
+        "Um banco de dados de clientes é copiado por um invasor que explorou uma falha na aplicação web",
+        "Um notebook corporativo sem criptografia de disco é furtado no aeroporto",
+        "Uma conta de e-mail corporativo é acessada com senha reutilizada e vazada em outro site"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Cibersegurança é o recorte digital da segurança da informação. Procure o caso sem componente digital.",
+        "Pergunte de cada alternativa: existe sistema, rede ou dado eletrônico envolvido na falha?",
+        "Três dos casos dependem de um meio eletrônico para acontecer. Um deles aconteceria igual em 1980."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual desses casos remover todos os computadores da empresa não teria evitado nada?",
+      "explicacao": "O papel na impressora é informação exposta sem nenhum meio eletrônico envolvido: é segurança da informação pura, e continuaria possível em uma empresa sem computador algum. Os outros três dependem de um sistema, de uma rede ou de um dado eletrônico, e por isso caem também no recorte de cibersegurança. Esse é o ponto prático da distinção: quem só olha para o digital não enxerga o risco do corredor.",
+      "por_que_erradas": {
+        "1": "Falha em aplicação web é digital ponta a ponta — o exemplo mais típico de cibersegurança.",
+        "2": "O furto é físico, mas o ativo em risco é o dado eletrônico do disco; por isso está dentro do recorte digital (e a mitigação é criptografia de disco).",
+        "3": "Conta, senha e vazamento são todos elementos digitais."
+      },
+      "fonte": "cyber security.pdf; Security Engineering, 3ª ed., cap. 1",
+      "tags": ["seguranca-da-informacao", "escopo", "fundamentos"]
+    },
+    {
+      "id": "0.1.q3",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "enunciado": "A diretoria da sua empresa aprovou a compra de um firewall next-generation caro e comunicou internamente que \"a questão da segurança está resolvida\". Qual é a leitura mais correta da situação?",
+      "alternativas": [
+        "O firewall reduz um conjunto específico de riscos de rede, mas nada muda para phishing, acesso indevido de quem já está dentro ou falha na própria aplicação",
+        "A leitura está certa: firewall de nova geração inspeciona o tráfego em camada de aplicação e cobre os principais vetores",
+        "O problema é a marca escolhida; com o produto líder de mercado a afirmação estaria correta",
+        "Como o firewall é um controle preventivo, a empresa pode reduzir o investimento em detecção e resposta"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Liste dois ou três incidentes comuns e pergunte, para cada um, se o tráfego chega a passar pelo firewall.",
+        "Pense em quem já está dentro da rede, com credencial válida.",
+        "A frase da diretoria trata segurança como algo que se compra. Compare isso com a ideia de ciclo contínuo."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual incidente plausível na sua empresa aconteceria exatamente igual com esse firewall instalado?",
+      "explicacao": "Firewall é um controle de perímetro: filtra o que atravessa a fronteira de rede. Um funcionário que clica em um phishing e entrega a credencial, um insider com acesso legítimo, ou uma falha de lógica na própria aplicação não são interceptados por ele. O erro da frase não é técnico, é conceitual: trata segurança como produto comprado, e não como ciclo de identificar, proteger, detectar, responder e recuperar.",
+      "por_que_erradas": {
+        "1": "Inspeção em camada de aplicação amplia o que o firewall vê no tráfego, mas não alcança o que não passa por ele nem o que trafega com credencial legítima.",
+        "2": "Nenhuma marca muda a natureza do controle. O limite é de categoria, não de fornecedor.",
+        "3": "É o inverso: nenhum controle preventivo é perfeito, e é justamente por isso que detecção e resposta existem."
+      },
+      "fonte": "NIST Cybersecurity Framework; Security Engineering, 3ª ed., cap. 1",
+      "tags": ["processo-nao-produto", "defesa-em-profundidade", "fundamentos"]
+    },
+    {
+      "id": "0.1.q4",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "enunciado": "Levantamento interno mostrou que vários funcionários usam a mesma senha do e-mail corporativo em sites pessoais, e algumas dessas senhas já apareceram em vazamentos públicos. Qual mitigação ataca o problema de verdade?",
+      "alternativas": [
+        "Exigir múltiplo fator (MFA) no acesso corporativo e verificar as senhas contra listas de credenciais vazadas no momento do cadastro",
+        "Obrigar a troca de senha a cada 30 dias",
+        "Exigir pelo menos três caracteres especiais em toda senha",
+        "Proibir por política o uso de senha corporativa em sites pessoais e divulgar a proibição por e-mail"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O atacante já tem a senha. Pergunte o que ainda o impediria de entrar.",
+        "Algumas das alternativas aumentam o incômodo do usuário sem tirar valor da senha que já vazou.",
+        "As recomendações atuais do NIST abandonaram duas práticas antigas que aparecem nessa lista."
+      ],
+      "pergunta_socratica": "Antes de conferir: supondo que a senha já esteja na mão do atacante hoje, qual dessas medidas ainda o barra?",
+      "explicacao": "MFA quebra a premissa do ataque: a senha vazada deixa de ser suficiente para entrar. A verificação contra listas de vazamento remove a senha ruim no momento em que ela é escolhida. As duas medidas atuam sobre o mecanismo do ataque, e não sobre a boa vontade do usuário. É também o que o NIST SP 800-63B recomenda, no lugar das regras antigas de rotação periódica e de composição obrigatória de caracteres.",
+      "por_que_erradas": {
+        "1": "Rotação periódica não impede o uso da senha vazada na janela em que ela é válida, e leva o usuário a criar variações previsíveis (Senha1!, Senha2!). O NIST SP 800-63B desaconselha a prática.",
+        "2": "Regras de composição aumentam pouco a entropia real e empurram o usuário para padrões conhecidos. Também foram abandonadas pelo NIST SP 800-63B.",
+        "3": "Política e comunicado não têm como impedir o reuso, porque a empresa não tem visibilidade sobre o cadastro do funcionário em sites pessoais. É controle de intenção, não de mecanismo."
+      },
+      "fonte": "NIST SP 800-63B, seção de segredos memorizados",
+      "tags": ["autenticacao", "senhas", "mfa", "nist-800-63b"]
+    },
+    {
+      "id": "0.1.q5",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "trecho": "POLÍTICA DE SENHAS — v4\n1. A senha deve ter no mínimo 12 caracteres.\n2. A senha NÃO pode conter caracteres especiais, para evitar erros de digitação em terminais antigos.\n3. Senhas conhecidamente vazadas são rejeitadas no cadastro.\n4. O acesso remoto exige segundo fator.",
+      "enunciado": "Um item desta política enfraquece a segurança em vez de reforçá-la. Qual é, e por quê?",
+      "alternativas": [
+        "O item 2: proibir uma classe inteira de caracteres reduz o espaço de senhas possíveis e facilita o trabalho de quem tenta adivinhá-las",
+        "O item 1: 12 caracteres é excessivo e leva o usuário a anotar a senha em papel",
+        "O item 3: rejeitar senha vazada no cadastro revela ao usuário que aquela senha existe em uma lista",
+        "O item 4: exigir segundo fator só no acesso remoto cria uma falsa sensação de segurança e deveria ser removido"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Para cada item, pergunte se ele aumenta ou diminui o número de senhas que um atacante precisaria testar.",
+        "Um dos itens troca segurança por conveniência operacional, e diz isso na própria justificativa.",
+        "Três itens estão alinhados com a recomendação atual do NIST. Um deles vai na direção contrária."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual item, se você fosse o atacante, deixaria seu trabalho mais fácil?",
+      "explicacao": "Proibir caracteres especiais corta um pedaço do alfabeto disponível e, portanto, encolhe o espaço de busca que o atacante precisa cobrir. A justificativa (\"terminais antigos\") é operacional, e a política resolve um problema de compatibilidade tirando segurança de todo mundo. Os itens 1, 3 e 4 estão alinhados com o NIST SP 800-63B: comprimento mínimo generoso, bloqueio de senhas vazadas e segundo fator.",
+      "por_que_erradas": {
+        "1": "Comprimento mínimo alto é exatamente a recomendação atual; o NIST prefere senhas longas a senhas com regras de composição.",
+        "2": "Rejeitar senha vazada é uma boa prática recomendada. O usuário saber que aquela senha circula em listas é informação útil, não vazamento.",
+        "3": "Segundo fator no acesso remoto é insuficiente como cobertura total, mas removê-lo piora a situação. Ampliar é o caminho, não retirar."
+      },
+      "fonte": "NIST SP 800-63B; Security Engineering, 3ª ed., cap. 3",
+      "tags": ["senhas", "politica", "nist-800-63b", "caca-erro"]
+    },
+    {
+      "id": "0.1.q6",
+      "tipo": "pareamento",
+      "dificuldade": 1,
+      "enunciado": "Ligue cada propriedade da tríade CIA ao incidente que a viola de forma mais direta.",
+      "pares": [
+        ["Confidencialidade", "A base de clientes aparece publicada em um fórum na internet"],
+        ["Integridade", "Um invasor altera o valor de um boleto antes da emissão"],
+        ["Disponibilidade", "O sistema de vendas fica quatro horas fora do ar por um ataque de negação de serviço"]
+      ],
+      "dicas": [
+        "Cada propriedade responde a uma pergunta: quem pode ler, quem pode alterar, quem consegue acessar.",
+        "Repare no verbo de cada incidente: publicar, alterar, derrubar.",
+        "Um dos incidentes não expõe nem derruba nada — apenas muda o conteúdo do dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: em cada caso, o dado foi lido, modificado ou ficou inacessível?",
+      "explicacao": "Publicar a base viola confidencialidade: o dado continua correto e disponível, mas foi lido por quem não devia. Alterar o boleto viola integridade: o dado passa a estar errado sem autorização. Derrubar o sistema viola disponibilidade: nada vazou nem mudou, mas quem tinha direito ficou sem acesso. O exercício de encaixar o incidente na propriedade certa é o que orienta a resposta — cada uma leva a um caminho diferente de investigação e de correção.",
+      "fonte": "Security Engineering, 3ª ed., cap. 1",
+      "tags": ["triade-cia", "fundamentos", "pareamento"]
+    }
+  ]
+}
