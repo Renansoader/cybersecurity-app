@@ -9,6 +9,11 @@ MODULO = content.carregar_modulo(
 QUESTOES = {q["id"]: q for q in MODULO["questoes"]}
 
 
+def primeira_do_tipo(tipo):
+    """Busca por tipo, e não por id: reordenar o conteúdo não quebra o teste."""
+    return next(q for q in MODULO["questoes"] if q["tipo"] == tipo)
+
+
 @pytest.fixture
 def multipla():
     return QUESTOES["0.1.q1"]
@@ -31,19 +36,22 @@ def test_questao_para_exibir_mantem_o_que_a_tela_precisa(multipla):
 
 
 def test_pareamento_nao_entrega_o_gabarito_nas_colunas():
-    visivel = pedagogy.questao_para_exibir(QUESTOES["0.1.q6"])
+    questao = primeira_do_tipo("pareamento")
+    visivel = pedagogy.questao_para_exibir(questao)
+
     assert "pares" not in visivel
-    assert len(visivel["coluna_esquerda"]) == 3
-    assert len(visivel["coluna_direita"]) == 3
+    assert len(visivel["coluna_esquerda"]) == len(questao["pares"])
+    assert len(visivel["coluna_direita"]) == len(questao["pares"])
     # as colunas não podem sair pareadas na mesma ordem
-    pares_originais = QUESTOES["0.1.q6"]["pares"]
-    assert visivel["coluna_direita"] != [par[1] for par in pares_originais]
+    assert visivel["coluna_direita"] != [par[1] for par in questao["pares"]]
 
 
 def test_ordenacao_nao_entrega_a_ordem_correta():
-    visivel = pedagogy.questao_para_exibir(QUESTOES["0.1.q4"])
+    questao = primeira_do_tipo("ordenacao")
+    visivel = pedagogy.questao_para_exibir(questao)
+
     assert "ordem_correta" not in visivel
-    assert len(visivel["itens"]) == 5
+    assert len(visivel["itens"]) == len(questao["itens"])
 
 
 # --- dicas ---
@@ -78,5 +86,6 @@ def test_quem_acertou_ve_a_explicacao_e_depois_os_distratores(multipla):
 
 
 def test_feedback_de_questao_sem_alternativas_nao_quebra():
-    blocos = pedagogy.feedback(QUESTOES["0.1.q4"], escolha=None, acertou=False)
-    assert blocos == [("explicacao", QUESTOES["0.1.q4"]["explicacao"])]
+    questao = primeira_do_tipo("ordenacao")
+    blocos = pedagogy.feedback(questao, escolha=None, acertou=False)
+    assert blocos == [("explicacao", questao["explicacao"])]

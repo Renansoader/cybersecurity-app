@@ -1,0 +1,1029 @@
+{
+  "id": "0.2",
+  "nivel": 0,
+  "titulo": "Superfície de ataque e ecossistema",
+  "objetivos": [
+    "Definir superfície de ataque e explicar por que ela cresce sozinha",
+    "Mapear os cinco domínios do ecossistema — dispositivos, aplicações, redes, dados e pessoas — e o modo típico de falha de cada um",
+    "Distinguir vetor de ataque, ponto de entrada e movimento lateral",
+    "Escolher medidas de redução de superfície e justificar o efeito de cada uma"
+  ],
+  "pre_requisitos": ["0.1"],
+  "teoria": [
+    {
+      "id": "0.2.t1",
+      "titulo": "O que é superfície de ataque",
+      "texto": "Superfície de ataque é a soma de todos os pontos por onde alguém pode tentar entrar, interagir ou extrair dado de um sistema. Cada porta aberta, cada campo de formulário, cada integração com terceiro, cada conta de usuário e cada celular com acesso ao e-mail corporativo é um pedaço dessa superfície.\n\nA medida útil não é o tamanho absoluto, e sim o quanto dela é desnecessária. Superfície que ninguém usa e ninguém monitora é risco puro: entrega possibilidade ao atacante sem entregar valor ao negócio.",
+      "analogia": "Uma casa com trinta janelas não é insegura por ter trinta janelas, e sim por ter oito que ninguém abre há anos e ninguém confere se estão trancadas.",
+      "erro_comum": "Confundir superfície de ataque com quantidade de vulnerabilidades. Superfície é o quanto está exposto; vulnerabilidade é a falha em um desses pontos.",
+      "fonte": "Security Engineering, 3ª ed., cap. 2; NIST Cybersecurity Framework (identificar)"
+    },
+    {
+      "id": "0.2.t2",
+      "titulo": "Os cinco domínios do ecossistema",
+      "texto": "É útil dividir a superfície em cinco domínios, porque cada um falha de um jeito e é corrigido por um time diferente.\n\nDispositivos: servidores, estações, celulares, equipamentos de rede e dispositivos conectados. Falham por versão desatualizada, configuração padrão e perda ou furto.\nAplicações: sistemas próprios e de terceiros. Falham por erro de código e de lógica de negócio.\nRedes: o caminho entre as coisas. Falham por serviço exposto, segmentação inexistente e tráfego sem cifra.\nDados: o que se quer proteger. Falham por armazenamento em lugar errado, cópia esquecida e permissão ampla demais.\nPessoas: quem opera tudo. Falham por engano, pressa e ausência de regra clara.",
+      "analogia": "São os cinco cômodos de uma casa: cada um tem seu tipo de risco e nenhum se protege com a mesma medida.",
+      "erro_comum": "Tratar o ecossistema só como \"a rede\", e deixar dados espalhados e pessoas fora do mapa.",
+      "fonte": "cyber security.pdf; Security Engineering, 3ª ed., cap. 2"
+    },
+    {
+      "id": "0.2.t3",
+      "titulo": "Vetor, ponto de entrada e movimento lateral",
+      "texto": "Vetor de ataque é o método usado: phishing, exploração de vulnerabilidade, credencial vazada, dispositivo removível. Ponto de entrada é onde ele funcionou pela primeira vez: aquela estação, aquele servidor, aquela conta. Movimento lateral é o que vem depois — usar o primeiro acesso para alcançar outra máquina, outra conta, outro sistema.\n\nA distinção é prática: o ponto de entrada quase nunca é o alvo. Um invasor entra pela estação do estagiário e quer o servidor de banco de dados. Defender só o alvo final deixa todo o percurso livre.",
+      "analogia": "O ladrão entra pela janela do banheiro, mas quer o cofre do quarto. Trancar só o cofre não resolve a janela nem o corredor.",
+      "erro_comum": "Achar que o incidente acabou quando a máquina de entrada foi limpa, sem investigar até onde o acesso chegou.",
+      "fonte": "MITRE ATT&CK (táticas de acesso inicial e movimento lateral)"
+    },
+    {
+      "id": "0.2.t4",
+      "titulo": "A superfície cresce sozinha",
+      "texto": "Ninguém decide aumentar a superfície de ataque: ela cresce como efeito colateral do trabalho. Um time contrata uma ferramenta em nuvem no cartão corporativo. Alguém integra dois sistemas com uma chave de acesso ampla para \"resolver rápido\". Um servidor de teste sobe para uma demonstração e nunca é desligado. Um funcionário sai e a conta continua.\n\nÉ por isso que inventário não é tarefa de uma vez: é rotina. O que não aparece no inventário não recebe correção, não é monitorado e não entra em nenhum teste.",
+      "analogia": "Como uma gaveta de cabos: ninguém decidiu enchê-la, e ninguém sabe mais para que serve metade do que está lá.",
+      "erro_comum": "Chamar de shadow IT só o que a TI reprova. Boa parte é sistema útil que apenas nunca foi comunicado.",
+      "fonte": "NIST Cybersecurity Framework (identificar); Security Engineering, 3ª ed., cap. 2"
+    },
+    {
+      "id": "0.2.t5",
+      "titulo": "Reduzir superfície é mais barato que defendê-la",
+      "texto": "Três movimentos reduzem superfície, em ordem de eficácia. Desligar: serviço que ninguém usa, conta que ninguém acessa, integração que sobrou. Restringir exposição: o que precisa existir não precisa estar aberto para a internet inteira. Segmentar: se o atacante entrar, ele não deve alcançar tudo a partir dali.\n\nA lógica é simples e vale mais que qualquer ferramenta: o que não existe não precisa ser corrigido, monitorado nem defendido.",
+      "analogia": "Fechar as janelas que ninguém usa custa menos que instalar sensor em todas elas.",
+      "erro_comum": "Comprar monitoramento para vigiar uma superfície que poderia simplesmente ter sido desligada.",
+      "fonte": "CIS Benchmarks; NIST Cybersecurity Framework (proteger)"
+    },
+    {
+      "id": "0.2.t6",
+      "titulo": "Fornecedor também é sua superfície",
+      "texto": "Quando um sistema seu depende de um serviço de terceiro, a superfície dele passa a fazer parte da sua. Uma biblioteca de código, um provedor de e-mail marketing com acesso à sua base, um parceiro com conexão à sua rede: todos são caminhos possíveis.\n\nNa prática isso significa três perguntas antes de integrar: que dado esse terceiro acessa, que permissão ele tem, e como esse acesso é revogado se algo der errado. Ataques de cadeia de fornecimento, como o caso SolarWinds em 2020, exploram exatamente essa extensão de confiança.",
+      "analogia": "Dar a chave da sua casa para a empresa de limpeza aumenta a sua superfície, não a dela.",
+      "erro_comum": "Avaliar o fornecedor uma vez na contratação e nunca mais revisar o acesso concedido.",
+      "fonte": "Caso SolarWinds (2020); NIST Cybersecurity Framework (identificar — cadeia de fornecimento)"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "0.2.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Qual definição descreve corretamente superfície de ataque?",
+      "alternativas": [
+        "O conjunto de todos os pontos por onde alguém pode tentar entrar, interagir ou extrair dado de um sistema",
+        "A lista de vulnerabilidades conhecidas e ainda não corrigidas no ambiente",
+        "O número de ataques recebidos pela empresa em um período",
+        "A quantidade de dados sensíveis armazenados pela organização"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A palavra \"superfície\" sugere área exposta, e não defeitos encontrados nela.",
+        "Pergunte: isso existe mesmo em um sistema sem nenhuma vulnerabilidade conhecida?",
+        "Um sistema perfeitamente corrigido ainda tem portas, formulários e contas."
+      ],
+      "pergunta_socratica": "Antes de conferir: um sistema com zero vulnerabilidades conhecidas tem superfície de ataque igual a zero?",
+      "explicacao": "Superfície de ataque é exposição: todos os pontos de contato possíveis, existindo ou não falha em cada um. Um sistema sem nenhuma vulnerabilidade conhecida continua tendo superfície — portas, campos, integrações, contas —, e amanhã pode surgir uma falha em qualquer um desses pontos. Confundir superfície com lista de vulnerabilidades leva a achar que corrigir tudo é o mesmo que reduzir exposição.",
+      "por_que_erradas": {
+        "1": "Isso é a lista de vulnerabilidades. Ela é uma consequência possível da superfície, não a superfície.",
+        "2": "Número de ataques mede atividade de adversários, não exposição própria.",
+        "3": "Volume de dados influencia o impacto de um incidente, não a quantidade de pontos de contato."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 2",
+      "tags": ["superficie-de-ataque", "vocabulario", "fundamentos"]
+    },
+    {
+      "id": "0.2.q2",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Uma empresa desliga um servidor antigo que ninguém usava e que rodava um serviço exposto na internet. Do ponto de vista de superfície de ataque, o que aconteceu?",
+      "alternativas": [
+        "A superfície diminuiu: um ponto de contato deixou de existir e não precisa mais ser corrigido nem monitorado",
+        "A superfície ficou igual: desligar um servidor não altera a exposição da empresa",
+        "A superfície aumentou: sistemas desligados costumam ser reativados sem controle",
+        "A superfície só diminui quando se instala um controle de segurança novo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quantos pontos de contato a empresa tinha antes e quantos tem depois.",
+        "O que não existe precisa de correção? De monitoramento?",
+        "Redução de superfície não é sinônimo de compra de controle."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual é o custo de manter seguro um serviço que ninguém usa?",
+      "explicacao": "Desligar é a forma mais eficaz e mais barata de reduzir superfície: elimina o ponto de contato, e junto com ele a necessidade de corrigir, monitorar e testar aquele serviço para sempre. É o movimento que costuma ser esquecido justamente por não envolver compra nenhuma.",
+      "por_que_erradas": {
+        "1": "Um serviço exposto a menos é literalmente um ponto de entrada a menos.",
+        "2": "Reativação sem controle é um risco de processo, mas não transforma a desativação em aumento de superfície.",
+        "3": "Instalar controle protege a superfície existente; desligar remove a superfície."
+      },
+      "fonte": "CIS Benchmarks; teoria 0.2.t5",
+      "tags": ["superficie-de-ataque", "reducao-de-superficie", "fundamentos"]
+    },
+    {
+      "id": "0.2.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que se diz que a superfície de ataque de uma empresa cresce sozinha?",
+      "alternativas": [
+        "Porque ela aumenta como efeito colateral do trabalho normal: integrações, contas, ambientes temporários e ferramentas contratadas por cada área",
+        "Porque atacantes descobrem continuamente novas vulnerabilidades nos sistemas existentes",
+        "Porque o volume de dados armazenados aumenta a cada ano",
+        "Porque fornecedores lançam versões novas de software com mais funcionalidades"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Ninguém preenche um formulário pedindo para aumentar a exposição da empresa.",
+        "Pense no que uma área faz quando precisa resolver um problema rápido.",
+        "Descoberta de vulnerabilidade é outra coisa: ela não adiciona pontos de contato."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas ferramentas em nuvem a sua empresa usa hoje que a TI não contratou?",
+      "explicacao": "O crescimento vem da operação: cada integração criada para resolver um problema, cada ambiente temporário que fica, cada conta que sobra e cada ferramenta contratada direto por uma área acrescenta pontos de contato. Nada disso é má conduta — é trabalho sendo entregue. Por isso o inventário precisa ser rotina, e não projeto com data de fim.",
+      "por_que_erradas": {
+        "1": "Vulnerabilidade nova é falha descoberta em ponto que já existia; não acrescenta ponto de contato.",
+        "2": "Mais dados aumentam o impacto potencial, não o número de caminhos de entrada.",
+        "3": "Funcionalidade nova pode ampliar superfície, mas não é o mecanismo principal descrito."
+      },
+      "fonte": "NIST Cybersecurity Framework (identificar); teoria 0.2.t4",
+      "tags": ["superficie-de-ataque", "shadow-it", "inventario"]
+    },
+    {
+      "id": "0.2.q4",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "trecho": "RELATÓRIO DE SUPERFÍCIE DE ATAQUE — 1º semestre\nEscopo analisado: servidores do datacenter próprio.\nResultado: 14 serviços expostos, 3 com vulnerabilidade conhecida.\nConclusão: a superfície de ataque da empresa está mapeada e sob controle.",
+      "enunciado": "Qual é o problema com a conclusão deste relatório?",
+      "alternativas": [
+        "O escopo cobre só os servidores próprios: nuvem, estações, celulares, aplicações de terceiros e contas de usuário ficaram fora do mapa",
+        "O relatório deveria informar a nota de gravidade de cada vulnerabilidade encontrada",
+        "Quatorze serviços expostos é um número alto demais para qualquer empresa",
+        "O relatório deveria ser trimestral em vez de semestral"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare a linha do escopo com a palavra usada na conclusão.",
+        "Onde estão os outros domínios do ecossistema neste relatório?",
+        "A empresa tem servidores fora do datacenter próprio? Tem contas? Tem celulares?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se o atacante entrar por um notebook, este relatório teria enxergado esse caminho?",
+      "explicacao": "O relatório afirma sobre a empresa o que mediu sobre uma fatia dela. Ambientes em nuvem, estações e celulares, aplicações de terceiros com acesso a dados e contas de usuário são superfície igualmente real, e nenhum foi analisado. A conclusão gera a pior consequência possível de um mapeamento parcial: a sensação de cobertura completa.",
+      "por_que_erradas": {
+        "1": "Nota de gravidade enriquece o relatório, mas o defeito estrutural é o escopo.",
+        "2": "Quatorze serviços não é alto ou baixo em abstrato; depende do que a empresa precisa expor.",
+        "3": "Periodicidade importa, mas não é o que invalida a conclusão."
+      },
+      "fonte": "NIST Cybersecurity Framework (identificar); teoria 0.2.t2",
+      "tags": ["superficie-de-ataque", "escopo", "caca-erro", "inventario"]
+    },
+    {
+      "id": "0.2.q5",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 3],
+      "enunciado": "Duas empresas têm o mesmo número de servidores. Na primeira, 40 serviços estão expostos à internet; na segunda, 6. Qual conclusão é sustentável?",
+      "alternativas": [
+        "A segunda tem superfície de ataque menor, o que reduz o número de caminhos que precisam ser corrigidos, monitorados e testados",
+        "A segunda é necessariamente mais segura que a primeira em todos os aspectos",
+        "As duas têm a mesma segurança, já que o número de servidores é igual",
+        "A primeira é mais segura, porque expor mais serviços indica maior maturidade de operação"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Superfície menor é uma vantagem concreta, mas ela garante ausência de falhas?",
+        "Cuidado com a palavra \"necessariamente\".",
+        "Quantidade de servidores diz pouco; o que importa é quanto está exposto."
+      ],
+      "pergunta_socratica": "Antes de conferir: menos caminhos de entrada garante que nenhum deles tenha uma falha grave?",
+      "explicacao": "Superfície menor é uma vantagem real e mensurável: menos pontos para corrigir, monitorar e testar. Mas não é garantia — a segunda empresa pode ter uma falha crítica em um dos seis serviços e estar em situação pior. A conclusão correta é sobre exposição, não sobre segurança absoluta.",
+      "por_que_erradas": {
+        "1": "\"Necessariamente\" e \"todos os aspectos\" extrapolam: superfície menor não elimina a possibilidade de falha grave.",
+        "2": "Número de servidores não determina exposição; o que determina é quanto deles está acessível e por onde.",
+        "3": "Expor mais serviços não indica maturidade; indica maior área a defender."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 2; CIS Benchmarks",
+      "tags": ["superficie-de-ataque", "reducao-de-superficie", "raciocinio"]
+    },
+    {
+      "id": "0.2.q6",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "Uma equipe sobe um ambiente de demonstração na nuvem, com cópia dos dados de produção, para uma apresentação comercial. A apresentação acontece e ninguém desliga o ambiente. Por que este é um caso clássico de crescimento de superfície?",
+      "alternativas": [
+        "Porque o ambiente continua exposto sem dono, sem monitoramento e sem entrar em nenhuma rotina de correção, carregando dados reais",
+        "Porque ambientes em nuvem são inerentemente menos seguros que ambientes próprios",
+        "Porque a apresentação comercial não deveria usar dados, e sim capturas de tela",
+        "Porque o custo do ambiente continuará sendo cobrado pelo provedor"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quem vai lembrar de atualizar esse ambiente daqui a seis meses.",
+        "O que está dentro dele? E quem sabe que ele existe?",
+        "Custo é um efeito colateral real, mas não é a questão de segurança."
+      ],
+      "pergunta_socratica": "Antes de conferir: daqui a um ano, quem na empresa saberia dizer que esse ambiente existe?",
+      "explicacao": "O ambiente vira superfície invisível: exposto, com dado real, sem responsável e fora de todo inventário — portanto fora de correções, de monitoramento e de qualquer teste. É o padrão que produz vazamentos por base ou bucket esquecido. O conserto de fundo é de processo: ambiente temporário nasce com prazo, responsável e, de preferência, sem dado real.",
+      "por_que_erradas": {
+        "1": "Nuvem não é inerentemente menos segura; o problema aqui é abandono, e ocorreria igual no datacenter próprio.",
+        "2": "O uso de dados reais na demonstração é um problema adicional, mas o crescimento de superfície vem do abandono.",
+        "3": "Custo é consequência financeira, não o risco de segurança em questão."
+      },
+      "fonte": "NIST Cybersecurity Framework (identificar); LGPD, art. 6º",
+      "tags": ["superficie-de-ataque", "nuvem", "ambiente-de-teste", "shadow-it"]
+    },
+    {
+      "id": "0.2.q7",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [0, 3],
+      "enunciado": "Uma empresa quer reduzir a chance de ser atingida por um ataque automatizado que varre a internet procurando serviços administrativos abertos. Qual medida ataca a exposição na raiz?",
+      "alternativas": [
+        "Restringir o acesso administrativo a uma rede interna ou a uma conexão privada, deixando de expor o serviço à internet",
+        "Manter uma senha longa e única no painel administrativo exposto",
+        "Configurar bloqueio de conta após dez tentativas de login malsucedidas",
+        "Renomear o painel administrativo para um endereço menos óbvio"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As varreduras automatizadas encontram o que está acessível. O que elas não alcançam?",
+        "Três alternativas dificultam a entrada em uma porta que continua visível.",
+        "Reduzir superfície é diferente de proteger a superfície existente."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas medidas faz o serviço deixar de aparecer para quem varre a internet?",
+      "explicacao": "Tirar o painel da internet elimina o ponto de contato para toda a categoria de ataque automatizado — o serviço deixa de ser alcançável. As outras três são reforços úteis em uma porta que continua exposta, e todas dependem de nenhuma falha nova aparecer naquele serviço. É a diferença entre reduzir e defender superfície.",
+      "por_que_erradas": {
+        "1": "Senha forte protege contra adivinhação, mas não contra falha de software no próprio painel exposto.",
+        "2": "Bloqueio por tentativas dificulta força bruta e nada mais; o serviço segue alcançável.",
+        "3": "Renomear é segurança por obscuridade: varreduras testam listas de caminhos comuns e frequentemente encontram."
+      },
+      "fonte": "CIS Benchmarks; teoria 0.2.t5",
+      "tags": ["superficie-de-ataque", "reducao-de-superficie", "exposicao", "hardening"]
+    },
+    {
+      "id": "0.2.q8",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "Qual afirmação distingue corretamente superfície de ataque de vulnerabilidade?",
+      "alternativas": [
+        "Superfície é o conjunto de pontos alcançáveis; vulnerabilidade é uma falha explorável em um desses pontos",
+        "Superfície é a falha explorável; vulnerabilidade é o conjunto de sistemas afetados por ela",
+        "São o mesmo conceito, com nomes usados por comunidades diferentes",
+        "Superfície é o total de dados expostos; vulnerabilidade é o total de contas comprometidas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um dos conceitos existe mesmo quando o sistema está perfeitamente corrigido.",
+        "O outro só existe quando há um defeito.",
+        "Pense: reduzir superfície e corrigir vulnerabilidades são ações diferentes?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se você corrigisse todas as vulnerabilidades hoje, a superfície mudaria de tamanho?",
+      "explicacao": "Superfície é exposição estrutural: existe independentemente de haver falhas. Vulnerabilidade é um defeito concreto em algum ponto dessa exposição. Corrigir vulnerabilidades não reduz superfície; reduzir superfície diminui o espaço onde vulnerabilidades futuras poderão aparecer. São ações complementares, com efeitos diferentes ao longo do tempo.",
+      "por_que_erradas": {
+        "1": "Inverte os dois conceitos.",
+        "2": "São conceitos distintos, com consequências operacionais diferentes.",
+        "3": "Nenhum dos dois se define por volume de dados ou de contas comprometidas."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 2",
+      "tags": ["superficie-de-ataque", "vocabulario", "vulnerabilidade"]
+    },
+    {
+      "id": "0.2.q9",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Ligue cada domínio do ecossistema ao seu modo de falha mais característico.",
+      "pares": [
+        ["Dispositivos", "Estação com sistema operacional sem atualização há dois anos"],
+        ["Aplicações", "Formulário que aceita entrada não validada e a repassa ao banco de dados"],
+        ["Redes", "Serviço de administração acessível a partir de qualquer ponto da internet"],
+        ["Dados", "Planilha com informações de clientes salva em pasta compartilhada com a empresa toda"],
+        ["Pessoas", "Analista que aprova uma solicitação urgente sem confirmar a identidade de quem pediu"]
+      ],
+      "dicas": [
+        "Pergunte de cada falha: ela está no equipamento, no código, no caminho, no dado ou no julgamento?",
+        "Duas das falhas envolvem permissão ampla demais, mas em camadas diferentes.",
+        "A falha de aplicação está no que o sistema aceita como entrada."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual time da empresa você chamaria para corrigir cada uma dessas cinco falhas?",
+      "explicacao": "Cada domínio falha de um jeito e é corrigido por um responsável diferente: dispositivos por atualização e configuração, aplicações por código e validação, redes por exposição e segmentação, dados por localização e permissão, pessoas por regra clara e treinamento. Classificar corretamente encurta o caminho até a correção — e evita a resposta genérica de \"reforçar a segurança\".",
+      "fonte": "cyber security.pdf; Security Engineering, 3ª ed., cap. 2",
+      "tags": ["ecossistema", "dominios", "pareamento", "fundamentos"]
+    },
+    {
+      "id": "0.2.q10",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [1],
+      "enunciado": "Um celular pessoal com o e-mail corporativo configurado pertence a qual domínio da superfície de ataque da empresa?",
+      "alternativas": [
+        "Dispositivos: ele é um ponto de acesso a dados corporativos, mesmo não sendo propriedade da empresa",
+        "Nenhum: por ser pessoal, está fora da superfície de ataque da empresa",
+        "Redes: o que importa é a conexão usada pelo aparelho",
+        "Pessoas: o risco está no comportamento do funcionário, não no aparelho"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Propriedade do aparelho e acesso ao dado são coisas diferentes.",
+        "Se o celular for furtado desbloqueado, o que o ladrão alcança?",
+        "A pergunta é sobre onde o dado corporativo pode ser acessado."
+      ],
+      "pergunta_socratica": "Antes de conferir: se esse celular for perdido hoje, algum dado da empresa fica em risco?",
+      "explicacao": "O que define a superfície é o acesso ao dado, não a nota fiscal do aparelho. Um celular pessoal com e-mail corporativo é um dispositivo dentro da superfície da empresa: pode ser perdido, furtado, infectado ou ficar desbloqueado na mesa. É por isso que existem políticas específicas para dispositivo pessoal com acesso corporativo.",
+      "por_que_erradas": {
+        "1": "Estar fora do patrimônio não tira o aparelho do caminho até o dado.",
+        "2": "A conexão é outro domínio; o ponto aqui é o aparelho que guarda e acessa o dado.",
+        "3": "O comportamento do funcionário importa, mas o enunciado pergunta a que domínio o aparelho pertence."
+      },
+      "fonte": "cyber security.pdf; teoria 0.2.t2",
+      "tags": ["ecossistema", "dispositivos", "byod", "fundamentos"]
+    },
+    {
+      "id": "0.2.q11",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma empresa descobre que 30 planilhas com dados de clientes estão espalhadas por pastas compartilhadas, cada uma com permissões diferentes. Em qual domínio está a falha principal, e por quê?",
+      "alternativas": [
+        "Dados: a informação está armazenada em lugares não previstos, com permissões amplas e sem controle de cópia",
+        "Redes: as pastas compartilhadas trafegam em uma rede sem segmentação",
+        "Dispositivos: as estações que criaram as planilhas estão desatualizadas",
+        "Aplicações: o sistema que gerou os relatórios permitiu a exportação"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte o que exatamente está errado: o caminho, o equipamento, o programa ou o local do dado?",
+        "O enunciado descreve onde a informação está e quem pode vê-la.",
+        "Cópia de dado sensível fora do sistema de origem é um problema clássico de um domínio específico."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a rede fosse perfeita e as estações estivessem atualizadas, esse problema deixaria de existir?",
+      "explicacao": "O problema é de dados: cópias fora do sistema de origem, em locais não previstos, com permissões inconsistentes e sem rastreio de quem copiou. Rede e dispositivos podem estar impecáveis e o risco permaneceria idêntico. A correção passa por saber onde o dado pode estar, restringir a exportação e revisar permissões de compartilhamento.",
+      "por_que_erradas": {
+        "1": "Segmentação de rede não resolve dado copiado para local com permissão ampla.",
+        "2": "Atualização das estações não altera onde as planilhas estão nem quem as acessa.",
+        "3": "A exportação pode ser um agravante, mas a falha descrita é de onde o dado foi parar e com que permissão."
+      },
+      "fonte": "cyber security.pdf; LGPD, art. 6º (necessidade)",
+      "tags": ["ecossistema", "dados", "permissoes", "vazamento"]
+    },
+    {
+      "id": "0.2.q12",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual falha abaixo pertence ao domínio de aplicações, e não aos demais?",
+      "alternativas": [
+        "Um sistema permite que um usuário troque o número do pedido na URL e veja o pedido de outro cliente",
+        "Um roteador de borda usa a senha padrão de fábrica",
+        "Um backup com dados de clientes está em uma pasta pública",
+        "Um funcionário informa dados de um cliente a quem liga se dizendo advogado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Procure a falha que está na lógica do próprio sistema, e não na configuração ou no comportamento.",
+        "Uma delas só existe porque alguém escreveu código que não verifica de quem é o pedido.",
+        "Senha padrão é problema de configuração de equipamento."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas falhas precisa de alteração no código para ser corrigida?",
+      "explicacao": "Trocar o identificador na URL e ver o dado de outro cliente é falha de lógica de autorização na aplicação — o sistema autentica quem você é e esquece de verificar se aquele pedido é seu. As outras três são de dispositivos, dados e pessoas. Correção de aplicação exige mudança de código, o que a coloca em uma fila e em um time diferentes.",
+      "por_que_erradas": {
+        "1": "Senha padrão em roteador é falha de configuração de dispositivo.",
+        "2": "Backup em pasta pública é falha de armazenamento e permissão, no domínio de dados.",
+        "3": "Informar dado a quem liga é falha no domínio de pessoas, por engenharia social."
+      },
+      "fonte": "OWASP Top 10 (quebra de controle de acesso); teoria 0.2.t2",
+      "tags": ["ecossistema", "aplicacoes", "autorizacao", "owasp"]
+    },
+    {
+      "id": "0.2.q13",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1, 2],
+      "enunciado": "Em uma investigação, descobre-se que o atacante entrou por uma estação infectada por anexo malicioso e, de lá, alcançou o servidor de arquivos usando uma credencial encontrada na própria máquina. Quais domínios estão envolvidos?",
+      "alternativas": [
+        "Pessoas (abertura do anexo), dispositivos (estação infectada) e dados (credencial armazenada de forma acessível na máquina)",
+        "Apenas aplicações, porque o anexo explorou um leitor de documentos",
+        "Apenas redes, porque o acesso ao servidor de arquivos passou pela rede interna",
+        "Apenas dispositivos, porque tudo começou e terminou em equipamentos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Percorra a história em etapas e pergunte a que domínio cada etapa pertence.",
+        "A credencial estava guardada onde, e isso é falha de quê?",
+        "Incidentes reais quase nunca ficam em um domínio só."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas coisas diferentes precisaram dar errado para o atacante chegar ao servidor de arquivos?",
+      "explicacao": "A cadeia atravessa três domínios: alguém abriu o anexo (pessoas), a estação foi comprometida (dispositivos) e havia credencial acessível guardada nela (dados). A rede foi o caminho, mas não a falha. Enxergar a cadeia inteira é o que permite cortar em mais de um ponto, em vez de tratar apenas o último elo visível.",
+      "por_que_erradas": {
+        "1": "O leitor de documentos é parte do caminho, mas reduzir tudo a aplicações ignora as demais falhas.",
+        "2": "A rede foi usada como caminho previsto; não é onde estavam as falhas.",
+        "3": "Restringir a dispositivos ignora tanto a abertura do anexo quanto a credencial exposta."
+      },
+      "fonte": "MITRE ATT&CK (acesso inicial, credenciais, movimento lateral)",
+      "tags": ["ecossistema", "dominios", "movimento-lateral", "credenciais"]
+    },
+    {
+      "id": "0.2.q14",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Por que dividir a superfície de ataque em cinco domínios é útil na prática?",
+      "alternativas": [
+        "Porque cada domínio falha de um modo diferente e é corrigido por um responsável diferente, o que orienta a ação",
+        "Porque a divisão é exigida por norma internacional para qualquer avaliação de risco",
+        "Porque permite calcular um número único de risco somando os cinco domínios",
+        "Porque cada domínio corresponde a uma das cinco funções do NIST Cybersecurity Framework"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte o que muda na prática depois de classificar uma falha.",
+        "Quem conserta um roteador é a mesma pessoa que conserta uma regra de aprovação?",
+        "Duas alternativas inventam correspondências que não existem."
+      ],
+      "pergunta_socratica": "Antes de conferir: depois de classificar uma falha em um domínio, qual é a primeira coisa que você já sabe?",
+      "explicacao": "A divisão é uma ferramenta de ação: ela indica que tipo de correção se aplica e quem responde por ela. Falha de dispositivo se corrige com atualização e configuração; de aplicação, com código; de rede, com exposição e segmentação; de dados, com localização e permissão; de pessoas, com regra e treinamento. Não é exigência normativa nem corresponde às funções do NIST.",
+      "por_que_erradas": {
+        "1": "Nenhuma norma exige exatamente esses cinco domínios; é um modelo de organização, não obrigação formal.",
+        "2": "Risco não se calcula somando domínios; depende de probabilidade e impacto por cenário.",
+        "3": "As cinco funções do NIST são identificar, proteger, detectar, responder e recuperar — não têm relação de um para um com os domínios."
+      },
+      "fonte": "cyber security.pdf; NIST Cybersecurity Framework",
+      "tags": ["ecossistema", "dominios", "metodo"]
+    },
+    {
+      "id": "0.2.q15",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "INVENTÁRIO DE ATIVOS — versão 2\nServidores físicos: 22\nServidores virtuais: 61\nEstações de trabalho: 180\nEquipamentos de rede: 34\nTotal de ativos sob gestão: 297",
+      "enunciado": "Este inventário deixa de fora categorias que fazem parte da superfície de ataque. Qual crítica é a mais relevante?",
+      "alternativas": [
+        "Faltam serviços em nuvem, aplicações de terceiros com acesso a dados, contas de usuário e dispositivos móveis — todos caminhos possíveis até a informação",
+        "Falta informar o fabricante e o modelo de cada equipamento listado",
+        "Falta separar os servidores por sistema operacional",
+        "Falta indicar a data da última manutenção física de cada ativo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O inventário lista coisas que se pode tocar ou ligar. O que mais dá acesso a dado?",
+        "Uma aplicação de terceiro com acesso à sua base aparece nessa contagem?",
+        "Conta de usuário é ativo? Ela é caminho até a informação?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se um atacante usar uma credencial válida em um serviço em nuvem, algum item deste inventário teria registrado esse caminho?",
+      "explicacao": "O inventário cobre o que é físico ou virtualizado no ambiente próprio e ignora quatro categorias que são caminho direto até o dado: serviços em nuvem, aplicações de terceiros com acesso, contas de usuário e dispositivos móveis. O que não está no inventário não é corrigido, não é monitorado e não entra em teste — então essas categorias ficam invisíveis por definição.",
+      "por_que_erradas": {
+        "1": "Fabricante e modelo ajudam na operação, mas não ampliam a cobertura do inventário.",
+        "2": "Separar por sistema operacional refina a análise de itens que já estão listados.",
+        "3": "Manutenção física é gestão de patrimônio, não superfície de ataque."
+      },
+      "fonte": "NIST Cybersecurity Framework (identificar); teoria 0.2.t2",
+      "tags": ["ecossistema", "inventario", "caca-erro", "nuvem"]
+    },
+    {
+      "id": "0.2.q16",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma empresa quer reduzir o risco de perda de dados por furto de notebooks em viagem. Qual controle trata diretamente esse cenário?",
+      "alternativas": [
+        "Criptografia de disco com autenticação obrigatória na inicialização",
+        "Antivírus com atualização automática em todas as máquinas",
+        "Política que proíbe levar notebooks corporativos em viagens",
+        "Backup diário das estações para um servidor central"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O aparelho já está na mão de outra pessoa. O que ainda protege o dado?",
+        "Pergunte qual controle atua depois que o acesso físico foi perdido.",
+        "Backup protege contra perda do dado, não contra leitura por terceiro."
+      ],
+      "pergunta_socratica": "Antes de conferir: com o notebook desligado na mão de um estranho, o que impede a leitura do disco?",
+      "explicacao": "Criptografia de disco é o controle desenhado exatamente para acesso físico não autorizado: sem a autenticação de inicialização, o conteúdo não é legível, mesmo com o disco removido e conectado a outra máquina. Backup resolve disponibilidade, e antivírus não tem relação com furto. A proibição de viagem é inviável e seria contornada.",
+      "por_que_erradas": {
+        "1": "Antivírus atua contra código malicioso, não contra leitura do disco por quem tem o aparelho.",
+        "2": "Proibir o uso em viagem inviabiliza o trabalho e será contornado, além de não proteger contra furto no escritório.",
+        "3": "Backup garante que a empresa não perca o dado, mas não impede que o ladrão o leia."
+      },
+      "fonte": "cyber security.pdf; Security Engineering, 3ª ed., cap. 2",
+      "tags": ["ecossistema", "dispositivos", "criptografia", "furto"]
+    },
+    {
+      "id": "0.2.q17",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Uma integração entre o sistema de vendas e uma ferramenta de marketing foi criada com uma chave de acesso que permite ler e escrever em toda a base de clientes, porque era o perfil mais rápido de configurar. Qual é a avaliação correta?",
+      "alternativas": [
+        "A integração ampliou a superfície muito além do necessário: se a chave vazar, o atacante herda acesso total à base",
+        "A configuração é adequada, já que a ferramenta de marketing é um fornecedor contratado e confiável",
+        "O risco é aceitável porque a chave fica armazenada apenas no servidor da empresa",
+        "O problema é apenas de desempenho: perfis amplos tornam a integração mais lenta"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte de que a ferramenta de marketing realmente precisa para funcionar.",
+        "Se essa chave aparecesse em um repositório público amanhã, qual seria o alcance do estrago?",
+        "Confiança no fornecedor cobre a intenção dele, não o vazamento da chave."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual é o menor conjunto de permissões que faria essa integração funcionar?",
+      "explicacao": "A permissão concedida define o tamanho do estrago quando algo der errado — e chaves vazam por repositório público, log, captura de tela e comprometimento do próprio fornecedor. O princípio prático é conceder o mínimo necessário e saber revogar rápido. Confiança no fornecedor não protege contra o comprometimento dele, que é justamente o mecanismo dos ataques de cadeia de fornecimento.",
+      "por_que_erradas": {
+        "1": "Confiabilidade do fornecedor não impede vazamento ou comprometimento da chave.",
+        "2": "Chave armazenada localmente ainda vaza por log, repositório, backup e acesso indevido ao servidor.",
+        "3": "Perfil amplo não é questão de desempenho; é questão de alcance em caso de comprometimento."
+      },
+      "fonte": "Caso SolarWinds (2020); NIST Cybersecurity Framework (proteger)",
+      "tags": ["ecossistema", "terceiros", "menor-privilegio", "cadeia-de-fornecimento"]
+    },
+    {
+      "id": "0.2.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Por que se afirma que a superfície de um fornecedor passa a fazer parte da superfície da empresa que o contrata?",
+      "alternativas": [
+        "Porque o acesso concedido ao fornecedor cria um caminho até os dados da empresa, e o comprometimento dele se transforma em caminho de entrada",
+        "Porque a empresa contratante passa a ser legalmente responsável pela infraestrutura do fornecedor",
+        "Porque contratos de tecnologia sempre preveem responsabilidade solidária por incidentes",
+        "Porque fornecedores costumam ter menos maturidade de segurança que seus clientes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no que foi entregue ao fornecedor: uma chave, um acesso, uma conexão.",
+        "O caminho existe independentemente de quem é o dono da infraestrutura.",
+        "Duas alternativas falam de responsabilidade jurídica, que é outra discussão."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o fornecedor for invadido amanhã, o que o invasor consegue alcançar na sua empresa?",
+      "explicacao": "O que integra a superfície é o caminho, não a propriedade do ativo. Ao conceder acesso, a empresa cria uma rota até seus dados que passa por um ambiente que ela não controla. Daí as três perguntas obrigatórias antes de integrar: que dado ele acessa, com que permissão, e como esse acesso é revogado. O caso SolarWinds mostrou o efeito em escala.",
+      "por_que_erradas": {
+        "1": "Responsabilidade jurídica é outra dimensão do problema e varia conforme contrato e legislação.",
+        "2": "Responsabilidade solidária não é regra automática de contratos de tecnologia.",
+        "3": "Maturidade menor é possível, mas o argumento vale mesmo com fornecedor mais maduro que o cliente."
+      },
+      "fonte": "Caso SolarWinds (2020); teoria 0.2.t6",
+      "tags": ["ecossistema", "terceiros", "cadeia-de-fornecimento", "fundamentos"]
+    },
+    {
+      "id": "0.2.q19",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [2],
+      "enunciado": "Um invasor envia um e-mail de phishing que leva um funcionário a instalar um programa malicioso. Nessa frase, o que é o vetor de ataque?",
+      "alternativas": [
+        "O phishing: o método usado para conseguir o acesso",
+        "A estação do funcionário: o equipamento comprometido",
+        "O servidor de arquivos que o invasor pretende alcançar depois",
+        "O programa malicioso instalado na máquina"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Vetor responde à pergunta \"como?\", não \"onde?\" nem \"o quê?\".",
+        "Ponto de entrada é onde o método funcionou pela primeira vez.",
+        "O programa é a ferramenta usada depois que o método deu certo."
+      ],
+      "pergunta_socratica": "Antes de conferir: separe a história em método, lugar e ferramenta. Qual palavra ocupa cada papel?",
+      "explicacao": "Vetor é o método: phishing. Ponto de entrada é onde ele funcionou: a estação do funcionário. O programa malicioso é a ferramenta instalada em seguida, e o servidor de arquivos seria o alvo do movimento lateral. Manter esses três termos separados é o que permite descrever um incidente com precisão — e responder à pergunta certa em cada etapa da investigação.",
+      "por_que_erradas": {
+        "1": "A estação é o ponto de entrada, não o método.",
+        "2": "O servidor é o alvo pretendido, alcançado por movimento lateral.",
+        "3": "O programa é ferramenta pós-acesso, não o método que obteve o acesso."
+      },
+      "fonte": "MITRE ATT&CK; teoria 0.2.t3",
+      "tags": ["vetor-de-ataque", "vocabulario", "phishing", "fundamentos"]
+    },
+    {
+      "id": "0.2.q20",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que caracteriza movimento lateral em um incidente?",
+      "alternativas": [
+        "O uso de um acesso já obtido para alcançar outras máquinas, contas ou sistemas dentro do ambiente",
+        "A tentativa inicial de entrar no ambiente a partir da internet",
+        "A extração dos dados do ambiente para um servidor externo",
+        "A tentativa de apagar registros de log para dificultar a investigação"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A palavra \"lateral\" sugere deslocamento dentro de um mesmo nível, não entrada nem saída.",
+        "Três alternativas descrevem outras etapas de um ataque.",
+        "Pergunte: essa ação acontece antes ou depois de já haver algum acesso?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que o atacante faz entre o primeiro acesso e o alcance ao alvo final?",
+      "explicacao": "Movimento lateral é a etapa entre a entrada e o objetivo: usar o primeiro acesso para chegar a outros pontos do ambiente, geralmente com credenciais encontradas pelo caminho. Entrada inicial, extração de dados e apagamento de rastros são etapas distintas. A consequência prática é direta: limpar a máquina de entrada e encerrar o caso deixa sem resposta a pergunta de até onde o invasor chegou.",
+      "por_que_erradas": {
+        "1": "Isso é acesso inicial, a etapa anterior.",
+        "2": "Extração de dados é exfiltração, etapa posterior e com objetivo diferente.",
+        "3": "Apagar log é ocultação de rastros, outra tática."
+      },
+      "fonte": "MITRE ATT&CK (movimento lateral)",
+      "tags": ["movimento-lateral", "vocabulario", "mitre", "fundamentos"]
+    },
+    {
+      "id": "0.2.q21",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Coloque as etapas deste incidente na ordem em que aconteceram, do primeiro contato até o objetivo do atacante.",
+      "itens": [
+        "E-mail de phishing chega à caixa de entrada de um funcionário do setor financeiro",
+        "O funcionário abre o anexo e a estação é comprometida",
+        "O atacante encontra na estação uma credencial salva de um sistema interno",
+        "Usando essa credencial, o atacante acessa o servidor de banco de dados",
+        "Os dados de clientes são copiados para um servidor externo controlado pelo atacante"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "Comece pelo que chega de fora, antes de qualquer comprometimento.",
+        "Existe uma etapa em que o atacante ainda não saiu da primeira máquina.",
+        "A cópia dos dados para fora é o objetivo, e por isso vem por último."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual dessas etapas a empresa ainda teria conseguido interromper o ataque com menor prejuízo?",
+      "explicacao": "A sequência é entrega do vetor, comprometimento do ponto de entrada, coleta de credencial, movimento lateral e exfiltração. Cada etapa é uma oportunidade de detecção diferente: filtro de e-mail na primeira, detecção de endpoint na segunda, gestão de segredos na terceira, segmentação e monitoramento de acesso na quarta, controle de saída na quinta. Enxergar a cadeia inteira é o que permite defender em profundidade em vez de apostar tudo em um único controle.",
+      "fonte": "MITRE ATT&CK; teoria 0.2.t3",
+      "tags": ["movimento-lateral", "cadeia-de-ataque", "mitre", "ciclo"]
+    },
+    {
+      "id": "0.2.q22",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Depois de um incidente, o time reinstalou o sistema da estação comprometida e encerrou o chamado. Qual é o risco principal dessa decisão?",
+      "alternativas": [
+        "O acesso pode ter se estendido a outras máquinas e contas, e nada disso foi investigado nem revogado",
+        "A reinstalação apaga evidências que seriam necessárias para acionar o seguro",
+        "A estação reinstalada pode voltar a ser infectada pelo mesmo anexo",
+        "Nenhum risco relevante: eliminada a origem, o incidente está encerrado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Ponto de entrada é o começo do caminho, não o fim.",
+        "Se uma credencial foi obtida naquela máquina, ela deixou de valer com a reinstalação?",
+        "Pergunte o que o atacante pode ter feito entre a entrada e a detecção."
+      ],
+      "pergunta_socratica": "Antes de conferir: quais credenciais estavam disponíveis naquela estação, e onde elas ainda funcionam?",
+      "explicacao": "Reinstalar remove o que estava naquela máquina e não toca no resto: credenciais coletadas continuam válidas, acessos criados em outros sistemas continuam ativos e qualquer persistência estabelecida em outro ponto permanece. Por isso a contenção precisa incluir troca de credenciais e verificação do alcance — a pergunta \"até onde ele chegou?\" é o que separa a resposta a incidente de uma formatação.",
+      "por_que_erradas": {
+        "1": "Perda de evidência é um problema real, mas secundário diante do acesso possivelmente ativo.",
+        "2": "Reinfecção é possível, mas não é o risco principal deste encerramento prematuro.",
+        "3": "Eliminar a origem não elimina o que foi obtido a partir dela."
+      },
+      "fonte": "NIST SP 800-61 (contenção e erradicação); MITRE ATT&CK",
+      "tags": ["movimento-lateral", "resposta-a-incidentes", "contencao"]
+    },
+    {
+      "id": "0.2.q23",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "enunciado": "Uma empresa quer limitar o alcance de um invasor que consiga comprometer uma estação de trabalho. Qual medida ataca especificamente o movimento lateral?",
+      "alternativas": [
+        "Segmentar a rede e restringir quais sistemas podem ser alcançados a partir da faixa das estações",
+        "Instalar um filtro de e-mail mais rigoroso para anexos e links",
+        "Exigir senhas mais longas para todos os usuários da empresa",
+        "Aumentar a retenção dos registros de log de seis meses para dois anos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O invasor já está dentro de uma estação. O que limita para onde ele vai depois?",
+        "Filtro de e-mail atua antes da entrada; log atua depois, na investigação.",
+        "Movimento lateral se combate reduzindo o que é alcançável a partir de cada ponto."
+      ],
+      "pergunta_socratica": "Antes de conferir: a partir da sua estação hoje, quantos sistemas internos você consegue alcançar pela rede?",
+      "explicacao": "Segmentação é a defesa direta contra movimento lateral: mesmo comprometida, a estação só alcança o que a política de rede permite, e o invasor precisa de um passo adicional que pode ser detectado. Filtro de e-mail atua antes, na entrada. Senha longa protege contra adivinhação, e o invasor com acesso à máquina não está adivinhando. Retenção de log ajuda a investigar depois, sem limitar o alcance.",
+      "por_que_erradas": {
+        "1": "O filtro reduz a chance de entrada, mas não limita o alcance de quem já entrou.",
+        "2": "Senha longa não impede uso de credencial já obtida na própria máquina.",
+        "3": "Log estendido melhora a investigação posterior, sem conter o deslocamento."
+      },
+      "fonte": "MITRE ATT&CK; NIST Cybersecurity Framework (proteger)",
+      "tags": ["movimento-lateral", "segmentacao", "rede", "defesa-em-profundidade"]
+    },
+    {
+      "id": "0.2.q24",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Ligue cada termo à descrição correspondente dentro de um mesmo incidente.",
+      "pares": [
+        ["Vetor de ataque", "Credencial válida obtida em um vazamento público e reutilizada pelo funcionário"],
+        ["Ponto de entrada", "A conta de webmail corporativo acessada com essa credencial"],
+        ["Movimento lateral", "O acesso ao sistema financeiro feito a partir da sessão da conta comprometida"],
+        ["Exfiltração", "O envio dos relatórios financeiros para um endereço externo"]
+      ],
+      "dicas": [
+        "Vetor é o método; ponto de entrada é o primeiro lugar alcançado.",
+        "Movimento lateral acontece dentro do ambiente, depois da entrada.",
+        "Exfiltração é a saída do dado para fora do controle da empresa."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses quatro elementos poderia ter sido interrompido com múltiplo fator de autenticação?",
+      "explicacao": "O método foi a credencial reutilizada, o primeiro acesso foi o webmail, o deslocamento interno levou ao sistema financeiro e a saída dos relatórios foi a exfiltração. Separar as quatro etapas permite escolher um controle para cada uma — e responder à pergunta da metacognição: múltiplo fator teria barrado justamente a etapa de entrada, quebrando toda a cadeia seguinte.",
+      "fonte": "MITRE ATT&CK; teoria 0.2.t3",
+      "tags": ["vetor-de-ataque", "movimento-lateral", "pareamento", "credenciais"]
+    },
+    {
+      "id": "0.2.q25",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que o ponto de entrada de um ataque raramente é o alvo final do atacante?",
+      "alternativas": [
+        "Porque o ponto de entrada costuma ser o elemento mais fácil de comprometer, e não o que guarda o que interessa",
+        "Porque atacantes preferem alvos aleatórios a alvos definidos",
+        "Porque sistemas críticos não são acessíveis a partir de nenhum ponto da rede interna",
+        "Porque o ponto de entrada é sempre um servidor exposto à internet"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte onde é mais fácil entrar e onde está o que tem valor.",
+        "Esses dois lugares costumam ser os mesmos?",
+        "Pense na estação de um estagiário e no banco de dados de clientes."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual é o ponto mais fácil de comprometer na sua empresa? E qual é o mais valioso?",
+      "explicacao": "O atacante entra pelo caminho de menor resistência — uma estação, uma conta comum, um serviço secundário — e depois se desloca até o que tem valor. Por isso defender só o alvo final deixa todo o percurso livre, e por isso a investigação precisa reconstruir o caminho inteiro em vez de tratar apenas o primeiro ponto encontrado.",
+      "por_que_erradas": {
+        "1": "Ataques direcionados têm alvo definido; o ponto de entrada é escolhido pela facilidade, não por acaso.",
+        "2": "Sistemas críticos costumam ser alcançáveis internamente, e é isso que torna a segmentação necessária.",
+        "3": "O ponto de entrada pode ser uma estação, uma conta ou um fornecedor — não necessariamente um servidor exposto."
+      },
+      "fonte": "MITRE ATT&CK; Security Engineering, 3ª ed., cap. 2",
+      "tags": ["vetor-de-ataque", "movimento-lateral", "fundamentos"]
+    },
+    {
+      "id": "0.2.q26",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "trecho": "REGISTRO DE INCIDENTE — encerramento\nVetor identificado: exploração de vulnerabilidade em servidor web exposto.\nPonto de entrada: servidor WEB-03.\nAções tomadas: servidor WEB-03 atualizado e reiniciado.\nStatus: encerrado. Movimento lateral: não investigado, pois o servidor foi corrigido.",
+      "enunciado": "Qual é a falha mais grave neste encerramento?",
+      "alternativas": [
+        "Dar o movimento lateral por descartado com base na correção do ponto de entrada, que são coisas independentes",
+        "Não registrar o número da vulnerabilidade explorada no servidor",
+        "Reiniciar o servidor, o que pode ter apagado evidências da memória",
+        "Não informar quanto tempo o servidor ficou indisponível durante a correção"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia a justificativa da última linha e teste a lógica dela.",
+        "Corrigir a porta de entrada desfaz o que o invasor já fez lá dentro?",
+        "Três das opções são falhas reais de registro, mas uma delas deixa o ataque possivelmente ativo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o invasor criou uma conta em outro sistema na semana passada, a atualização do WEB-03 remove essa conta?",
+      "explicacao": "A justificativa inverte a relação: corrigir o ponto de entrada impede uma nova entrada pelo mesmo caminho e não desfaz nada do que já foi feito a partir dele. Contas criadas, credenciais coletadas e acessos estabelecidos continuam válidos, e o incidente pode seguir ativo com o chamado encerrado. As demais são falhas de qualidade do registro, menos graves que declarar encerrado o que não foi investigado.",
+      "por_que_erradas": {
+        "1": "Registrar o identificador da vulnerabilidade é boa prática, mas não muda o alcance do ataque.",
+        "2": "Perda de evidência volátil é um problema real de investigação, e ainda assim menor que não investigar o alcance.",
+        "3": "Tempo de indisponibilidade é métrica operacional, não risco de segurança pendente."
+      },
+      "fonte": "NIST SP 800-61; MITRE ATT&CK",
+      "tags": ["movimento-lateral", "resposta-a-incidentes", "caca-erro"]
+    },
+    {
+      "id": "0.2.q27",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2, 1],
+      "enunciado": "Um atacante obteve acesso a uma conta de e-mail corporativo e, a partir dela, enviou mensagens internas pedindo alterações de cadastro a outros setores. Como classificar essa segunda etapa?",
+      "alternativas": [
+        "Movimento lateral com vetor de engenharia social: o acesso obtido é usado para alcançar outras pessoas e sistemas",
+        "Acesso inicial, porque cada e-mail enviado é uma nova tentativa de entrada",
+        "Exfiltração, porque informação corporativa está sendo transmitida",
+        "Persistência, porque o atacante mantém a conta sob controle"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O atacante já está dentro. O que ele está fazendo com o acesso que tem?",
+        "Repare que o alvo da segunda etapa são outras pessoas do ambiente.",
+        "Manter a conta é uma coisa; usá-la para alcançar outros pontos é outra."
+      ],
+      "pergunta_socratica": "Antes de conferir: essa etapa está buscando entrar, se espalhar, ou tirar dado para fora?",
+      "explicacao": "Usar um acesso conquistado para alcançar outras pessoas e sistemas é movimento lateral, e aqui ele se dá por engenharia social a partir de uma conta legítima — o que o torna especialmente eficaz, porque o remetente é verdadeiro. Manter a conta seria persistência; tirar dado seria exfiltração. A defesa combina processo (confirmação por canal independente para alterações sensíveis) e detecção de comportamento anômalo na conta.",
+      "por_que_erradas": {
+        "1": "O acesso inicial já ocorreu; as mensagens internas partem de dentro do ambiente.",
+        "2": "Não há saída de dado para fora do controle da empresa nessa etapa.",
+        "3": "Persistência é manter o acesso ao longo do tempo, não usá-lo para alcançar outros pontos."
+      },
+      "fonte": "MITRE ATT&CK (movimento lateral, phishing interno)",
+      "tags": ["movimento-lateral", "engenharia-social", "mitre", "fraude"]
+    },
+    {
+      "id": "0.2.q28",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [3],
+      "enunciado": "Entre as três estratégias de redução de superfície, qual é a mais eficaz quando aplicável?",
+      "alternativas": [
+        "Desligar o que não é usado, porque elimina o ponto de contato e junto com ele todo o custo futuro de defesa",
+        "Restringir a exposição, porque mantém a funcionalidade disponível para quem precisa",
+        "Segmentar, porque limita o alcance de um invasor que já esteja dentro",
+        "As três têm exatamente a mesma eficácia e a escolha é indiferente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte qual das três remove a necessidade de corrigir, monitorar e testar aquele ponto para sempre.",
+        "As outras duas continuam exigindo manutenção do ponto ao longo do tempo.",
+        "O que não existe não precisa de defesa."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas três medidas você nunca mais precisa revisar depois de aplicada?",
+      "explicacao": "Desligar remove o ponto de contato de vez: nada a corrigir, monitorar ou testar depois. Restringir e segmentar são excelentes e continuam necessárias para o que precisa existir, mas mantêm o item vivo, com manutenção e possibilidade de erro de configuração ao longo do tempo. Por isso a ordem prática é: dá para desligar? Se não, dá para restringir? Se não, segmente.",
+      "por_que_erradas": {
+        "1": "Restringir é a segunda melhor opção, e mantém o ponto existindo com manutenção contínua.",
+        "2": "Segmentar limita o dano, mas não reduz a quantidade de pontos expostos.",
+        "3": "A eficácia é diferente: só uma delas elimina o ponto de contato."
+      },
+      "fonte": "CIS Benchmarks; teoria 0.2.t5",
+      "tags": ["reducao-de-superficie", "hardening", "fundamentos"]
+    },
+    {
+      "id": "0.2.q29",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um servidor de aplicação precisa continuar acessível pela internet para os clientes, mas seu painel de administração não. Qual medida é a mais adequada?",
+      "alternativas": [
+        "Manter a aplicação pública e restringir o painel administrativo a uma rede privada ou a endereços autorizados",
+        "Manter tudo público e proteger o painel com uma senha longa e única",
+        "Tirar a aplicação inteira da internet e distribuir um cliente instalado para cada usuário",
+        "Renomear o caminho do painel administrativo para algo difícil de adivinhar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Nem tudo que roda no mesmo servidor precisa do mesmo nível de exposição.",
+        "Uma das opções resolve o painel sem inviabilizar o negócio.",
+        "Duas opções mantêm o painel visível para a internet inteira."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem precisa alcançar a aplicação? E quem precisa alcançar o painel?",
+      "explicacao": "Exposição deve seguir a necessidade de cada parte, e não do servidor como um todo. A aplicação atende clientes e fica pública; o painel atende um punhado de administradores e não tem razão para estar visível na internet. Essa separação reduz superfície sem custo para o negócio — que é exatamente o tipo de decisão barata e de alto retorno.",
+      "por_que_erradas": {
+        "1": "Senha forte não protege contra falha de software no painel exposto nem contra credencial vazada.",
+        "2": "Tirar a aplicação do ar inviabiliza o negócio; a redução precisa ser proporcional.",
+        "3": "Renomear é obscuridade: varreduras testam caminhos comuns e o painel continua alcançável."
+      },
+      "fonte": "CIS Benchmarks; NIST Cybersecurity Framework (proteger)",
+      "tags": ["reducao-de-superficie", "exposicao", "hardening", "rede"]
+    },
+    {
+      "id": "0.2.q30",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um levantamento aponta 120 contas ativas em um sistema que tem 70 usuários atuais. Qual é a leitura e a ação mais adequadas?",
+      "alternativas": [
+        "As 50 contas excedentes são superfície desnecessária e devem ser revisadas e desativadas, com processo que impeça a reincidência",
+        "A diferença é normal e não representa risco, já que contas inativas não são usadas",
+        "As contas devem ser mantidas para preservar o histórico de ações de cada usuário",
+        "O problema é apenas de custo de licenciamento do sistema"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Conta que existe pode ser usada; ninguém precisa estar por perto para isso acontecer.",
+        "Pergunte quem notaria um acesso feito por uma dessas 50 contas.",
+        "Histórico e conta ativa são coisas separáveis."
+      ],
+      "pergunta_socratica": "Antes de conferir: se alguém acessasse hoje com a conta de um ex-funcionário, quem perceberia?",
+      "explicacao": "Conta ativa é caminho de entrada, use-se ela ou não — e conta de ex-funcionário é especialmente atraente, porque um acesso indevido não é estranhado por ninguém. A ação é revisar e desativar, preservando o histórico (que não exige conta ativa) e criando o processo de desligamento que impede o acúmulo. Licenciamento é efeito colateral, não o risco.",
+      "por_que_erradas": {
+        "1": "Conta inativa não é conta inutilizável; ela continua sendo credencial válida.",
+        "2": "Histórico de ações se preserva nos registros, sem necessidade de manter a conta habilitada.",
+        "3": "Custo é consequência secundária; o problema é exposição."
+      },
+      "fonte": "NIST Cybersecurity Framework (proteger); CIS Benchmarks",
+      "tags": ["reducao-de-superficie", "gestao-de-acessos", "contas-orfas"]
+    },
+    {
+      "id": "0.2.q31",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [3, 0],
+      "enunciado": "Uma empresa vai iniciar um programa de redução de superfície de ataque. Coloque as etapas na ordem que faz cada uma viabilizar a seguinte.",
+      "itens": [
+        "Levantar o que existe: sistemas, serviços expostos, contas, integrações e fornecedores com acesso",
+        "Classificar o que é essencial ao negócio e o que sobrou de projetos e testes antigos",
+        "Desligar o que não é essencial e restringir a exposição do que precisa continuar",
+        "Segmentar o que resta, de modo que um comprometimento não alcance todo o ambiente",
+        "Revisar periodicamente, porque a superfície volta a crescer com a operação normal"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "Você consegue decidir o que desligar antes de saber o que existe?",
+        "Segmentar faz mais sentido depois que o desnecessário já saiu do caminho.",
+        "A última etapa existe porque a superfície cresce sozinha."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que aconteceria se a empresa começasse pela segmentação?",
+      "explicacao": "Primeiro identificar, depois classificar, então eliminar e restringir, em seguida segmentar o que restou e, por fim, transformar tudo em rotina. Começar pela segmentação é o erro comum: gasta-se esforço protegendo sistemas que poderiam simplesmente ter sido desligados, e o desenho da segmentação fica preso a uma foto que já inclui o descartável. A última etapa é a que impede que todo o trabalho se desfaça em um ano.",
+      "fonte": "NIST Cybersecurity Framework; CIS Benchmarks; teoria 0.2.t5",
+      "tags": ["reducao-de-superficie", "inventario", "ciclo", "segmentacao"]
+    },
+    {
+      "id": "0.2.q32",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "trecho": "PLANO DE REDUÇÃO DE SUPERFÍCIE — proposta\n1. Contratar ferramenta de descoberta de ativos expostos na internet.\n2. Contratar solução de monitoramento contínuo para todos os ativos descobertos.\n3. Contratar serviço de resposta gerenciada para tratar os alertas gerados.\nMeta: cobertura de 100% dos ativos expostos com monitoramento em 12 meses.",
+      "enunciado": "O plano se chama de redução de superfície, mas faz outra coisa. Qual é o problema?",
+      "alternativas": [
+        "Ele monitora e defende toda a superfície existente, sem prever nenhuma etapa de desligar ou restringir o que é desnecessário",
+        "Ele deveria começar pelo serviço de resposta gerenciada, e não pela descoberta de ativos",
+        "A meta de 12 meses é curta demais para uma empresa de qualquer porte",
+        "Ele não especifica quais fornecedores serão avaliados em cada uma das três contratações"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Releia os três itens e procure algum verbo que diminua a superfície.",
+        "Descobrir, monitorar e responder aumentam o conhecimento e a vigilância. Reduzem a exposição?",
+        "O plano termina com a mesma quantidade de pontos expostos que tinha no começo."
+      ],
+      "pergunta_socratica": "Antes de conferir: ao fim dos 12 meses, quantos ativos expostos a menos a empresa terá?",
+      "explicacao": "Descobrir é um bom primeiro passo, mas os três itens juntos entregam vigilância sobre uma superfície que continua exatamente do mesmo tamanho — e com custo recorrente proporcional a ela. Falta a etapa central: decidir o que desligar e o que restringir. Reduzir primeiro diminui inclusive o custo do monitoramento que vier depois.",
+      "por_que_erradas": {
+        "1": "Começar pela resposta gerenciada seria pior: trata alertas de um ambiente que ninguém mapeou.",
+        "2": "O prazo é discutível, mas não é o defeito conceitual do plano.",
+        "3": "Escolha de fornecedores é detalhe de execução, não a lacuna estrutural."
+      },
+      "fonte": "CIS Benchmarks; teoria 0.2.t5",
+      "tags": ["reducao-de-superficie", "caca-erro", "planejamento", "processo-nao-produto"]
+    },
+    {
+      "id": "0.2.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3, 1],
+      "enunciado": "O que significa, na prática, aplicar o princípio do menor privilégio na redução de superfície?",
+      "alternativas": [
+        "Conceder a cada usuário, sistema ou integração apenas as permissões necessárias para a função, e revisar isso periodicamente",
+        "Reduzir ao mínimo o número de usuários com acesso a qualquer sistema da empresa",
+        "Conceder permissões amplas apenas a quem tem cargo de gestão",
+        "Substituir permissões individuais por uma única permissão comum a toda a empresa"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O princípio fala de necessidade da função, e não de hierarquia nem de quantidade de pessoas.",
+        "Ele vale também para sistemas e integrações, não só para gente.",
+        "Sem revisão periódica, permissões só se acumulam ao longo do tempo."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas permissões você tem hoje que não usa há seis meses?",
+      "explicacao": "Menor privilégio é conceder o necessário para a função — de pessoas, sistemas e integrações — e revisar com regularidade, porque acessos se acumulam a cada mudança de área e a cada projeto. O efeito na superfície é direto: cada credencial comprometida alcança menos. Cargo não é critério de permissão, e permissão comum a todos é o oposto do princípio.",
+      "por_que_erradas": {
+        "1": "Reduzir o número de pessoas com acesso não é o princípio; o critério é a necessidade da função.",
+        "2": "Cargo de gestão não implica necessidade técnica de acesso amplo.",
+        "3": "Permissão única para todos elimina qualquer granularidade e amplia o alcance de qualquer comprometimento."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6; NIST Cybersecurity Framework (proteger)",
+      "tags": ["reducao-de-superficie", "menor-privilegio", "gestao-de-acessos"]
+    },
+    {
+      "id": "0.2.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3, 0],
+      "enunciado": "O time de segurança tem dois meses e precisa escolher entre monitorar 200 serviços expostos ou reduzir esse número antes de monitorar. Qual argumento sustenta melhor a segunda opção?",
+      "alternativas": [
+        "Monitorar 200 serviços custa mais, gera mais alerta e mais ponto cego do que monitorar os que sobrarem depois da redução",
+        "Monitoramento é ineficaz como controle e não deveria ser adotado",
+        "Reduzir serviços é sempre mais rápido do que configurar monitoramento",
+        "Serviços expostos não precisam de monitoramento se estiverem atualizados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no custo recorrente de vigiar cada ponto, ano após ano.",
+        "Alerta demais produz o quê, na prática, em uma equipe pequena?",
+        "Cuidado com alternativas que negam a utilidade do monitoramento."
+      ],
+      "pergunta_socratica": "Antes de conferir: se metade desses 200 serviços não for necessária, o que você prefere estar vigiando nos próximos cinco anos?",
+      "explicacao": "Reduzir antes de monitorar diminui custo recorrente, volume de alertas e área de ponto cego — e o monitoramento que vier depois fica mais preciso, porque cobre o que realmente importa. O argumento não é contra monitorar: é sobre a ordem. Vigiar tudo, inclusive o descartável, é o caminho mais caro para o mesmo resultado.",
+      "por_que_erradas": {
+        "1": "Monitoramento é essencial; o ponto é reduzir primeiro para que ele seja viável e eficaz.",
+        "2": "Reduzir nem sempre é mais rápido: exige mapear dependências e negociar com áreas.",
+        "3": "Serviço atualizado hoje pode ter vulnerabilidade amanhã; exposição continua exigindo vigilância."
+      },
+      "fonte": "CIS Benchmarks; NIST Cybersecurity Framework",
+      "tags": ["reducao-de-superficie", "priorizacao", "monitoramento", "custo"]
+    },
+    {
+      "id": "0.2.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 3],
+      "enunciado": "Você recebeu a tarefa de mapear a superfície de ataque de uma empresa de 200 pessoas em duas semanas. Qual abordagem produz o resultado mais útil no prazo?",
+      "alternativas": [
+        "Cobrir os cinco domínios em profundidade rasa: o que está exposto na internet, quais sistemas guardam dado crítico, quais contas existem, quais terceiros têm acesso e quais dispositivos alcançam dados",
+        "Mapear em profundidade apenas os servidores do datacenter, que é onde estão os sistemas críticos",
+        "Executar um teste de intrusão completo para descobrir a superfície a partir das falhas encontradas",
+        "Listar todas as vulnerabilidades conhecidas do ambiente e ordená-las por gravidade"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Em duas semanas, largura ou profundidade? O que produz mais decisão útil?",
+        "Um mapa parcial em profundidade esconde domínios inteiros.",
+        "Vulnerabilidade não é superfície; e teste de intrusão pressupõe escopo já definido."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual erro é pior num primeiro mapeamento — ser superficial em tudo, ou detalhado em um quinto do problema?",
+      "explicacao": "Em um primeiro mapeamento, largura vence profundidade: um mapa raso dos cinco domínios revela onde estão as lacunas grandes e orienta o próximo passo, enquanto um mapa profundo de um domínio deixa quatro inteiros invisíveis. Teste de intrusão precisa de escopo, que é justamente o que ainda não existe, e lista de vulnerabilidades responde a outra pergunta. Profundidade vem depois, guiada pelo que o mapa raso mostrou.",
+      "por_que_erradas": {
+        "1": "Profundidade em um domínio deixa nuvem, contas, terceiros e dispositivos fora do mapa.",
+        "2": "Teste de intrusão sem escopo definido cobre uma parcela arbitrária e não produz mapa.",
+        "3": "Lista de vulnerabilidades descreve falhas conhecidas, não a exposição estrutural."
+      },
+      "fonte": "NIST Cybersecurity Framework (identificar); teoria 0.2.t1 e 0.2.t2",
+      "tags": ["superficie-de-ataque", "ecossistema", "metodo", "priorizacao"]
+    }
+  ]
+}

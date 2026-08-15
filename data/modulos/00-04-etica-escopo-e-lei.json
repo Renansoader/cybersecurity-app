@@ -1,0 +1,1025 @@
+{
+  "id": "0.4",
+  "nivel": 0,
+  "titulo": "Ética, escopo e lei",
+  "objetivos": [
+    "Explicar por que autorização por escrito e escopo definido são condição para qualquer teste de segurança",
+    "Distinguir programa de recompensa, divulgação responsável e pesquisa não autorizada",
+    "Aplicar os princípios e as obrigações da LGPD que afetam o trabalho diário de segurança",
+    "Reconhecer o que a Lei 12.737/2012 e o Marco Civil da Internet estabelecem — e o que não estabelecem"
+  ],
+  "pre_requisitos": ["0.1"],
+  "teoria": [
+    {
+      "id": "0.4.t1",
+      "titulo": "Autorização por escrito: a linha que separa profissão de crime",
+      "texto": "A mesma ação técnica — varrer portas, testar uma senha, explorar uma falha — é trabalho legítimo ou crime dependendo de um único fator: existir autorização de quem tem poder para concedê-la, registrada por escrito e antes do teste.\n\nAutorização verbal não protege ninguém. Quem autorizou pode sair da empresa, mudar de ideia ou não ter tido competência para autorizar. O documento precisa dizer quem autoriza, o que pode ser testado, quando, por quem e com quais limites.",
+      "analogia": "Um chaveiro abrindo a porta com o dono ao lado e uma autorização assinada faz o mesmo movimento de mão que um arrombador. O que muda é o papel.",
+      "erro_comum": "Aceitar \"pode testar, depois a gente formaliza\". Se o teste derrubar um sistema, o \"depois\" não vai existir.",
+      "fonte": "PTES (Penetration Testing Execution Standard); Código Penal, art. 154-A"
+    },
+    {
+      "id": "0.4.t2",
+      "titulo": "Escopo: o contrato técnico do teste",
+      "texto": "Escopo define o que está dentro e o que está fora. Sem ele, qualquer descoberta interessante vira tentação e qualquer efeito colateral vira disputa.\n\nUm escopo mínimo traz: alvos permitidos (endereços, domínios, aplicações), alvos explicitamente proibidos, janela de execução, técnicas vedadas (negação de serviço, engenharia social com terceiros, acesso a dados reais de clientes), tratamento dos dados encontrados e um contato de emergência disponível durante todo o teste.\n\nEncontrar caminho para fora do escopo é comum. A conduta correta é parar, registrar e comunicar — não seguir porque \"tecnicamente dava\".",
+      "analogia": "Contratar alguém para testar as janelas do primeiro andar não autoriza entrar no cofre do subsolo.",
+      "erro_comum": "Tratar escopo como formalidade burocrática. Ele é o que protege o profissional quando algo dá errado.",
+      "fonte": "PTES; OWASP Testing Guide"
+    },
+    {
+      "id": "0.4.t3",
+      "titulo": "Bug bounty e divulgação responsável",
+      "texto": "Programa de recompensa (bug bounty) é uma autorização pública e permanente, com regras próprias: quais alvos valem, quais técnicas são proibidas, como reportar e o que a empresa paga. As regras do programa são o escopo — sair delas é sair da autorização.\n\nDivulgação responsável (responsible disclosure) é o processo de comunicar uma falha ao responsável e dar prazo para correção antes de tornar pública. Divulgação coordenada é o mesmo com prazo combinado entre as partes.\n\nEncontrar uma falha por acaso não autoriza continuar explorando. O caminho é documentar o mínimo necessário, parar e comunicar.",
+      "analogia": "Um aviso na porta dizendo \"teste nossas fechaduras e ganhe recompensa\" vale para as portas listadas no aviso, não para o prédio inteiro.",
+      "erro_comum": "Achar que a boa intenção substitui a autorização. Intenção não é excludente de ilicitude.",
+      "fonte": "OWASP; práticas de divulgação coordenada de vulnerabilidades"
+    },
+    {
+      "id": "0.4.t4",
+      "titulo": "LGPD: o que muda no dia a dia de segurança",
+      "texto": "A Lei 13.709/2018 protege dados pessoais e organiza papéis: controlador decide sobre o tratamento, operador trata em nome dele e o encarregado é o canal com titulares e com a ANPD.\n\nTrês princípios do art. 6º aparecem toda semana no trabalho técnico. Finalidade: o dado só serve ao propósito informado. Necessidade: só o mínimo de dado necessário. Segurança: medidas técnicas e administrativas adequadas ao risco.\n\nDado pessoal sensível — saúde, biometria, origem racial, religião, opinião política, vida sexual — tem proteção mais rígida. E incidente com risco relevante aos titulares deve ser comunicado à ANPD e aos afetados em prazo razoável.",
+      "analogia": "Dado pessoal é coisa emprestada com finalidade combinada, e não material que a empresa passa a possuir.",
+      "erro_comum": "Ler a LGPD como exigência de ferramenta específica. Ela exige medidas adequadas ao risco, e não um produto.",
+      "fonte": "LGPD (Lei 13.709/2018), arts. 5º, 6º, 46 e 48"
+    },
+    {
+      "id": "0.4.t5",
+      "titulo": "Lei 12.737/2012: invasão de dispositivo informático",
+      "texto": "A Lei 12.737/2012, conhecida como Lei Carolina Dieckmann, inseriu o art. 154-A no Código Penal: invadir dispositivo informático alheio, sem autorização expressa ou tácita, com o fim de obter, adulterar ou destruir dados, ou instalar vulnerabilidade para obter vantagem ilícita.\n\nA Lei 14.155/2021 alterou o dispositivo: aumentou as penas e retirou a exigência de que a invasão ocorresse mediante violação de mecanismo de segurança. Consequência prática relevante: um sistema sem senha continua protegido pela lei — ausência de proteção técnica não equivale a autorização.\n\nPara o profissional, a leitura é direta: o que define a licitude é a autorização, não a dificuldade técnica do acesso.",
+      "analogia": "Porta destrancada não é convite para entrar, e continua sendo invasão de domicílio.",
+      "erro_comum": "Supor que acessar algo exposto e sem senha é permitido porque \"estava aberto\".",
+      "fonte": "Lei 12.737/2012; Código Penal, art. 154-A; Lei 14.155/2021"
+    },
+    {
+      "id": "0.4.t6",
+      "titulo": "Marco Civil da Internet: registros e sigilo",
+      "texto": "A Lei 12.965/2014 estabelece direitos e deveres no uso da internet no Brasil. Três pontos importam ao trabalho técnico.\n\nSigilo: as comunicações privadas são invioláveis, e o acesso ao conteúdo depende de ordem judicial. Guarda de registros: provedores de conexão devem guardar registros de conexão por um ano; provedores de aplicações, registros de acesso a aplicações por seis meses. Disponibilização: esses registros só podem ser entregues mediante ordem judicial.\n\nPara quem opera segurança, isso significa que log tem prazo, valor probatório e regras de acesso — e que pedido informal de dados de usuário não é caminho legítimo.",
+      "analogia": "O prédio guarda as imagens das câmeras por um período, e só entrega mediante ordem — não a pedido de qualquer morador.",
+      "erro_comum": "Tratar registros como material de livre consulta interna, sem política de acesso, retenção e finalidade.",
+      "fonte": "Marco Civil da Internet (Lei 12.965/2014), arts. 7º, 10, 13 e 15"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "0.4.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "O que distingue, do ponto de vista legal, um teste de intrusão profissional de um ataque criminoso?",
+      "alternativas": [
+        "A existência de autorização prévia e por escrito de quem tem poder para concedê-la",
+        "A intenção do profissional de ajudar a organização",
+        "O uso de ferramentas comerciais em vez de ferramentas gratuitas",
+        "A elaboração de um relatório técnico ao final da atividade"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As ações técnicas podem ser exatamente as mesmas nos dois casos.",
+        "Pergunte o que um juiz consegue verificar depois: intenção ou documento?",
+        "Ferramenta e relatório não mudam a natureza do acesso."
+      ],
+      "pergunta_socratica": "Antes de conferir: se as ações são idênticas, o que sobra para diferenciar as duas situações?",
+      "explicacao": "A ação técnica é a mesma; o que muda é a autorização. Intenção não é verificável nem é excludente de ilicitude, ferramenta não tem relação com legalidade e relatório é entrega do serviço, não licença para executá-lo. Por isso o documento de autorização vem antes de qualquer comando.",
+      "por_que_erradas": {
+        "1": "Boa intenção não afasta a ilicitude e não é comprovável depois do fato.",
+        "2": "O tipo de ferramenta é irrelevante para a licitude da ação.",
+        "3": "Relatório é produto do trabalho; sem autorização, é relatório de um acesso indevido."
+      },
+      "fonte": "Código Penal, art. 154-A; PTES",
+      "tags": ["etica", "autorizacao", "pentest", "fundamentos"]
+    },
+    {
+      "id": "0.4.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que a autorização verbal do gerente de TI é insuficiente para iniciar um teste de intrusão?",
+      "alternativas": [
+        "Porque não há registro do que foi autorizado, e o gerente pode não ter competência para autorizar aquele escopo",
+        "Porque autorizações verbais não têm validade em nenhuma relação jurídica no Brasil",
+        "Porque testes de intrusão exigem autorização de órgão regulador",
+        "Porque a autorização precisa vir necessariamente do departamento jurídico"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Se um sistema cair durante o teste, o que você mostra a quem cobrar explicação?",
+        "Quem pode autorizar o acesso a um sistema que pertence à empresa e guarda dado de terceiros?",
+        "Cuidado com alternativas absolutas e com inventar exigências regulatórias."
+      ],
+      "pergunta_socratica": "Antes de conferir: daqui a seis meses, com o gerente em outra empresa, o que comprova que você foi autorizado?",
+      "explicacao": "Dois problemas se somam: não existe prova do que foi autorizado, e a pessoa pode não ter alçada para autorizar o escopo em questão — especialmente quando envolve sistemas de terceiros, dados de clientes ou ambientes com contrato. Por isso a autorização é escrita, detalhada e assinada por quem responde pelos ativos. Não é exigência de órgão regulador nem monopólio do jurídico; é gestão de risco básica para os dois lados.",
+      "por_que_erradas": {
+        "1": "Autorizações verbais podem ter validade jurídica em geral; o problema aqui é prova e alçada.",
+        "2": "Não existe órgão regulador que autorize testes de intrusão no Brasil.",
+        "3": "O jurídico costuma revisar, mas quem autoriza é quem responde pelos ativos."
+      },
+      "fonte": "PTES; Código Penal, art. 154-A",
+      "tags": ["etica", "autorizacao", "pentest", "contrato"]
+    },
+    {
+      "id": "0.4.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Qual conjunto de itens compõe um escopo mínimo aceitável para um teste de segurança?",
+      "alternativas": [
+        "Alvos permitidos e proibidos, janela de execução, técnicas vedadas, tratamento dos dados encontrados e contato de emergência",
+        "Nome do cliente, valor do contrato e prazo de entrega do relatório",
+        "Lista de ferramentas que serão utilizadas e versão de cada uma",
+        "Currículo dos profissionais envolvidos e certificações que possuem"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Escopo responde: o que, onde, quando, como não, e quem chamar se der problema.",
+        "Três alternativas descrevem itens comerciais ou de qualificação, não limites técnicos.",
+        "Pense no que você precisaria ter combinado se um sistema cair às duas da manhã."
+      ],
+      "pergunta_socratica": "Antes de conferir: durante o teste, você derruba um serviço de produção. Qual item do escopo salva a situação?",
+      "explicacao": "Escopo é o contrato técnico: define alvos incluídos e excluídos, quando pode acontecer, o que não pode ser feito, como tratar dado encontrado e quem acionar em emergência. Valor, ferramentas e currículo pertencem à proposta comercial, e nenhum deles define limites de execução nem protege as partes quando algo dá errado.",
+      "por_que_erradas": {
+        "1": "São itens comerciais; não delimitam o que pode ser testado nem como.",
+        "2": "A lista de ferramentas não define limites e costuma mudar durante o trabalho.",
+        "3": "Qualificação da equipe é critério de contratação, não escopo técnico."
+      },
+      "fonte": "PTES; OWASP Testing Guide",
+      "tags": ["escopo", "pentest", "contrato", "fundamentos"]
+    },
+    {
+      "id": "0.4.q4",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Durante um teste autorizado, você descobre que um servidor fora do escopo tem uma falha grave e facilmente explorável. Qual é a conduta correta?",
+      "alternativas": [
+        "Parar, registrar a observação e comunicar ao contato do cliente, sem explorar a falha",
+        "Explorar a falha para demonstrar o impacto real e fortalecer o relatório",
+        "Ignorar completamente, já que o servidor está fora do escopo contratado",
+        "Explorar apenas o suficiente para confirmar, e depois pedir autorização retroativa"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Fora do escopo significa sem autorização para aquele alvo.",
+        "Existe diferença entre observar de fora e explorar.",
+        "Autorização retroativa não existe: ou havia antes, ou não havia."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual conduta protege ao mesmo tempo o cliente e você?",
+      "explicacao": "Fora do escopo é fora da autorização, e explorar seria acesso não autorizado — independentemente da boa intenção. A conduta profissional é interromper, registrar o mínimo necessário e comunicar ao contato definido, que pode ampliar o escopo formalmente se quiser. Ignorar também é errado: o cliente precisa saber do risco que você observou.",
+      "por_que_erradas": {
+        "1": "Demonstrar impacto fora do escopo é acesso não autorizado, ainda que bem-intencionado.",
+        "2": "Ignorar deixa o cliente exposto a um risco que você já identificou.",
+        "3": "Não existe autorização retroativa; o acesso já terá ocorrido sem cobertura."
+      },
+      "fonte": "PTES; Código Penal, art. 154-A",
+      "tags": ["escopo", "etica", "pentest", "conduta"]
+    },
+    {
+      "id": "0.4.q5",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "trecho": "AUTORIZAÇÃO DE TESTE DE SEGURANÇA\nA empresa autoriza a realização de testes de segurança em sua infraestrutura.\nPeríodo: a combinar.\nResponsável pela autorização: equipe de TI.\nObservação: quaisquer sistemas podem ser testados, a critério técnico do contratado.",
+      "enunciado": "Qual é o problema mais grave deste documento?",
+      "alternativas": [
+        "Ele não delimita alvos, janela nem técnicas, e não identifica quem autorizou — o que deixa o teste sem escopo e sem responsável",
+        "Ele não informa o valor do contrato de prestação de serviço",
+        "Ele não exige que o contratado tenha certificação profissional específica",
+        "Ele não define o formato do relatório a ser entregue ao final"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia cada linha e pergunte: isso limita alguma coisa?",
+        "\"Equipe de TI\" é uma pessoa com nome e alçada?",
+        "\"A critério técnico do contratado\" transfere para quem a decisão de escopo?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se um sistema de terceiro for atingido, este documento protege alguém?",
+      "explicacao": "O documento autoriza tudo e não identifica ninguém: sem alvos definidos, sem janela, sem técnicas vedadas e assinado por uma equipe em vez de uma pessoa com alçada. Na prática não há escopo, e a decisão sobre o que testar recai sobre o contratado — que fica exposto se algo cair ou se um sistema de terceiro for atingido. Valor, certificação e formato de relatório são itens contratuais menores diante disso.",
+      "por_que_erradas": {
+        "1": "Valor é cláusula comercial e não afeta a delimitação técnica.",
+        "2": "Certificação é critério de contratação, não escopo.",
+        "3": "Formato de relatório é detalhe de entrega."
+      },
+      "fonte": "PTES; OWASP Testing Guide",
+      "tags": ["escopo", "autorizacao", "caca-erro", "contrato"]
+    },
+    {
+      "id": "0.4.q6",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que engenharia social envolvendo terceiros costuma ser tratada com cuidado especial no escopo de um teste?",
+      "alternativas": [
+        "Porque atinge pessoas que não consentiram com o teste, com impactos legais e humanos que vão além do sistema testado",
+        "Porque é tecnicamente mais difícil de executar do que ataques a sistemas",
+        "Porque nenhuma empresa pode autorizar testes de engenharia social no Brasil",
+        "Porque exige ferramentas específicas que a maioria dos contratados não possui"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quem é o alvo real desse tipo de teste.",
+        "Um funcionário enganado durante um teste sofre que tipo de consequência?",
+        "Cuidado com a alternativa que proíbe categoricamente."
+      ],
+      "pergunta_socratica": "Antes de conferir: como você se sentiria ao descobrir que foi enganado por um teste e reprovou?",
+      "explicacao": "Engenharia social tem pessoas como alvo, e elas não assinaram o contrato. Há impacto humano — constrangimento, medo de punição — e questões legais quando envolve terceiros externos, familiares ou dados pessoais. Por isso o escopo costuma detalhar quem pode ser abordado, por quais canais, com que pretexto e como os resultados serão comunicados sem expor indivíduos. É permitido no Brasil, com autorização e limites claros.",
+      "por_que_erradas": {
+        "1": "Dificuldade técnica não é a razão do cuidado; frequentemente é o vetor mais fácil.",
+        "2": "Não há proibição legal; o que existe é a necessidade de autorização e limites.",
+        "3": "Ferramentas existem e são acessíveis; a questão é ética e jurídica."
+      },
+      "fonte": "PTES; LGPD, art. 6º",
+      "tags": ["escopo", "engenharia-social", "etica", "pessoas"]
+    },
+    {
+      "id": "0.4.q7",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 2],
+      "enunciado": "Durante um teste autorizado em uma aplicação web, você consegue acessar registros com dados pessoais reais de clientes. O escopo não menciona tratamento de dados. Como proceder?",
+      "alternativas": [
+        "Interromper a extração, registrar apenas a evidência mínima de que o acesso é possível, comunicar imediatamente e acordar por escrito o tratamento desses dados",
+        "Baixar uma amostra representativa dos registros para anexar ao relatório final",
+        "Continuar o teste normalmente, pois o acesso ocorreu dentro do escopo autorizado",
+        "Encerrar o teste imediatamente e devolver o contrato ao cliente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Demonstrar que o acesso é possível exige copiar os dados?",
+        "Dado pessoal tem regra própria, mesmo dentro de um teste autorizado.",
+        "Existe um caminho entre baixar tudo e abandonar o trabalho."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual é a menor evidência capaz de provar que o acesso existe, sem levar dado de ninguém?",
+      "explicacao": "Autorização para testar a aplicação não é autorização para tratar dados pessoais de titulares que nada combinaram. A conduta correta é minimizar: parar a extração, guardar a evidência mínima — contagem, campo mascarado, captura parcial —, comunicar na hora e formalizar por escrito como esses dados serão tratados, armazenados e descartados. É também o que os princípios de finalidade e necessidade da LGPD exigem.",
+      "por_que_erradas": {
+        "1": "Baixar amostra de dado pessoal real amplia o risco e trata dado sem base definida.",
+        "2": "O escopo cobria testar a aplicação, e não copiar dados pessoais de clientes.",
+        "3": "Encerrar o contrato é desproporcional: o achado é relevante e o caminho é formalizar o tratamento."
+      },
+      "fonte": "LGPD, arts. 6º e 46; PTES",
+      "tags": ["escopo", "lgpd", "dados-pessoais", "conduta"]
+    },
+    {
+      "id": "0.4.q8",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Coloque as etapas de um teste de segurança contratado na ordem correta, do primeiro contato à entrega.",
+      "itens": [
+        "Definir e assinar a autorização, com alvos, janela, técnicas vedadas e contato de emergência",
+        "Reconhecimento e mapeamento dos alvos autorizados",
+        "Execução dos testes previstos, dentro da janela e das técnicas permitidas",
+        "Comunicação imediata de achados críticos ao contato definido, sem esperar o relatório",
+        "Entrega do relatório e descarte seguro dos dados coletados durante o trabalho"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "Nada técnico começa antes de um item específico da lista.",
+        "Achado crítico espera o relatório ou é comunicado assim que confirmado?",
+        "O trabalho não termina na entrega: sobra uma obrigação sobre os dados coletados."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que acontece com os dados que você coletou depois que o relatório é entregue?",
+      "explicacao": "Autorização primeiro, sempre — nenhum comando antes dela. Depois reconhecimento, execução dentro dos limites e comunicação imediata do que for crítico, porque deixar uma falha grave esperando o relatório expõe o cliente sem necessidade. A etapa final costuma ser esquecida: descartar de forma segura o que foi coletado, já que o material do teste é, ele próprio, um risco concentrado.",
+      "fonte": "PTES; OWASP Testing Guide",
+      "tags": ["escopo", "pentest", "processo", "ciclo"]
+    },
+    {
+      "id": "0.4.q9",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "Uma empresa contrata um teste em um sistema hospedado em um provedor de nuvem. Por que o escopo precisa considerar o contrato com esse provedor?",
+      "alternativas": [
+        "Porque a infraestrutura é compartilhada e o provedor tem regras próprias sobre testes, cujo descumprimento pode violar contrato e afetar terceiros",
+        "Porque o provedor precisa aprovar tecnicamente cada ferramenta utilizada no teste",
+        "Porque testes em nuvem são proibidos por todos os provedores do mercado",
+        "Porque a responsabilidade pela segurança em nuvem é integralmente do provedor"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem mais está usando aquela infraestrutura?",
+        "A empresa contratante é dona do servidor físico?",
+        "Cuidado com absolutos: \"todos os provedores\", \"integralmente\"."
+      ],
+      "pergunta_socratica": "Antes de conferir: um teste agressivo naquela infraestrutura pode afetar quem, além do cliente?",
+      "explicacao": "Em nuvem a infraestrutura é compartilhada, e o cliente autoriza o que é dele — não o ambiente do provedor nem os vizinhos. Provedores publicam regras sobre o que é permitido testar e o que exige comunicação prévia, e ignorá-las pode violar contrato e atingir terceiros. O modelo é de responsabilidade compartilhada: parte é do provedor, parte é do cliente.",
+      "por_que_erradas": {
+        "1": "Provedores publicam políticas gerais; não aprovam ferramenta por ferramenta.",
+        "2": "Testes em nuvem são permitidos dentro das políticas de cada provedor.",
+        "3": "A responsabilidade é compartilhada: configuração, dados e acesso continuam com o cliente."
+      },
+      "fonte": "Modelo de responsabilidade compartilhada; PTES",
+      "tags": ["escopo", "nuvem", "contrato", "terceiros"]
+    },
+    {
+      "id": "0.4.q10",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um estudante quer praticar habilidades ofensivas e considera testar o site de uma empresa local \"só para ver se está seguro\", com intenção de avisar depois. Qual orientação é correta?",
+      "alternativas": [
+        "Não fazer: sem autorização prévia, a prática é ilícita mesmo com intenção de avisar; existem laboratórios e programas próprios para isso",
+        "Pode fazer, desde que não cause dano e comunique a empresa em seguida",
+        "Pode fazer, desde que limite a atividade a varredura de portas, que não é considerada invasão",
+        "Pode fazer, desde que a empresa não tenha aviso proibindo testes em seu site"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Autorização é anterior ao ato, não posterior.",
+        "Existe ambiente legítimo para praticar exatamente essas habilidades.",
+        "Ausência de proibição expressa equivale a permissão?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que exatamente muda na situação jurídica se você avisar depois?",
+      "explicacao": "Sem autorização prévia não há cobertura, e avisar depois não converte o ato em legítimo. O caminho correto para praticar existe e é abundante: laboratórios como TryHackMe, Hack The Box, OverTheWire e PortSwigger Academy, além de programas de recompensa com escopo público. Ausência de aviso proibitivo não é permissão, e varredura de portas em alvo alheio já é atividade de reconhecimento não autorizada.",
+      "por_que_erradas": {
+        "1": "Ausência de dano não afasta a falta de autorização.",
+        "2": "Varredura em alvo alheio é reconhecimento não autorizado e frequentemente registrada como incidente.",
+        "3": "Falta de aviso não é consentimento; a regra é o contrário."
+      },
+      "fonte": "Código Penal, art. 154-A; teoria 0.4.t1",
+      "tags": ["etica", "autorizacao", "laboratorios", "carreira"]
+    },
+    {
+      "id": "0.4.q11",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [1],
+      "enunciado": "O que é um programa de recompensa por vulnerabilidades (bug bounty)?",
+      "alternativas": [
+        "Uma autorização pública e permanente para testar alvos definidos, com regras próprias e pagamento por achados válidos",
+        "Um contrato individual de teste de intrusão com prazo e equipe definidos",
+        "Um seguro que cobre prejuízos causados por vulnerabilidades exploradas",
+        "Um serviço em que a empresa paga para não ser atacada por determinado grupo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que a empresa publica ao abrir um programa desses?",
+        "Quem decide quando testar: a empresa ou o pesquisador?",
+        "Uma das alternativas descreve extorsão, não um programa legítimo."
+      ],
+      "pergunta_socratica": "Antes de conferir: em um bug bounty, onde está escrito o que você pode testar?",
+      "explicacao": "Bug bounty é autorização pública e contínua, com regras publicadas: quais alvos entram, quais técnicas são proibidas, como reportar e quanto se paga por severidade. As regras funcionam como escopo — testar fora delas é agir sem autorização. Difere do teste contratado, que tem equipe, prazo e contrato individuais.",
+      "por_que_erradas": {
+        "1": "Isso descreve um teste de intrusão contratado, não um programa aberto.",
+        "2": "Seguro cibernético é instrumento financeiro, sem relação com autorização de teste.",
+        "3": "Pagar para não ser atacado é extorsão, e não programa de segurança."
+      },
+      "fonte": "Práticas de divulgação coordenada; OWASP",
+      "tags": ["bug-bounty", "autorizacao", "vocabulario", "carreira"]
+    },
+    {
+      "id": "0.4.q12",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "O que caracteriza a divulgação responsável de uma vulnerabilidade?",
+      "alternativas": [
+        "Comunicar a falha ao responsável e conceder prazo para correção antes de qualquer divulgação pública",
+        "Publicar imediatamente todos os detalhes técnicos, para que os usuários possam se proteger",
+        "Vender os detalhes da falha para quem pagar mais, desde que não seja um grupo criminoso",
+        "Manter a falha em sigilo permanente, sem comunicar a ninguém"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O objetivo é que a falha seja corrigida antes de ser explorada em massa.",
+        "Publicar antes da correção ajuda mais quem: usuários ou atacantes?",
+        "Sigilo permanente deixa a falha viva para sempre."
+      ],
+      "pergunta_socratica": "Antes de conferir: entre a publicação e a correção, quem tem vantagem?",
+      "explicacao": "Divulgação responsável comunica primeiro ao responsável e dá prazo razoável para corrigir, publicando depois — o que protege os usuários no intervalo em que ainda não há correção. Publicar de imediato entrega uma falha pronta para exploração; vender detalhes alimenta o mercado ofensivo; e silêncio permanente deixa o risco intacto e sem chance de correção.",
+      "por_que_erradas": {
+        "1": "Publicação imediata favorece a exploração, já que a correção ainda não existe.",
+        "2": "Vender detalhes alimenta o mercado ofensivo, independentemente do comprador.",
+        "3": "Sigilo permanente impede a correção e mantém todos os usuários expostos."
+      },
+      "fonte": "Práticas de divulgação coordenada de vulnerabilidades; OWASP",
+      "tags": ["divulgacao-responsavel", "etica", "vocabulario"]
+    },
+    {
+      "id": "0.4.q13",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Um programa de bug bounty lista como alvo apenas o domínio da API pública. Você descobre, durante os testes, que o painel administrativo interno tem uma falha crítica. O que fazer?",
+      "alternativas": [
+        "Não testar o painel: ele está fora do escopo do programa; relatar a observação seguindo o canal do programa",
+        "Testar o painel, já que a empresa demonstrou interesse em receber relatos de falhas",
+        "Testar o painel e informar apenas se a falha for realmente crítica",
+        "Publicar a descoberta em rede social para pressionar a empresa a ampliar o escopo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O escopo do programa é a extensão exata da autorização.",
+        "Interesse geral em receber relatos autoriza testar qualquer coisa?",
+        "Pressionar publicamente antes da correção prejudica quem?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que a empresa autorizou, exatamente, ao publicar o programa?",
+      "explicacao": "A autorização de um bug bounty vai até onde vão suas regras: alvo fora da lista é alvo sem autorização. A conduta correta é não testar e relatar pelo canal do programa o que foi observado — a empresa pode ampliar o escopo se quiser. Divulgação pública antes da correção expõe usuários e caracteriza pressão indevida, não pesquisa responsável.",
+      "por_que_erradas": {
+        "1": "Interesse em receber relatos não amplia o escopo publicado.",
+        "2": "A gravidade não altera a ausência de autorização para aquele alvo.",
+        "3": "Publicar antes da correção expõe usuários e rompe a divulgação responsável."
+      },
+      "fonte": "Práticas de bug bounty; PTES",
+      "tags": ["bug-bounty", "escopo", "etica", "conduta"]
+    },
+    {
+      "id": "0.4.q14",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Ligue cada situação à sua classificação correta.",
+      "pares": [
+        ["Teste de intrusão contratado", "Contrato individual, com equipe, prazo, escopo e janela definidos"],
+        ["Programa de recompensa", "Autorização pública e permanente, com regras e alvos publicados"],
+        ["Divulgação responsável", "Comunicação da falha ao responsável, com prazo para correção antes de publicar"],
+        ["Pesquisa não autorizada", "Teste em sistema alheio sem qualquer autorização prévia, mesmo com boa intenção"]
+      ],
+      "dicas": [
+        "Duas situações envolvem autorização prévia, com formatos diferentes.",
+        "Uma delas é sobre o que fazer depois de encontrar a falha.",
+        "A última é definida pela ausência de autorização, e não pela intenção."
+      ],
+      "pergunta_socratica": "Antes de conferir: em cada caso, onde está registrado o que você pode fazer?",
+      "explicacao": "Teste contratado e bug bounty são as duas formas de autorização, uma individual e outra pública. Divulgação responsável é o processo posterior à descoberta, e vale nos dois casos e também quando a falha aparece por acaso. Pesquisa não autorizada se define pela ausência de permissão prévia — a intenção não muda a classificação.",
+      "fonte": "PTES; práticas de divulgação coordenada",
+      "tags": ["bug-bounty", "divulgacao-responsavel", "pareamento", "etica"]
+    },
+    {
+      "id": "0.4.q15",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Por que muitos programas de recompensa proíbem explicitamente testes de negação de serviço?",
+      "alternativas": [
+        "Porque esse tipo de teste degrada o serviço para usuários reais, causando dano em vez de apenas demonstrar risco",
+        "Porque ataques de negação de serviço não são considerados vulnerabilidades por nenhuma metodologia",
+        "Porque a legislação brasileira proíbe qualquer simulação de negação de serviço",
+        "Porque exigem infraestrutura cara, que a maioria dos pesquisadores não possui"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quem sente o efeito do teste enquanto ele acontece.",
+        "Demonstrar risco e causar prejuízo são coisas diferentes.",
+        "Cuidado com afirmações legais categóricas."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual é a diferença entre demonstrar que um sistema pode cair e derrubá-lo?",
+      "explicacao": "Negação de serviço não expõe uma falha silenciosamente: ela interrompe o serviço para usuários reais durante o teste, o que é dano concreto — inclusive em sistemas de saúde, pagamento ou emergência. Por isso a maioria dos programas veda a técnica e aceita apenas demonstrações teóricas do risco. É restrição contratual do programa, não proibição legal genérica.",
+      "por_que_erradas": {
+        "1": "Negação de serviço é uma categoria reconhecida de ameaça, inclusive em modelos como o STRIDE.",
+        "2": "Não há proibição legal genérica de simulação; o que há são limites contratuais e de autorização.",
+        "3": "Custo de infraestrutura não é a razão da proibição."
+      },
+      "fonte": "Práticas de bug bounty; OWASP",
+      "tags": ["bug-bounty", "escopo", "negacao-de-servico", "etica"]
+    },
+    {
+      "id": "0.4.q16",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Você reportou uma falha grave a uma empresa que não tem programa de recompensa. Passados 90 dias e três lembretes, não houve correção nem resposta. Qual conduta é a mais defensável?",
+      "alternativas": [
+        "Comunicar a intenção de divulgar, dar um prazo final e publicar informação suficiente para os usuários se protegerem, sem entregar exploração pronta",
+        "Publicar imediatamente todos os detalhes técnicos e o código de exploração completo",
+        "Desistir e manter a falha em sigilo permanente, já que a empresa não respondeu",
+        "Explorar a falha em produção para forçar a empresa a reconhecer o problema"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O objetivo é proteger usuários, não punir a empresa.",
+        "Existe diferença entre alertar sobre o risco e entregar a arma pronta.",
+        "Sigilo permanente deixa quem exposto?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual conteúdo protege o usuário sem facilitar o ataque?",
+      "explicacao": "Depois de tentativas documentadas e prazo razoável, a divulgação passa a ser defensável em nome dos usuários — mas com dois cuidados: avisar antes de publicar, com prazo final, e limitar o conteúdo ao necessário para que as pessoas se protejam, sem exploração pronta. Publicar tudo de imediato arma o atacante; silêncio permanente mantém todos expostos; explorar em produção é crime, qualquer que seja a motivação.",
+      "por_que_erradas": {
+        "1": "Publicar exploração pronta transfere capacidade ofensiva antes da correção.",
+        "2": "Sigilo permanente mantém usuários expostos indefinidamente.",
+        "3": "Explorar em produção é acesso não autorizado e causa dano real a terceiros."
+      },
+      "fonte": "Práticas de divulgação coordenada; Código Penal, art. 154-A",
+      "tags": ["divulgacao-responsavel", "etica", "conduta", "prazo"]
+    },
+    {
+      "id": "0.4.q17",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "trecho": "REGRAS DO PROGRAMA DE RECOMPENSA — rascunho\nAlvos: todos os sistemas da empresa.\nTécnicas: qualquer uma, desde que o pesquisador seja cuidadoso.\nDados: em caso de acesso a dados de clientes, o pesquisador deve baixar uma amostra como prova.\nPagamento: a critério exclusivo da empresa, sem faixa divulgada.",
+      "enunciado": "Qual item deste rascunho cria o risco mais grave para as duas partes?",
+      "alternativas": [
+        "Instruir o pesquisador a baixar dados de clientes como prova, o que transforma o programa em fonte de vazamento",
+        "Não divulgar a faixa de pagamento por severidade",
+        "Definir todos os sistemas da empresa como alvo do programa",
+        "Não exigir identificação civil dos participantes do programa"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Três itens são ruins; um deles cria exposição de dado pessoal de terceiros.",
+        "Quem são os titulares desses dados, e o que eles combinaram?",
+        "Prova de acesso exige levar o dado embora?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se cinquenta pesquisadores seguirem essa regra, quantas cópias de dados de clientes vão existir?",
+      "explicacao": "Instruir download de dados reais espalha informação pessoal por máquinas de terceiros sem qualquer base legal — o programa vira ele próprio um vazamento distribuído, com responsabilidade da empresa. A prática correta é pedir evidência mínima e não identificável. Escopo amplo demais e ausência de faixa de pagamento também são defeitos, porém de outra ordem de gravidade.",
+      "por_que_erradas": {
+        "1": "Faixa não divulgada desestimula pesquisadores, mas não expõe dados de terceiros.",
+        "2": "Escopo amplo é arriscado e deve ser delimitado, mas não gera vazamento por si só.",
+        "3": "Identificação civil é opção de política do programa, não fonte de risco a titulares."
+      },
+      "fonte": "LGPD, arts. 6º e 46; práticas de bug bounty",
+      "tags": ["bug-bounty", "lgpd", "caca-erro", "dados-pessoais"]
+    },
+    {
+      "id": "0.4.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1, 0],
+      "enunciado": "Um pesquisador diz que sua atuação é legítima porque \"nunca causou dano e sempre avisou as empresas\". Qual avaliação é correta?",
+      "alternativas": [
+        "Ausência de dano e aviso posterior não substituem autorização prévia; a conduta continua sendo acesso não autorizado",
+        "A conduta é plenamente legítima, já que a intenção era colaborativa",
+        "A conduta é legítima apenas se a empresa não tiver política proibindo testes",
+        "A conduta é legítima desde que o pesquisador não receba pagamento pelos relatos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que a lei exige antes do acesso?",
+        "Boa intenção é verificável por quem, e quando?",
+        "Receber ou não pagamento altera a existência de autorização?"
+      ],
+      "pergunta_socratica": "Antes de conferir: no momento exato do acesso, existia autorização?",
+      "explicacao": "A licitude se decide no momento do acesso, e ali não havia autorização. Ausência de dano pode influenciar a dosimetria e a disposição da empresa em não acionar, mas não converte o ato em legítimo — e depende inteiramente da boa vontade de quem foi testado. Existir política proibitiva ou receber pagamento não muda a natureza do ato.",
+      "por_que_erradas": {
+        "1": "Intenção não é excludente de ilicitude, e não é comprovável depois do fato.",
+        "2": "Ausência de política proibitiva não equivale a autorização.",
+        "3": "Gratuidade não transforma acesso não autorizado em acesso autorizado."
+      },
+      "fonte": "Código Penal, art. 154-A; teoria 0.4.t3",
+      "tags": ["etica", "autorizacao", "divulgacao-responsavel", "carreira"]
+    },
+    {
+      "id": "0.4.q19",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [2],
+      "enunciado": "Na LGPD, qual é a diferença entre controlador e operador?",
+      "alternativas": [
+        "O controlador decide sobre o tratamento dos dados; o operador realiza o tratamento em nome do controlador",
+        "O controlador armazena os dados; o operador apenas os transmite entre sistemas",
+        "O controlador é sempre uma pessoa física; o operador é sempre uma pessoa jurídica",
+        "O controlador fiscaliza o cumprimento da lei; o operador aplica as sanções cabíveis"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A diferença está em quem toma as decisões sobre o dado.",
+        "Um provedor que processa dados a pedido de um cliente ocupa qual papel?",
+        "Fiscalizar e sancionar é papel de outro ator: a ANPD."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem escolheu por que aquele dado está sendo tratado?",
+      "explicacao": "Controlador é quem decide sobre a finalidade e os meios do tratamento; operador é quem trata em nome dele, seguindo suas instruções. Um provedor de nuvem ou uma ferramenta contratada costuma ser operador. Quem fiscaliza e aplica sanções é a ANPD, e o encarregado é o canal de comunicação com titulares e com a autoridade.",
+      "por_que_erradas": {
+        "1": "Armazenar ou transmitir são operações; o critério de distinção é o poder de decisão.",
+        "2": "Ambos podem ser pessoa física ou jurídica.",
+        "3": "Fiscalização e sanção competem à ANPD, não ao controlador."
+      },
+      "fonte": "LGPD, art. 5º, VI, VII e VIII",
+      "tags": ["lgpd", "papeis", "vocabulario", "fundamentos"]
+    },
+    {
+      "id": "0.4.q20",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um sistema coleta a data de nascimento dos usuários apenas para verificar se são maiores de idade, mas armazena a data completa por tempo indeterminado. Qual princípio da LGPD está sendo desrespeitado de forma mais direta?",
+      "alternativas": [
+        "Necessidade: o tratamento deve se limitar ao mínimo necessário para a finalidade informada",
+        "Livre acesso: os titulares devem poder consultar seus dados a qualquer momento",
+        "Não discriminação: os dados não podem ser usados para fins discriminatórios",
+        "Transparência: os titulares devem receber informação clara sobre o tratamento"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Para saber se alguém é maior de idade, é preciso guardar a data completa para sempre?",
+        "O princípio em questão fala de mínimo suficiente.",
+        "Os outros três princípios existem, mas tratam de outras coisas."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual é o menor dado que responderia à pergunta \"é maior de idade?\"",
+      "explicacao": "Necessidade exige o mínimo suficiente para a finalidade. Para verificar maioridade bastaria armazenar um indicador booleano, ou ao menos descartar a data após a verificação. Guardar a data completa por tempo indeterminado amplia o dano de um eventual vazamento sem entregar nenhum benefício adicional — é o exemplo mais comum de coleta excessiva.",
+      "por_que_erradas": {
+        "1": "Livre acesso trata do direito de consulta pelo titular, que não é o problema descrito.",
+        "2": "Não discriminação trata do uso do dado para fins discriminatórios.",
+        "3": "Transparência trata da clareza da informação prestada, não do volume coletado."
+      },
+      "fonte": "LGPD, art. 6º, III (necessidade)",
+      "tags": ["lgpd", "principios", "minimizacao", "privacidade"]
+    },
+    {
+      "id": "0.4.q21",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Quais dados a LGPD classifica como pessoais sensíveis?",
+      "alternativas": [
+        "Origem racial ou étnica, convicção religiosa, opinião política, filiação sindical, dados de saúde, vida sexual, dado genético e biométrico",
+        "Todos os dados que possam causar prejuízo financeiro ao titular se vazados",
+        "Apenas dados bancários, número de cartão e senhas de acesso",
+        "Qualquer dado que a empresa classifique internamente como confidencial"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A lei traz uma lista fechada, e ela tem relação com discriminação.",
+        "Dado bancário é sensível no sentido comum, mas está nessa lista legal?",
+        "Classificação interna da empresa define categoria legal?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que essas categorias têm em comum quanto ao risco para a pessoa?",
+      "explicacao": "A lista do art. 5º, II é fechada e tem lógica própria: são categorias cujo uso indevido leva a discriminação — origem racial ou étnica, convicção religiosa, opinião política, filiação a sindicato ou organização religiosa, filosófica ou política, dado de saúde, vida sexual, dado genético e biométrico. Dado bancário é pessoal e exige proteção, mas não é sensível nessa classificação. Rótulo interno de confidencialidade também não altera a categoria legal.",
+      "por_que_erradas": {
+        "1": "Potencial de prejuízo financeiro não é o critério legal de sensibilidade.",
+        "2": "Dados bancários e credenciais são pessoais e críticos, mas ficam fora da lista de sensíveis.",
+        "3": "Classificação interna é boa prática de governança, sem efeito sobre a categoria legal."
+      },
+      "fonte": "LGPD, art. 5º, II",
+      "tags": ["lgpd", "dados-sensiveis", "vocabulario", "privacidade"]
+    },
+    {
+      "id": "0.4.q22",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Uma empresa sofre vazamento de uma base com nome, CPF e endereço de 50 mil clientes. Qual é a obrigação prevista na LGPD?",
+      "alternativas": [
+        "Comunicar à ANPD e aos titulares afetados, em prazo razoável, quando houver risco ou dano relevante",
+        "Comunicar apenas à ANPD, que decide se os titulares devem ser informados",
+        "Não há obrigação de comunicar, desde que a empresa corrija a falha rapidamente",
+        "Comunicar apenas se o vazamento envolver dados pessoais sensíveis"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A lei prevê comunicação a dois destinatários.",
+        "Pergunte quem precisa da informação para se proteger.",
+        "A obrigação depende de o dado ser sensível?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quem consegue se proteger de fraude com esses dados se souber do vazamento?",
+      "explicacao": "O art. 48 prevê comunicação à ANPD e aos titulares quando o incidente puder acarretar risco ou dano relevante. Nome, CPF e endereço são matéria-prima direta de fraude de identidade, o que caracteriza risco relevante mesmo sem dado sensível envolvido. Corrigir a falha é obrigação separada e não substitui a comunicação — sem ela os titulares não têm como se proteger.",
+      "por_que_erradas": {
+        "1": "A lei prevê comunicação aos titulares, e não apenas à autoridade.",
+        "2": "Corrigir a falha não afasta o dever de comunicar.",
+        "3": "A obrigação não se limita a dados sensíveis; o critério é risco ou dano relevante."
+      },
+      "fonte": "LGPD, art. 48",
+      "tags": ["lgpd", "incidente", "comunicacao", "anpd"]
+    },
+    {
+      "id": "0.4.q23",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Por que é incorreto afirmar que \"a LGPD exige criptografia\" de forma absoluta?",
+      "alternativas": [
+        "Porque a lei exige medidas técnicas e administrativas adequadas ao risco, sem determinar tecnologias específicas",
+        "Porque a lei proíbe expressamente o uso de criptografia em dados pessoais",
+        "Porque criptografia é exigida apenas para dados pessoais sensíveis",
+        "Porque a exigência de criptografia consta do Marco Civil, e não da LGPD"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leis costumam estabelecer objetivo, e não produto específico.",
+        "Pergunte o que aconteceria se a lei fixasse uma tecnologia hoje e ela ficasse obsoleta.",
+        "Criptografia é citada como exemplo de boa prática, não como obrigação universal."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que uma lei evitaria nomear uma tecnologia específica como obrigatória?",
+      "explicacao": "O art. 46 exige medidas de segurança adequadas ao risco, sem listar tecnologias — inclusive porque qualquer tecnologia nomeada envelheceria e engessaria a norma. Criptografia e anonimização aparecem como exemplos de boas práticas em outros pontos, e na prática são frequentemente esperadas conforme o risco. Mas a obrigação é de adequação, e cabe ao controlador justificar as escolhas feitas.",
+      "por_que_erradas": {
+        "1": "A lei não proíbe criptografia; ao contrário, ela é citada como boa prática.",
+        "2": "Não há exigência restrita a dados sensíveis; o critério é adequação ao risco.",
+        "3": "O Marco Civil não estabelece exigência de criptografia para tratamento de dados pessoais."
+      },
+      "fonte": "LGPD, art. 46",
+      "tags": ["lgpd", "seguranca", "criptografia", "conformidade"]
+    },
+    {
+      "id": "0.4.q24",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Uma equipe precisa de dados realistas para testar uma nova funcionalidade. Qual abordagem atende ao princípio da necessidade sem criar risco desnecessário?",
+      "alternativas": [
+        "Usar dados anonimizados ou sintéticos, mantendo o formato e o volume, sem identificar pessoas reais",
+        "Copiar a base de produção para o ambiente de teste, restringindo o acesso a poucos desenvolvedores",
+        "Copiar a base de produção e apagá-la ao final dos testes",
+        "Usar a base de produção diretamente, sem cópia, para evitar duplicação de dados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O teste precisa de dados realistas ou de dados reais?",
+        "Três alternativas colocam dado pessoal real em um ambiente com menos controles.",
+        "Apagar depois desfaz a exposição que existiu no intervalo?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que exatamente o teste precisa — o formato do dado, ou a identidade das pessoas?",
+      "explicacao": "Testes precisam de dados realistas, não de pessoas reais. Anonimização e geração sintética preservam formato, distribuição e volume sem expor titulares, atendendo aos princípios de finalidade e necessidade. Copiar produção — mesmo com acesso restrito ou apagamento posterior — coloca dado pessoal em um ambiente tipicamente menos controlado, e usar produção diretamente é pior ainda, porque um erro de teste atinge o dado real.",
+      "por_que_erradas": {
+        "1": "Restringir acesso reduz, mas não elimina a exposição de dado pessoal em ambiente de teste.",
+        "2": "Apagar ao final não desfaz o período de exposição nem eventuais cópias intermediárias.",
+        "3": "Testar direto em produção arrisca alterar ou destruir dados reais."
+      },
+      "fonte": "LGPD, arts. 6º e 12; teoria 0.4.t4",
+      "tags": ["lgpd", "ambiente-de-teste", "anonimizacao", "minimizacao"]
+    },
+    {
+      "id": "0.4.q25",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Ligue cada princípio da LGPD à situação que o desrespeita.",
+      "pares": [
+        ["Finalidade", "Dados coletados para entrega de produto são usados em campanha de marketing não informada"],
+        ["Necessidade", "Formulário de cadastro em newsletter exige CPF, endereço completo e renda mensal"],
+        ["Segurança", "Base de clientes fica em servidor exposto na internet, sem autenticação"],
+        ["Transparência", "Política de privacidade genérica, que não informa quais dados são coletados nem por quê"]
+      ],
+      "dicas": [
+        "Um princípio trata do porquê da coleta; outro, do quanto.",
+        "Um trata de proteger o que foi coletado.",
+        "Outro trata de contar ao titular o que está acontecendo."
+      ],
+      "pergunta_socratica": "Antes de conferir: em cada caso, o que o titular teria dito se soubesse?",
+      "explicacao": "Finalidade limita o uso ao propósito informado; necessidade limita a quantidade ao mínimo suficiente; segurança exige proteção adequada ao risco; transparência exige informação clara ao titular. São princípios distintos e frequentemente violados juntos — a mesma empresa que coleta demais costuma também informar de menos.",
+      "fonte": "LGPD, art. 6º",
+      "tags": ["lgpd", "principios", "pareamento", "privacidade"]
+    },
+    {
+      "id": "0.4.q26",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "trecho": "PROCEDIMENTO INTERNO — resposta a incidentes com dados pessoais\n1. Conter o incidente e corrigir a falha técnica.\n2. Avaliar internamente a extensão do vazamento.\n3. Se a imprensa noticiar o caso, preparar comunicado público.\n4. Comunicar a ANPD apenas se houver determinação judicial nesse sentido.",
+      "enunciado": "Qual item deste procedimento contraria a LGPD?",
+      "alternativas": [
+        "O item 4: a comunicação à ANPD decorre da própria lei quando há risco relevante, e não depende de ordem judicial",
+        "O item 1: conter o incidente não deveria ser a primeira ação do procedimento",
+        "O item 2: a avaliação da extensão deveria ser feita por empresa externa",
+        "O item 3: comunicados públicos não devem ser preparados por equipes internas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Releia a condição imposta no item 4 e compare com o que a lei exige.",
+        "A comunicação depende de alguém mandar, ou de um critério da própria lei?",
+        "E os titulares afetados, aparecem em algum item?"
+      ],
+      "pergunta_socratica": "Antes de conferir: segundo esse procedimento, em quais casos os clientes afetados seriam avisados?",
+      "explicacao": "O art. 48 vincula a comunicação à ocorrência de risco ou dano relevante, e não a qualquer decisão judicial — condicionar a ordem judicial esvazia a obrigação. Há ainda uma omissão grave no mesmo ponto: os titulares afetados não aparecem em lugar nenhum do procedimento, e são justamente quem precisa da informação para se proteger. Conter primeiro e avaliar internamente são passos corretos.",
+      "por_que_erradas": {
+        "1": "Conter o incidente primeiro é a ordem correta.",
+        "2": "Avaliação interna é adequada; apoio externo é opcional conforme complexidade.",
+        "3": "Comunicado interno preparado pela empresa é prática normal."
+      },
+      "fonte": "LGPD, art. 48; NIST SP 800-61",
+      "tags": ["lgpd", "incidente", "caca-erro", "anpd"]
+    },
+    {
+      "id": "0.4.q27",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2, 0],
+      "enunciado": "Uma empresa contrata uma ferramenta em nuvem que processará dados de clientes. Do ponto de vista da LGPD, o que precisa ser observado?",
+      "alternativas": [
+        "A empresa segue como controladora e responde pelas escolhas: cabe verificar as medidas de segurança do operador, definir finalidade e limites em contrato e prever o que ocorre em caso de incidente",
+        "A responsabilidade passa integralmente ao fornecedor, que se torna controlador dos dados",
+        "Nada muda, já que a LGPD se aplica apenas a dados armazenados em território nacional",
+        "Basta obter novo consentimento dos titulares para o uso da ferramenta"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem decidiu contratar a ferramenta e para quê?",
+        "Contratar terceiro transfere a decisão sobre a finalidade do tratamento?",
+        "Cuidado com a alternativa que limita a lei ao território."
+      ],
+      "pergunta_socratica": "Antes de conferir: se essa ferramenta vazar os dados, a quem os clientes vão cobrar explicação?",
+      "explicacao": "Quem decide a finalidade continua sendo controlador, e responde pela escolha do operador. Isso significa avaliar as medidas de segurança do fornecedor, delimitar em contrato finalidade, permissões e prazo, e definir de antemão como um incidente será comunicado. A LGPD alcança tratamento com titulares no Brasil independentemente de onde o dado esteja hospedado, e consentimento não transfere responsabilidade.",
+      "por_que_erradas": {
+        "1": "O fornecedor costuma ser operador; a decisão sobre finalidade permanece com o contratante.",
+        "2": "A lei alcança tratamento relacionado a titulares no Brasil, mesmo com dados hospedados no exterior.",
+        "3": "Consentimento é uma base legal entre outras e não transfere responsabilidade ao titular nem ao fornecedor."
+      },
+      "fonte": "LGPD, arts. 3º, 5º, 39 e 46",
+      "tags": ["lgpd", "terceiros", "nuvem", "controlador-operador"]
+    },
+    {
+      "id": "0.4.q28",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "O que a Lei 12.737/2012 tipificou no Código Penal?",
+      "alternativas": [
+        "A invasão de dispositivo informático alheio, sem autorização, para obter, adulterar ou destruir dados ou instalar vulnerabilidade",
+        "O uso de qualquer ferramenta de segurança ofensiva sem certificação profissional",
+        "A guarda obrigatória de registros de conexão por provedores de internet",
+        "O tratamento de dados pessoais sem consentimento do titular"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A lei ficou conhecida por um caso de acesso indevido a dispositivo pessoal.",
+        "Guarda de registros é assunto de outra lei.",
+        "Tratamento de dados pessoais é assunto de outra lei ainda."
+      ],
+      "pergunta_socratica": "Antes de conferir: entre invasão de dispositivo, guarda de registros e proteção de dados, qual lei trata de qual assunto?",
+      "explicacao": "A Lei 12.737/2012 inseriu o art. 154-A no Código Penal, tipificando a invasão de dispositivo informático alheio sem autorização, com o fim de obter, adulterar ou destruir dados, ou instalar vulnerabilidade para vantagem ilícita. Guarda de registros é matéria do Marco Civil, e proteção de dados pessoais é matéria da LGPD — confundir as três é o erro mais comum nesse tema.",
+      "por_que_erradas": {
+        "1": "Não existe exigência legal de certificação para uso de ferramentas de segurança.",
+        "2": "Guarda de registros de conexão está no Marco Civil da Internet.",
+        "3": "Tratamento de dados pessoais é objeto da LGPD."
+      },
+      "fonte": "Lei 12.737/2012; Código Penal, art. 154-A",
+      "tags": ["lei-12737", "legislacao", "vocabulario", "fundamentos"]
+    },
+    {
+      "id": "0.4.q29",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "A Lei 14.155/2021 alterou o art. 154-A do Código Penal, entre outras mudanças, retirando a exigência de que a invasão ocorresse mediante violação de mecanismo de segurança. Qual é a consequência prática mais relevante dessa alteração?",
+      "alternativas": [
+        "Acessar sem autorização um sistema que não tem senha continua sendo conduta típica: ausência de proteção técnica não equivale a autorização",
+        "Sistemas sem mecanismo de segurança deixaram de ser protegidos pela lei penal",
+        "Passou a ser exigida autorização judicial para qualquer teste de segurança",
+        "A alteração restringiu a aplicação da lei apenas a dispositivos conectados à internet"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A exigência retirada era uma condição a mais para configurar o crime. Retirar amplia ou restringe o alcance?",
+        "Pense no argumento \"estava aberto, então podia\".",
+        "Duas alternativas afirmam restrições que a mudança não trouxe."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a lei exigisse violação de mecanismo de segurança, qual defesa alguém tentaria usar?",
+      "explicacao": "Antes, era possível discutir se havia crime quando o sistema não tinha proteção alguma. Com a retirada dessa exigência, o argumento de que \"não havia senha, então era permitido\" perde sustentação: o que define a licitude é a autorização, não a dificuldade técnica. Para quem trabalha com segurança, a leitura é direta — sistema exposto e sem senha não é convite.",
+      "por_que_erradas": {
+        "1": "É o oposto: a retirada da exigência amplia o alcance da proteção legal.",
+        "2": "Não há exigência de autorização judicial para testes; o que se exige é autorização do titular do sistema.",
+        "3": "O tipo penal alcança dispositivos conectados ou não à rede."
+      },
+      "fonte": "Lei 14.155/2021; Código Penal, art. 154-A",
+      "tags": ["lei-12737", "legislacao", "autorizacao", "etica"]
+    },
+    {
+      "id": "0.4.q30",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Segundo o Marco Civil da Internet, qual é a regra sobre a guarda de registros de acesso a aplicações por provedores de aplicações?",
+      "alternativas": [
+        "Devem ser guardados por seis meses, sob sigilo, e disponibilizados apenas mediante ordem judicial",
+        "Devem ser guardados por um ano e podem ser fornecidos a qualquer autoridade que os solicite",
+        "Não há prazo definido, ficando a critério de cada provedor",
+        "Devem ser guardados por cinco anos, conforme prazo de prescrição civil"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O Marco Civil traz prazos diferentes para provedor de conexão e provedor de aplicações.",
+        "Um dos prazos é de um ano; o outro, menor.",
+        "A entrega desses registros depende de qual instrumento?"
+      ],
+      "pergunta_socratica": "Antes de conferir: por que a lei condicionaria a entrega desses registros a uma ordem judicial?",
+      "explicacao": "O Marco Civil separa os dois casos: provedores de conexão guardam registros de conexão por um ano (art. 13) e provedores de aplicações guardam registros de acesso a aplicações por seis meses (art. 15). Em ambos, a guarda é sob sigilo e a disponibilização depende de ordem judicial. Para a operação de segurança isso significa que log tem prazo, valor probatório e regra de acesso — pedido informal não é caminho legítimo.",
+      "por_que_erradas": {
+        "1": "Um ano é o prazo de registros de conexão, e a entrega não é livre a qualquer autoridade.",
+        "2": "Há prazo definido em lei para ambos os casos.",
+        "3": "Cinco anos não é o prazo previsto no Marco Civil para esses registros."
+      },
+      "fonte": "Marco Civil da Internet (Lei 12.965/2014), arts. 10, 13 e 15",
+      "tags": ["marco-civil", "legislacao", "logs", "retencao"]
+    },
+    {
+      "id": "0.4.q31",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Durante a investigação de um incidente, um gestor pede que a equipe de segurança leia o conteúdo das mensagens privadas trocadas por um funcionário em um aplicativo pessoal, a partir de dados capturados na rede corporativa. Qual é a orientação correta?",
+      "alternativas": [
+        "Não fazer: o sigilo das comunicações privadas é protegido e o acesso ao conteúdo depende de ordem judicial; a investigação deve se apoiar em registros corporativos legítimos",
+        "Fazer, desde que o funcionário esteja usando a rede corporativa, o que dispensa qualquer autorização",
+        "Fazer, desde que a leitura seja registrada em ata e comunicada ao funcionário depois",
+        "Fazer apenas se o gestor formalizar o pedido por e-mail, o que transfere a responsabilidade"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Existe diferença entre metadados de uso corporativo e conteúdo de comunicação privada.",
+        "Quem pode autorizar acesso a conteúdo de comunicação privada?",
+        "Formalizar internamente um ato ilícito o torna lícito?"
+      ],
+      "pergunta_socratica": "Antes de conferir: usar a rede da empresa transfere para a empresa o direito de ler conversas privadas?",
+      "explicacao": "O Marco Civil protege a inviolabilidade e o sigilo das comunicações privadas, e o acesso ao conteúdo depende de ordem judicial. Usar a rede corporativa não converte comunicação privada em material de livre leitura; a empresa pode tratar registros de uso dos seus próprios sistemas, com política clara e transparente, mas isso é diferente de ler conteúdo. Pedido interno, ainda que formalizado, não substitui a ordem judicial.",
+      "por_que_erradas": {
+        "1": "O uso da rede corporativa não afasta a proteção do sigilo da comunicação privada.",
+        "2": "Registrar em ata não confere licitude ao acesso ao conteúdo.",
+        "3": "Formalizar por e-mail não transfere responsabilidade nem legaliza o ato."
+      },
+      "fonte": "Marco Civil da Internet, art. 7º; Constituição Federal, art. 5º, XII",
+      "tags": ["marco-civil", "sigilo", "privacidade", "investigacao"]
+    },
+    {
+      "id": "0.4.q32",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [3, 2],
+      "enunciado": "Ligue cada norma ao assunto que ela trata.",
+      "pares": [
+        ["LGPD (Lei 13.709/2018)", "Proteção de dados pessoais: princípios, papéis e comunicação de incidentes"],
+        ["Lei 12.737/2012", "Tipificação penal da invasão de dispositivo informático sem autorização"],
+        ["Marco Civil da Internet (Lei 12.965/2014)", "Direitos de uso da internet, sigilo das comunicações e guarda de registros"]
+      ],
+      "dicas": [
+        "Uma das normas está no Código Penal.",
+        "Outra trata de prazos de guarda de registros por provedores.",
+        "A terceira organiza papéis como controlador e operador."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual delas você citaria ao discutir vazamento de dados de clientes?",
+      "explicacao": "São três normas com objetos distintos e frequentemente confundidas: a LGPD trata do tratamento de dados pessoais, a Lei 12.737/2012 tipifica a invasão de dispositivo informático e o Marco Civil organiza direitos de uso da internet, sigilo e guarda de registros. Um mesmo incidente pode acionar as três ao mesmo tempo — invasão tipificada, dever de comunicar titulares e ANPD, e obtenção de registros por via judicial.",
+      "fonte": "LGPD; Lei 12.737/2012; Marco Civil da Internet",
+      "tags": ["legislacao", "lgpd", "marco-civil", "pareamento"]
+    },
+    {
+      "id": "0.4.q33",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3, 2],
+      "enunciado": "Um incidente envolveu invasão de um servidor e vazamento de dados de clientes. Qual afirmação sobre o enquadramento é correta?",
+      "alternativas": [
+        "As normas se somam: há conduta tipificada penalmente e, ao mesmo tempo, deveres administrativos de proteção de dados a cumprir",
+        "Aplica-se apenas a LGPD, já que o objeto do incidente foram dados pessoais",
+        "Aplica-se apenas a lei penal, já que houve invasão de dispositivo informático",
+        "Nenhuma norma se aplica enquanto a autoria do ataque não for identificada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As normas tratam de coisas diferentes: punir quem invadiu e obrigar quem guarda o dado.",
+        "O dever de comunicar titulares depende de identificar o autor?",
+        "Um mesmo fato pode ter consequências penais e administrativas."
+      ],
+      "pergunta_socratica": "Antes de conferir: as obrigações da empresa perante os clientes dependem de o invasor ser identificado?",
+      "explicacao": "Os planos são independentes e cumulativos. A invasão é conduta tipificada e pode gerar responsabilização penal do autor; paralelamente, a empresa tem deveres administrativos próprios — segurança adequada ao risco e comunicação à ANPD e aos titulares quando houver risco relevante. Esses deveres não dependem de identificar quem invadiu, o que raramente acontece cedo.",
+      "por_que_erradas": {
+        "1": "A conduta do invasor tem enquadramento penal próprio, além dos deveres da empresa.",
+        "2": "Os deveres de proteção de dados existem independentemente da persecução penal.",
+        "3": "As obrigações da empresa não ficam suspensas até a identificação do autor."
+      },
+      "fonte": "LGPD, arts. 46 e 48; Código Penal, art. 154-A",
+      "tags": ["legislacao", "lgpd", "lei-12737", "incidente"]
+    },
+    {
+      "id": "0.4.q34",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3, 2],
+      "trecho": "POLÍTICA DE LOGS — versão 1\nObjetivo: apoiar investigações de segurança.\nRetenção: registros mantidos por tempo indeterminado, para máxima capacidade de investigação.\nAcesso: qualquer analista da equipe de TI pode consultar registros de qualquer usuário, a qualquer momento.\nConteúdo: registros incluem endereços acessados e trechos de conteúdo de mensagens corporativas.",
+      "enunciado": "Quais problemas esta política apresenta?",
+      "alternativas": [
+        "Retenção sem prazo e sem justificativa, acesso irrestrito sem controle de finalidade, e coleta de conteúdo de comunicação sem base adequada",
+        "Apenas a retenção indeterminada, já que os demais itens são práticas normais de operação",
+        "Apenas o acesso irrestrito, já que retenção longa e coleta de conteúdo são recomendadas",
+        "Nenhum: a política é adequada, pois o objetivo declarado é apoiar investigações de segurança"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Confronte cada linha com os princípios de finalidade, necessidade e transparência.",
+        "\"Qualquer analista, a qualquer momento\" respeita menor privilégio?",
+        "Guardar conteúdo de mensagem é o mesmo que guardar metadado de acesso?"
+      ],
+      "pergunta_socratica": "Antes de conferir: essa política protege a empresa ou cria um novo risco concentrado?",
+      "explicacao": "Os três pontos falham juntos. Retenção indefinida contraria necessidade e transforma o repositório de logs em um alvo cada vez mais valioso. Acesso irrestrito ignora menor privilégio e finalidade, e impede saber quem consultou o quê. Coleta de conteúdo de mensagens é medida invasiva que exige base e limites claros, muito além de metadados de acesso. Log bem feito tem prazo definido, acesso controlado e auditado, e conteúdo proporcional ao objetivo.",
+      "por_que_erradas": {
+        "1": "Os outros dois itens também são problemáticos e talvez mais sensíveis que a retenção.",
+        "2": "Retenção indefinida e coleta ampla de conteúdo não são recomendadas.",
+        "3": "Objetivo legítimo não valida meios desproporcionais."
+      },
+      "fonte": "LGPD, art. 6º; Marco Civil da Internet, arts. 7º, 13 e 15",
+      "tags": ["marco-civil", "lgpd", "logs", "caca-erro", "privacidade"]
+    },
+    {
+      "id": "0.4.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Você foi contratado para o primeiro teste de segurança de uma empresa que trata dados de saúde de pacientes. Quais cuidados são indispensáveis antes de começar?",
+      "alternativas": [
+        "Autorização escrita de quem tem alçada, escopo com alvos e técnicas vedadas, regra explícita de não extrair dados de pacientes e acordo sobre tratamento e descarte de qualquer evidência",
+        "Autorização escrita e escopo definido, sendo o tratamento de dados uma preocupação apenas da empresa contratante",
+        "Contrato comercial assinado e cronograma acordado, já que o escopo pode ser ajustado durante a execução",
+        "Aprovação prévia da ANPD para realizar testes em ambientes que tratam dados sensíveis"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Dado de saúde tem classificação própria na LGPD.",
+        "Quem responde pelo dado que o testador eventualmente acessar?",
+        "A ANPD aprova testes de segurança individualmente?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se você acessar um prontuário durante o teste, o que já precisava estar combinado?",
+      "explicacao": "Dado de saúde é pessoal sensível, o que eleva o cuidado: além da autorização escrita de quem tem alçada e do escopo com alvos e técnicas vedadas, é preciso proibir expressamente a extração de dados de pacientes, definir como qualquer evidência será minimizada, armazenada e descartada, e combinar o canal de comunicação de achados críticos. O contratado também responde pelo que trata, e não existe aprovação prévia da ANPD para testes.",
+      "por_que_erradas": {
+        "1": "O contratado também responde pelo tratamento dos dados a que tiver acesso durante o teste.",
+        "2": "Escopo ajustado durante a execução é justamente o que deixa as partes descobertas.",
+        "3": "A ANPD não concede aprovação prévia para testes de segurança."
+      },
+      "fonte": "LGPD, arts. 5º, II, 6º e 46; PTES",
+      "tags": ["etica", "escopo", "lgpd", "dados-sensiveis", "carreira"]
+    }
+  ]
+}

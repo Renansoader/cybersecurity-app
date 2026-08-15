@@ -20,6 +20,14 @@
     },
     {
       "id": "0.1.t2",
+      "titulo": "As três propriedades brigam entre si",
+      "texto": "Aumentar uma propriedade quase sempre custa outra. Criptografar tudo com uma chave guardada em cofre físico aumenta confidencialidade e derruba disponibilidade. Liberar acesso amplo para o time todo aumenta disponibilidade e derruba confidencialidade. Exigir dupla aprovação para alterar um registro aumenta integridade e atrasa a operação.\n\nPor isso não existe \"sistema seguro\" no absoluto: existe um equilíbrio escolhido de propósito, que precisa ser justificado diante do risco de cada negócio.",
+      "analogia": "Um banco não tranca o cofre com dez fechaduras se isso faz o caixa demorar duas horas para abrir.",
+      "erro_comum": "Buscar o máximo das três ao mesmo tempo e produzir um sistema que ninguém consegue usar — e que por isso será contornado.",
+      "fonte": "Security Engineering, 3ª ed., cap. 1"
+    },
+    {
+      "id": "0.1.t3",
       "titulo": "Segurança da informação e cibersegurança não são a mesma coisa",
       "texto": "Segurança da informação protege a informação em qualquer suporte: papel, conversa, crachá, backup em fita. Cibersegurança é o recorte digital dela — sistemas, redes e dados eletrônicos.\n\nA distinção importa na prática: um contrato impresso esquecido na impressora é um incidente de segurança da informação sem nenhum componente digital. Quem só olha para o firewall não enxerga esse risco.",
       "analogia": "Segurança da informação é a segurança do prédio inteiro. Cibersegurança é a segurança da sala dos servidores.",
@@ -27,7 +35,7 @@
       "fonte": "cyber security.pdf (material introdutório em português)"
     },
     {
-      "id": "0.1.t3",
+      "id": "0.1.t4",
       "titulo": "Segurança é processo, não produto",
       "texto": "Nenhuma compra encerra o assunto. O ambiente muda: entra sistema novo, sai funcionário, aparece vulnerabilidade em uma biblioteca que já estava lá há anos. Um controle que funcionava ontem pode estar irrelevante hoje.\n\nPor isso segurança se mede em ciclo: identificar o que existe, proteger, detectar o que passou, responder e recuperar. Ferramenta é insumo do ciclo, não substituto dele.",
       "analogia": "Comprar uma fechadura cara não é o mesmo que ter o hábito de trancar a porta.",
@@ -35,12 +43,28 @@
       "fonte": "NIST Cybersecurity Framework (funções: identificar, proteger, detectar, responder, recuperar)"
     },
     {
-      "id": "0.1.t4",
+      "id": "0.1.t5",
+      "titulo": "Risco: o que realmente decide onde gastar",
+      "texto": "Risco é a combinação de probabilidade com impacto. É ele, e não o medo do momento, que decide a ordem das correções. Uma falha gravíssima em um sistema que não existe mais na empresa vale menos atenção que uma falha média no sistema que fatura.\n\nDiante de um risco existem quatro decisões possíveis: mitigar (reduzir), transferir (seguro, contrato), evitar (deixar de fazer aquilo) e aceitar (assumir de forma consciente e registrada). Aceitar não é negligência — desde que seja decisão registrada de quem tem autoridade para tomá-la.",
+      "analogia": "Você não instala alarme na casa de praia vazia antes de trancar a porta da casa onde mora.",
+      "erro_comum": "Confundir vulnerabilidade com risco. Vulnerabilidade é a fraqueza; risco é o que ela significa naquele contexto.",
+      "fonte": "Security Engineering, 3ª ed., cap. 1; NIST Cybersecurity Framework"
+    },
+    {
+      "id": "0.1.t6",
       "titulo": "Pessoas, processo e tecnologia",
       "texto": "Toda falha real encaixa em pelo menos um desses três pilares. Tecnologia é o software e o equipamento. Processo é a regra combinada: quem aprova, quem revisa, com que frequência. Pessoas é quem opera, erra, tem pressa e é enganado.\n\nA maioria dos incidentes conhecidos não começa por matemática quebrada: começa por um patch que ninguém aplicou, um acesso que ninguém revogou, ou um clique que parecia inofensivo.",
       "analogia": "Um cofre excelente (tecnologia), sem regra de quem guarda a chave (processo), com a senha anotada no monitor (pessoas).",
       "erro_comum": "Investir só no pilar tecnológico, que é o mais fácil de comprar, e deixar os outros dois no lugar em que estavam.",
       "fonte": "Security Engineering, 3ª ed. (Ross Anderson), cap. 1 e 2"
+    },
+    {
+      "id": "0.1.t7",
+      "titulo": "Quando a segurança atrapalha, ela é contornada",
+      "texto": "Controle que impede o trabalho não sobrevive. O usuário anota a senha, encaminha o arquivo para o e-mail pessoal, pede a senha do colega, usa o aplicativo não homologado que resolve em dois cliques. Nada disso é má-fé: é a pessoa entregando o que foi cobrada dela.\n\nA lição prática é que usabilidade faz parte da segurança. Um controle que só funciona quando todo mundo colabora perfeitamente já está quebrado no papel.",
+      "analogia": "Porta corta-fogo que fica sempre escorada com um extintor porque atrapalha a circulação.",
+      "erro_comum": "Culpar o usuário pelo contorno em vez de perguntar por que o caminho seguro era o mais difícil.",
+      "fonte": "Security Engineering, 3ª ed., cap. 3 (fatores humanos)"
     }
   ],
   "questoes": [
@@ -75,6 +99,252 @@
     {
       "id": "0.1.q2",
       "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "O sistema de prontuários de um hospital fica quatro horas fora do ar por um ataque de negação de serviço. Nenhum registro foi lido nem alterado. Qual propriedade da tríade CIA foi violada?",
+      "alternativas": [
+        "Disponibilidade",
+        "Confidencialidade",
+        "Integridade",
+        "Nenhuma: como os dados continuam intactos no servidor, não houve violação"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O enunciado já diz o que NÃO aconteceu com o dado. Sobra uma propriedade.",
+        "Pense em quem precisava do prontuário durante essas quatro horas.",
+        "Segurança não é só sigilo: informação que existe mas não chega a quem precisa também falhou."
+      ],
+      "pergunta_socratica": "Antes de conferir: para o médico de plantão, qual é a diferença prática entre um prontuário fora do ar e um prontuário que não existe?",
+      "explicacao": "Disponibilidade é a propriedade que garante acesso a quem tem direito, no momento em que precisa. Um dado perfeitamente sigiloso e perfeitamente correto, mas inacessível durante o atendimento, falhou como informação. É o exemplo clássico de por que segurança não se resume a sigilo.",
+      "por_que_erradas": {
+        "1": "Confidencialidade trata de quem pode ler. O enunciado diz explicitamente que nada foi lido.",
+        "2": "Integridade trata de alteração não autorizada. O enunciado diz que nada foi alterado.",
+        "3": "O dado estar intacto no disco não basta: se ele não chega a quem tem direito, a propriedade de disponibilidade caiu."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1",
+      "tags": ["triade-cia", "disponibilidade", "fundamentos"]
+    },
+    {
+      "id": "0.1.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um invasor consegue alterar o número da conta bancária no cadastro de fornecedores do sistema financeiro. Todo o resto continua funcionando normalmente. Qual propriedade da tríade CIA foi violada?",
+      "alternativas": [
+        "Integridade",
+        "Confidencialidade",
+        "Disponibilidade",
+        "Integridade e disponibilidade, em partes iguais"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte o que mudou de estado: o acesso, o conteúdo, ou a possibilidade de usar o sistema?",
+        "O sistema continua no ar e ninguém foi impedido de trabalhar.",
+        "O dano aqui não é alguém ter lido algo: é alguém ter escrito algo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se ninguém percebesse essa alteração, qual seria o primeiro sinal de que algo deu errado?",
+      "explicacao": "Integridade é a garantia de que o dado não é alterado sem autorização — e de que dá para perceber quando é. Aqui o sistema segue disponível e nada precisou ser lido indevidamente: o ataque foi de escrita. Vale reparar no que torna esse caso perigoso: sem trilha de auditoria, a alteração só aparece quando o pagamento cai na conta errada.",
+      "por_que_erradas": {
+        "1": "Ler o cadastro não era o objetivo nem o dano. O prejuízo vem da alteração.",
+        "2": "Ninguém ficou sem acesso ao sistema; ele continuou operando normalmente.",
+        "3": "Não houve perda de acesso. Dividir com disponibilidade dilui o diagnóstico e leva à correção errada."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1",
+      "tags": ["triade-cia", "integridade", "fundamentos", "fraude"]
+    },
+    {
+      "id": "0.1.q4",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Qual das propriedades abaixo NÃO faz parte da tríade CIA?",
+      "alternativas": [
+        "Autenticidade",
+        "Confidencialidade",
+        "Integridade",
+        "Disponibilidade"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A sigla CIA vem do inglês: confidentiality, integrity, availability.",
+        "Uma das quatro é uma propriedade importante, mas que costuma ser tratada como complemento da tríade.",
+        "Autenticidade responde \"é mesmo quem diz ser?\", e essa pergunta não está nas três letras."
+      ],
+      "pergunta_socratica": "Antes de conferir: traduza a sigla CIA para o inglês e veja quais palavras sobram.",
+      "explicacao": "A tríade é confidencialidade, integridade e disponibilidade. Autenticidade (garantir que a origem é mesmo quem afirma ser) e não-repúdio (impedir que alguém negue o que fez) são propriedades muito usadas na prática, mas aparecem como extensões da tríade, não como parte dela. Saber a diferença evita confusão em prova de certificação e em conversa técnica.",
+      "por_que_erradas": {
+        "1": "Confidencialidade é o C da sigla.",
+        "2": "Integridade é o I da sigla.",
+        "3": "Disponibilidade é o A da sigla (availability)."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1",
+      "tags": ["triade-cia", "vocabulario", "fundamentos"]
+    },
+    {
+      "id": "0.1.q5",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Depois de um incidente, a empresa descobre que tinha backup diário de tudo — mas nunca testou uma restauração, e agora os arquivos não abrem. Do ponto de vista da tríade, qual é o diagnóstico correto?",
+      "alternativas": [
+        "A disponibilidade falhou: existir cópia não é o mesmo que conseguir restaurar",
+        "A integridade falhou: o backup foi corrompido por um atacante",
+        "A confidencialidade falhou: o backup estava acessível a quem não devia",
+        "Nenhuma propriedade falhou: o backup existia, então o controle estava correto"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte qual promessa o backup faz. Ele existe para garantir o quê?",
+        "O enunciado não menciona nenhum acesso indevido nem ataque ao backup.",
+        "Um controle que nunca foi testado é uma hipótese, não uma garantia."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual é a diferença entre ter backup e ter capacidade de restaurar?",
+      "explicacao": "Backup existe para sustentar disponibilidade: recuperar o acesso ao dado depois de uma perda. Um backup que não restaura não entrega nada — a propriedade falhou no momento em que era necessária. Daí a regra prática do mercado: backup não testado não conta como backup, e o teste de restauração é parte do controle, não um extra.",
+      "por_que_erradas": {
+        "1": "Nada no enunciado indica ação de atacante sobre o backup. A falha é de processo, não de adulteração.",
+        "2": "Não há menção a acesso indevido ao conteúdo do backup.",
+        "3": "O controle existia no papel e falhou na hora do uso, que é exatamente quando ele precisava funcionar."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1; NIST Cybersecurity Framework (função recuperar)",
+      "tags": ["triade-cia", "disponibilidade", "backup", "continuidade"]
+    },
+    {
+      "id": "0.1.q6",
+      "tipo": "pareamento",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Ligue cada propriedade da tríade CIA ao incidente que a viola de forma mais direta.",
+      "pares": [
+        ["Confidencialidade", "A base de clientes aparece publicada em um fórum na internet"],
+        ["Integridade", "Um invasor altera o valor de um boleto antes da emissão"],
+        ["Disponibilidade", "O sistema de vendas fica quatro horas fora do ar por um ataque de negação de serviço"]
+      ],
+      "dicas": [
+        "Cada propriedade responde a uma pergunta: quem pode ler, quem pode alterar, quem consegue acessar.",
+        "Repare no verbo de cada incidente: publicar, alterar, derrubar.",
+        "Um dos incidentes não expõe nem derruba nada — apenas muda o conteúdo do dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: em cada caso, o dado foi lido, modificado ou ficou inacessível?",
+      "explicacao": "Publicar a base viola confidencialidade: o dado continua correto e disponível, mas foi lido por quem não devia. Alterar o boleto viola integridade: o dado passa a estar errado sem autorização. Derrubar o sistema viola disponibilidade: nada vazou nem mudou, mas quem tinha direito ficou sem acesso. Encaixar o incidente na propriedade certa é o que orienta a resposta — cada uma leva a um caminho diferente de investigação e correção.",
+      "fonte": "Security Engineering, 3ª ed., cap. 1",
+      "tags": ["triade-cia", "fundamentos", "pareamento"]
+    },
+    {
+      "id": "0.1.q7",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um ransomware cifra os arquivos do servidor de arquivos e exige pagamento. Qual controle preserva a disponibilidade sem depender da boa vontade do criminoso?",
+      "alternativas": [
+        "Backup em cópia isolada da rede, testado por restauração periódica",
+        "Antivírus atualizado em todas as estações",
+        "Senha longa e complexa na conta de administrador do servidor",
+        "Criptografia de disco no servidor de arquivos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A pergunta é sobre recuperar o acesso, não sobre evitar a infecção.",
+        "Se o ransomware já rodou, o que ainda devolve os arquivos?",
+        "Um dos controles listados protege confidencialidade e não ajuda em nada quando o problema é o dado ter ficado inacessível."
+      ],
+      "pergunta_socratica": "Antes de conferir: supondo que a infecção já aconteceu e todos os arquivos estão cifrados, qual desses controles ainda te salva?",
+      "explicacao": "Backup isolado e testado é o único da lista que restabelece a disponibilidade depois que o ataque já teve sucesso. Os outros são controles preventivos ou de outra propriedade: úteis, mas nenhum devolve arquivo cifrado. Repare no detalhe do isolamento — ransomware moderno procura e cifra os backups conectados justamente para eliminar essa saída.",
+      "por_que_erradas": {
+        "1": "Antivírus reduz a chance de infecção, mas não recupera nada depois que ela ocorreu.",
+        "2": "Senha forte dificulta um vetor de acesso; não devolve arquivo já cifrado.",
+        "3": "Criptografia de disco protege confidencialidade contra furto do equipamento. Contra ransomware, não muda nada."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1; NIST Cybersecurity Framework (função recuperar)",
+      "tags": ["triade-cia", "disponibilidade", "ransomware", "backup"]
+    },
+    {
+      "id": "0.1.q8",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um fornecedor publica no site, ao lado do instalador, o hash SHA-256 do arquivo. Qual propriedade da tríade esse recurso ajuda a verificar?",
+      "alternativas": [
+        "Integridade: permite conferir se o arquivo baixado é idêntico ao publicado",
+        "Confidencialidade: impede que terceiros leiam o conteúdo do instalador",
+        "Disponibilidade: garante que o download não vai falhar no meio",
+        "Nenhuma: o hash só serve para acelerar a verificação de vírus"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O hash não esconde nem transporta nada. Ele resume.",
+        "Pergunte que problema você resolve comparando dois resumos.",
+        "O cenário de ataque aqui é alguém trocar o arquivo no caminho entre o site e a sua máquina."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que exatamente você descobre ao comparar o hash do seu download com o publicado no site?",
+      "explicacao": "O hash é uma impressão digital do arquivo. Comparando o resumo do que você baixou com o publicado pelo fornecedor, você verifica que nada foi alterado no caminho — isso é integridade. O hash não cifra nada (qualquer um lê o instalador) e não tem relação com o download completar ou não.",
+      "por_que_erradas": {
+        "1": "Hash não é cifra: ele não protege o conteúdo de ser lido, e o instalador é público de qualquer forma.",
+        "2": "O hash não interfere na entrega do arquivo; um download interrompido simplesmente terá hash diferente.",
+        "3": "Verificação de vírus é outra coisa. O hash aqui compara o arquivo com o original publicado."
+      },
+      "fonte": "Crypto 101, cap. sobre funções de hash; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["triade-cia", "integridade", "hash", "fundamentos"]
+    },
+    {
+      "id": "0.1.q9",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "A área de segurança propõe cifrar todos os documentos com uma chave guardada em um cofre físico, acessível apenas ao diretor, para eliminar risco de vazamento. Qual é a objeção mais consistente?",
+      "alternativas": [
+        "O ganho de confidencialidade se paga com uma perda severa de disponibilidade, e o controle provavelmente será contornado",
+        "Criptografia não protege documentos, apenas conexões de rede",
+        "O risco de vazamento não existe se os documentos ficam em servidor interno",
+        "A objeção é infundada: eliminar o risco de vazamento justifica qualquer custo operacional"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense na equipe que precisa desses documentos para trabalhar durante o dia.",
+        "As três propriedades da tríade competem entre si; ganhar uma costuma custar outra.",
+        "Controle que atrapalha muito o trabalho não sobrevive ao contato com a rotina."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você precisasse de um documento às 18h de uma sexta-feira, o que faria diante desse controle?",
+      "explicacao": "A proposta maximiza uma propriedade e destrói outra. Um controle que exige o diretor para cada acesso trava a operação — e o resultado previsível não é uma empresa mais segura, e sim uma cópia não cifrada circulando por e-mail para \"resolver rápido\". Segurança é um equilíbrio escolhido de propósito entre as três propriedades, justificado pelo risco real.",
+      "por_que_erradas": {
+        "1": "Criptografia protege dados em repouso e em trânsito; a afirmação é tecnicamente falsa.",
+        "2": "Servidor interno reduz exposição, mas não elimina vazamento — insider e credencial comprometida continuam existindo.",
+        "3": "Custo operacional não é detalhe: é o que determina se o controle vai ser usado ou contornado."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1 e 3",
+      "tags": ["triade-cia", "equilibrio", "usabilidade", "fundamentos"]
+    },
+    {
+      "id": "0.1.q10",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "trecho": "PLANO DE SEGURANÇA DA INFORMAÇÃO — resumo executivo\nObjetivo: impedir o vazamento de dados de clientes.\nControles previstos:\n1. Criptografia dos bancos de dados em repouso.\n2. Controle de acesso por perfil, com revisão trimestral.\n3. Bloqueio de portas USB nas estações.\n4. Monitoramento de e-mails com anexos grandes.\nIndicador único de sucesso: zero vazamentos no período.",
+      "enunciado": "O plano é competente no que se propõe, mas tem um ponto cego estrutural. Qual é?",
+      "alternativas": [
+        "Ele trata apenas de confidencialidade: nada no plano cuida de integridade ou de disponibilidade",
+        "Ele não menciona qual fornecedor de criptografia será contratado",
+        "Revisão trimestral de acesso é frequente demais e vai sobrecarregar a equipe",
+        "Bloquear portas USB é desnecessário quando já existe criptografia em repouso"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia o objetivo e os quatro controles e pergunte de qual propriedade da tríade cada um cuida.",
+        "Se um ransomware cifrasse tudo amanhã, algum item deste plano ajudaria?",
+        "O indicador único de sucesso mede um tipo de falha só — e ignora os outros dois."
+      ],
+      "pergunta_socratica": "Antes de conferir: um incidente que derruba o sistema por três dias apareceria como falha neste plano?",
+      "explicacao": "Todos os controles e o próprio indicador miram vazamento, ou seja, confidencialidade. Um ransomware, uma alteração fraudulenta de cadastro ou uma queda prolongada passariam pelo plano sem sequer aparecer no indicador — e ainda seriam registrados como período de sucesso. Plano de segurança que cobre uma única propriedade da tríade dá uma sensação de controle que os números confirmam de forma enganosa.",
+      "por_que_erradas": {
+        "1": "Escolha de fornecedor é detalhe de execução, não ponto cego estratégico.",
+        "2": "Revisão trimestral de acessos é prática recomendada, não problema.",
+        "3": "São controles para vetores diferentes: criptografia em repouso não impede cópia por quem tem acesso legítimo à aplicação."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1",
+      "tags": ["triade-cia", "plano", "caca-erro", "fundamentos"]
+    },
+    {
+      "id": "0.1.q11",
+      "tipo": "conceitual",
       "dificuldade": 2,
       "objetivos": [1],
       "enunciado": "Qual dos casos abaixo é um incidente de segurança da informação que está FORA do recorte de cibersegurança?",
@@ -101,7 +371,169 @@
       "tags": ["seguranca-da-informacao", "escopo", "fundamentos"]
     },
     {
-      "id": "0.1.q3",
+      "id": "0.1.q12",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [1],
+      "enunciado": "Qual afirmação descreve corretamente a relação entre segurança da informação e cibersegurança?",
+      "alternativas": [
+        "Cibersegurança é um subconjunto da segurança da informação, restrito ao meio digital",
+        "Segurança da informação é um subconjunto da cibersegurança, restrito a dados sensíveis",
+        "São sinônimos, e a diferença é apenas de idioma e de época",
+        "São áreas independentes, sem sobreposição de escopo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Uma das duas cuida de informação em qualquer suporte, inclusive papel e conversa.",
+        "Desenhe dois círculos e pergunte qual cabe dentro do outro.",
+        "Um incidente com documento impresso ajuda a decidir a direção da relação."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe incidente de segurança da informação sem computador nenhum? E o contrário?",
+      "explicacao": "Segurança da informação é o círculo maior: protege a informação em qualquer suporte — papel, conversa, crachá, fita. Cibersegurança é o recorte digital dentro dele. Todo incidente de cibersegurança é também de segurança da informação; o contrário não vale, como mostra o contrato esquecido na impressora.",
+      "por_que_erradas": {
+        "1": "Inverte a relação. Sensibilidade do dado não é o critério que separa as duas.",
+        "2": "Não são sinônimos: o escopo de suporte da informação é diferente, e a distinção tem efeito prático no que entra no plano.",
+        "3": "Há sobreposição integral em um dos sentidos: o digital está inteiramente contido na segurança da informação."
+      },
+      "fonte": "cyber security.pdf; Security Engineering, 3ª ed., cap. 1",
+      "tags": ["seguranca-da-informacao", "escopo", "vocabulario"]
+    },
+    {
+      "id": "0.1.q13",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma empresa contrata um serviço de segurança que cobre firewall, antivírus e monitoramento de rede, e declara que \"a segurança da informação está terceirizada\". Qual é o problema com essa afirmação?",
+      "alternativas": [
+        "O contrato cobre o recorte digital; conversa, papel, crachá e comportamento das pessoas continuam sem tratamento",
+        "Nenhum: firewall, antivírus e monitoramento cobrem as três propriedades da tríade",
+        "O problema é que segurança nunca pode ser terceirizada por questões legais",
+        "O problema é apenas de custo: esse escopo costuma sair mais caro que uma equipe interna"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Liste o que o contrato cobre e compare com o que \"informação\" abrange.",
+        "Um visitante que fotografa um quadro branco entra nesse contrato?",
+        "A palavra que está grande demais na frase da empresa é \"informação\"."
+      ],
+      "pergunta_socratica": "Antes de conferir: quais riscos da sua empresa esse contrato deixaria intocados?",
+      "explicacao": "O contrato entrega cibersegurança — uma parte da segurança da informação. Documento impresso, descarte de papel, conversa em local público, crachá emprestado, engenharia social por telefone: nada disso está no escopo. Usar o termo maior para um contrato do termo menor cria uma falsa sensação de cobertura total, que é exatamente o tipo de erro que a distinção entre os dois conceitos existe para evitar.",
+      "por_que_erradas": {
+        "1": "As ferramentas listadas cobrem parte do meio digital, e nem sequer todas as propriedades dentro dele.",
+        "2": "Serviços de segurança são legalmente terceirizáveis; o que não se terceiriza é a responsabilidade final pelo dado.",
+        "3": "Custo não é a questão. O problema é escopo declarado maior do que o contratado."
+      },
+      "fonte": "cyber security.pdf; Security Engineering, 3ª ed., cap. 1",
+      "tags": ["seguranca-da-informacao", "escopo", "terceirizacao"]
+    },
+    {
+      "id": "0.1.q14",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Ligue cada incidente ao recorte em que ele se encaixa.",
+      "pares": [
+        ["Somente segurança da informação", "Documentos com dados de clientes descartados inteiros no lixo comum"],
+        ["Segurança da informação e cibersegurança", "Servidor de banco de dados invadido por falha de aplicação web"],
+        ["Somente segurança física", "Portão da garagem quebrado permitindo entrada de veículos não identificados"]
+      ],
+      "dicas": [
+        "Pergunte de cada incidente: existe informação em risco? Existe meio digital envolvido?",
+        "Um dos três não coloca informação nenhuma em risco de forma direta.",
+        "Todo incidente digital com informação cai nos dois recortes ao mesmo tempo."
+      ],
+      "pergunta_socratica": "Antes de conferir: em cada caso, o que está em risco — a informação, o meio digital, ou o espaço físico?",
+      "explicacao": "O descarte de documentos expõe informação sem meio digital: segurança da informação pura. A invasão do servidor expõe informação por meio digital, e por isso está nos dois recortes ao mesmo tempo. O portão quebrado é segurança física, e só viraria incidente de informação se levasse a acesso a dados. A utilidade do exercício é perceber que os três times costumam ser diferentes na empresa — e que incidentes reais atravessam essas fronteiras.",
+      "fonte": "cyber security.pdf; Security Engineering, 3ª ed., cap. 1",
+      "tags": ["seguranca-da-informacao", "escopo", "pareamento", "seguranca-fisica"]
+    },
+    {
+      "id": "0.1.q15",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma consultoria vai avaliar riscos de informação de uma clínica. Qual item a seguir seria indevidamente deixado de fora se o escopo fosse limitado a cibersegurança?",
+      "alternativas": [
+        "A conversa da recepcionista sobre exames de pacientes, audível na sala de espera",
+        "O servidor de prontuários sem atualização de segurança há dois anos",
+        "A rede sem fio da clínica com senha compartilhada com pacientes",
+        "O backup dos exames armazenado em um serviço de nuvem sem contrato"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Três itens envolvem sistema, rede ou dado eletrônico. Um deles não.",
+        "Informação também trafega por voz.",
+        "Pense em qual item continuaria sendo um risco em uma clínica sem computadores."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses riscos existiria igual em 1985?",
+      "explicacao": "A conversa audível expõe dado de saúde — informação sensível — sem passar por nenhum sistema. É risco de segurança da informação, fora do recorte digital, e some do relatório se o escopo for só cibersegurança. Os outros três têm componente digital claro. Em ambiente de saúde esse ponto é especialmente relevante, porque dado de saúde é dado pessoal sensível na LGPD, independentemente do suporte em que esteja.",
+      "por_que_erradas": {
+        "1": "Servidor desatualizado é risco digital clássico e estaria dentro do escopo.",
+        "2": "Rede sem fio com senha compartilhada é risco digital e entraria na avaliação.",
+        "3": "Backup em nuvem sem contrato é risco digital e contratual, e entraria na avaliação."
+      },
+      "fonte": "cyber security.pdf; LGPD, art. 5º, II (dado pessoal sensível)",
+      "tags": ["seguranca-da-informacao", "escopo", "lgpd", "saude"]
+    },
+    {
+      "id": "0.1.q16",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "trecho": "ESCOPO DA POLÍTICA — versão aprovada\nEsta Política de Segurança da Informação aplica-se a todos os sistemas, redes, aplicações e dispositivos eletrônicos da empresa.\nNão estão cobertos por esta política: documentos impressos, arquivos físicos, salas de reunião e comunicação verbal.",
+      "enunciado": "Qual é o problema com o escopo declarado nesta política?",
+      "alternativas": [
+        "A política se chama de Segurança da Informação, mas o escopo é o de uma política de cibersegurança — e as exclusões deixam de fora riscos reais de informação",
+        "O escopo está correto; documentos impressos são responsabilidade do setor administrativo",
+        "O problema é que a política deveria cobrir apenas dados de clientes, e não todos os sistemas",
+        "O problema é a ausência de menção a dispositivos pessoais dos funcionários"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o nome do documento com a lista de exclusões.",
+        "Papel, sala de reunião e conversa carregam informação?",
+        "A empresa vai acreditar que tem cobertura sobre um escopo que o próprio documento excluiu."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um contrato confidencial vazar de uma sala de reunião, qual política da empresa foi violada?",
+      "explicacao": "O título promete informação em qualquer suporte e o texto entrega apenas o meio eletrônico. As exclusões — papel, arquivo físico, sala de reunião, comunicação verbal — são justamente os canais por onde informação sensível mais escapa em empresas com boa maturidade digital. O conserto é escolher: renomear para Política de Cibersegurança, ou ampliar o escopo para o que o título promete.",
+      "por_que_erradas": {
+        "1": "Atribuir papel a outro setor não resolve: a informação continua sem política, e o documento diz cobrir segurança da informação.",
+        "2": "Restringir a dados de clientes reduziria ainda mais o escopo, agravando o problema.",
+        "3": "Dispositivos pessoais são uma lacuna adicional, mas menor que a exclusão de todo o meio não eletrônico."
+      },
+      "fonte": "cyber security.pdf; Security Engineering, 3ª ed., cap. 1",
+      "tags": ["seguranca-da-informacao", "escopo", "politica", "caca-erro"]
+    },
+    {
+      "id": "0.1.q17",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Uma empresa investiu pesado em controles digitais e sofreu um vazamento: um estagiário foi convencido por telefone a ler em voz alta os códigos de um relatório interno para alguém que se passou por auditor. Qual leitura é a mais correta?",
+      "alternativas": [
+        "O incidente é de segurança da informação com vetor humano, e nenhum controle exclusivamente digital o teria evitado",
+        "O incidente prova que os controles digitais estavam mal configurados",
+        "O incidente não é de segurança da informação, porque não houve acesso a nenhum sistema",
+        "O incidente teria sido evitado por um firewall com inspeção de conteúdo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Por onde a informação saiu? Por qual meio ela trafegou?",
+        "Pergunte qual controle listado consegue interceptar uma ligação telefônica.",
+        "O canal foi humano, e o pilar que falhou não foi o tecnológico."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual controle da sua empresa hoje interceptaria essa ligação?",
+      "explicacao": "A informação saiu por voz, sem tocar em nenhum sistema. É incidente de segurança da informação com vetor humano, e nenhum controle de rede o alcança. O tratamento correto passa por processo (regra clara de como validar a identidade de quem liga, e de que informação nunca se passa por telefone) e por pessoas (treinamento e um canal fácil para checar antes de responder). É o exemplo mais direto de por que o recorte digital não basta.",
+      "por_que_erradas": {
+        "1": "Não há indício de má configuração; os controles digitais simplesmente não cobrem esse canal.",
+        "2": "Informação confidencial vazou. O incidente é de segurança da informação, ainda que sem componente digital.",
+        "3": "Firewall inspeciona tráfego de rede. Ligação telefônica de pretexting não passa por ele."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3; cyber security.pdf",
+      "tags": ["seguranca-da-informacao", "engenharia-social", "pessoas-processo-tecnologia", "pretexting"]
+    },
+    {
+      "id": "0.1.q18",
       "tipo": "cenario",
       "dificuldade": 2,
       "objetivos": [2],
@@ -129,7 +561,7 @@
       "tags": ["processo-nao-produto", "defesa-em-profundidade", "fundamentos"]
     },
     {
-      "id": "0.1.q4",
+      "id": "0.1.q19",
       "tipo": "ordenacao",
       "dificuldade": 2,
       "objetivos": [2],
@@ -149,11 +581,208 @@
       ],
       "pergunta_socratica": "Antes de conferir: se você tivesse que começar amanhã em uma empresa que nunca cuidou disso, qual dessas cinco coisas você faria primeiro, e por quê?",
       "explicacao": "A ordem é identificar, proteger, detectar, responder, recuperar. Ela não é arbitrária: cada função depende da anterior. Sem inventário (identificar), a proteção é palpite. Sem detecção, a resposta nunca começa. E a recuperação termina com lições aprendidas, que voltam a alimentar a identificação — por isso é um ciclo, e não uma lista de tarefas com fim. É exatamente essa realimentação que faz de segurança um processo, e não um produto que se compra uma vez.",
-      "fonte": "NIST Cybersecurity Framework; teoria 0.1.t3",
+      "fonte": "NIST Cybersecurity Framework; teoria 0.1.t4",
       "tags": ["processo-nao-produto", "nist-csf", "fundamentos", "ciclo"]
     },
     {
-      "id": "0.1.q5",
+      "id": "0.1.q20",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Uma empresa fez um teste de intrusão em janeiro, corrigiu todos os apontamentos e arquivou o relatório. Em outubro, é invadida. O que essa sequência ilustra melhor?",
+      "alternativas": [
+        "Segurança é processo: o ambiente mudou ao longo do ano e a foto de janeiro deixou de valer",
+        "O teste de intrusão foi mal executado, já que a invasão aconteceu no mesmo ano",
+        "Testes de intrusão são inúteis, porque nunca encontram as falhas que serão exploradas",
+        "A empresa deveria ter comprado um seguro cibernético em vez de fazer o teste"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no que muda em uma empresa entre janeiro e outubro.",
+        "O relatório descreve o ambiente de qual data?",
+        "Vulnerabilidade nova aparece em software que já estava instalado, sem ninguém mexer nele."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantos sistemas, contas e dependências novas entraram na sua empresa nos últimos nove meses?",
+      "explicacao": "Um teste de intrusão é uma fotografia: descreve o ambiente daquele momento. Ao longo do ano entraram sistemas, saíram pessoas com acessos que ficaram, e vulnerabilidades novas foram publicadas para softwares que já estavam lá. Nada disso é falha do teste — é a natureza do problema. Por isso a prática correta é ciclo: teste periódico, gestão contínua de vulnerabilidades e monitoramento no intervalo.",
+      "por_que_erradas": {
+        "1": "Nada indica má execução. Mesmo um teste impecável só descreve o momento em que foi feito.",
+        "2": "Testes de intrusão são úteis justamente por encontrar o que está explorável naquele momento; o erro é tratá-los como garantia permanente.",
+        "3": "Seguro transfere parte do prejuízo financeiro; não substitui o ciclo de segurança nem impede o incidente."
+      },
+      "fonte": "NIST Cybersecurity Framework; Security Engineering, 3ª ed., cap. 1",
+      "tags": ["processo-nao-produto", "pentest", "gestao-de-vulnerabilidades"]
+    },
+    {
+      "id": "0.1.q21",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Uma empresa quer reduzir o risco de ser afetada por vulnerabilidades recém-divulgadas em software de terceiros. Qual medida trata a causa de forma sustentável?",
+      "alternativas": [
+        "Manter inventário do que está instalado e um processo periódico de avaliação e aplicação de correções",
+        "Comprar uma solução de proteção de endpoint com detecção por comportamento",
+        "Contratar um teste de intrusão anual mais completo que o atual",
+        "Bloquear no firewall todo tráfego de saída não essencial"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A pergunta é sobre vulnerabilidades que ainda vão ser divulgadas, ao longo do tempo.",
+        "Qual das medidas continua funcionando sozinha daqui a dois anos, sem depender de alguém lembrar?",
+        "Você não consegue corrigir o que não sabe que tem instalado."
+      ],
+      "pergunta_socratica": "Antes de conferir: quando sair a próxima vulnerabilidade crítica, o que na sua empresa faz alguém descobrir que ela te afeta?",
+      "explicacao": "Inventário mais rotina de correção é o único item que responde a uma vulnerabilidade que ainda não existe. Os outros três são controles úteis e reduzem impacto, mas nenhum descobre que a empresa usa o componente afetado nem garante a correção. É a diferença entre comprar um produto e instalar um processo — e foi exatamente essa lacuna que transformou o Log4Shell, em 2021, num problema de semanas para muitas empresas: o difícil não era corrigir, era descobrir onde a biblioteca estava.",
+      "por_que_erradas": {
+        "1": "Proteção de endpoint pode detectar a exploração, mas não elimina a vulnerabilidade nem informa onde ela está.",
+        "2": "Teste anual é foto pontual; vulnerabilidades novas surgem no intervalo entre dois testes.",
+        "3": "Bloquear saída dificulta parte das explorações, sem remover a falha nem cobrir o que é exposto para dentro."
+      },
+      "fonte": "NIST Cybersecurity Framework (identificar, proteger); caso Log4Shell (2021)",
+      "tags": ["processo-nao-produto", "gestao-de-patches", "inventario", "estudo-de-caso"]
+    },
+    {
+      "id": "0.1.q22",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Qual das situações abaixo é o melhor exemplo de \"ferramenta comprada que não virou processo\"?",
+      "alternativas": [
+        "Um sistema de detecção instalado há um ano, gerando alertas que ninguém lê",
+        "Um antivírus com assinatura atualizada automaticamente todos os dias",
+        "Um firewall com regras revisadas trimestralmente pelo time de rede",
+        "Um cofre de senhas adotado pela empresa e usado por todas as equipes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Procure a opção em que a ferramenta funciona, mas o resultado dela não chega a lugar nenhum.",
+        "Três das opções envolvem alguém fazendo algo com regularidade.",
+        "Alerta sem leitor é despesa com sensação de proteção."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual das quatro situações a empresa teria exatamente o mesmo nível de proteção se desligasse a ferramenta?",
+      "explicacao": "A detecção sem ninguém lendo os alertas é a definição de produto sem processo: a ferramenta cumpre a função técnica e o ciclo se interrompe na etapa humana. Nas outras três há rotina associada — atualização automática, revisão periódica, adoção efetiva —, que é o que transforma a compra em controle vivo. Vale reter a pergunta de teste: quem olha o resultado disso, com que frequência, e o que faz quando encontra algo?",
+      "por_que_erradas": {
+        "1": "A atualização automática diária é justamente o processo que mantém o antivírus útil.",
+        "2": "Revisão trimestral de regras é o processo que impede o firewall de virar um acúmulo de exceções antigas.",
+        "3": "Adoção efetiva pelas equipes é o que faz o cofre de senhas produzir efeito real."
+      },
+      "fonte": "NIST Cybersecurity Framework (detectar); Security Engineering, 3ª ed., cap. 1",
+      "tags": ["processo-nao-produto", "monitoramento", "fundamentos"]
+    },
+    {
+      "id": "0.1.q23",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "O time de segurança tem orçamento para uma única iniciativa este ano e três candidatas: comprar uma ferramenta de detecção avançada, montar o inventário de sistemas e dados da empresa, ou contratar um segundo teste de intrusão. A empresa nunca fez nenhuma das três. O que escolher, e por quê?",
+      "alternativas": [
+        "O inventário: sem saber o que existe, nem a detecção nem o teste conseguem cobrir o que importa",
+        "A ferramenta de detecção: quanto antes ela estiver rodando, antes a empresa vê o que está acontecendo",
+        "O teste de intrusão: ele produz uma lista concreta de correções, o que dá resultado mais rápido",
+        "Nenhuma: sem equipe dedicada, qualquer das três é desperdício de orçamento"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Olhe a ordem das funções do ciclo do NIST. Qual vem primeiro, e por quê ela vem primeiro?",
+        "Pergunte o que a ferramenta de detecção vai monitorar se ninguém sabe quais são os sistemas críticos.",
+        "Um teste de intrusão em um escopo que ninguém mapeou testa o que exatamente?"
+      ],
+      "pergunta_socratica": "Antes de conferir: você conseguiria listar hoje, de memória, todos os sistemas que guardam dados de clientes na sua empresa?",
+      "explicacao": "Identificar é a primeira função do ciclo porque as outras dependem dela. Detecção precisa saber o que monitorar e o que é crítico; teste de intrusão precisa de escopo, e escopo mal definido testa a parte errada. O inventário é a iniciativa menos vistosa das três e a que aumenta o retorno de todas as seguintes — inclusive as compras futuras.",
+      "por_que_erradas": {
+        "1": "Detecção sem inventário monitora o que for mais fácil de conectar, não o que é mais importante.",
+        "2": "Teste de intrusão sem escopo mapeado produz lista de correções sobre uma parcela arbitrária do ambiente.",
+        "3": "Falta de equipe dedicada é um obstáculo real, mas o inventário é justamente o item mais viável sem especialização profunda."
+      },
+      "fonte": "NIST Cybersecurity Framework (função identificar)",
+      "tags": ["processo-nao-produto", "nist-csf", "inventario", "priorizacao"]
+    },
+    {
+      "id": "0.1.q24",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Vulnerabilidade, ameaça e risco são termos distintos. Qual associação está correta?",
+      "alternativas": [
+        "Vulnerabilidade é a fraqueza; ameaça é quem ou o que pode explorá-la; risco é a combinação de probabilidade e impacto disso acontecer",
+        "Vulnerabilidade é o ataque em si; ameaça é o prejuízo; risco é a chance de ser descoberto",
+        "Os três são sinônimos usados por públicos diferentes: técnico, executivo e jurídico",
+        "Risco é a fraqueza técnica; vulnerabilidade é a decisão de aceitá-la"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Uma das palavras descreve uma característica do seu sistema, e não um evento.",
+        "Outra descreve um agente ou um fenômeno externo.",
+        "A terceira só existe quando você multiplica chance por consequência."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma porta destrancada em uma casa vazia no meio do deserto é uma vulnerabilidade? É um risco?",
+      "explicacao": "A vulnerabilidade é a fraqueza que existe no seu ambiente. A ameaça é o agente ou evento capaz de explorá-la. O risco só aparece quando você junta a probabilidade de a exploração acontecer com o impacto que ela teria. É por isso que a mesma vulnerabilidade técnica pode ser urgente em um sistema e irrelevante em outro — e por que priorizar só pela nota técnica de gravidade leva a decisões ruins.",
+      "por_que_erradas": {
+        "1": "Inverte e embaralha os três conceitos; vulnerabilidade não é o ataque, e risco não é a chance de detecção.",
+        "2": "São conceitos tecnicamente distintos, não versões do mesmo termo para públicos diferentes.",
+        "3": "Inverte os papéis: risco não é a fraqueza, e vulnerabilidade não é uma decisão."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1; NIST Cybersecurity Framework",
+      "tags": ["processo-nao-produto", "risco", "vocabulario", "fundamentos"]
+    },
+    {
+      "id": "0.1.q25",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Uma vulnerabilidade de gravidade alta é encontrada em um sistema interno que será desligado em três semanas e não tem acesso pela internet. O comitê decide registrar formalmente a aceitação do risco até o desligamento. Essa decisão é defensável?",
+      "alternativas": [
+        "Sim: aceitar é uma das quatro respostas legítimas ao risco, desde que a decisão seja consciente, justificada e registrada por quem tem autoridade",
+        "Não: vulnerabilidade de gravidade alta precisa ser corrigida em qualquer contexto",
+        "Sim, mas apenas porque a gravidade é alta e não crítica",
+        "Não: aceitar risco é sempre uma forma de negligência, e a empresa fica exposta juridicamente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Existem quatro tratamentos possíveis para um risco. Corrigir é apenas um deles.",
+        "A gravidade técnica é a mesma em qualquer lugar; o risco não é.",
+        "Repare no que a decisão tem: prazo, justificativa, e alguém assinando."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que diferencia uma aceitação de risco de simplesmente ignorar o problema?",
+      "explicacao": "Mitigar, transferir, evitar e aceitar são as quatro respostas possíveis a um risco. Aqui o contexto reduz a probabilidade (sem exposição à internet) e limita a janela (três semanas), e a decisão foi registrada por quem responde por ela. Isso é gestão de risco, não negligência. O que caracteriza negligência é a ausência dos três elementos: análise, prazo e responsável identificado.",
+      "por_que_erradas": {
+        "1": "Gravidade técnica não considera contexto. Corrigir tudo sempre, na mesma prioridade, é o que impede tratar o que realmente importa.",
+        "2": "A distinção entre alta e crítica não é o que sustenta a decisão; o que sustenta é o contexto e o registro.",
+        "3": "Aceitação registrada e fundamentada é prática prevista em qualquer framework de gestão de risco."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1; NIST Cybersecurity Framework",
+      "tags": ["processo-nao-produto", "risco", "gestao-de-risco", "priorizacao"]
+    },
+    {
+      "id": "0.1.q26",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "trecho": "ATA DE REUNIÃO — Comitê de Segurança\nDecisão: aprovada a aquisição da plataforma de segurança integrada, com investimento de R$ 1,2 milhão.\nJustificativa: a plataforma cobre prevenção, detecção e resposta em uma única console.\nPróximos passos: instalação prevista para o próximo trimestre.\nRevisão do tema: prevista para daqui a três anos, no próximo ciclo orçamentário.",
+      "enunciado": "Um item desta ata contradiz a ideia de que segurança é processo. Qual é?",
+      "alternativas": [
+        "A revisão do tema agendada só para daqui a três anos, tratando a compra como solução definitiva",
+        "O valor do investimento, alto demais para uma única plataforma",
+        "A escolha de concentrar prevenção, detecção e resposta em uma console única",
+        "O prazo de instalação, que deveria ser imediato e não no próximo trimestre"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia a última linha da ata e pergunte o que acontece com o ambiente da empresa nesse intervalo.",
+        "A ata tem um começo e um fim. Onde está o ciclo?",
+        "Três das opções são discutíveis por preferência técnica ou orçamentária. Uma delas contraria o conceito."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantos sistemas novos e quantas vulnerabilidades vão aparecer nessa empresa nos próximos três anos?",
+      "explicacao": "Agendar a próxima revisão do tema para daqui a três anos é a materialização de \"segurança é produto\": compra-se, instala-se e considera-se resolvido até o próximo ciclo orçamentário. No intervalo, entram sistemas, saem pessoas e surgem vulnerabilidades. O conserto é simples e barato: revisão periódica com indicadores, independentemente do ciclo de compra.",
+      "por_que_erradas": {
+        "1": "Valor de investimento é decisão de negócio; não contraria o conceito por si só.",
+        "2": "Console única tem prós e contras operacionais, mas não é o que contraria a ideia de processo.",
+        "3": "Prazo de instalação é planejamento de execução, não posição conceitual."
+      },
+      "fonte": "NIST Cybersecurity Framework; Security Engineering, 3ª ed., cap. 1",
+      "tags": ["processo-nao-produto", "caca-erro", "governanca"]
+    },
+    {
+      "id": "0.1.q27",
       "tipo": "caca_erro",
       "dificuldade": 3,
       "objetivos": [3],
@@ -178,29 +807,248 @@
         "2": "O vetor foi uma biblioteca vulnerável exposta, não engano de usuário. Treinamento não teria evitado este incidente.",
         "3": "Encerrar aqui garante a repetição: a condição que permitiu oito meses de exposição continua exatamente igual."
       },
-      "fonte": "Security Engineering, 3ª ed., cap. 1 e 2; caso Equifax (2017); teoria 0.1.t4",
+      "fonte": "Security Engineering, 3ª ed., cap. 1 e 2; caso Equifax (2017); teoria 0.1.t6",
       "tags": ["pessoas-processo-tecnologia", "gestao-de-patches", "causa-raiz", "estudo-de-caso"]
     },
     {
-      "id": "0.1.q6",
+      "id": "0.1.q28",
       "tipo": "pareamento",
-      "dificuldade": 1,
-      "objetivos": [0],
-      "enunciado": "Ligue cada propriedade da tríade CIA ao incidente que a viola de forma mais direta.",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Ligue cada falha ao pilar que ela representa de forma mais direta.",
       "pares": [
-        ["Confidencialidade", "A base de clientes aparece publicada em um fórum na internet"],
-        ["Integridade", "Um invasor altera o valor de um boleto antes da emissão"],
-        ["Disponibilidade", "O sistema de vendas fica quatro horas fora do ar por um ataque de negação de serviço"]
+        ["Pessoas", "Um analista aprova uma transferência depois de receber um e-mail urgente do suposto diretor"],
+        ["Processo", "Contas de funcionários desligados continuam ativas porque ninguém avisa a TI"],
+        ["Tecnologia", "Um servidor exposto na internet roda uma versão com falha conhecida e sem correção"]
       ],
       "dicas": [
-        "Cada propriedade responde a uma pergunta: quem pode ler, quem pode alterar, quem consegue acessar.",
-        "Repare no verbo de cada incidente: publicar, alterar, derrubar.",
-        "Um dos incidentes não expõe nem derruba nada — apenas muda o conteúdo do dado."
+        "Pergunte de cada caso: o que falhou foi um julgamento, uma regra combinada ou um componente?",
+        "Um dos casos não tem nada de errado com nenhum sistema.",
+        "\"Ninguém avisa a TI\" é a descrição de uma regra que não existe."
       ],
-      "pergunta_socratica": "Antes de conferir: em cada caso, o dado foi lido, modificado ou ficou inacessível?",
-      "explicacao": "Publicar a base viola confidencialidade: o dado continua correto e disponível, mas foi lido por quem não devia. Alterar o boleto viola integridade: o dado passa a estar errado sem autorização. Derrubar o sistema viola disponibilidade: nada vazou nem mudou, mas quem tinha direito ficou sem acesso. O exercício de encaixar o incidente na propriedade certa é o que orienta a resposta — cada uma leva a um caminho diferente de investigação e de correção.",
-      "fonte": "Security Engineering, 3ª ed., cap. 1",
-      "tags": ["triade-cia", "fundamentos", "pareamento"]
+      "pergunta_socratica": "Antes de conferir: em cada caso, o que precisaria mudar para que ele não se repetisse?",
+      "explicacao": "O analista enganado é pessoas: o julgamento sob pressão falhou, e a correção passa por treinamento e por um caminho fácil de verificação. As contas ativas são processo: falta a regra de desligamento que conecta RH e TI. O servidor sem correção é tecnologia, embora a causa de fundo frequentemente também seja processo. Classificar corretamente importa porque cada pilar tem um tipo de correção diferente — e a correção mais confortável costuma ser a tecnológica.",
+      "fonte": "Security Engineering, 3ª ed., cap. 1 e 2",
+      "tags": ["pessoas-processo-tecnologia", "pareamento", "fundamentos"]
+    },
+    {
+      "id": "0.1.q29",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Depois de um incidente causado por um clique em phishing, a empresa decide que a única medida será um treinamento anual obrigatório de conscientização. Qual é a limitação principal dessa resposta?",
+      "alternativas": [
+        "Ela atua só no pilar pessoas e deixa processo e tecnologia intocados, apostando que ninguém mais vai errar",
+        "Treinamento de conscientização não tem nenhum efeito comprovado sobre comportamento",
+        "O problema é a periodicidade: o treinamento deveria ser semestral em vez de anual",
+        "A empresa deveria responsabilizar formalmente o funcionário que clicou"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Liste os três pilares e marque quais foram tratados pela decisão.",
+        "Pergunte o que acontece no dia em que alguém clicar de novo — porque alguém vai clicar.",
+        "Existe controle técnico e existe regra de processo que reduzem o dano depois do clique."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual seria o segundo obstáculo do atacante, se o primeiro (a atenção do funcionário) falhar?",
+      "explicacao": "Treinar é legítimo e ajuda, mas apostar tudo nele é assumir que ninguém vai errar — o que contraria toda a evidência. Faltam camadas nos outros dois pilares: tecnologia (múltiplo fator, filtro de e-mail, isolamento de anexos) e processo (regra de dupla verificação para pagamentos, canal fácil para reportar suspeita sem medo). A pergunta que revela a lacuna é sempre: e quando essa camada falhar, o que segura?",
+      "por_que_erradas": {
+        "1": "Treinamento tem efeito medível, especialmente combinado com simulações; o problema é ser a única medida.",
+        "2": "Aumentar a frequência não resolve a ausência de camadas nos outros dois pilares.",
+        "3": "Punir o funcionário reduz o relato de incidentes e piora a detecção, além de não adicionar nenhuma defesa."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3; NIST Cybersecurity Framework",
+      "tags": ["pessoas-processo-tecnologia", "phishing", "defesa-em-profundidade"]
+    },
+    {
+      "id": "0.1.q30",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Funcionários passaram a enviar planilhas de trabalho para o e-mail pessoal porque o compartilhamento interno exige três aprovações e demora dois dias. Qual é a leitura mais útil dessa situação?",
+      "alternativas": [
+        "O controle é inviável na prática e por isso está sendo contornado; a correção começa por tornar o caminho seguro mais fácil que o inseguro",
+        "Os funcionários agem de má-fé e devem ser advertidos formalmente",
+        "O controle está correto e o problema é a falta de conscientização das equipes",
+        "A empresa deve bloquear o acesso a webmail pessoal e considerar o problema resolvido"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte por que o caminho inseguro foi escolhido. Ele foi mais fácil ou mais difícil?",
+        "Controle que impede o trabalho tende a ser contornado, e não obedecido.",
+        "Bloquear um caminho de contorno sem consertar a causa costuma produzir o próximo contorno."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você precisasse entregar um relatório hoje e o caminho oficial levasse dois dias, o que você faria?",
+      "explicacao": "As pessoas estão entregando o que foi cobrado delas, pelo caminho que funciona. Isso é sinal de que o processo está mal desenhado, não de má-fé. A correção sustentável é reduzir o atrito do caminho seguro — aprovação em um passo, compartilhamento interno rápido e rastreável — porque usabilidade faz parte da segurança. Bloquear o webmail sem isso apenas empurra o contorno para outro canal, geralmente menos visível.",
+      "por_que_erradas": {
+        "1": "Não há indício de má-fé; punir aumenta a ocultação e não resolve a causa.",
+        "2": "Conscientização não vence um processo que custa dois dias de atraso na entrega.",
+        "3": "Bloquear um canal sem reduzir o atrito gera o próximo contorno, provavelmente mais difícil de detectar."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3 (fatores humanos); teoria 0.1.t7",
+      "tags": ["pessoas-processo-tecnologia", "usabilidade", "shadow-it"]
+    },
+    {
+      "id": "0.1.q31",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um golpe de fraude em pagamentos convence o financeiro a alterar a conta bancária de um fornecedor por e-mail. Qual controle ataca a raiz do problema?",
+      "alternativas": [
+        "Regra de processo que exige confirmação por canal independente, previamente cadastrado, antes de qualquer alteração de dado bancário",
+        "Filtro de e-mail mais agressivo, que bloqueie mensagens externas com anexos",
+        "Treinamento anual sobre fraude em pagamentos para toda a empresa",
+        "Antivírus atualizado nas estações do time financeiro"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O e-mail é só o canal. Qual é a ação que causa o prejuízo?",
+        "Pergunte qual controle funciona mesmo quando o e-mail é perfeitamente convincente.",
+        "Verificar por outro canal quebra a premissa do golpe: o atacante controla apenas um deles."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o e-mail fosse tão bem feito que você não desconfiasse, o que ainda impediria o pagamento errado?",
+      "explicacao": "O golpe depende de uma alteração sensível ser aceita por um único canal, que é justamente o canal que o atacante controla. Exigir confirmação por canal independente e previamente cadastrado quebra essa premissa e funciona mesmo quando a mensagem é convincente — o que é o cenário realista. Os demais reduzem a chance de o e-mail chegar ou de o funcionário cair, mas nenhum é uma barreira final.",
+      "por_que_erradas": {
+        "1": "Fraude por e-mail desse tipo geralmente não usa anexo nem malware; o texto é o ataque.",
+        "2": "Treinamento ajuda, mas não é barreira: basta um dia ruim de uma pessoa para o prejuízo acontecer.",
+        "3": "Não há malware envolvido; antivírus não tem o que detectar."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3; NIST Cybersecurity Framework (proteger)",
+      "tags": ["pessoas-processo-tecnologia", "fraude", "engenharia-social", "processo"]
+    },
+    {
+      "id": "0.1.q32",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um incidente foi possível porque um servidor de teste com dados reais estava exposto na internet, sem senha. O time responsável diz que \"era temporário e todo mundo sabia\". Qual é o diagnóstico mais preciso?",
+      "alternativas": [
+        "Falha combinada: tecnologia (exposição sem autenticação) e processo (não existe regra que impeça dado real em ambiente de teste nem prazo para o temporário acabar)",
+        "Falha exclusivamente de tecnologia: bastava ter configurado uma senha no servidor",
+        "Falha exclusivamente de pessoas: quem subiu o servidor agiu com descuido",
+        "Não houve falha relevante: ambientes de teste têm naturalmente menos controles"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Repare que há dois problemas distintos no enunciado, não um só.",
+        "Dado real em ambiente de teste é decisão de quem, e regulada por qual regra?",
+        "\"Temporário\" sem prazo definido costuma ser a descrição de um controle de processo ausente."
+      ],
+      "pergunta_socratica": "Antes de conferir: quais duas coisas diferentes teriam que estar erradas ao mesmo tempo para esse incidente acontecer?",
+      "explicacao": "São duas falhas somadas. A tecnológica é o serviço exposto sem autenticação. A de processo é mais profunda: não há regra proibindo dado real em ambiente de teste, nem prazo e responsável para o que é declarado temporário. Corrigir só a senha resolve este servidor e deixa a próxima ocorrência intacta — que é o padrão dos vazamentos por bucket ou banco exposto.",
+      "por_que_erradas": {
+        "1": "Configurar senha resolve a instância. Nada impede o próximo servidor temporário com dado real.",
+        "2": "Atribuir tudo a descuido individual esconde a ausência de regra, que é o que torna o erro provável.",
+        "3": "Ambiente de teste com dado real de pessoas tem exatamente a mesma sensibilidade que produção."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1 e 2; LGPD, art. 6º (finalidade e necessidade)",
+      "tags": ["pessoas-processo-tecnologia", "exposicao", "ambiente-de-teste", "causa-raiz"]
+    },
+    {
+      "id": "0.1.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que a correção de um incidente costuma se concentrar no pilar tecnológico, mesmo quando a causa está em processo ou pessoas?",
+      "alternativas": [
+        "Porque é o pilar mais fácil de comprar, medir e encerrar como tarefa concluída",
+        "Porque tecnologia é estatisticamente a causa da maioria dos incidentes",
+        "Porque correções de processo não têm efeito mensurável sobre risco",
+        "Porque frameworks de segurança recomendam priorizar controles técnicos sobre os demais"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense em qual dos três pilares tem fornecedor, nota fiscal e data de conclusão.",
+        "Mudar uma regra que envolve três áreas leva quanto tempo, comparado a instalar uma ferramenta?",
+        "A pergunta é sobre por que a escolha acontece, não sobre qual seria a correta."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das três correções você conseguiria marcar como concluída até sexta-feira?",
+      "explicacao": "Correção tecnológica tem contorno claro: existe produto, prazo, responsável e um item que se marca como concluído. Mudanças de processo atravessam áreas, dependem de acordo e não têm data de entrega óbvia; mudanças que envolvem pessoas são ainda mais lentas de medir. O resultado é um viés previsível — e é justamente por isso que vale perguntar, em todo pós-incidente, o que foi feito nos outros dois pilares.",
+      "por_que_erradas": {
+        "1": "A distribuição real das causas aponta fortemente para processo e pessoas, não para falha puramente tecnológica.",
+        "2": "Correções de processo têm efeito mensurável, ainda que com métricas menos imediatas.",
+        "3": "Frameworks tratam os três pilares em conjunto; nenhum recomenda priorizar o técnico por princípio."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 1 e 2",
+      "tags": ["pessoas-processo-tecnologia", "pos-incidente", "vies"]
+    },
+    {
+      "id": "0.1.q34",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [3, 2],
+      "enunciado": "Uma empresa quer eliminar a repetição de um incidente causado por conta de ex-funcionário que continuou ativa. Coloque as ações na ordem que faz cada uma sustentar a seguinte.",
+      "itens": [
+        "Levantar todas as contas ativas e cruzar com a lista atual de funcionários",
+        "Definir a regra de desligamento: quem avisa, em quanto tempo, e quem executa a revogação",
+        "Automatizar a revogação a partir do evento de desligamento no sistema de RH",
+        "Revisar periodicamente as contas ativas para conferir se a automação está funcionando"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "Você consegue automatizar uma regra que ainda não foi definida?",
+        "A primeira ação é a que mostra o tamanho do problema.",
+        "A última ação existe para detectar quando as anteriores pararem de funcionar."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você começasse pela automação, o que exatamente ela automatizaria?",
+      "explicacao": "Primeiro identificar (quantas contas órfãs existem), depois definir a regra de processo, então automatizar a regra já definida, e por fim verificar periodicamente. Começar pela automação é o erro comum: automatiza-se uma regra que ninguém acordou, e a verificação nunca entra porque o problema parecia resolvido. Repare que a sequência espelha o ciclo identificar → proteger → detectar, e que ela toca os três pilares.",
+      "fonte": "NIST Cybersecurity Framework; Security Engineering, 3ª ed., cap. 2",
+      "tags": ["pessoas-processo-tecnologia", "gestao-de-acessos", "processo", "ciclo"]
+    },
+    {
+      "id": "0.1.q35",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3, 0],
+      "enunciado": "Um analista propõe medir a maturidade da empresa apenas pelo número de ferramentas de segurança instaladas. Qual crítica é a mais forte?",
+      "alternativas": [
+        "A métrica ignora processo e pessoas, e não diz nada sobre quais riscos estão de fato reduzidos",
+        "A métrica é boa, mas deveria considerar também o valor investido em cada ferramenta",
+        "A métrica só funciona em empresas com mais de mil funcionários",
+        "A métrica é inválida porque ferramentas de segurança não reduzem risco"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Uma empresa com dez ferramentas mal configuradas está mais segura que outra com três bem operadas?",
+        "Pergunte o que a métrica mede: esforço de compra ou resultado?",
+        "Dois dos três pilares não aparecem em lugar nenhum dessa contagem."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual pergunta essa métrica responde, e qual ela deixa sem resposta?",
+      "explicacao": "Contar ferramentas mede aquisição, não redução de risco. Não diz se alguém opera cada uma, se os alertas são lidos, se os processos existem, nem quais riscos foram cobertos — inclusive porque uma ferramenta a mais pode aumentar a complexidade e criar pontos cegos. Métricas úteis olham para resultado e para o ciclo: tempo até detectar, tempo até corrigir, cobertura de inventário, proporção de sistemas dentro do padrão.",
+      "por_que_erradas": {
+        "1": "Somar valor investido continua medindo gasto, não efeito.",
+        "2": "O tamanho da empresa não corrige o defeito da métrica.",
+        "3": "Ferramentas reduzem risco quando bem operadas; o problema é a contagem como métrica de maturidade."
+      },
+      "fonte": "NIST Cybersecurity Framework; Security Engineering, 3ª ed., cap. 1",
+      "tags": ["pessoas-processo-tecnologia", "metricas", "maturidade", "processo-nao-produto"]
+    },
+    {
+      "id": "0.1.q36",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 2, 3],
+      "enunciado": "Você é o primeiro profissional de segurança contratado por uma empresa de 200 pessoas. Não há inventário, não há política, e a diretoria quer \"um plano em 30 dias\". Qual abordagem inicial é mais defensável?",
+      "alternativas": [
+        "Levantar quais informações a empresa tem e quais são críticas, mapear as ameaças plausíveis e propor um ciclo com poucas ações priorizadas por risco",
+        "Contratar imediatamente as três ferramentas mais bem avaliadas do mercado para prevenção, detecção e resposta",
+        "Escrever a política de segurança completa, com todos os controles previstos em norma internacional",
+        "Executar um teste de intrusão em toda a infraestrutura para descobrir as falhas e corrigi-las"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual é a primeira função do ciclo, e por que ela vem antes das outras?",
+        "Um plano de 30 dias precisa priorizar. Priorizar com base em quê?",
+        "Comprar, escrever norma completa ou testar tudo pressupõem algo que a empresa ainda não tem."
+      ],
+      "pergunta_socratica": "Antes de conferir: sem saber o que a empresa tem e o que dói mais perder, como você escolheria por onde começar?",
+      "explicacao": "Sem identificar ativos, criticidade e ameaças plausíveis, qualquer investimento é palpite: a ferramenta pode proteger o que não importa, a política vira documento que ninguém segue, e o teste cobre um escopo arbitrário. Começar por identificação e priorização por risco produz um plano curto, defensável diante da diretoria e que já se organiza como ciclo. Também é o caminho que trata os três pilares desde o início, em vez de comprar tecnologia e adiar o resto.",
+      "por_que_erradas": {
+        "1": "Comprar antes de saber o que proteger é o caminho mais rápido para gastar bem e reduzir pouco risco.",
+        "2": "Política completa sem diagnóstico vira documento genérico, sem adesão e sem prioridade.",
+        "3": "Teste de intrusão sem escopo definido testa uma parcela arbitrária e não produz plano."
+      },
+      "fonte": "NIST Cybersecurity Framework (função identificar); Security Engineering, 3ª ed., cap. 1",
+      "tags": ["processo-nao-produto", "priorizacao", "risco", "carreira", "pessoas-processo-tecnologia"]
     }
   ]
 }
