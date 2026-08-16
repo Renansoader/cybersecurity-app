@@ -61,6 +61,11 @@ CREATE TABLE IF NOT EXISTS sessoes (
   meta_batida   INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS preferencias (
+  chave         TEXT PRIMARY KEY,
+  valor         TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS desafios_status (
   desafio_id    TEXT PRIMARY KEY,
   itens_ok      TEXT,                  -- JSON com os itens do checklist marcados
@@ -258,6 +263,35 @@ def status_modulos():
     with conexao() as con:
         linhas = con.execute("SELECT * FROM modulos_status").fetchall()
     return {linha["modulo_id"]: linha for linha in linhas}
+
+
+def preferencia(chave, padrao=None):
+    with conexao() as con:
+        linha = con.execute("SELECT valor FROM preferencias WHERE chave = ?",
+                            (chave,)).fetchone()
+    return linha["valor"] if linha else padrao
+
+
+def salvar_preferencia(chave, valor):
+    with conexao() as con:
+        con.execute("INSERT INTO preferencias (chave, valor) VALUES (?, ?)"
+                    " ON CONFLICT(chave) DO UPDATE SET valor = excluded.valor",
+                    (chave, str(valor)))
+
+
+def atividade_por_dia(desde):
+    """{data ISO: quantas questões respondidas}. Base do heatmap e do streak.
+
+    Derivado de `tentativas` em vez de contadores próprios: uma verdade só.
+    A tabela `sessoes` do esquema fica sem uso por enquanto.
+    """
+    with conexao() as con:
+        linhas = con.execute(
+            "SELECT data, COUNT(*) AS n, SUM(acertou) AS acertos,"
+            " SUM(segundos) AS segundos FROM tentativas WHERE data >= ?"
+            " GROUP BY data", (desde,)).fetchall()
+    return {linha["data"]: dict(n=linha["n"], acertos=linha["acertos"] or 0,
+                                segundos=linha["segundos"] or 0) for linha in linhas}
 
 
 def apagar_tentativas_modulo(modulo_id):

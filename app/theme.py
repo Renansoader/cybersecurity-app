@@ -85,7 +85,14 @@ def botao_menu():
 
 # --- blocos de layout ---
 def painel(pai, **kwargs):
-    """Frame no fundo da janela, sem cor propria."""
+    """Frame no fundo da janela, sem cor propria.
+
+    height=0 por padrao: CTkFrame nasce com 200px de altura, e um painel vazio
+    — uma area de dicas ainda sem dica, um rodape cujo botao foi escondido —
+    passa a ocupar 200px de nada e empurra o resto da tela para fora da area
+    visivel. Com 0, a altura vem dos filhos.
+    """
+    kwargs.setdefault("height", 0)
     return ctk.CTkFrame(pai, fg_color=BG_PRIMARY, **kwargs)
 
 
@@ -124,10 +131,33 @@ def linha_valor(pai, rotulo, valor, cor_valor=None):
 
 
 def barra_progresso(pai, valor, **kwargs):
-    barra = ctk.CTkProgressBar(pai, progress_color=SUCCESS, fg_color=BG_SECONDARY,
-                               corner_radius=CORNER_RADIUS, **kwargs)
+    # sem corner_radius proprio: 12 e maior que a altura da barra, e o
+    # arredondamento come a barra inteira, virando uma bolinha.
+    # trilho em BG_PRIMARY: dentro de uma linha BG_SECONDARY, um trilho da mesma
+    # cor do fundo fica invisivel e a barra parece um ponto solto.
+    kwargs.setdefault("height", 10)
+    barra = ctk.CTkProgressBar(pai, progress_color=SUCCESS, fg_color=BG_PRIMARY, **kwargs)
     barra.set(valor)
     return barra
+
+
+def texto(pai, conteudo, fonte=None, cor=None, margem=None):
+    """Label de texto longo que quebra na largura real do container.
+
+    wraplength é em pixels crus e não acompanha a escala de tela do sistema —
+    em um monitor a 125% o texto estoura para fora da janela. Amarrar a quebra
+    ao <Configure> do container resolve em qualquer escala e em qualquer
+    tamanho de janela, sem número mágico.
+    """
+    rotulo = ctk.CTkLabel(pai, text=conteudo, font=fonte or FONTE_CORPO,
+                          text_color=cor or TEXT_PRIMARY, justify="left", anchor="w")
+    margem = PAD_CARTAO * 2 if margem is None else margem
+
+    def ajustar(evento):
+        rotulo.configure(wraplength=max(evento.width - margem, 240))
+
+    pai.bind("<Configure>", ajustar, add="+")
+    return rotulo
 
 
 def cartao_em_construcao(pai, fase, itens):

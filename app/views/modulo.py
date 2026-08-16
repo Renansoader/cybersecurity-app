@@ -1,15 +1,109 @@
-"""Tela de estudo de um módulo: abas de teoria e de questões."""
+"""Tela de um módulo: teoria em blocos e entrada para as questões."""
 
-from app import theme
+import customtkinter as ctk
+
+from app import db, engine, theme
+from app.views import sessao as tela_sessao
 
 
 def montar(pai, app):
-    theme.cabecalho(pai, "Módulo", "teoria em blocos curtos e as questões do módulo")
+    modulo = app.modulos.get(app.modulo_atual)
+    if modulo is None:
+        theme.cabecalho(pai, "Módulo", "nenhum módulo selecionado")
+        theme.cartao_em_construcao(theme.corpo_tela(pai), "Trilha",
+                                   ["Escolha um módulo na tela Trilha"])
+        return
+
+    dominio = engine.dominio(modulo)
+    theme.cabecalho(pai, f"{modulo['id']} — {modulo['titulo']}",
+                    f"domínio {dominio:.0%} · {len(modulo['questoes'])} questões · "
+                    f"{'concluído' if engine.modulo_concluido(modulo) else 'em andamento'}")
     corpo = theme.corpo_tela(pai)
 
-    theme.cartao_em_construcao(corpo, "Fase 4", [
-        "Aba Teoria: blocos de no máximo 8 linhas, com analogia e erro comum",
-        "Aba Questões: uma por vez, seguindo o fluxo socrático",
-        "Barra de domínio do módulo no topo",
-        "Botão \"Refazer módulo do zero\", que avisa antes de zerar a estatística",
-    ])
+    abas = ctk.CTkTabview(corpo, fg_color=theme.BG_CARD, segmented_button_fg_color=theme.BG_SECONDARY,
+                          segmented_button_selected_color=theme.ACCENT,
+                          segmented_button_selected_hover_color=theme.ACCENT_HOVER,
+                          text_color=theme.TEXT_PRIMARY, corner_radius=theme.CORNER_RADIUS)
+    abas.pack(fill="both", expand=True)
+    _teoria(abas.add("Teoria"), modulo)
+    _questoes(abas.add("Questões"), app, modulo)
+
+
+def _teoria(aba, modulo):
+    rolagem = ctk.CTkScrollableFrame(aba, fg_color=theme.BG_CARD)
+    rolagem.pack(fill="both", expand=True)
+
+    ctk.CTkLabel(rolagem, text="Objetivos deste módulo", font=theme.FONTE_CARTAO,
+                 text_color=theme.ACCENT).pack(anchor="w", pady=(0, theme.GAP))
+    for objetivo in modulo["objetivos"]:
+        ctk.CTkLabel(rolagem, text="•  " + objetivo, font=theme.FONTE_CORPO,
+                     text_color=theme.TEXT_MUTED, wraplength=700,
+                     justify="left").pack(anchor="w", pady=2)
+
+    for bloco in modulo["teoria"]:
+        card = ctk.CTkFrame(rolagem, fg_color=theme.BG_SECONDARY,
+                            corner_radius=theme.CORNER_RADIUS)
+        card.pack(fill="x", pady=(theme.PAD_CARTAO, 0))
+        ctk.CTkLabel(card, text=bloco["titulo"], font=theme.FONTE_CARTAO,
+                     text_color=theme.TEXT_PRIMARY, wraplength=700,
+                     justify="left").pack(anchor="w", padx=theme.PAD_CARTAO,
+                                          pady=(theme.PAD_CARTAO, theme.GAP))
+        ctk.CTkLabel(card, text=bloco["texto"], font=theme.FONTE_CORPO,
+                     text_color=theme.TEXT_PRIMARY, wraplength=700,
+                     justify="left").pack(anchor="w", padx=theme.PAD_CARTAO, pady=(0, theme.GAP))
+        for campo, rotulo, cor in (("analogia", "Analogia", theme.ACCENT),
+                                   ("erro_comum", "Erro comum", theme.WARNING)):
+            if bloco.get(campo):
+                ctk.CTkLabel(card, text=f"{rotulo}: {bloco[campo]}", font=theme.FONTE_CORPO,
+                             text_color=cor, wraplength=700,
+                             justify="left").pack(anchor="w", padx=theme.PAD_CARTAO,
+                                                  pady=(0, theme.GAP))
+        ctk.CTkLabel(card, text=f"Fonte: {bloco['fonte']}", font=theme.FONTE_LEGENDA,
+                     text_color=theme.TEXT_MUTED, wraplength=700,
+                     justify="left").pack(anchor="w", padx=theme.PAD_CARTAO,
+                                          pady=(0, theme.PAD_CARTAO))
+
+
+def _questoes(aba, app, modulo):
+    vistas = db.questoes_vistas(modulo["id"])
+    total = len(modulo["questoes"])
+
+    ctk.CTkLabel(aba, text=f"{len(vistas)} de {total} questões já respondidas."
+                           " A primeira tentativa de cada uma é a que conta.",
+                 font=theme.FONTE_CORPO, text_color=theme.TEXT_MUTED, wraplength=700,
+                 justify="left").pack(anchor="w", pady=(theme.GAP, theme.GAP))
+
+    ctk.CTkButton(aba, text="Estudar este módulo", height=40,
+                  command=lambda: _abrir_sessao(app, modulo["id"]),
+                  **theme.botao_primario()).pack(anchor="w")
+
+    ctk.CTkLabel(aba, text="Refazer do zero apaga todas as tentativas deste módulo e zera a"
+                          " estatística. É a única forma de melhorar um domínio ruim.",
+                 font=theme.FONTE_LEGENDA, text_color=theme.WARNING, wraplength=700,
+                 justify="left").pack(anchor="w", pady=(theme.PAD_CARTAO, theme.GAP))
+    _botao_refazer(aba, app, modulo)
+
+
+def _botao_refazer(aba, app, modulo):
+    estado = {"confirmando": False}
+    botao = ctk.CTkButton(aba, text="Refazer módulo do zero", **theme.botao_secundario())
+
+    def clicar():
+        if not estado["confirmando"]:
+            estado["confirmando"] = True
+            botao.configure(text="Tem certeza? Clique de novo para apagar",
+                            fg_color=theme.DANGER, text_color=theme.BG_PRIMARY)
+            return
+        db.apagar_tentativas_modulo(modulo["id"])
+        app.abrir_modulo(modulo["id"])
+
+    botao.configure(command=clicar)
+    botao.pack(anchor="w")
+
+
+def _abrir_sessao(app, modulo_id):
+    """Sessão restrita a um módulo, sem passar pela seleção do motor."""
+    app.ir_para("Sessão diária")
+    for widget in app.corpo.winfo_children():
+        widget.destroy()
+    tela_sessao.Sessao(app.corpo, app, modulo_id=modulo_id)

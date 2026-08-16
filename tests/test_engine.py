@@ -185,6 +185,46 @@ def test_pontos_fracos_ignora_modulo_sem_amostra(motor):
     assert motor.pontos_fracos({"9.9": fraco, "8.8": bom, "7.7": novo}) == ["9.9", "8.8"]
 
 
+# --- streak e resumo do dia ---
+
+def test_resumo_do_dia_conta_o_que_foi_respondido_hoje(motor):
+    motor.responder(questao("a"), "0.1", acertou=True, usou_dica=False, segundos=90, hoje=HOJE)
+    motor.responder(questao("b"), "0.1", acertou=False, usou_dica=False, segundos=30, hoje=HOJE)
+
+    respondidas, acertos, minutos = motor.resumo_do_dia()
+    assert (respondidas, acertos, minutos) == (2, 1, 2)
+
+
+def test_streak_conta_dias_seguidos_com_a_meta_batida(motor, monkeypatch):
+    db.salvar_preferencia("meta_diaria", 2)
+    hoje = date(2026, 8, 15)
+
+    # dois dias seguidos com a meta batida, e um dia anterior sem
+    for dia, quantas in ((date(2026, 8, 12), 1), (date(2026, 8, 14), 2), (hoje, 2)):
+        for i in range(quantas):
+            with db.conexao() as con:
+                con.execute(
+                    "INSERT INTO tentativas (questao_id, modulo_id, tipo, acertou, usou_dica,"
+                    " n_tentativa, segundos, data) VALUES (?, ?, 'conceitual', 1, 0, 1, 10, ?)",
+                    (f"q-{dia}-{i}", "0.1", dia.isoformat()))
+
+    assert motor.streak(hoje=hoje) == 2, "12/08 não bateu a meta e quebra a sequência"
+
+
+def test_streak_nao_zera_por_hoje_ainda_estar_em_aberto(motor):
+    db.salvar_preferencia("meta_diaria", 2)
+    hoje = date(2026, 8, 15)
+    with db.conexao() as con:
+        for i in range(2):
+            con.execute(
+                "INSERT INTO tentativas (questao_id, modulo_id, tipo, acertou, usou_dica,"
+                " n_tentativa, segundos, data) VALUES (?, ?, 'conceitual', 1, 0, 1, 10, ?)",
+                (f"q{i}", "0.1", "2026-08-14"))
+
+    # nada respondido hoje: o dia ainda está em aberto e não deve quebrar a sequência
+    assert motor.streak(hoje=hoje) == 1
+
+
 # --- modo da questão: quem decide é o motor ---
 
 def test_questao_nunca_respondida_e_nova(motor, modulos):

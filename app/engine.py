@@ -132,6 +132,47 @@ def pontos_fracos(modulos, quantos=3):
     return [mid for _, mid in sorted(candidatos)[:quantos]]
 
 
+METAS = (10, 20, 30)
+META_PADRAO = 20
+
+
+def meta_diaria():
+    return int(db.preferencia("meta_diaria", META_PADRAO))
+
+
+def resumo_do_dia(hoje=None):
+    """(questões respondidas, acertos, minutos) do dia."""
+    hoje = (hoje or date.today()).isoformat()
+    dia = db.atividade_por_dia(hoje).get(hoje)
+    if not dia:
+        return 0, 0, 0
+    return dia["n"], dia["acertos"], dia["segundos"] // 60
+
+
+def streak(hoje=None):
+    """Dias consecutivos com a meta batida, contando de trás para frente.
+
+    O dia de hoje só quebra a sequência depois de terminado, então ele conta
+    como neutro enquanto a meta não é atingida.
+
+    ponytail: a meta atual é aplicada aos dias passados. Se a meta mudar, o
+    streak é recalculado com o valor novo — guardar a meta de cada dia exigiria
+    outra tabela, e o efeito é pequeno.
+    """
+    hoje = hoje or date.today()
+    meta = meta_diaria()
+    atividade = db.atividade_por_dia((hoje - timedelta(days=400)).isoformat())
+
+    dias = 0
+    dia = hoje
+    if atividade.get(hoje.isoformat(), {}).get("n", 0) < meta:
+        dia -= timedelta(days=1)   # hoje ainda está em aberto
+    while atividade.get(dia.isoformat(), {}).get("n", 0) >= meta:
+        dias += 1
+        dia -= timedelta(days=1)
+    return dias
+
+
 def modo_da_questao(questao_id, hoje=None):
     """Como a tela deve abrir a questão. A decisão é do motor, não da view.
 
@@ -167,11 +208,16 @@ def niveis_desbloqueados(modulos, niveis):
 
 
 def modulos_disponiveis(modulos, niveis):
-    """Módulos de nível liberado e com os pré-requisitos concluídos."""
+    """Módulos cujo nível está liberado.
+
+    O cadeado da especificação é por nível, e não por módulo: dentro de um
+    nível aberto, todos os módulos ficam disponíveis. `pre_requisitos` do
+    conteúdo é ordem sugerida — usada para sugerir o próximo módulo —, e não
+    tranca: exigir a conclusão de um módulo de 36 questões para liberar o
+    seguinte travaria o nível 0 inteiro no primeiro módulo.
+    """
     liberados = niveis_desbloqueados(modulos, niveis)
-    concluidos = {mid for mid, m in modulos.items() if modulo_concluido(m)}
-    return {mid: m for mid, m in modulos.items()
-            if m["nivel"] in liberados and set(m["pre_requisitos"]) <= concluidos}
+    return {mid: m for mid, m in modulos.items() if m["nivel"] in liberados}
 
 
 def sincronizar_status(modulos, niveis):

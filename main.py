@@ -2,7 +2,7 @@
 
 import customtkinter as ctk
 
-from app import db, theme
+from app import content, db, theme
 from app.views import (desafio, ferramentas, glossario, home, modulo,
                        progresso, sessao, trilha)
 
@@ -30,6 +30,10 @@ DESTAQUE = {"Módulo": "Trilha"}
 
 class App:
     def __init__(self):
+        self.modulos, self.erros_de_conteudo = content.carregar_modulos()
+        self.niveis = content.carregar_niveis()
+        self.modulo_atual = None
+
         self.root = ctk.CTk()
         self.root.title("Cyber — Estudo de Cibersegurança")
         self.root.geometry("1180x760")
@@ -63,8 +67,13 @@ class App:
             botao.pack(fill="x", padx=theme.GAP, pady=3)
             self.botoes[rotulo] = botao
 
-        ctk.CTkLabel(self.sidebar, text="Fase 1 — esqueleto", font=theme.FONTE_LEGENDA,
-                     text_color=theme.TEXT_MUTED).pack(side="bottom", pady=theme.PAD_CARTAO)
+        ctk.CTkLabel(self.sidebar, text=f"{len(self.modulos)} módulos carregados",
+                     font=theme.FONTE_LEGENDA, text_color=theme.TEXT_MUTED).pack(
+            side="bottom", pady=theme.PAD_CARTAO)
+
+    def abrir_modulo(self, modulo_id):
+        self.modulo_atual = modulo_id
+        self.ir_para("Módulo")
 
     def ir_para(self, tela):
         for widget in self.corpo.winfo_children():
@@ -76,7 +85,23 @@ class App:
             botao.configure(fg_color=theme.BG_CARD if ativo else "transparent",
                             text_color=theme.ACCENT if ativo else theme.TEXT_PRIMARY)
 
+        if self.erros_de_conteudo:
+            self._avisar_erros()
         VIEWS[tela].montar(self.corpo, self)
+
+    def _avisar_erros(self):
+        """Módulo malformado não pode derrubar o app: avisa qual arquivo e qual campo."""
+        faixa = theme.cartao(self.corpo)
+        faixa.configure(fg_color=theme.BG_SECONDARY)
+        faixa.pack(fill="x", padx=theme.PAD_TELA, pady=(theme.PAD_TELA, 0))
+        ctk.CTkLabel(faixa, text="Conteúdo com problema — estes arquivos não foram carregados:",
+                     font=theme.FONTE_CORPO, text_color=theme.DANGER).pack(
+            anchor="w", padx=theme.PAD_CARTAO, pady=(theme.GAP, 2))
+        for erro in self.erros_de_conteudo:
+            ctk.CTkLabel(faixa, text="• " + erro, font=theme.FONTE_LEGENDA,
+                         text_color=theme.TEXT_MUTED, wraplength=860,
+                         justify="left").pack(anchor="w", padx=theme.PAD_CARTAO, pady=(0, 2))
+        ctk.CTkFrame(faixa, fg_color=theme.BG_SECONDARY, height=theme.GAP).pack()
 
     def run(self):
         self.root.mainloop()
