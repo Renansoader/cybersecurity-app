@@ -20,6 +20,11 @@ def montar(pai, app):
                     f"{'concluído' if engine.modulo_concluido(modulo) else 'em andamento'}")
     corpo = theme.corpo_tela(pai)
 
+    if app.aviso:
+        ctk.CTkLabel(corpo, text=app.aviso, font=theme.FONTE_CORPO, text_color=theme.WARNING,
+                     anchor="w").pack(anchor="w", pady=(0, theme.GAP))
+        app.aviso = None   # some na próxima navegação
+
     abas = ctk.CTkTabview(corpo, fg_color=theme.BG_CARD, segmented_button_fg_color=theme.BG_SECONDARY,
                           segmented_button_selected_color=theme.ACCENT,
                           segmented_button_selected_hover_color=theme.ACCENT_HOVER,
@@ -85,20 +90,41 @@ def _questoes(aba, app, modulo):
 
 
 def _botao_refazer(aba, app, modulo):
-    estado = {"confirmando": False}
-    botao = ctk.CTkButton(aba, text="Refazer módulo do zero", **theme.botao_secundario())
+    """Dois cliques para apagar, com saída no meio.
+
+    Sem o Cancelar, um clique por engano deixa o botão armado até a próxima
+    vez que alguém encostar nele — e a próxima vez apaga.
+    """
+    linha = theme.painel(aba)
+    linha.configure(fg_color="transparent")
+    linha.pack(anchor="w", fill="x")
+
+    armado = {"sim": False}   # estado explícito: winfo_ismapped() só vale após um update
+    botao = ctk.CTkButton(linha, text="Refazer módulo do zero", **theme.botao_secundario())
+    botao.pack(side="left")
+    cancelar = ctk.CTkButton(linha, text="Cancelar", **theme.botao_secundario())
+
+    def desarmar():
+        armado["sim"] = False
+        cancelar.pack_forget()
+        botao.configure(text="Refazer módulo do zero", **theme.botao_secundario())
 
     def clicar():
-        if not estado["confirmando"]:
-            estado["confirmando"] = True
-            botao.configure(text="Tem certeza? Clique de novo para apagar",
-                            fg_color=theme.DANGER, text_color=theme.BG_PRIMARY)
+        if not armado["sim"]:
+            armado["sim"] = True
+            vistas = len(db.questoes_vistas(modulo["id"]))
+            botao.configure(text=f"Apagar {vistas} tentativa(s) e zerar? Clique de novo",
+                            fg_color=theme.DANGER, hover_color=theme.DANGER,
+                            text_color=theme.BG_PRIMARY)
+            cancelar.pack(side="left", padx=theme.GAP)
             return
         db.apagar_tentativas_modulo(modulo["id"])
-        app.abrir_modulo(modulo["id"])
+        app.abrir_modulo(modulo["id"],
+                         aviso=f"Tentativas do módulo {modulo['id']} apagadas."
+                               " O domínio voltou a zero.")
 
     botao.configure(command=clicar)
-    botao.pack(anchor="w")
+    cancelar.configure(command=desarmar)
 
 
 def _abrir_sessao(app, modulo_id):

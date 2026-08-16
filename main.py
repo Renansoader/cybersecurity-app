@@ -33,6 +33,7 @@ class App:
         self.modulos, self.erros_de_conteudo = content.carregar_modulos()
         self.niveis = content.carregar_niveis()
         self.modulo_atual = None
+        self.aviso = None   # mensagem de uma vez só, mostrada na próxima tela
 
         self.root = ctk.CTk()
         self.root.title("Cyber — Estudo de Cibersegurança")
@@ -71,8 +72,9 @@ class App:
                      font=theme.FONTE_LEGENDA, text_color=theme.TEXT_MUTED).pack(
             side="bottom", pady=theme.PAD_CARTAO)
 
-    def abrir_modulo(self, modulo_id):
+    def abrir_modulo(self, modulo_id, aviso=None):
         self.modulo_atual = modulo_id
+        self.aviso = aviso
         self.ir_para("Módulo")
 
     def ir_para(self, tela):
