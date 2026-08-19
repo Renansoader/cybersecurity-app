@@ -3,7 +3,7 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-19 · commit `3a7a9f2` · 794 testes passando
+Última atualização: 2026-08-19 · commit `e9c72a5` · 938 testes passando
 
 ---
 
@@ -11,18 +11,18 @@ com SQLite para progresso e JSON para conteúdo. Roda offline.
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 15 de 41 |
-| Questões | 526 |
-| Blocos de teoria | 91 |
-| Tags distintas | 398 |
-| Testes automatizados | 794 |
+| Módulos de conteúdo escritos | 18 de 41 |
+| Questões | 631 |
+| Blocos de teoria | 110 |
+| Tags distintas | 548 |
+| Testes automatizados | 938 |
 | Linhas de código Python | ~3.260 |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 140 (4 de 7 módulos).
+**nível 2** 245 (7 módulos, completo).
 
-Tipos de questão em uso: conceitual 247, cenário 112, caça ao erro 39,
-ataque→defesa 35, pareamento 29, comando 28, ordenação 20, artefato 16.
+Tipos de questão em uso: conceitual 296, cenário 131, caça ao erro 48,
+ataque→defesa 44, pareamento 34, comando 32, ordenação 24, artefato 22.
 
 ---
 
@@ -46,8 +46,7 @@ C:\Dev\cybersecurity-app\
 │                            desafio, glossario, ferramentas (stubs)
 ├── data/
 │   ├── niveis.json          6 níveis e regras de desbloqueio
-│   ├── modulos/*.json       15 módulos (00-01 … 02-04)
-│   └── rascunhos/           conteúdo deslocado, aguardando o módulo certo
+│   └── modulos/*.json       18 módulos (00-01 … 02-07)
 ├── tests/                   6 arquivos de teste
 ├── docs/                    PDFs de referência (fora do Git)
 └── progress.db              criado no primeiro uso (fora do Git)
@@ -140,6 +139,20 @@ C:\Dev\cybersecurity-app\
   `BG_PRIMARY` — raio maior que a altura virava bolinha, e trilho da mesma cor da
   linha ficava invisível.
 
+### Verificação de fato antes de escrever
+
+- **O que dá para executar, executa.** Os módulos 2.5 e 2.6 saíram de laboratórios
+  rodados na máquina: JWT HS256 montado à mão, token `alg:none` aceito por
+  verificador que lê o `alg` do próprio token, confusão RS256→HS256 com par de
+  chaves RSA gerado no openssl, vetores de HOTP (RFC 4226), TOTP (RFC 6238) e
+  PKCE (RFC 7636), bits POSIX e saída real de `icacls`.
+- **Artefato de questão é saída real, anonimizada.** Nome de máquina, usuário e
+  SID reais viram `CONTOSO` e `ana.silva`; o formato da saída fica intacto. Um
+  validador de conteúdo recusa o arquivo se algum dado pessoal escapar.
+- **A linha de base de senha é o NIST SP 800-63B rev. 4** (2025), conferida na
+  fonte: 15 caracteres para senha como fator único, 8 apenas dentro de MFA,
+  `SHALL NOT` para regra de composição e para troca periódica.
+
 ### Processo
 
 - **Uma fase por vez, com validação entre elas.** Commit ao fim de cada fase.
@@ -161,7 +174,7 @@ C:\Dev\cybersecurity-app\
 | 3 | Motor: `engine.py` e `pedagogy.py` | pronta |
 | 4 | Conteúdo dos níveis 0 e 1 (11 módulos) | pronta |
 | 5 | Telas de sessão, trilha, home, módulo e progresso | pronta (antecipada) |
-| 6 | Nível 2 + glossário + ferramentas | parcial: 4 de 7 módulos |
+| 6 | Nível 2 + glossário + ferramentas | parcial: nível 2 completo; glossário e ferramentas pendentes |
 | 7 | Níveis 3 e 4 + desafios práticos | pendente |
 | 8 | Nível 5 + simulado + trilha de 90 dias | pendente |
 | 9 | Ícone, atalho, README, publicação | pendente |
@@ -177,9 +190,10 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
-**Nível 2 — Núcleo de segurança** (140 questões, 4 de 7)
+**Nível 2 — Núcleo de segurança** (245 questões, completo)
 2.1 Criptografia I · 2.2 Criptografia II · 2.3 Criptografia III ·
-2.4 Hash e senhas
+2.4 Hash e senhas · 2.5 Autenticação e identidade · 2.6 Controle de acesso ·
+2.7 Fator humano
 
 ### Telas funcionando
 
@@ -194,10 +208,8 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 26 módulos
+### Conteúdo — 23 módulos
 
-- **Nível 2** (3 restantes): 2.5 Autenticação e identidade · 2.6 Controle de
-  acesso · 2.7 Fator humano
 - **Nível 3 — Ofensivo** (9): metodologia de pentest, OSINT, varredura,
   Web I/II/III, OWASP Top 10, quebra de senhas, engenharia social e redes sem fio
 - **Nível 4 — Defensivo** (8): hardening, segurança de rede, defesa em
@@ -205,9 +217,10 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
 
-Cuidados já combinados para o próximo bloco (2.5–2.7): JWT com caça ao erro sobre
-`alg: none` e confusão entre algoritmo simétrico e assimétrico, deixando claro
-que JWT assinado é legível por qualquer um.
+O próximo bloco natural é o nível 3, que desbloqueia com 70% no nível 2 —
+agora completo. Os laboratórios de verificação ficam em pé: quebra de senhas
+(3.8) reaproveita o material de 2.4 e 2.5, e Web I–III (3.4–3.6) pede captura
+real de requisição.
 
 ### Funcionalidades
 
@@ -227,9 +240,10 @@ que JWT assinado é legível por qualquer um.
   porque o layout está correto no DPI atual (1,25).
 - **Tabela `sessoes` sem uso** — mantida por ser obrigatória na spec.
 - **Coluna `facilidade` do SRS parada em 2,5** — a spec fixa os multiplicadores.
-- **Rascunho pendente**: `data/rascunhos/2.5-senhas.json` tem duas questões sobre
-  NIST SP 800-63B que saíram do módulo 0.1 por estarem fora de escopo. Ao mover
-  para o 2.5, acrescentar o campo `objetivos` e renumerar os ids.
+- **Duas exceções ao padrão de formato**, ambas dentro do esquema: o módulo 2.6
+  tem 5 objetivos em vez de 4 (mecanismo de permissão × política ganhou objetivo
+  próprio) e o 2.7 tem 7 blocos de teoria em vez de 6 (autenticação de e-mail:
+  SPF, DKIM e DMARC).
 - **Streak recalcula dias passados com a meta atual.** Guardar a meta de cada dia
   exigiria outra tabela.
 
