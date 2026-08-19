@@ -1,0 +1,1031 @@
+{
+  "id": "2.2",
+  "nivel": 2,
+  "titulo": "Criptografia II — assimétrica, assinatura e PKI",
+  "objetivos": [
+    "Explicar o par de chaves e qual delas usar para cifrar e para assinar",
+    "Distinguir assinatura digital de cifra, e dizer o que cada uma prova",
+    "Comparar RSA e curvas elípticas em tamanho de chave e uso atual",
+    "Descrever como uma cadeia de certificados estabelece confiança e onde ela quebra"
+  ],
+  "pre_requisitos": ["2.1"],
+  "teoria": [
+    {
+      "id": "2.2.t1",
+      "titulo": "Duas chaves, uma matemática",
+      "texto": "Na criptografia assimétrica cada participante tem um par: uma chave pública, que pode ser distribuída livremente, e uma chave privada, que nunca sai de perto do dono. O que uma faz, só a outra desfaz.\n\nIsso resolve o problema que a simetria deixava em aberto: dois desconhecidos conseguem estabelecer sigilo sem ter combinado nada antes. O preço é o desempenho — a assimétrica é ordens de grandeza mais lenta.\n\nPor isso o uso real é híbrido: a assimétrica estabelece uma chave de sessão e prova identidade, e o volume de dados viaja sob cifra simétrica autenticada. É exatamente o desenho do TLS.",
+      "analogia": "Um cadeado aberto que você distribui a quem quiser. Qualquer um tranca; só você, com a chave, abre.",
+      "erro_comum": "Achar que a assimétrica substitui a simétrica. Ela resolve confiança e distribuição de chave, não volume.",
+      "fonte": "Crypto 101, cap. 9; Security Engineering, 3ª ed., cap. 5"
+    },
+    {
+      "id": "2.2.t2",
+      "titulo": "Qual chave usar para quê",
+      "texto": "A regra que evita a confusão mais comum: para cifrar, use a chave pública do destinatário — só ele, com a privada, decifra. Para assinar, use a sua chave privada — qualquer um, com a sua pública, verifica.\n\nRepare que as duas operações têm objetivos opostos. Cifrar protege o conteúdo de todos, menos de um. Assinar prova algo para todos, sem esconder nada.\n\nDaí a consequência que mais surpreende quem está começando: uma mensagem assinada não é uma mensagem secreta. A assinatura acompanha o conteúdo em claro.",
+      "analogia": "Cifrar é endereçar uma carta lacrada a uma pessoa. Assinar é carimbar o documento para que todo mundo saiba que veio de você.",
+      "erro_comum": "Assinar achando que assinar esconde. Assinatura prova origem e integridade; ela não cifra nada.",
+      "fonte": "Crypto 101, cap. 9 e 12; Security Engineering, 3ª ed., cap. 5"
+    },
+    {
+      "id": "2.2.t3",
+      "titulo": "Assinatura digital: o que ela prova",
+      "texto": "Assinar não é cifrar o documento inteiro com a chave privada — na prática, calcula-se o resumo do documento e a operação é feita sobre esse resumo, o que é rápido e independe do tamanho do arquivo.\n\nA verificação prova três coisas ao mesmo tempo: que o documento não foi alterado depois de assinado, que quem assinou detinha a chave privada correspondente, e que essa pessoa não pode negar depois com facilidade.\n\nO limite fica claro quando se pergunta o que a assinatura não prova: ela não diz que a chave privada pertence a quem você imagina. Amarrar chave a identidade é problema da infraestrutura de chaves públicas.",
+      "analogia": "A assinatura confere com o cartão de assinaturas do banco. Ela prova que bate com o cartão, não que o cartão é de quem você pensa.",
+      "erro_comum": "Confundir assinatura com resumo. Um resumo sozinho qualquer um recalcula; a assinatura exige a chave privada.",
+      "fonte": "Crypto 101, cap. 12; Security Engineering, 3ª ed., cap. 5"
+    },
+    {
+      "id": "2.2.t4",
+      "titulo": "RSA e curvas elípticas",
+      "texto": "RSA foi o primeiro esquema assimétrico amplamente usado e continua em serviço. Sua segurança se apoia na dificuldade de fatorar números muito grandes, e por isso as chaves são grandes: 2048 bits é o mínimo aceitável hoje, e 3072 ou 4096 aparecem quando se quer margem maior.\n\nCriptografia de curvas elípticas resolve o mesmo problema com chaves muito menores para segurança equivalente — na ordem de 256 bits. Isso significa menos dados trafegando e menos processamento, o que importa em conexões e em dispositivos pequenos.\n\nA tendência prática é usar curvas elípticas em projeto novo, mantendo RSA por compatibilidade. Em ambos, o tamanho da chave só faz sentido junto do esquema: comparar 256 bits de curva com 256 bits de RSA é comparar coisas diferentes.",
+      "analogia": "Duas fechaduras de resistência parecida, uma feita de um bloco enorme e outra de um mecanismo pequeno e preciso.",
+      "erro_comum": "Comparar tamanhos de chave entre famílias diferentes. 256 bits em curva elíptica é forte; 256 bits em RSA seria trivial de quebrar.",
+      "fonte": "Crypto 101, cap. 9.3 e 9.4; Security Engineering, 3ª ed., cap. 5"
+    },
+    {
+      "id": "2.2.t5",
+      "titulo": "Certificados e a cadeia de confiança",
+      "texto": "Um certificado é um documento que amarra uma chave pública a um nome, assinado por uma autoridade certificadora. Ele responde à pergunta que a assinatura sozinha não responde: de quem é esta chave.\n\nA confiança é encadeada. O navegador confia em um conjunto de certificados raiz que vêm instalados no sistema; essas raízes assinam certificados intermediários, que por sua vez assinam os certificados dos sites. Validar é percorrer essa cadeia até chegar a uma raiz confiável, conferindo cada assinatura, o prazo de validade e o nome.\n\nO modelo tem uma consequência incômoda: qualquer autoridade em que o seu sistema confia pode emitir certificado para qualquer domínio. A segurança do conjunto é a da autoridade mais fraca da lista.",
+      "analogia": "Um cartório reconhece firma porque outro cartório reconheceu a dele, até chegar a um registro que você aceita por princípio.",
+      "erro_comum": "Achar que certificado válido significa site idôneo. Ele prova controle sobre o domínio, e nada além.",
+      "fonte": "Crypto 101, cap. 15.3; teoria 1.5.t5"
+    },
+    {
+      "id": "2.2.t6",
+      "titulo": "Onde a cadeia quebra",
+      "texto": "Quatro falhas aparecem com frequência. Certificado expirado: o prazo venceu e o navegador recusa — quase sempre é esquecimento de renovação, e não ataque. Nome que não confere: o certificado é válido, mas foi emitido para outro domínio. Cadeia incompleta: o servidor não envia o intermediário, e o cliente não consegue ligar o certificado a uma raiz. Autoridade não confiável: o certificado é autoassinado ou foi emitido por uma autoridade que o sistema não conhece.\n\nHá ainda o caso mais delicado: a autoridade interna instalada nas máquinas de uma empresa. Ela é legítima e útil para sistemas internos, e ao mesmo tempo é a chave que permite interceptar tráfego cifrado sem que o navegador reclame.\n\nRevogação existe para o caso de uma chave privada vazar, mas funciona de forma imperfeita — parte da razão pela qual certificados hoje têm validade curta.",
+      "analogia": "Um crachá vencido, um crachá de outra empresa, um crachá sem o carimbo do meio e um crachá emitido por uma portaria que ninguém reconhece.",
+      "erro_comum": "Tratar todo aviso de certificado como falso positivo. Cada um dos quatro casos tem uma causa diferente, e uma delas é interceptação.",
+      "fonte": "Crypto 101, cap. 15.3 e 15.7; teoria 1.5.t5"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "2.2.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Em um par de chaves assimétricas, o que caracteriza a chave pública?",
+      "alternativas": [
+        "Pode ser distribuída livremente, porque o que ela faz só a chave privada correspondente desfaz",
+        "É a chave usada para decifrar mensagens recebidas",
+        "É gerada a partir da senha do usuário e pode ser recalculada quando necessário",
+        "É uma cópia da chave privada, guardada como reserva"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O nome indica o que se pode fazer com ela.",
+        "Se a pública decifrasse, qual seria o sentido de distribuí-la?",
+        "As duas chaves do par são matematicamente ligadas, mas diferentes."
+      ],
+      "pergunta_socratica": "Antes de conferir: se qualquer um tem a sua chave pública, o que essa pessoa consegue fazer com ela?",
+      "explicacao": "A chave pública é feita para circular: qualquer um pode usá-la para cifrar algo destinado a você ou para verificar uma assinatura sua. O que ela não faz é decifrar nem assinar — isso exige a privada, que nunca sai de perto do dono. Elas não são cópias uma da outra, e não são derivadas de senha.",
+      "por_que_erradas": {
+        "1": "Decifrar é papel da chave privada.",
+        "2": "O par é gerado por um processo criptográfico, não derivado de senha.",
+        "3": "As chaves são distintas e cumprem papéis opostos."
+      },
+      "fonte": "Crypto 101, cap. 9; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "assimetrica", "chaves", "fundamentos"]
+    },
+    {
+      "id": "2.2.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Você quer enviar uma mensagem que só o destinatário consiga ler. Qual chave usa?",
+      "alternativas": [
+        "A chave pública do destinatário",
+        "A sua própria chave privada",
+        "A sua própria chave pública",
+        "A chave privada do destinatário"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem precisa conseguir decifrar? Qual chave essa pessoa tem?",
+        "Você não possui a chave privada de outra pessoa.",
+        "Cifrar com a sua privada teria o efeito oposto ao desejado."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem é a única pessoa que deve conseguir abrir essa mensagem, e o que só ela possui?",
+      "explicacao": "Cifrar com a pública do destinatário garante que só a privada dele decifre — que é exatamente o objetivo. Cifrar com a sua privada produz algo que qualquer um com a sua pública abre: isso não é sigilo, é a mecânica da assinatura. E você não tem acesso à chave privada de outra pessoa.",
+      "por_que_erradas": {
+        "1": "Cifrar com a sua privada permite que qualquer um decifre com a sua pública.",
+        "2": "Cifrar com a sua pública produziria algo que só você conseguiria abrir.",
+        "3": "A chave privada do destinatário está com ele, e não com você."
+      },
+      "fonte": "Crypto 101, cap. 9; teoria 2.2.t2",
+      "tags": ["cripto", "assimetrica", "chaves", "sigilo"]
+    },
+    {
+      "id": "2.2.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Você quer que qualquer pessoa possa confirmar que um documento foi produzido por você. Qual chave usa?",
+      "alternativas": [
+        "A sua chave privada, para assinar; quem verifica usa a sua chave pública",
+        "A sua chave pública, para assinar; quem verifica usa a sua chave privada",
+        "A chave pública de cada destinatário, uma assinatura por pessoa",
+        "Uma chave simétrica compartilhada com todos os destinatários"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Só você pode produzir a assinatura; todos precisam poder verificar.",
+        "Qual chave só você tem?",
+        "Chave compartilhada com todos não prova nada sobre quem escreveu."
+      ],
+      "pergunta_socratica": "Antes de conferir: se todo mundo pudesse produzir a assinatura, ela provaria alguma coisa?",
+      "explicacao": "Assinar exige o que só você tem — a chave privada — e verificar usa o que todos têm, a pública. É o inverso da cifra, e a inversão é a fonte da confusão mais comum do tema. Chave simétrica compartilhada não serve: qualquer um do grupo poderia forjar a mesma assinatura, e a prova de autoria desaparece.",
+      "por_que_erradas": {
+        "1": "Inverte os papéis: a pública não assina.",
+        "2": "Uma assinatura por destinatário não é necessária nem faz sentido.",
+        "3": "Segredo compartilhado permite que qualquer participante forje a autoria."
+      },
+      "fonte": "Crypto 101, cap. 12; teoria 2.2.t2",
+      "tags": ["cripto", "assinatura", "chaves", "autoria"]
+    },
+    {
+      "id": "2.2.q4",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Um documento assinado digitalmente é também um documento secreto?",
+      "alternativas": [
+        "Não: a assinatura prova origem e integridade, e o conteúdo continua legível por qualquer um",
+        "Sim: assinar cifra o documento com a chave privada do autor",
+        "Sim, desde que a chave privada tenha pelo menos 2048 bits",
+        "Depende do formato do arquivo assinado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Assinar e cifrar têm objetivos opostos.",
+        "Se assinar escondesse, como alguém verificaria o conteúdo?",
+        "Uma coisa é provar quem escreveu; outra é impedir que leiam."
+      ],
+      "pergunta_socratica": "Antes de conferir: para verificar uma assinatura, é preciso ver o documento?",
+      "explicacao": "Assinatura e cifra resolvem problemas opostos: uma prova origem e integridade sem esconder nada; a outra esconde. Para verificar, é necessário ter o conteúdo — logo, ele está em claro. Quando se quer as duas coisas, faz-se as duas operações. Esse ponto reaparece no módulo seguinte, com JWT assinado sendo confundido com JWT cifrado.",
+      "por_que_erradas": {
+        "1": "Assinar opera sobre o resumo e não esconde o conteúdo.",
+        "2": "Tamanho de chave não transforma assinatura em sigilo.",
+        "3": "O formato não altera a natureza da operação."
+      },
+      "fonte": "Crypto 101, cap. 12; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "assinatura", "sigilo", "confusao-comum"]
+    },
+    {
+      "id": "2.2.q5",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Por que a assinatura digital é calculada sobre o resumo do documento, e não sobre o documento inteiro?",
+      "alternativas": [
+        "Porque a operação assimétrica é lenta e limitada em tamanho; assinar o resumo custa o mesmo para qualquer arquivo",
+        "Porque o resumo é secreto e o documento não é",
+        "Porque o documento precisa ser comprimido antes de qualquer operação criptográfica",
+        "Porque o resumo permite recuperar o documento em caso de perda"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o custo de assinar 10 KB e 10 GB.",
+        "Qual é o tamanho do resumo em cada caso?",
+        "Resumo não é secreto e não permite reconstruir nada."
+      ],
+      "pergunta_socratica": "Antes de conferir: quanto tempo levaria uma operação assimétrica sobre um arquivo de 10 GB?",
+      "explicacao": "Operações assimétricas são lentas e trabalham sobre blocos pequenos. Assinar o resumo — que tem tamanho fixo — mantém o custo constante independentemente do arquivo, e a garantia continua valendo porque alterar o documento muda o resumo. Resumo não é secreto e não reconstrói nada; é apenas uma representação compacta e única o bastante.",
+      "por_que_erradas": {
+        "1": "Resumos não são secretos; são calculáveis por qualquer um.",
+        "2": "Compressão não é requisito de assinatura.",
+        "3": "Resumo descarta informação e não permite recuperar o original."
+      },
+      "fonte": "Crypto 101, cap. 12.2; teoria 2.1.t1",
+      "tags": ["cripto", "assinatura", "hash", "desempenho"]
+    },
+    {
+      "id": "2.2.q6",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Ligue cada objetivo à operação e à chave correspondente.",
+      "pares": [
+        ["Enviar algo que só o destinatário leia", "Cifrar com a chave pública do destinatário"],
+        ["Provar que a mensagem é sua", "Assinar com a sua chave privada"],
+        ["Verificar a assinatura de alguém", "Usar a chave pública de quem assinou"],
+        ["Ler o que enviaram para você", "Decifrar com a sua chave privada"]
+      ],
+      "dicas": [
+        "Duas operações usam a chave privada; duas usam a pública.",
+        "Cifrar e verificar usam a pública de alguém.",
+        "Decifrar e assinar exigem a privada do próprio."
+      ],
+      "pergunta_socratica": "Antes de conferir: para cada linha, pergunte quem precisa conseguir fazer aquilo — só uma pessoa, ou todo mundo?",
+      "explicacao": "A regra que organiza os quatro casos: o que só uma pessoa pode fazer usa a chave privada dela (decifrar e assinar); o que todo mundo pode fazer usa a chave pública (cifrar para alguém e verificar assinatura). Errar o par é o defeito de projeto mais comum em quem começa com criptografia assimétrica.",
+      "fonte": "Crypto 101, cap. 9 e 12",
+      "tags": ["cripto", "assimetrica", "pareamento", "chaves"]
+    },
+    {
+      "id": "2.2.q7",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Qual é o tamanho mínimo de chave RSA considerado aceitável hoje?",
+      "alternativas": [
+        "2048 bits",
+        "256 bits",
+        "512 bits",
+        "128 bits"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Chaves RSA são muito maiores que chaves simétricas para segurança equivalente.",
+        "256 bits é um tamanho típico de curva elíptica, não de RSA.",
+        "128 bits é tamanho de chave simétrica."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que uma chave RSA precisa de tantos bits a mais que uma chave AES?",
+      "explicacao": "RSA se apoia na dificuldade de fatorar números grandes, e por isso exige chaves muito maiores que as simétricas para segurança comparável: 2048 bits é o piso atual, com 3072 e 4096 usados para margem maior. Os outros valores são de outras famílias — 256 bits é tamanho de curva elíptica ou de chave AES, e 512 bits de RSA é quebrável.",
+      "por_que_erradas": {
+        "1": "256 bits é tamanho típico de curva elíptica; em RSA seria trivial de quebrar.",
+        "2": "512 bits de RSA já foi fatorado há muitos anos.",
+        "3": "128 bits é tamanho de chave simétrica, não de RSA."
+      },
+      "fonte": "Crypto 101, cap. 9.3; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "rsa", "tamanho-de-chave", "assimetrica"]
+    },
+    {
+      "id": "2.2.q8",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Por que uma chave de curva elíptica de 256 bits é considerada forte, enquanto uma chave RSA de 256 bits seria trivial de quebrar?",
+      "alternativas": [
+        "Porque os dois esquemas se apoiam em problemas matemáticos diferentes; o número de bits só é comparável dentro da mesma família",
+        "Porque curvas elípticas usam cada bit duas vezes, dobrando a força efetiva",
+        "Porque RSA é um algoritmo obsoleto e qualquer tamanho de chave é inseguro",
+        "Porque chaves de curva elíptica são secretas e as de RSA são públicas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um esquema depende de fatoração; o outro, de logaritmo discreto em curva.",
+        "Comparar bits entre famílias diferentes faz sentido?",
+        "RSA com 2048 bits continua em uso legítimo."
+      ],
+      "pergunta_socratica": "Antes de conferir: bits de que, exatamente, em cada um dos dois casos?",
+      "explicacao": "Os bits medem coisas diferentes: em RSA, o tamanho do módulo que precisa ser fatorado; em curva elíptica, o tamanho do grupo em que o logaritmo discreto precisa ser resolvido. Como os melhores ataques conhecidos têm custos muito diferentes, 256 bits de curva oferecem segurança comparável a milhares de bits de RSA. Comparar números entre famílias sem essa mediação leva a conclusões erradas nos dois sentidos.",
+      "por_que_erradas": {
+        "1": "Não há uso duplo de bits; a diferença é o problema matemático subjacente.",
+        "2": "RSA com tamanho adequado continua sendo usado legitimamente.",
+        "3": "Nos dois esquemas há chave pública e privada."
+      },
+      "fonte": "Crypto 101, cap. 9.3 e 9.4",
+      "tags": ["cripto", "curvas-elipticas", "rsa", "tamanho-de-chave"]
+    },
+    {
+      "id": "2.2.q9",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Qual é a vantagem prática das curvas elípticas sobre o RSA?",
+      "alternativas": [
+        "Segurança equivalente com chaves e assinaturas muito menores, o que reduz tráfego e processamento",
+        "Dispensam a necessidade de chave privada",
+        "Permitem cifrar volumes grandes de dados diretamente",
+        "Eliminam a necessidade de certificados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare 256 bits com 3072 bits para segurança semelhante.",
+        "O que chaves menores significam em uma conexão TLS?",
+        "As duas famílias continuam precisando de par de chaves e de certificados."
+      ],
+      "pergunta_socratica": "Antes de conferir: em um celular estabelecendo centenas de conexões, o que chaves menores economizam?",
+      "explicacao": "Chaves e assinaturas menores significam menos bytes no handshake e menos processamento por conexão — o que importa em escala e em dispositivos limitados. Tudo o mais permanece: há par de chaves, a privada continua sendo o segredo, certificados continuam necessários e o volume de dados continua viajando sob cifra simétrica.",
+      "por_que_erradas": {
+        "1": "A chave privada continua sendo o elemento central e secreto.",
+        "2": "Cifra de volume continua sendo trabalho da criptografia simétrica.",
+        "3": "Certificados continuam necessários para ligar chave a identidade."
+      },
+      "fonte": "Crypto 101, cap. 9.4; teoria 1.5.t6",
+      "tags": ["cripto", "curvas-elipticas", "desempenho", "tls"]
+    },
+    {
+      "id": "2.2.q10",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "O que um certificado digital estabelece?",
+      "alternativas": [
+        "Uma ligação, assinada por uma autoridade, entre uma chave pública e um nome",
+        "Que o detentor da chave é uma empresa idônea e auditada",
+        "Que a conexão com aquele servidor é obrigatoriamente cifrada",
+        "Que a chave privada correspondente nunca foi comprometida"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual pergunta a assinatura sozinha não responde?",
+        "O certificado amarra a chave a quê?",
+        "Idoneidade e comprometimento são outras questões."
+      ],
+      "pergunta_socratica": "Antes de conferir: você tem uma chave pública na mão. Como sabe de quem ela é?",
+      "explicacao": "Assinatura prova que quem assinou detinha a chave privada; ela não diz de quem é a chave. O certificado preenche essa lacuna, amarrando chave a nome com a assinatura de uma autoridade. Ele não atesta idoneidade, não garante que a conexão será cifrada e não sabe se a chave privada vazou — para isso existe revogação, que funciona de forma imperfeita.",
+      "por_que_erradas": {
+        "1": "Certificado de validação de domínio não avalia a organização.",
+        "2": "O certificado viabiliza a cifra, mas não a impõe.",
+        "3": "Comprometimento de chave é tratado por revogação, não pelo certificado em si."
+      },
+      "fonte": "Crypto 101, cap. 15.3; teoria 1.5.t5",
+      "tags": ["cripto", "certificados", "pki", "identidade"]
+    },
+    {
+      "id": "2.2.q11",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Coloque em ordem as etapas que um cliente executa ao validar a cadeia de certificados de um site.",
+      "itens": [
+        "Recebe do servidor o certificado do site e os intermediários que ele enviar",
+        "Confere se o nome do certificado corresponde ao domínio acessado e se o prazo de validade está vigente",
+        "Verifica a assinatura de cada certificado usando a chave pública do certificado acima na cadeia",
+        "Confirma que o topo da cadeia é uma raiz presente no repositório de confiança do sistema",
+        "Consulta o estado de revogação do certificado, quando essa verificação está disponível"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "Não dá para validar o que ainda não foi recebido.",
+        "Verificações baratas e locais vêm antes das que dependem da cadeia inteira.",
+        "A consulta de revogação depende de rede e é a última."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual verificação você faria primeiro se quisesse recusar rápido um certificado obviamente errado?",
+      "explicacao": "A ordem vai do barato ao caro: receber, conferir nome e validade — que descartam a maioria dos casos sem custo —, percorrer as assinaturas até a raiz, confirmar que a raiz é confiável e, por fim, consultar revogação, que depende de rede e frequentemente falha em silêncio. Cadeia incompleta trava no terceiro passo, e é a causa clássica de \"funciona no meu navegador e não no servidor\".",
+      "fonte": "Crypto 101, cap. 15.3; RFC 5280 (perfil de certificados X.509)",
+      "tags": ["cripto", "certificados", "pki", "validacao", "ciclo"]
+    },
+    {
+      "id": "2.2.q12",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Qual é a consequência incômoda do modelo de autoridades certificadoras usado na web?",
+      "alternativas": [
+        "Qualquer autoridade em que o sistema confia pode emitir certificado para qualquer domínio, então a segurança do conjunto é a da autoridade mais fraca",
+        "Cada domínio só pode ter um certificado válido por vez em todo o mundo",
+        "As autoridades têm acesso à chave privada dos sites que certificam",
+        "Certificados só podem ser emitidos por autoridades do mesmo país do domínio"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantas raízes o seu sistema confia por padrão?",
+        "O que impede uma delas de emitir certificado para um domínio que não é cliente dela?",
+        "Autoridades assinam a chave pública; elas veem a privada?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se uma das dezenas de raízes instaladas for comprometida, o que o atacante consegue?",
+      "explicacao": "O sistema confia em dezenas de raízes, e tecnicamente qualquer uma pode emitir certificado para qualquer nome — o comprometimento de uma única autoridade permite personificar qualquer site. É por isso que existem mecanismos de mitigação como registro público de emissões e fixação de certificado. As autoridades não têm a chave privada dos sites, não há exclusividade mundial por domínio e não há restrição por país.",
+      "por_que_erradas": {
+        "1": "Um mesmo domínio pode ter vários certificados válidos simultaneamente.",
+        "2": "A autoridade assina a chave pública; a privada nunca sai do dono.",
+        "3": "Não há vínculo entre a jurisdição da autoridade e a do domínio."
+      },
+      "fonte": "Crypto 101, cap. 15.3 e 15.9; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "pki", "certificados", "modelo-de-confianca"]
+    },
+    {
+      "id": "2.2.q13",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "artefato": "Erro ao acessar https://api.parceiro.com.br\n\nDetalhes do certificado apresentado:\n  Emitido para . . : api.parceiro.com\n  Emitido por  . . : Autoridade Confiável Global R3\n  Válido de  . . . : 02/01/2026\n  Válido até . . . : 01/04/2026\n  Data de hoje . . : 15/03/2026\n  Cadeia . . . . . : completa até raiz confiável",
+      "enunciado": "Qual é a causa do erro?",
+      "alternativas": [
+        "O nome não confere: o certificado foi emitido para api.parceiro.com e o acesso é a api.parceiro.com.br",
+        "O certificado está expirado, pois hoje é 15/03/2026",
+        "A cadeia está incompleta e falta o certificado intermediário",
+        "A autoridade emissora não é reconhecida pelo sistema"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare caractere por caractere o domínio acessado e o campo \"Emitido para\".",
+        "Confira a data de hoje contra o intervalo de validade.",
+        "A última linha responde duas das alternativas."
+      ],
+      "pergunta_socratica": "Antes de conferir: leia o domínio da URL e o do certificado em voz alta. São o mesmo?",
+      "explicacao": "O certificado é válido, está no prazo e a cadeia chega a uma raiz confiável — a própria saída diz isso. O problema é o nome: foi emitido para o domínio sem o sufixo .br, e o acesso é ao domínio com ele. São nomes diferentes, e a validação de nome existe justamente para impedir que um certificado legítimo de um domínio sirva para outro. A correção é emitir o certificado para o nome correto, ou incluir os dois.",
+      "por_que_erradas": {
+        "1": "15/03/2026 está dentro do intervalo de 02/01 a 01/04.",
+        "2": "A saída informa que a cadeia está completa até uma raiz confiável.",
+        "3": "A cadeia chega a uma raiz confiável, conforme a última linha."
+      },
+      "fonte": "RFC 5280; Crypto 101, cap. 15.3",
+      "tags": ["cripto", "certificados", "artefato", "diagnostico", "pki"]
+    },
+    {
+      "id": "2.2.q14",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Ligue cada falha de certificado à sua causa mais provável.",
+      "pares": [
+        ["Certificado expirado", "Renovação esquecida pela equipe que opera o serviço"],
+        ["Nome não confere", "Certificado emitido para outro domínio ou subdomínio"],
+        ["Cadeia incompleta", "O servidor não envia o certificado intermediário"],
+        ["Autoridade desconhecida", "Certificado autoassinado ou emitido por autoridade interna não instalada"]
+      ],
+      "dicas": [
+        "Uma das causas é puramente operacional e não tem nada de ataque.",
+        "Outra costuma funcionar em um navegador e falhar em outro cliente.",
+        "Uma delas aparece em ambiente corporativo com autoridade própria."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro falhas poderia, em vez de erro, ser sinal de interceptação?",
+      "explicacao": "As quatro têm causas distintas e a maioria é operacional — expiração e cadeia incompleta são erro de configuração, e nome divergente costuma ser certificado emitido para o domínio errado. A quarta é a que merece atenção: autoridade desconhecida aparece tanto em autoridade interna legítima quanto em interceptação. Tratar todas como falso positivo é o hábito que apaga o único aviso útil.",
+      "fonte": "Crypto 101, cap. 15.3 e 15.7; teoria 1.5.t5",
+      "tags": ["cripto", "certificados", "pareamento", "diagnostico"]
+    },
+    {
+      "id": "2.2.q15",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3, 1],
+      "enunciado": "Uma empresa instala a própria autoridade certificadora em todas as máquinas para inspecionar o tráfego cifrado dos funcionários. Qual é a avaliação técnica?",
+      "alternativas": [
+        "Funciona porque as máquinas passam a confiar em certificados emitidos por essa autoridade; em troca, a chave dela permite personificar qualquer site e precisa de proteção máxima",
+        "Não funciona: TLS impede qualquer forma de inspeção do tráfego",
+        "Funciona e não cria risco novo, já que a autoridade é interna e controlada",
+        "Funciona apenas para sites que aceitarem explicitamente a autoridade da empresa"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que a máquina faz quando recebe um certificado assinado por uma autoridade em que confia?",
+        "Quem detém a chave dessa autoridade consegue emitir certificado para qual domínio?",
+        "Sites externos são consultados nessa decisão?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se a chave dessa autoridade vazar, o que o atacante consegue fazer com as máquinas da empresa?",
+      "explicacao": "A inspeção funciona porque a máquina confia na autoridade interna e aceita, sem reclamar, um certificado emitido por ela para qualquer domínio — inclusive de bancos e serviços pessoais. O site externo não participa da decisão. O risco criado é proporcional: quem obtiver aquela chave privada personifica qualquer site diante de todo o parque. Além do técnico, há a dimensão legal e de transparência com os funcionários.",
+      "por_que_erradas": {
+        "1": "A inspeção é tecnicamente possível justamente por meio da autoridade instalada.",
+        "2": "O risco é real e grande: a chave da autoridade vira chave-mestra da confiança.",
+        "3": "Sites externos não têm participação nessa decisão."
+      },
+      "fonte": "Crypto 101, cap. 15.3; Security Engineering, 3ª ed., cap. 5; LGPD, art. 6º",
+      "tags": ["cripto", "pki", "interceptacao", "privacidade", "risco"]
+    },
+    {
+      "id": "2.2.q16",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 2],
+      "enunciado": "Por que o TLS usa criptografia assimétrica e simétrica na mesma conexão?",
+      "alternativas": [
+        "A assimétrica autentica o servidor e estabelece a chave de sessão; a simétrica cifra o volume de dados, porque é muito mais rápida",
+        "A assimétrica cifra o cabeçalho e a simétrica cifra o corpo da mensagem",
+        "A simétrica é usada em conexões locais e a assimétrica em conexões pela internet",
+        "As duas cifram o mesmo dado em sequência, dobrando a proteção"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual das duas é lenta demais para o conteúdo inteiro?",
+        "Qual problema só a assimétrica resolve?",
+        "Não há cifra dupla do mesmo conteúdo."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que não usar só uma das duas?",
+      "explicacao": "Cada uma resolve o que a outra não resolve. A assimétrica autentica o servidor pelo certificado e permite estabelecer uma chave de sessão sem combinado prévio; a simétrica autenticada cifra o tráfego com desempenho viável. É o desenho híbrido do TLS, e a razão de o handshake ser a parte cara e curta da conexão.",
+      "por_que_erradas": {
+        "1": "A divisão não é entre cabeçalho e corpo.",
+        "2": "As duas são usadas na mesma conexão, independentemente da distância.",
+        "3": "Não há cifra dupla do mesmo conteúdo."
+      },
+      "fonte": "Crypto 101, cap. 15.2; teoria 1.5.t6",
+      "tags": ["cripto", "tls", "hibrido", "assimetrica", "simetrica"]
+    },
+    {
+      "id": "2.2.q17",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1, 0],
+      "trecho": "PROPOSTA — troca de arquivos entre parceiros\n\"Cada parceiro gera um par de chaves. Para enviar um arquivo confidencial, o\nremetente cifra o arquivo com a própria chave privada. O destinatário decifra\ncom a chave pública do remetente, o que garante ao mesmo tempo o sigilo e a\nautoria do arquivo.\"",
+      "enunciado": "Qual é o erro desta proposta?",
+      "alternativas": [
+        "Cifrar com a própria chave privada não dá sigilo nenhum: a chave pública é conhecida por todos, então qualquer um decifra",
+        "O erro é gerar um par de chaves por parceiro; deveria haver um par único compartilhado",
+        "O erro é usar criptografia assimétrica para arquivos, que só funciona com texto",
+        "Não há erro: a proposta descreve corretamente o funcionamento da assinatura digital"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem tem a chave pública do remetente?",
+        "Se todos conseguem decifrar, existe sigilo?",
+        "A proposta descreve a mecânica de qual operação?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a chave pública do remetente é pública. Quem consegue desfazer essa cifra?",
+      "explicacao": "A operação descrita é a mecânica da assinatura, não da cifra: como a chave pública é distribuída livremente, qualquer pessoa decifra o arquivo. Há indício de autoria e zero sigilo. Para sigilo, o remetente cifra com a chave pública do destinatário; para ter as duas propriedades, faz as duas operações — assina com a própria privada e cifra com a pública do destinatário.",
+      "por_que_erradas": {
+        "1": "Par por parceiro é o correto; par compartilhado destruiria a autoria.",
+        "2": "Criptografia assimétrica opera sobre bytes, não apenas texto.",
+        "3": "A proposta afirma sigilo, que é exatamente o que ela não entrega."
+      },
+      "fonte": "Crypto 101, cap. 9 e 12; teoria 2.2.t2",
+      "tags": ["cripto", "caca-erro", "assimetrica", "assinatura", "sigilo"]
+    },
+    {
+      "id": "2.2.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1, 3],
+      "enunciado": "O que a assinatura digital NÃO prova?",
+      "alternativas": [
+        "Que a chave privada usada pertence à pessoa ou organização que você imagina",
+        "Que o documento não foi alterado depois de assinado",
+        "Que quem assinou detinha a chave privada correspondente",
+        "Que a verificação pode ser feita por qualquer um com a chave pública"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A assinatura amarra documento e chave. Ela amarra chave e pessoa?",
+        "Qual mecanismo resolve a ligação entre chave e identidade?",
+        "Três das afirmações são exatamente o que a assinatura entrega."
+      ],
+      "pergunta_socratica": "Antes de conferir: você verificou a assinatura com sucesso. Como sabe de quem é aquela chave pública?",
+      "explicacao": "A assinatura prova integridade e posse da chave privada, e permite verificação pública. O que ela não faz é ligar a chave a uma identidade do mundo real — essa é a função do certificado e da infraestrutura de chaves públicas. Sem esse elo, uma assinatura válida pode ter sido produzida por qualquer um que tenha gerado um par de chaves.",
+      "por_que_erradas": {
+        "1": "Integridade é justamente uma das garantias da assinatura.",
+        "2": "Posse da chave privada é o que a verificação demonstra.",
+        "3": "Verificação pública é característica do esquema."
+      },
+      "fonte": "Crypto 101, cap. 12 e 15.3",
+      "tags": ["cripto", "assinatura", "pki", "limites"]
+    },
+    {
+      "id": "2.2.q19",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Por que os certificados de servidores web passaram a ter validade cada vez mais curta?",
+      "alternativas": [
+        "Porque a revogação funciona de forma imperfeita: validade curta limita a janela em que um certificado comprometido continua sendo aceito",
+        "Porque certificados longos ocupam mais espaço no handshake",
+        "Porque as autoridades certificadoras cobram por período de validade",
+        "Porque navegadores não conseguem processar datas distantes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que deveria acontecer quando uma chave privada vaza?",
+        "Esse mecanismo funciona de forma confiável na prática?",
+        "Validade curta é uma compensação para qual falha?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se a revogação falhar, por quanto tempo um certificado comprometido continua sendo aceito?",
+      "explicacao": "Revogação é o mecanismo previsto para chave comprometida, mas depende de consultas que falham em silêncio, são bloqueadas ou nem são feitas. Validade curta é a compensação: mesmo que a revogação não chegue ao cliente, o certificado expira sozinho em pouco tempo. O efeito colateral é operacional — renovação precisa ser automatizada, sob pena de expiração virar incidente recorrente.",
+      "por_que_erradas": {
+        "1": "O tamanho do certificado não depende do período de validade.",
+        "2": "Modelo de cobrança não explica a tendência técnica.",
+        "3": "Navegadores processam datas distantes sem dificuldade."
+      },
+      "fonte": "Crypto 101, cap. 15.3; RFC 5280",
+      "tags": ["cripto", "certificados", "revogacao", "pki", "operacao"]
+    },
+    {
+      "id": "2.2.q20",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um serviço funciona no navegador, mas falha com erro de certificado quando acessado por um script. Qual é a causa mais provável?",
+      "alternativas": [
+        "Cadeia incompleta: o servidor não envia o intermediário, e o navegador compensa buscando por conta própria enquanto o script não",
+        "O certificado está expirado, e o navegador ignora prazos",
+        "O script está usando HTTP em vez de HTTPS",
+        "O certificado foi emitido para outro domínio, e o navegador não valida nomes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Navegadores têm mecanismos extras que clientes simples não têm.",
+        "Se o problema fosse prazo ou nome, o navegador também reclamaria.",
+        "O que pode faltar entre o certificado do site e a raiz?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que o navegador faz de diferente de uma biblioteca simples ao montar a cadeia?",
+      "explicacao": "Navegadores costumam completar a cadeia sozinhos, buscando o intermediário ausente ou usando um que já têm em cache. Clientes simples não fazem isso e falham. Prazo vencido e nome divergente seriam recusados pelo navegador também, então não explicam a diferença de comportamento — que é justamente a pista.",
+      "por_que_erradas": {
+        "1": "Navegadores não ignoram prazo de validade.",
+        "2": "Uso de HTTP não produziria erro de certificado.",
+        "3": "Navegadores validam nome rigorosamente."
+      },
+      "fonte": "Crypto 101, cap. 15.3; RFC 5280",
+      "tags": ["cripto", "certificados", "diagnostico", "pki", "cadeia"]
+    },
+    {
+      "id": "2.2.q21",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "O que acontece se a chave privada de um servidor vazar?",
+      "alternativas": [
+        "Um atacante pode personificar o servidor e, dependendo do esquema usado, decifrar tráfego gravado anteriormente",
+        "Nada, desde que o certificado continue válido",
+        "O certificado se torna automaticamente inválido em todos os clientes",
+        "Apenas conexões futuras ficam em risco, nunca as passadas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A chave privada é o que prova a identidade do servidor.",
+        "Relembre o que sigilo futuro protege — e o que acontece sem ele.",
+        "A invalidação é automática ou depende de alguém agir?"
+      ],
+      "pergunta_socratica": "Antes de conferir: com a chave privada em mãos, o que impede o atacante de se passar pelo servidor?",
+      "explicacao": "Quem tem a chave privada pode se apresentar como o servidor. E se o esquema de troca de chaves não oferecer sigilo futuro — o caso da antiga troca por RSA — o tráfego gravado no passado também pode ser decifrado. Nada é invalidado automaticamente: é preciso revogar o certificado e emitir outro, e a revogação leva tempo e nem sempre alcança os clientes.",
+      "por_que_erradas": {
+        "1": "O certificado continuar válido é justamente o problema.",
+        "2": "A invalidação exige revogação explícita, que não é instantânea.",
+        "3": "Sem sigilo futuro, o tráfego passado gravado também fica exposto."
+      },
+      "fonte": "Crypto 101, cap. 15.6; RFC 8446",
+      "tags": ["cripto", "chaves", "revogacao", "sigilo-futuro", "incidente"]
+    },
+    {
+      "id": "2.2.q22",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0, 2],
+      "enunciado": "Por que a criptografia assimétrica não é usada para cifrar arquivos grandes diretamente?",
+      "alternativas": [
+        "Porque é lenta e opera sobre blocos limitados pelo tamanho da chave; o padrão é cifrar o arquivo com chave simétrica e proteger essa chave com a assimétrica",
+        "Porque a chave pública não consegue processar dados binários",
+        "Porque o resultado ficaria menor que o original, causando perda de dados",
+        "Porque arquivos grandes exigem assinatura em vez de cifra"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual é o tamanho máximo que uma operação RSA processa de uma vez?",
+        "Como o padrão de envelope resolve isso?",
+        "Compare a velocidade das duas famílias."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas operações RSA seriam necessárias para um arquivo de 1 GB?",
+      "explicacao": "A operação assimétrica processa um bloco pequeno, limitado pelo tamanho da chave, e é lenta. A solução padrão é o envelope digital: gera-se uma chave simétrica aleatória, cifra-se o arquivo com ela em modo autenticado, e cifra-se apenas essa chave com a pública do destinatário. É o mesmo raciocínio do TLS, aplicado a arquivos.",
+      "por_que_erradas": {
+        "1": "A operação trabalha sobre bytes, sem restrição de tipo de conteúdo.",
+        "2": "Cifra não reduz o dado nem causa perda.",
+        "3": "Assinatura e cifra resolvem problemas diferentes; tamanho não decide entre elas."
+      },
+      "fonte": "Crypto 101, cap. 9.2; teoria 2.1.t2",
+      "tags": ["cripto", "assimetrica", "envelope", "desempenho"]
+    },
+    {
+      "id": "2.2.q23",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma organização quer reduzir o risco de um certificado fraudulento ser emitido para o seu domínio. Qual medida ajuda?",
+      "alternativas": [
+        "Monitorar os registros públicos de emissão de certificados e alertar quando surgir um certificado para o domínio que a organização não pediu",
+        "Aumentar o tamanho da chave privada do servidor para 8192 bits",
+        "Trocar o certificado do servidor a cada semana",
+        "Usar apenas certificados autoassinados, evitando autoridades externas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A emissão fraudulenta acontece em outra autoridade, sem passar por você.",
+        "O que permite descobrir que ela aconteceu?",
+        "Tamanho de chave protege contra ataque criptográfico, não contra emissão indevida."
+      ],
+      "pergunta_socratica": "Antes de conferir: se outra autoridade emitir um certificado para o seu domínio, como você ficaria sabendo?",
+      "explicacao": "Emissão fraudulenta ocorre em uma autoridade que você não controla, então a defesa é detecção: os registros públicos de emissão permitem observar todo certificado emitido para o seu domínio e reagir ao que não foi solicitado. Chave maior não impede emissão indevida, troca semanal não muda nada nesse cenário, e autoassinado inviabiliza o acesso público sem resolver o problema.",
+      "por_que_erradas": {
+        "1": "Tamanho de chave não impede que outra autoridade emita certificado para o seu nome.",
+        "2": "Trocar com frequência não impede emissão por terceiros.",
+        "3": "Autoassinado gera aviso em todos os clientes e não resolve o risco."
+      },
+      "fonte": "Crypto 101, cap. 15.9; práticas de transparência de certificados",
+      "tags": ["cripto", "pki", "deteccao", "certificados", "monitoramento"]
+    },
+    {
+      "id": "2.2.q24",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual é a diferença entre assinatura digital e HMAC?",
+      "alternativas": [
+        "A assinatura usa par de chaves e permite verificação por qualquer um; o HMAC usa segredo compartilhado, então quem verifica também poderia forjar",
+        "A assinatura é reversível e o HMAC não é",
+        "O HMAC protege sigilo e a assinatura protege integridade",
+        "A assinatura funciona apenas em documentos e o HMAC apenas em mensagens de rede"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantas partes conhecem o segredo em cada caso?",
+        "Quem consegue produzir o valor em cada esquema?",
+        "Nenhum dos dois protege sigilo."
+      ],
+      "pergunta_socratica": "Antes de conferir: em uma disputa, o HMAC prova que foi você quem enviou?",
+      "explicacao": "As duas garantem integridade e origem, mas com alcances diferentes. HMAC depende de um segredo compartilhado: quem verifica também consegue produzir, então não serve como prova diante de terceiros. A assinatura usa a chave privada de quem assina, que ninguém mais tem, e por isso sustenta não-repúdio. Nenhuma das duas cifra nada.",
+      "por_que_erradas": {
+        "1": "Nenhum dos dois é reversível; ambos produzem valores de verificação.",
+        "2": "Nenhum dos dois protege sigilo.",
+        "3": "Ambos se aplicam a qualquer sequência de bytes."
+      },
+      "fonte": "Crypto 101, cap. 11 e 12",
+      "tags": ["cripto", "assinatura", "hmac", "nao-repudio"]
+    },
+    {
+      "id": "2.2.q25",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1],
+      "enunciado": "Dois sistemas precisam trocar mensagens com sigilo e prova de autoria. Qual desenho atende aos dois requisitos?",
+      "alternativas": [
+        "Assinar com a chave privada do remetente e cifrar com a chave pública do destinatário, usando cifra híbrida para o conteúdo",
+        "Cifrar com a chave privada do remetente, o que garante as duas coisas de uma vez",
+        "Calcular um resumo SHA-256 da mensagem e enviá-lo junto do texto em claro",
+        "Compartilhar uma senha entre os dois sistemas e usá-la para cifrar e assinar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "São dois requisitos; provavelmente são duas operações.",
+        "Uma das alternativas já foi descartada em questão anterior.",
+        "Resumo sem chave prova autoria?"
+      ],
+      "pergunta_socratica": "Antes de conferir: sigilo e autoria são a mesma propriedade? Uma operação resolve as duas?",
+      "explicacao": "São duas propriedades e, portanto, duas operações: assinar com a privada do remetente dá autoria e integridade; cifrar com a pública do destinatário dá sigilo. O conteúdo em si viaja sob cifra simétrica autenticada, com a chave de sessão protegida pela assimétrica. Cifrar com a própria privada não dá sigilo, resumo sem chave não prova autoria, e senha compartilhada permite que qualquer um dos dois forje mensagens do outro.",
+      "por_que_erradas": {
+        "1": "Cifrar com a própria privada é assinatura: qualquer um decifra com a pública.",
+        "2": "Resumo sem chave é recalculável por qualquer um e não prova autoria.",
+        "3": "Segredo compartilhado impede provar qual das partes produziu a mensagem."
+      },
+      "fonte": "Crypto 101, cap. 9, 11 e 12",
+      "tags": ["cripto", "assinatura", "sigilo", "projeto", "hibrido"]
+    },
+    {
+      "id": "2.2.q26",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "O que é um certificado autoassinado?",
+      "alternativas": [
+        "Um certificado assinado pela própria chave privada que ele apresenta, sem autoridade externa atestando o vínculo",
+        "Um certificado emitido gratuitamente por uma autoridade automatizada",
+        "Um certificado cuja validade nunca expira",
+        "Um certificado que dispensa chave privada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem assina o certificado, nesse caso?",
+        "Que garantia externa existe sobre o vínculo entre chave e nome?",
+        "Gratuito e autoassinado são coisas diferentes."
+      ],
+      "pergunta_socratica": "Antes de conferir: se eu mesmo declaro que aquela chave é minha, que valor essa declaração tem para um estranho?",
+      "explicacao": "No autoassinado, a afirmação e a garantia vêm da mesma fonte: ninguém externo atesta o vínculo entre chave e nome. Ele fornece cifra, e não identidade verificável — por isso o cliente avisa. É legítimo em ambiente controlado, em que a chave é distribuída por outro caminho confiável, e inadequado em serviço público. Certificado gratuito de autoridade automatizada é outra coisa, e é plenamente válido.",
+      "por_que_erradas": {
+        "1": "Certificados gratuitos de autoridades automatizadas são emitidos por terceiros e são válidos.",
+        "2": "Autoassinados também têm prazo de validade.",
+        "3": "Todo certificado corresponde a uma chave privada."
+      },
+      "fonte": "Crypto 101, cap. 15.4",
+      "tags": ["cripto", "certificados", "autoassinado", "pki"]
+    },
+    {
+      "id": "2.2.q27",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "trecho": "PROCEDIMENTO — resolver avisos de certificado\n1. Se o navegador exibir aviso de certificado, clicar em avançar.\n2. Em scripts internos, desabilitar a verificação de certificado para evitar\n   falhas de conexão.\n3. Se um certificado expirar em produção, emitir um autoassinado como solução\n   temporária.\n4. Registrar o chamado e seguir.",
+      "enunciado": "Qual é o problema comum aos itens 1, 2 e 3?",
+      "alternativas": [
+        "Todos removem a única verificação que detectaria interceptação, tratando o sintoma e criando exposição permanente",
+        "Todos aumentam o custo operacional sem necessidade",
+        "Todos exigem privilégio de administrador para serem executados",
+        "Todos são incompatíveis com o TLS 1.3"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que cada item faz com a validação da cadeia?",
+        "Depois de aplicados, o que ainda detectaria um servidor falso?",
+        "\"Temporário\" costuma durar quanto tempo na prática?"
+      ],
+      "pergunta_socratica": "Antes de conferir: com esses três itens em vigor, como alguém perceberia uma interceptação?",
+      "explicacao": "Os três desligam a validação em contextos diferentes — navegador, script e servidor — e o efeito somado é uma organização que não consegue mais distinguir erro de configuração de ataque. Desabilitar verificação em script é especialmente grave porque não deixa nem o aviso visível. O caminho correto é diagnosticar a causa: renovar o que expirou, completar a cadeia, corrigir o nome, instalar a autoridade interna onde ela é legítima.",
+      "por_que_erradas": {
+        "1": "O problema não é custo; é a perda da capacidade de detectar interceptação.",
+        "2": "Nem todos exigem privilégio administrativo.",
+        "3": "São compatíveis com TLS 1.3 do ponto de vista técnico; o problema é de segurança."
+      },
+      "fonte": "Crypto 101, cap. 15.7; teoria 1.5.t5",
+      "tags": ["cripto", "certificados", "caca-erro", "cultura", "interceptacao"]
+    },
+    {
+      "id": "2.2.q28",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Ao gerar um par de chaves para um servidor novo hoje, qual escolha é razoável?",
+      "alternativas": [
+        "Curva elíptica de 256 bits, ou RSA de 2048 bits ou mais quando houver exigência de compatibilidade",
+        "RSA de 512 bits, suficiente para a maioria dos usos",
+        "Curva elíptica de 64 bits, por ser mais rápida",
+        "Chave simétrica de 256 bits, que serve para certificados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Curvas usam chaves pequenas; RSA precisa de chaves grandes.",
+        "Dois dos valores apresentados são pequenos demais.",
+        "Certificado não usa chave simétrica."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas opções sequer pertence à família certa?",
+      "explicacao": "Curva de 256 bits é a escolha moderna, com RSA de 2048 bits ou mais quando a compatibilidade exigir. RSA de 512 bits é quebrável há décadas, curva de 64 bits é pequena demais para qualquer uso sério, e chave simétrica não serve para certificado — que depende de par de chaves.",
+      "por_que_erradas": {
+        "1": "RSA de 512 bits foi fatorado há muitos anos.",
+        "2": "64 bits é insuficiente em qualquer família.",
+        "3": "Certificados usam criptografia assimétrica, não chave simétrica."
+      },
+      "fonte": "Crypto 101, cap. 9.3 e 9.4",
+      "tags": ["cripto", "chaves", "curvas-elipticas", "rsa", "escolha"]
+    },
+    {
+      "id": "2.2.q29",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Uma empresa distribui atualizações de software e quer garantir que ninguém consiga entregar uma versão adulterada aos clientes. Qual mecanismo resolve?",
+      "alternativas": [
+        "Assinar cada pacote com uma chave privada guardada fora do servidor de distribuição, e fazer o cliente verificar com a chave pública embutida no programa",
+        "Publicar o resumo SHA-256 de cada pacote ao lado do arquivo para download",
+        "Cifrar o pacote com AES antes de publicá-lo no site",
+        "Distribuir os pacotes apenas por HTTPS, o que garante a origem"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Se o atacante comprometer o servidor, o que ele consegue substituir?",
+        "Resumo publicado no mesmo site é trocável junto com o arquivo.",
+        "HTTPS protege o caminho; ele protege contra o próprio servidor?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se o servidor de download for comprometido, qual dessas medidas ainda protege o cliente?",
+      "explicacao": "A assinatura com chave mantida fora do servidor é a única que sobrevive ao comprometimento dele: o atacante substitui o arquivo, mas não produz assinatura válida, e o cliente recusa. Resumo publicado no mesmo site é trocado junto. Cifra não prova origem. HTTPS protege o transporte e autentica o servidor — inclusive quando o servidor é quem está entregando o pacote adulterado.",
+      "por_que_erradas": {
+        "1": "Quem controla o site troca arquivo e resumo ao mesmo tempo.",
+        "2": "Cifra protege sigilo, não autenticidade de origem.",
+        "3": "HTTPS não protege contra conteúdo malicioso servido pelo próprio servidor."
+      },
+      "fonte": "Crypto 101, cap. 12; teoria 0.2.t6",
+      "tags": ["cripto", "assinatura", "cadeia-de-fornecimento", "atualizacao"]
+    },
+    {
+      "id": "2.2.q30",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0, 3],
+      "enunciado": "Por que a chave privada de uma autoridade certificadora raiz costuma ficar em equipamento dedicado e fora de rede?",
+      "alternativas": [
+        "Porque com ela é possível emitir certificado válido para qualquer domínio, diante de todos os sistemas que confiam naquela raiz",
+        "Porque chaves de raiz são grandes demais para caber em servidores comuns",
+        "Porque a legislação exige armazenamento físico separado",
+        "Porque raízes precisam ser acessadas todos os dias, e o equipamento dedicado é mais rápido"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual é o alcance de quem detém essa chave?",
+        "Com que frequência uma raiz precisa assinar algo?",
+        "Compare com o intermediário, que trabalha o tempo todo."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantos sistemas no mundo aceitariam um certificado assinado por essa chave?",
+      "explicacao": "A chave raiz é a base de confiança de milhões de sistemas, e quem a obtém personifica qualquer site diante de todos eles. Como ela é usada raramente — apenas para assinar intermediários — a prática é mantê-la em módulo dedicado, offline, com controle físico e múltiplas pessoas para operar. É a aplicação mais extrema do princípio de que o valor da chave define o cuidado com ela.",
+      "por_que_erradas": {
+        "1": "O tamanho da chave é irrelevante para essa decisão.",
+        "2": "A prática é de gestão de risco; não decorre de exigência legal genérica.",
+        "3": "A raiz é usada raramente; é justamente isso que viabiliza mantê-la offline."
+      },
+      "fonte": "Crypto 101, cap. 15.3; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "pki", "gestao-de-chaves", "raiz", "risco"]
+    },
+    {
+      "id": "2.2.q31",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que a chave pública pode ser distribuída sem risco?",
+      "alternativas": [
+        "Porque conhecer a pública não permite derivar a privada nem desfazer o que só a privada desfaz",
+        "Porque ela é cifrada antes de ser distribuída",
+        "Porque ela muda a cada uso, o que impede seu reaproveitamento",
+        "Porque ela só funciona no computador onde foi gerada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A relação entre as duas chaves é de mão única.",
+        "Se a pública revelasse a privada, o esquema todo cairia.",
+        "A pública é estável e reutilizável — é para isso que existe."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual seria o problema se alguém conseguisse calcular a privada a partir da pública?",
+      "explicacao": "O esquema depende de ser computacionalmente inviável derivar a privada a partir da pública. É essa assimetria que permite publicar uma delas sem comprometer a outra — e é exatamente ela que a computação quântica ameaça no longo prazo, motivo da pesquisa em criptografia pós-quântica. A pública não é cifrada, não muda a cada uso e funciona em qualquer máquina.",
+      "por_que_erradas": {
+        "1": "A chave pública circula em claro, dentro de certificados.",
+        "2": "A pública é estável; ela é distribuída justamente para ser reutilizada.",
+        "3": "Não há vínculo com a máquina de origem."
+      },
+      "fonte": "Crypto 101, cap. 9; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "assimetrica", "chaves", "fundamentos"]
+    },
+    {
+      "id": "2.2.q32",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Uma aplicação móvel se comunica com um servidor próprio e a equipe quer impedir que o tráfego seja inspecionado por uma autoridade instalada no aparelho. Qual medida atende?",
+      "alternativas": [
+        "Fixar no aplicativo a chave ou o certificado esperado do servidor, recusando qualquer outro mesmo que assinado por autoridade confiável",
+        "Aumentar o tamanho da chave do servidor para 4096 bits",
+        "Trocar o certificado do servidor com mais frequência",
+        "Usar HTTP em vez de HTTPS para evitar a validação de certificados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O problema é o aplicativo aceitar qualquer autoridade confiável do sistema.",
+        "O que restringiria a aceitação a um certificado específico?",
+        "Uma alternativa piora tudo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o aparelho confia na autoridade do inspetor, o que ainda faria o aplicativo recusar a conexão?",
+      "explicacao": "A inspeção funciona porque o aplicativo aceita qualquer certificado assinado por autoridade confiável do sistema. Fixar a chave ou o certificado esperado quebra essa premissa: qualquer outro é recusado, mesmo válido. O custo é operacional — trocar o certificado exige atualizar o aplicativo, e é por isso que a fixação precisa de plano de renovação. Chave maior e troca frequente não mudam a lógica de aceitação, e HTTP elimina toda proteção.",
+      "por_que_erradas": {
+        "1": "Tamanho de chave não altera quais autoridades são aceitas.",
+        "2": "Trocar com frequência não impede a aceitação de outra autoridade.",
+        "3": "HTTP remove a cifra e piora a situação por completo."
+      },
+      "fonte": "Crypto 101, cap. 15.9; teoria 1.5.t5",
+      "tags": ["cripto", "pinning", "pki", "mobile", "interceptacao"]
+    },
+    {
+      "id": "2.2.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "O que significa não-repúdio em uma assinatura digital?",
+      "alternativas": [
+        "Quem assinou tem dificuldade em negar depois, porque só ele detinha a chave privada usada",
+        "A mensagem não pode ser rejeitada pelo destinatário",
+        "A assinatura não pode ser removida do documento",
+        "O documento não pode ser encaminhado a terceiros"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Repudiar aqui significa negar a autoria.",
+        "O que sustenta essa dificuldade de negar?",
+        "Compare com HMAC, em que os dois lados têm o segredo."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que um HMAC não sustenta essa propriedade?",
+      "explicacao": "Não-repúdio é a dificuldade de negar a autoria, e ela se apoia no fato de que apenas o signatário detinha a chave privada. É o que distingue assinatura de HMAC, em que ambas as partes conhecem o segredo e qualquer uma poderia ter produzido o valor. Na prática, a propriedade depende também de a chave ter sido de fato guardada com exclusividade — o que é uma afirmação sobre processo, não sobre matemática.",
+      "por_que_erradas": {
+        "1": "Não se trata de aceitação da mensagem pelo destinatário.",
+        "2": "A assinatura pode ser separada do documento; o que ela garante é a verificação.",
+        "3": "Encaminhamento não tem relação com a propriedade."
+      },
+      "fonte": "Crypto 101, cap. 12; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "assinatura", "nao-repudio", "vocabulario"]
+    },
+    {
+      "id": "2.2.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "enunciado": "Uma organização mantém sistemas antigos que só suportam RSA e quer planejar a modernização criptográfica. Qual abordagem é sensata?",
+      "alternativas": [
+        "Manter RSA com tamanho adequado onde a compatibilidade exige, adotar curvas elípticas nos serviços novos, e inventariar onde cada esquema é usado",
+        "Substituir tudo por curvas elípticas imediatamente, aceitando que sistemas antigos parem de funcionar",
+        "Manter tudo em RSA de 1024 bits, que é o denominador comum entre os sistemas",
+        "Desabilitar a criptografia nos sistemas antigos e usá-la apenas nos novos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Migração criptográfica é gradual e depende de saber o que existe.",
+        "1024 bits ainda é considerado adequado?",
+        "Duas alternativas propõem quebrar ou expor sistemas em produção."
+      ],
+      "pergunta_socratica": "Antes de conferir: antes de decidir o que migrar, o que você precisa saber?",
+      "explicacao": "A abordagem sensata combina três coisas: inventário — sem saber onde cada esquema é usado, o plano é palpite —, uso de curvas nos serviços novos, e manutenção de RSA com tamanho adequado onde a compatibilidade obriga. Migração relâmpago derruba produção, 1024 bits está abaixo do aceitável hoje, e desligar a criptografia é retrocesso. A capacidade de trocar de algoritmo sem reescrever o sistema é o que se chama de agilidade criptográfica.",
+      "por_que_erradas": {
+        "1": "Quebrar sistemas em produção não é migração; é interrupção.",
+        "2": "RSA de 1024 bits está abaixo do mínimo recomendado.",
+        "3": "Desabilitar a criptografia expõe os dados por completo."
+      },
+      "fonte": "Crypto 101, cap. 9; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "migracao", "rsa", "curvas-elipticas", "inventario"]
+    },
+    {
+      "id": "2.2.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Você revisa o uso de criptografia assimétrica em um sistema. Quais quatro verificações rendem mais?",
+      "alternativas": [
+        "Se cada operação usa a chave correta para o objetivo, se os tamanhos de chave são adequados à família, onde as chaves privadas ficam guardadas, e se a validação de certificado está ativa em todos os clientes",
+        "Se o sistema usa RSA ou curvas elípticas, quantas chaves existem, quem as gerou e há quanto tempo",
+        "Se a documentação descreve o esquema, se há diagramas atualizados e se o time recebeu treinamento",
+        "Quantas operações por segundo o sistema suporta e qual o impacto no tempo de resposta"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Relembre os erros clássicos: chave trocada, tamanho inadequado, chave exposta, validação desligada.",
+        "Uma das opções lista fatos sem consequência direta de segurança.",
+        "Outra mede desempenho."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses quatro pontos, se estiver errado, faz o sistema parecer seguro sem estar?",
+      "explicacao": "As quatro cobrem os defeitos que realmente aparecem: chave trocada entre cifrar e assinar, tamanho inadequado para a família, chave privada guardada onde não devia, e validação de certificado desligada em algum cliente — este último é o que mais engana, porque tudo continua funcionando e a proteção desapareceu. Contagem de chaves, documentação e desempenho são revisões legítimas de outra natureza.",
+      "por_que_erradas": {
+        "1": "São dados de inventário, sem avaliar se o uso está correto.",
+        "2": "Documentação e treinamento importam, mas não revelam falha criptográfica.",
+        "3": "Desempenho não é critério de segurança."
+      },
+      "fonte": "Crypto 101, cap. 9, 12 e 15; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "revisao", "pki", "gestao-de-chaves", "carreira"]
+    }
+  ]
+}

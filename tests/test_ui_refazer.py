@@ -10,15 +10,26 @@ import pytest
 from app import db, engine
 
 
+@pytest.fixture(scope="module")
+def janela():
+    """Uma janela para o módulo inteiro.
+
+    Criar e destruir um root do Tk a cada teste falha de forma intermitente
+    carregando os temas do ttk. Um root só, reaproveitado, some com isso — e
+    cada teste continua isolado porque o banco é trocado a cada função.
+    """
+    from main import App
+    app = App()
+    app.root.withdraw()             # não pisca na frente de quem roda os testes
+    yield app
+    app.root.destroy()
+
+
 @pytest.fixture
-def app(tmp_path, monkeypatch):
+def app(janela, tmp_path, monkeypatch):
     monkeypatch.setattr(db, "CAMINHO", tmp_path / "teste.db")
     db.iniciar()
-    from main import App
-    janela = App()
-    janela.root.withdraw()          # não pisca na frente de quem roda os testes
-    yield janela
-    janela.root.destroy()
+    return janela
 
 
 def procurar(widget, comeco):

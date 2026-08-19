@@ -1,0 +1,1030 @@
+{
+  "id": "2.1",
+  "nivel": 2,
+  "titulo": "Criptografia I — encoding, hashing e cifra",
+  "objetivos": [
+    "Distinguir codificação, resumo criptográfico e cifra, e dizer o que cada um protege",
+    "Explicar o que é cifra simétrica e por que a chave é o único segredo",
+    "Justificar por que o modo de operação importa tanto quanto o algoritmo",
+    "Escolher cifra autenticada como padrão e explicar o que a autenticação acrescenta"
+  ],
+  "pre_requisitos": ["1.6"],
+  "teoria": [
+    {
+      "id": "2.1.t1",
+      "titulo": "Os três verbos que todo mundo confunde",
+      "texto": "Codificar é trocar a representação de um dado para que ele caiba em um canal: Base64 transforma bytes em texto para viajar dentro de um e-mail ou de uma URL. Não tem chave, não tem segredo, e qualquer um desfaz.\n\nResumir com hash é produzir uma impressão digital de tamanho fixo. Também não tem chave, e não dá para voltar ao original — serve para comparar, não para guardar.\n\nCifrar é transformar o dado de modo que só quem tem a chave consiga lê-lo. É o único dos três que protege sigilo, e o segredo mora inteiramente na chave.\n\nO teste que separa os três em um segundo: precisa de chave para desfazer? Se não precisa, não é cifra.",
+      "analogia": "Codificar é traduzir para outro alfabeto. Resumir é registrar a impressão digital. Cifrar é trancar no cofre.",
+      "erro_comum": "Chamar Base64 de criptografia. Codificado em Base64, o dado está tão exposto quanto antes — só que menos legível para humanos.",
+      "fonte": "Crypto 101, cap. 6 e 10; Security Engineering, 3ª ed., cap. 5"
+    },
+    {
+      "id": "2.1.t2",
+      "titulo": "Cifra simétrica: uma chave para os dois lados",
+      "texto": "Na cifra simétrica, a mesma chave cifra e decifra. É rápida e é o que protege praticamente todo dado em volume: disco, banco de dados, conteúdo de conexões.\n\nO padrão atual é o AES, com chave de 128 ou 256 bits. ChaCha20 é a alternativa moderna, especialmente onde não há aceleração de AES em hardware.\n\nO problema que a simetria cria é de distribuição: os dois lados precisam combinar a chave antes, por um canal seguro. Resolver isso é justamente o papel da criptografia assimétrica, tema do módulo seguinte.",
+      "analogia": "A mesma chave abre e fecha o cadeado — o que só funciona se as duas pessoas já tiverem uma cópia.",
+      "erro_comum": "Aumentar o tamanho da chave achando que isso corrige um uso errado. Chave de 256 bits em modo ECB continua vazando a estrutura do dado.",
+      "fonte": "Crypto 101, cap. 6.2 (AES); Security Engineering, 3ª ed., cap. 5"
+    },
+    {
+      "id": "2.1.t3",
+      "titulo": "O modo de operação é metade da resposta",
+      "texto": "Um cifrador de bloco como o AES só sabe embaralhar um bloco de tamanho fixo. O modo de operação é a regra que diz como aplicar isso a uma mensagem inteira — e é ele que decide se o resultado é seguro.\n\nPor isso \"usamos AES\" não é uma resposta. AES-ECB cifra cada bloco de forma independente, então blocos iguais produzem saídas iguais e a estrutura do dado vaza. AES-CBC encadeia os blocos com um vetor de inicialização e não vaza a estrutura, mas sozinho não detecta alteração. AES-GCM cifra e autentica ao mesmo tempo.\n\nA pergunta certa diante de qualquer sistema é sempre a mesma: qual algoritmo, em qual modo.",
+      "analogia": "Saber que o carro tem motor não diz se ele anda. Falta saber a transmissão.",
+      "erro_comum": "Dizer que um sistema \"usa AES\" e considerar a questão respondida. Sem o modo, a afirmação não tem conteúdo de segurança.",
+      "fonte": "Crypto 101, cap. 7.3 e 7.4; Security Engineering, 3ª ed., cap. 5"
+    },
+    {
+      "id": "2.1.t4",
+      "titulo": "Cifra autenticada: o padrão atual",
+      "texto": "Cifrar esconde o conteúdo e não impede que alguém altere o texto cifrado no caminho. Sem verificação de integridade, o receptor decifra lixo modificado e não percebe — e há ataques que exploram exatamente isso.\n\nA resposta moderna é a cifra autenticada, que produz, junto do texto cifrado, uma etiqueta de autenticação. Se um único bit for alterado, a verificação falha e a mensagem é rejeitada antes de qualquer uso.\n\nAs duas escolhas padrão hoje são AES-GCM e ChaCha20-Poly1305. As duas cifram e autenticam em uma única operação, e é assim que se deve começar qualquer projeto novo.",
+      "analogia": "Não basta o envelope lacrado: é preciso um lacre que se rompa de forma visível se alguém abrir.",
+      "erro_comum": "Cifrar sem autenticar e supor que texto cifrado é intocável. Alterar sem entender continua sendo possível, e é explorável.",
+      "fonte": "Crypto 101, cap. 11.7 e 11.9; NIST SP 800-38D (GCM); RFC 8439 (ChaCha20-Poly1305)"
+    },
+    {
+      "id": "2.1.t5",
+      "titulo": "A chave é o segredo — o algoritmo, não",
+      "texto": "O princípio de Kerckhoffs diz que um sistema deve continuar seguro mesmo que tudo sobre ele seja conhecido, exceto a chave. Não é ideologia: algoritmos públicos são analisados por milhares de pessoas durante décadas, e é essa análise que dá confiança neles.\n\nA consequência prática é dura para quem começa: esconder o algoritmo não acrescenta segurança, e inventar o próprio algoritmo tira. Todo esquema caseiro que parece engenhoso já foi tentado e quebrado.\n\nSe a segurança do seu sistema depende de ninguém descobrir como ele funciona, ela vai durar até a primeira pessoa curiosa com um depurador.",
+      "analogia": "A planta da fechadura é pública; o que ninguém pode ter é a sua chave.",
+      "erro_comum": "Confiar em ofuscação. Ela atrasa um curioso e não detém quem tem tempo.",
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 6"
+    },
+    {
+      "id": "2.1.t6",
+      "titulo": "Onde o dado precisa ser protegido",
+      "texto": "Três estados, três respostas diferentes. Em trânsito: TLS protege o caminho entre dois pontos. Em repouso: cifra de disco ou de banco protege o dado gravado. Em uso: enquanto o programa manipula o dado em memória, ele está em claro.\n\nA distinção importa porque as pessoas confundem as garantias. Cifra de disco protege contra o furto da máquina desligada, e não contra quem já está logado nela. TLS protege contra escuta no caminho, e não contra um servidor que grava tudo em texto claro.\n\nA pergunta útil em qualquer projeto é: contra qual adversário esta camada de cifra protege, e a partir de que ponto ela deixa de valer.",
+      "analogia": "Carro-forte protege o dinheiro no trajeto, cofre protege parado, e nenhum dos dois protege quando o caixa está contando as notas no balcão.",
+      "erro_comum": "Marcar \"dados criptografados\" como resolvido sem dizer em qual estado. É a resposta que esconde a pergunta.",
+      "fonte": "Security Engineering, 3ª ed., cap. 5; LGPD, art. 46"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "2.1.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Um sistema guarda senhas em Base64. Qual é o problema?",
+      "alternativas": [
+        "Base64 é reversível por qualquer pessoa, sem chave nenhuma; na prática as senhas estão em texto claro",
+        "Base64 é lento demais para ser usado com senhas",
+        "Base64 só funciona com caracteres ASCII e corromperia senhas com acentos",
+        "Nenhum, desde que a chave usada na codificação seja longa"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Base64 precisa de chave para ser desfeito?",
+        "Pense na diferença entre esconder e proteger.",
+        "Codificação é sobre formato. Cifra é sobre segredo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você recebesse essa string, o que precisaria para ler o conteúdo?",
+      "explicacao": "Base64 é codificação: troca a representação para o dado caber em um canal de texto, e qualquer um desfaz sem chave — verificado em execução, decodificando a string de volta à senha original em uma linha. Não existe chave envolvida, então não há segredo a proteger. Guardar senha em Base64 é guardar senha em texto claro com uma etapa a mais de digitação.",
+      "por_que_erradas": {
+        "1": "Base64 é rápido; velocidade não é o ponto.",
+        "2": "Base64 existe justamente para transportar qualquer sequência de bytes como texto.",
+        "3": "Base64 não tem chave. Não existe \"chave longa\" aqui."
+      },
+      "fonte": "Crypto 101, cap. 6; comportamento verificado em execução",
+      "tags": ["cripto", "encoding", "base64", "fundamentos"]
+    },
+    {
+      "id": "2.1.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Qual pergunta separa, em um segundo, codificação de cifra?",
+      "alternativas": [
+        "Precisa de uma chave para desfazer? Se não precisa, não é cifra",
+        "O resultado tem tamanho fixo? Se tem, é cifra",
+        "O resultado é legível por humanos? Se não é, é cifra",
+        "O algoritmo é público? Se é, não é cifra"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que define cifra é a existência de um segredo.",
+        "Ilegível para humanos é o efeito, e não a propriedade.",
+        "Algoritmos de cifra sérios são todos públicos."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das três operações — codificar, resumir, cifrar — envolve um segredo?",
+      "explicacao": "A chave é o que distingue. Codificação e resumo não têm chave: qualquer um aplica e, no caso da codificação, qualquer um desfaz. Cifra tem chave, e é nela que mora todo o segredo. Tamanho fixo é característica de resumo, ilegibilidade é efeito colateral de várias operações, e algoritmo público é justamente o esperado em criptografia séria.",
+      "por_que_erradas": {
+        "1": "Tamanho fixo caracteriza função de resumo, não cifra.",
+        "2": "Base64 já produz algo pouco legível e não é cifra.",
+        "3": "Pelo princípio de Kerckhoffs, o algoritmo deve ser público e a chave, secreta."
+      },
+      "fonte": "Crypto 101, cap. 6 e 10; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "encoding", "hash", "vocabulario"]
+    },
+    {
+      "id": "2.1.q3",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Ligue cada operação ao que ela entrega.",
+      "pares": [
+        ["Codificação (Base64)", "Muda a representação para o dado caber em um canal; qualquer um desfaz"],
+        ["Resumo criptográfico (SHA-256)", "Impressão digital de tamanho fixo, que não volta ao original"],
+        ["Cifra simétrica (AES-GCM)", "Esconde o conteúdo de quem não tem a chave, e detecta alteração"],
+        ["Assinatura digital", "Prova quem produziu a mensagem e que ela não foi alterada"]
+      ],
+      "dicas": [
+        "Duas das quatro não envolvem chave nenhuma.",
+        "Uma protege sigilo; outra prova autoria.",
+        "Só uma delas é reversível sem segredo."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro operações você usaria para guardar um segredo, e qual usaria para provar que foi você quem escreveu?",
+      "explicacao": "As quatro resolvem problemas diferentes e são trocadas uma pela outra o tempo todo. Codificação é formato. Resumo é comparação. Cifra é sigilo. Assinatura é autoria e integridade. Escolher a errada produz um sistema que parece protegido e não está — Base64 no lugar de cifra é o caso mais comum, e resumo no lugar de assinatura é o segundo.",
+      "fonte": "Crypto 101, cap. 6, 10 e 12; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "pareamento", "fundamentos", "vocabulario"]
+    },
+    {
+      "id": "2.1.q4",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "O que caracteriza uma cifra simétrica?",
+      "alternativas": [
+        "A mesma chave é usada para cifrar e para decifrar",
+        "A chave pública cifra e a chave privada decifra",
+        "Não é necessária chave, apenas o algoritmo",
+        "A cifra só pode ser desfeita pelo mesmo computador que a aplicou"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O nome vem da simetria entre as duas pontas.",
+        "Par de chaves diferentes caracteriza outro tipo.",
+        "Sem chave não há cifra."
+      ],
+      "pergunta_socratica": "Antes de conferir: se as duas pontas usam a mesma chave, qual problema isso cria antes mesmo de começar a conversa?",
+      "explicacao": "Na cifra simétrica a mesma chave faz as duas operações, o que a torna rápida e adequada a grandes volumes. O custo aparece antes: as duas partes precisam combinar a chave por um canal seguro. Resolver essa distribuição é o papel da criptografia assimétrica. Nada disso depende da máquina usada — a chave é a única coisa que importa.",
+      "por_que_erradas": {
+        "1": "Par de chaves distintas descreve a criptografia assimétrica.",
+        "2": "Sem chave não existe cifra, apenas codificação ou ofuscação.",
+        "3": "Qualquer máquina com a chave decifra; não há vínculo com hardware."
+      },
+      "fonte": "Crypto 101, cap. 6; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "simetrica", "chaves", "fundamentos"]
+    },
+    {
+      "id": "2.1.q5",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que dizer que um sistema \"usa AES\" não informa nada sobre a segurança dele?",
+      "alternativas": [
+        "Porque o modo de operação decide se o resultado é seguro: AES-ECB vaza a estrutura do dado, e AES-GCM cifra e autentica",
+        "Porque AES foi quebrado e não deve mais ser usado",
+        "Porque o tamanho da chave não é informado, e só chaves de 512 bits são seguras",
+        "Porque AES só é seguro quando implementado em hardware dedicado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um cifrador de bloco sozinho só sabe tratar um bloco.",
+        "O que decide como a mensagem inteira é tratada?",
+        "Compare dois usos do mesmo algoritmo com resultados opostos."
+      ],
+      "pergunta_socratica": "Antes de conferir: dois sistemas usam AES, um em ECB e outro em GCM. Eles têm a mesma segurança?",
+      "explicacao": "AES é o cifrador de bloco; o modo é a regra que aplica o cifrador à mensagem inteira, e é ele que produz ou destrói a segurança. Em ECB, blocos de conteúdo idêntico geram saídas idênticas e a estrutura do dado vaza. Em GCM, o conteúdo fica protegido e qualquer alteração é detectada. AES não foi quebrado, 512 bits não existe como tamanho de chave AES, e a implementação em software é segura quando bem feita.",
+      "por_que_erradas": {
+        "1": "AES continua sendo o padrão; o que se quebra é o uso errado dele.",
+        "2": "AES usa chaves de 128, 192 ou 256 bits, e 128 já é adequado.",
+        "3": "Aceleração em hardware melhora desempenho, não a segurança do algoritmo."
+      },
+      "fonte": "Crypto 101, cap. 7.3; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "modos", "aes", "fundamentos"]
+    },
+    {
+      "id": "2.1.q6",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que o modo ECB faz de errado?",
+      "alternativas": [
+        "Cifra cada bloco de forma independente, então blocos de conteúdo igual produzem saídas iguais e a estrutura do dado fica visível",
+        "Usa uma chave diferente para cada bloco, o que impossibilita decifrar",
+        "Aplica o algoritmo duas vezes, o que dobra o tempo de processamento",
+        "Não funciona com mensagens maiores que um bloco"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O nome vem de electronic codebook: um livro de códigos.",
+        "O que acontece quando dois trechos do dado são idênticos?",
+        "Pense em uma imagem cifrada em que ainda se enxerga o desenho."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o mesmo bloco de entrada sempre gera o mesmo bloco de saída, o que um observador aprende sobre o dado?",
+      "explicacao": "ECB trata cada bloco isoladamente, como consulta a um livro de códigos: entrada igual, saída igual. O resultado é que padrões do dado original atravessam a cifra — é o motivo da imagem famosa em que o desenho continua reconhecível depois de cifrado. Não há troca de chave por bloco, não há dupla aplicação, e o modo funciona com qualquer tamanho de mensagem: o problema não é falhar, é vazar.",
+      "por_que_erradas": {
+        "1": "A chave é a mesma em todos os blocos; é justamente isso que causa o vazamento.",
+        "2": "ECB é o modo mais simples e não aplica o algoritmo duas vezes.",
+        "3": "ECB processa qualquer quantidade de blocos; o defeito é de sigilo, não de capacidade."
+      },
+      "fonte": "Crypto 101, cap. 7.2 e 7.3",
+      "tags": ["cripto", "modos", "ecb", "vazamento"]
+    },
+    {
+      "id": "2.1.q7",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2, 1],
+      "enunciado": "Uma equipe cifra fotos de documentos com AES-ECB e argumenta que, com chave de 256 bits, o resultado é seguro. Qual é a resposta correta?",
+      "alternativas": [
+        "O tamanho da chave não corrige o modo: em ECB, regiões iguais da imagem produzem blocos cifrados iguais e o desenho continua reconhecível",
+        "Está correto: com 256 bits a chave é inquebrável, então o modo é irrelevante",
+        "O problema é o AES, que não deve ser usado em imagens; o correto seria usar um algoritmo de fluxo",
+        "O problema é que fotos precisam ser comprimidas antes de cifradas, e não o modo escolhido"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A força bruta contra a chave não é o ataque relevante aqui.",
+        "O que o observador aprende sem descobrir a chave?",
+        "Imagens têm grandes áreas de cor uniforme."
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante precisa da chave para enxergar o contorno do documento?",
+      "explicacao": "O ataque não é contra a chave, e por isso o tamanho dela não muda nada. Imagens têm grandes áreas uniformes, que em ECB viram blocos cifrados idênticos e reproduzem o contorno da figura. A correção é o modo: AES-GCM cifra e ainda detecta alteração. Comprimir antes reduz a repetição, mas é remendo — o defeito está no modo, e é lá que se corrige.",
+      "por_que_erradas": {
+        "1": "Chave forte não impede o vazamento estrutural do ECB.",
+        "2": "AES é adequado; o problema é o modo, não o algoritmo.",
+        "3": "Compressão atenua o sintoma sem corrigir a causa."
+      },
+      "fonte": "Crypto 101, cap. 7.2 e 7.3",
+      "tags": ["cripto", "modos", "ecb", "aes", "vazamento"]
+    },
+    {
+      "id": "2.1.q8",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "O que uma cifra autenticada acrescenta em relação a uma cifra comum?",
+      "alternativas": [
+        "Uma etiqueta de autenticação que permite detectar qualquer alteração no texto cifrado antes de usá-lo",
+        "Uma segunda camada de cifra, aplicada com outra chave",
+        "A garantia de que a chave não pode ser descoberta por força bruta",
+        "A compressão do texto cifrado, reduzindo o espaço ocupado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Cifra esconde. O que ela não faz sozinha?",
+        "Pense em alguém que altera bytes do texto cifrado no caminho.",
+        "A palavra autenticada se refere à mensagem, não ao usuário."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um atacante trocar alguns bytes do texto cifrado, quem percebe?",
+      "explicacao": "Cifrar protege o sigilo e não impede modificação: sem verificação, o receptor decifra um conteúdo alterado e segue em frente. A cifra autenticada produz uma etiqueta junto do texto cifrado, e a verificação falha se um único bit mudar — a mensagem é rejeitada antes de qualquer uso. AES-GCM e ChaCha20-Poly1305 fazem as duas coisas em uma operação, e são o padrão para projeto novo.",
+      "por_que_erradas": {
+        "1": "Não se trata de cifrar duas vezes; é uma etiqueta de integridade calculada junto.",
+        "2": "Resistência a força bruta vem do tamanho da chave, não da autenticação.",
+        "3": "Cifra autenticada não comprime nada."
+      },
+      "fonte": "Crypto 101, cap. 11.7; NIST SP 800-38D; RFC 8439",
+      "tags": ["cripto", "aead", "integridade", "gcm"]
+    },
+    {
+      "id": "2.1.q9",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Quais são as escolhas padrão de cifra autenticada para um projeto novo hoje?",
+      "alternativas": [
+        "AES-GCM ou ChaCha20-Poly1305",
+        "AES-ECB ou DES",
+        "RC4 ou 3DES",
+        "MD5 ou SHA-1"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Duas das opções nem são cifras.",
+        "Uma opção lista algoritmos considerados obsoletos.",
+        "Cifra autenticada faz sigilo e integridade na mesma operação."
+      ],
+      "pergunta_socratica": "Antes de conferir: quais dessas opções sequer são cifras?",
+      "explicacao": "AES-GCM e ChaCha20-Poly1305 são as duas escolhas padrão: cifram e autenticam em uma operação, e a segunda costuma ser preferida onde não há aceleração de AES em hardware. ECB é modo inadequado, DES e 3DES estão obsoletos por tamanho de chave e de bloco, RC4 está quebrado, e MD5 e SHA-1 são funções de resumo — não cifram nada.",
+      "por_que_erradas": {
+        "1": "ECB vaza estrutura e DES tem chave curta demais para os padrões atuais.",
+        "2": "RC4 tem falhas conhecidas e 3DES foi descontinuado.",
+        "3": "MD5 e SHA-1 são funções de resumo, não cifras — e ambas estão quebradas para uso em segurança."
+      },
+      "fonte": "NIST SP 800-38D; RFC 8439; Crypto 101, cap. 11.9",
+      "tags": ["cripto", "aead", "gcm", "chacha20", "escolha"]
+    },
+    {
+      "id": "2.1.q10",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [0, 2],
+      "trecho": "DOCUMENTAÇÃO DE SEGURANÇA — API interna\n\"Os dados sensíveis trafegam protegidos: o corpo da requisição é codificado em\nBase64 antes do envio e o token de acesso é armazenado com hash MD5. Os\narquivos em repouso usam criptografia AES.\"",
+      "enunciado": "Quantos problemas distintos há nesta descrição?",
+      "alternativas": [
+        "Três: Base64 não é proteção, MD5 não serve para segurança, e \"AES\" sem o modo não diz se a cifra em repouso é segura",
+        "Um: apenas o uso de MD5, que deveria ser SHA-256",
+        "Dois: Base64 e MD5; a parte de AES está adequada",
+        "Nenhum: a descrição cobre trânsito, tokens e repouso"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia as três afirmações separadamente e teste cada uma.",
+        "Base64 exige chave para ser desfeito?",
+        "\"AES\" sozinho responde a qual pergunta?"
+      ],
+      "pergunta_socratica": "Antes de conferir: das três medidas descritas, qual delas realmente impede alguém de ler o dado?",
+      "explicacao": "São três defeitos independentes. Base64 é codificação e não protege nada — o corpo viaja legível para qualquer um que o decodifique. MD5 está quebrado e, além disso, resumo rápido não é a forma de guardar token. E \"AES\" sem o modo não permite avaliar nada: pode ser GCM, e pode ser ECB. A descrição inteira dá a impressão de cobertura sem afirmar uma única garantia verificável.",
+      "por_que_erradas": {
+        "1": "MD5 é um dos problemas, mas Base64 e o AES sem modo são igualmente graves.",
+        "2": "\"AES\" sem o modo é justamente o terceiro problema.",
+        "3": "Cobrir os três estados não significa protegê-los."
+      },
+      "fonte": "Crypto 101, cap. 6, 7.3 e 10; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "caca-erro", "base64", "md5", "modos"]
+    },
+    {
+      "id": "2.1.q11",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1, 3],
+      "enunciado": "Por que a criptografia simétrica é usada para o volume de dados, mesmo existindo a assimétrica?",
+      "alternativas": [
+        "Porque é muito mais rápida; a assimétrica é usada para estabelecer a chave simétrica e para assinar",
+        "Porque a assimétrica não consegue cifrar dados binários",
+        "Porque a simétrica é a única que garante integridade",
+        "Porque a assimétrica exige hardware dedicado para funcionar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A diferença de desempenho entre as duas é de ordens de grandeza.",
+        "Como o TLS usa cada uma delas?",
+        "Integridade vem do modo ou do MAC, não do tipo de cifra."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que o TLS não cifra a página inteira com a chave pública do servidor?",
+      "explicacao": "A assimétrica é muito mais lenta e, por isso, é usada onde o volume é pequeno e o problema é de confiança: estabelecer uma chave de sessão e assinar. O conteúdo em si viaja sob cifra simétrica autenticada. É exatamente o desenho do TLS. Integridade vem da cifra autenticada ou de um MAC, e nenhuma das duas famílias exige hardware específico.",
+      "por_que_erradas": {
+        "1": "A assimétrica cifra qualquer sequência de bytes, dentro do limite de tamanho da chave.",
+        "2": "Integridade não é propriedade exclusiva da simétrica.",
+        "3": "Ambas funcionam em software comum."
+      },
+      "fonte": "Crypto 101, cap. 8 e 9; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "simetrica", "assimetrica", "desempenho", "tls"]
+    },
+    {
+      "id": "2.1.q12",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "O que diz o princípio de Kerckhoffs?",
+      "alternativas": [
+        "O sistema deve permanecer seguro mesmo que tudo sobre ele seja público, exceto a chave",
+        "A chave deve ser trocada a cada mensagem enviada",
+        "O algoritmo deve ser mantido em segredo para dificultar a análise do atacante",
+        "Toda cifra deve ser aplicada duas vezes com chaves diferentes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O princípio trata do que pode ser público e do que não pode.",
+        "Uma alternativa afirma exatamente o contrário dele.",
+        "Por que algoritmos de cifra sérios são publicados?"
+      ],
+      "pergunta_socratica": "Antes de conferir: como você ganharia confiança em um algoritmo que ninguém pode examinar?",
+      "explicacao": "Só a chave é segredo. Algoritmos públicos são atacados por milhares de especialistas ao longo de décadas, e é essa exposição que produz confiança — a alternativa é apostar que ninguém vai olhar. Manter o algoritmo secreto é segurança por obscuridade, e costuma esconder falhas em vez de evitá-las.",
+      "por_que_erradas": {
+        "1": "Rotação de chave é boa prática em alguns contextos, mas não é o princípio.",
+        "2": "É o oposto do princípio, e a definição de segurança por obscuridade.",
+        "3": "Cifrar duas vezes não é o princípio e nem sempre aumenta a segurança."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 6",
+      "tags": ["cripto", "kerckhoffs", "obscuridade", "fundamentos"]
+    },
+    {
+      "id": "2.1.q13",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Um desenvolvedor propõe criar o próprio algoritmo de cifra, argumentando que ninguém conhecerá o método. Qual é a objeção decisiva?",
+      "alternativas": [
+        "Segurança que depende de o método permanecer desconhecido cai na primeira análise séria; algoritmos públicos resistem porque foram atacados por décadas",
+        "Criar algoritmos próprios é proibido por lei em vários países",
+        "Algoritmos próprios são sempre mais lentos que os padrões de mercado",
+        "Não há objeção: se o algoritmo for suficientemente complexo, ele é seguro"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantas pessoas revisaram o AES? Quantas revisaram o algoritmo dele?",
+        "Complexidade e segurança são a mesma coisa?",
+        "O que acontece quando alguém abre o binário com um depurador?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quanto tempo o método dele permanece desconhecido depois que o programa é distribuído?",
+      "explicacao": "A confiança em criptografia vem de resistência comprovada a ataque, e isso exige exposição pública prolongada. Um algoritmo caseiro nunca passou por isso, e o método deixa de ser desconhecido no momento em que alguém examina o programa. Complexidade não é segurança — costuma ser o contrário, porque esconde erros. Não há impedimento legal; há impedimento prático.",
+      "por_que_erradas": {
+        "1": "Não existe proibição legal genérica de criar algoritmos.",
+        "2": "Desempenho não é a objeção relevante.",
+        "3": "Complexidade dificulta a análise dos defensores tanto quanto a dos atacantes."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 6",
+      "tags": ["cripto", "kerckhoffs", "boas-praticas", "obscuridade"]
+    },
+    {
+      "id": "2.1.q14",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Cifra de disco protege contra qual cenário?",
+      "alternativas": [
+        "Acesso ao conteúdo por quem obtém a máquina desligada, como em furto de notebook",
+        "Acesso indevido por um usuário já autenticado na máquina ligada",
+        "Interceptação do tráfego de rede da máquina",
+        "Execução de código malicioso pelo usuário logado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Com a máquina ligada e destravada, o disco já está decifrado para o sistema.",
+        "Qual dos cenários envolve o dado em repouso?",
+        "Tráfego de rede é outro estado do dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: com a sessão aberta, o sistema precisa da chave de novo para ler um arquivo?",
+      "explicacao": "Cifra de disco protege o dado em repouso: sem a autenticação de inicialização, o conteúdo não é legível, mesmo com o disco removido. Ligada e destravada, a máquina já tem a chave em uso e todo arquivo aparece em claro para quem estiver logado — inclusive para código malicioso executando naquela sessão. Tráfego de rede é protegido por TLS, que é outra camada.",
+      "por_que_erradas": {
+        "1": "Com a sessão aberta, o conteúdo já está acessível ao usuário autenticado.",
+        "2": "Proteção de tráfego é papel do TLS.",
+        "3": "Código executado na sessão do usuário lê o que o usuário lê."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; teoria 2.1.t6",
+      "tags": ["cripto", "repouso", "disco", "escopo"]
+    },
+    {
+      "id": "2.1.q15",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Ligue cada estado do dado à camada que o protege.",
+      "pares": [
+        ["Em trânsito", "TLS entre cliente e servidor"],
+        ["Em repouso", "Cifra de disco ou de banco de dados"],
+        ["Em uso", "Nenhuma cifra comum protege: o dado está em claro na memória do processo"]
+      ],
+      "dicas": [
+        "Três estados, três respostas diferentes.",
+        "Um dos três é o mais desconfortável de admitir.",
+        "Pense em onde o dado precisa estar legível para ser processado."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual desses estados um programa comprometido enxerga o dado sem esforço nenhum?",
+      "explicacao": "Cada estado exige uma resposta própria, e a mais importante é reconhecer o terceiro: enquanto o programa processa o dado, ele está em claro na memória. Por isso comprometer o processo derrota a cifra de disco e a de transporte de uma vez, e por isso \"dados criptografados\" é uma afirmação incompleta até dizer em qual estado.",
+      "fonte": "Security Engineering, 3ª ed., cap. 5; LGPD, art. 46",
+      "tags": ["cripto", "pareamento", "estados", "escopo"]
+    },
+    {
+      "id": "2.1.q16",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "enunciado": "Por que cifrar sem autenticar é considerado inseguro em projeto novo?",
+      "alternativas": [
+        "Porque um atacante pode alterar o texto cifrado, e o receptor processa o resultado como se fosse legítimo",
+        "Porque a cifra sem autenticação consome mais processamento",
+        "Porque o texto cifrado fica maior do que o original",
+        "Porque sem autenticação a chave precisa ser trocada a cada mensagem"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Sigilo e integridade são propriedades diferentes.",
+        "O atacante precisa entender o conteúdo para alterá-lo?",
+        "Pense em um sistema que decifra e age sobre o resultado."
+      ],
+      "pergunta_socratica": "Antes de conferir: alterar bytes de um texto cifrado exige conhecer o conteúdo?",
+      "explicacao": "Alterar texto cifrado não exige entendê-lo, e sem verificação o receptor decifra o resultado adulterado e age sobre ele. Em alguns modos a alteração é até previsível, o que permite mudar o conteúdo de forma controlada. A etiqueta de autenticação rejeita a mensagem antes de qualquer uso, e é por isso que AES-GCM e ChaCha20-Poly1305 são o ponto de partida hoje.",
+      "por_que_erradas": {
+        "1": "Autenticar acrescenta custo, e não o contrário.",
+        "2": "O crescimento do texto cifrado não é o problema de segurança.",
+        "3": "Rotação de chave é outra discussão, e não substitui integridade."
+      },
+      "fonte": "Crypto 101, cap. 11.7; NIST SP 800-38D",
+      "tags": ["cripto", "aead", "integridade", "boas-praticas"]
+    },
+    {
+      "id": "2.1.q17",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Uma auditoria pergunta como o banco de dados de clientes está protegido. Qual resposta é útil?",
+      "alternativas": [
+        "\"Cifrado em repouso com AES-256-GCM, chaves gerenciadas em cofre separado, com rotação anual\"",
+        "\"Usa criptografia forte de nível militar\"",
+        "\"Os dados são codificados antes de gravar no disco\"",
+        "\"Está protegido por senha de administrador do banco\""
+      ],
+      "correta": 0,
+      "dicas": [
+        "A resposta útil diz algoritmo, modo, onde a chave mora e o que é feito com ela.",
+        "\"Nível militar\" informa o quê, exatamente?",
+        "Codificar não é cifrar."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas respostas permite a alguém verificar se a proteção existe mesmo?",
+      "explicacao": "A resposta útil é verificável: nomeia algoritmo e modo, diz onde a chave é guardada e o que se faz com ela ao longo do tempo. \"Nível militar\" é marketing e não corresponde a nenhuma especificação. Codificar não protege. E senha de administrador é controle de acesso, não cifra — protege contra outra coisa, e some diante de acesso direto ao arquivo do banco.",
+      "por_que_erradas": {
+        "1": "\"Nível militar\" não descreve algoritmo, modo nem gestão de chave.",
+        "2": "Codificação não protege sigilo.",
+        "3": "Senha de administrador é controle de acesso, e não cifra em repouso."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; LGPD, art. 46",
+      "tags": ["cripto", "auditoria", "gestao-de-chaves", "comunicacao"]
+    },
+    {
+      "id": "2.1.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Onde mora o segredo em um sistema criptográfico bem projetado?",
+      "alternativas": [
+        "Na chave, e apenas nela",
+        "No algoritmo, que deve ser mantido em sigilo",
+        "No código-fonte do programa, que não deve ser publicado",
+        "Na combinação entre o algoritmo secreto e a chave"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Relembre o princípio de Kerckhoffs.",
+        "Algoritmos padrão são publicados e revisados.",
+        "Código publicado enfraquece a segurança de um sistema bem feito?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se alguém ler todo o seu código, o que ainda protege o dado?",
+      "explicacao": "A chave é o único segredo. Algoritmo e código podem ser inteiramente públicos — em software livre de criptografia eles são, e isso aumenta a confiança em vez de reduzi-la. Um sistema que perde a segurança quando o código é lido não estava protegido; estava escondido.",
+      "por_que_erradas": {
+        "1": "Manter o algoritmo em sigilo é obscuridade, e contraria o princípio de Kerckhoffs.",
+        "2": "Código aberto não enfraquece criptografia bem projetada.",
+        "3": "Depender do sigilo do algoritmo é justamente o que se quer evitar."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "kerckhoffs", "chaves", "fundamentos"]
+    },
+    {
+      "id": "2.1.q19",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [0, 3],
+      "trecho": "import base64\n\ndef proteger(dado: str) -> str:\n    \"\"\"Protege o dado antes de gravar no banco.\"\"\"\n    return base64.b64encode(dado.encode()).decode()\n\ndef recuperar(protegido: str) -> str:\n    return base64.b64decode(protegido).decode()",
+      "enunciado": "Qual é o problema deste código?",
+      "alternativas": [
+        "Não há proteção nenhuma: Base64 é codificação reversível sem chave, e o nome da função afirma uma garantia que o código não entrega",
+        "O código está correto, mas deveria tratar exceções de decodificação",
+        "O problema é usar str em vez de bytes na assinatura das funções",
+        "O problema é que base64 não funciona com textos acentuados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Execute mentalmente as duas funções em sequência. O que é preciso saber para desfazer?",
+        "O nome da função promete o quê?",
+        "Base64 lida com qualquer sequência de bytes."
+      ],
+      "pergunta_socratica": "Antes de conferir: um atacante com acesso ao banco precisa de alguma informação sua para ler esses dados?",
+      "explicacao": "A função se chama proteger e não protege: qualquer um com o valor gravado o decodifica sem nenhum segredo — verificado em execução. O nome é a parte perigosa, porque cria em quem lê o código a crença de que o dado está seguro. Se o objetivo é sigilo, o caminho é cifra autenticada com chave gerenciada fora do código. Tratamento de exceção, tipos e acentos são detalhes irrelevantes diante disso.",
+      "por_que_erradas": {
+        "1": "Tratar exceção é boa prática, mas não altera a ausência de proteção.",
+        "2": "A assinatura em str é aceitável; o problema é semântico.",
+        "3": "Base64 codifica bytes de qualquer conteúdo, inclusive acentuado."
+      },
+      "fonte": "Crypto 101, cap. 6; comportamento verificado em execução",
+      "tags": ["cripto", "base64", "caca-erro", "python", "nomes"]
+    },
+    {
+      "id": "2.1.q20",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Para que serve o vetor de inicialização (IV) em modos como CBC e CTR?",
+      "alternativas": [
+        "Fazer com que a mesma mensagem, cifrada duas vezes com a mesma chave, produza textos cifrados diferentes",
+        "Aumentar o tamanho efetivo da chave usada na cifra",
+        "Servir como senha secundária, guardada junto da chave",
+        "Comprimir a mensagem antes de cifrar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Sem ele, o problema do ECB voltaria em outros modos.",
+        "O IV precisa ser secreto?",
+        "Pense em duas mensagens idênticas cifradas com a mesma chave."
+      ],
+      "pergunta_socratica": "Antes de conferir: se duas mensagens iguais produzissem textos cifrados iguais, o que o observador aprenderia?",
+      "explicacao": "O IV introduz variação: com ele, a mesma mensagem cifrada duas vezes gera saídas diferentes, o que evita o vazamento estrutural típico do ECB. Ele não é secreto — costuma viajar junto do texto cifrado —, mas tem exigências próprias de unicidade e imprevisibilidade conforme o modo. Não tem relação com tamanho de chave nem com compressão.",
+      "por_que_erradas": {
+        "1": "O IV não aumenta a entropia da chave.",
+        "2": "O IV não é secreto; ele é transmitido junto do texto cifrado.",
+        "3": "Compressão é operação independente da cifra."
+      },
+      "fonte": "Crypto 101, cap. 7.4 e 7.14",
+      "tags": ["cripto", "iv", "modos", "cbc", "ctr"]
+    },
+    {
+      "id": "2.1.q21",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Por que a gestão de chaves costuma ser o ponto mais frágil de um sistema criptográfico?",
+      "alternativas": [
+        "Porque o algoritmo é público e testado, enquanto a chave precisa ser gerada, guardada, distribuída, rotacionada e descartada — cada etapa é uma chance de erro",
+        "Porque as chaves precisam ser trocadas a cada uso, o que é operacionalmente inviável",
+        "Porque não existem ferramentas capazes de armazenar chaves com segurança",
+        "Porque chaves longas são difíceis de digitar corretamente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual parte do sistema não foi revisada por milhares de especialistas?",
+        "Conte quantas etapas o ciclo de vida de uma chave tem.",
+        "Onde a maior parte dos vazamentos de chave acontece na prática?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual é mais provável — alguém quebrar o AES, ou a chave aparecer em um repositório?",
+      "explicacao": "O algoritmo é a parte forte, e por isso o ataque contorna a criptografia em vez de enfrentá-la. A chave tem ciclo de vida — geração com aleatoriedade adequada, armazenamento fora do código, distribuição controlada, rotação, revogação e descarte — e cada etapa erra de um jeito diferente. É por isso que chave em repositório é incidente comum, e AES quebrado não é.",
+      "por_que_erradas": {
+        "1": "Chaves não precisam ser trocadas a cada uso; a rotação tem periodicidade definida por risco.",
+        "2": "Existem cofres de segredos e módulos dedicados; o problema é de processo, não de ferramenta.",
+        "3": "Chaves não são digitadas manualmente em uso normal."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; teoria 1.7.t3",
+      "tags": ["cripto", "gestao-de-chaves", "ciclo-de-vida", "segredos"]
+    },
+    {
+      "id": "2.1.q22",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Durante uma análise, você encontra em um arquivo de configuração a string \"cGFzc3dvcmQxMjM=\". Qual é a conclusão?",
+      "alternativas": [
+        "É Base64 e pode ser decodificado imediatamente; trate o valor como um segredo exposto em texto claro",
+        "É um hash e não pode ser revertido; nenhuma ação é necessária",
+        "É texto cifrado e exige a chave para ser lido",
+        "É um identificador aleatório sem valor de segurança"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O sinal de igual no fim é característico de qual formato?",
+        "Quanto tempo leva para desfazer isso?",
+        "Hash tem tamanho fixo e não termina com sinal de igual."
+      ],
+      "pergunta_socratica": "Antes de conferir: você precisa de alguma informação secreta para ler esse valor?",
+      "explicacao": "O preenchimento com sinal de igual e o alfabeto usado denunciam Base64, que se desfaz em uma linha, sem chave. O valor deve ser tratado como segredo exposto: rotacionar a credencial e mover para um cofre. Hash tem tamanho fixo e não usa esse preenchimento, e texto cifrado exigiria chave — mas Base64 é frequentemente confundido com os dois, o que atrasa a resposta.",
+      "por_que_erradas": {
+        "1": "Hashes têm tamanho fixo característico e não usam preenchimento com sinal de igual.",
+        "2": "Não há chave envolvida: a decodificação é imediata.",
+        "3": "O conteúdo decodificado revela um valor com significado, e não ruído."
+      },
+      "fonte": "Crypto 101, cap. 6; comportamento verificado em execução",
+      "tags": ["cripto", "base64", "triagem", "segredos"]
+    },
+    {
+      "id": "2.1.q23",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2, 3],
+      "enunciado": "Qual afirmação sobre ChaCha20-Poly1305 é correta?",
+      "alternativas": [
+        "É uma cifra autenticada, alternativa ao AES-GCM, frequentemente preferida onde não há aceleração de AES em hardware",
+        "É uma função de resumo criptográfico, alternativa ao SHA-256",
+        "É um algoritmo assimétrico, alternativa ao RSA",
+        "É um modo de operação do AES, alternativa ao GCM"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O nome combina um cifrador de fluxo com um autenticador.",
+        "Ela cifra e autentica na mesma operação.",
+        "Não tem relação com AES nem com par de chaves."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que um celular antigo se beneficiaria de uma alternativa ao AES?",
+      "explicacao": "ChaCha20 é o cifrador de fluxo e Poly1305 o autenticador; juntos formam uma cifra autenticada equivalente em papel ao AES-GCM. Em processadores sem instruções dedicadas de AES, ela costuma ser mais rápida e mais fácil de implementar sem canais laterais de temporização. Não é resumo, não é assimétrica e não é um modo do AES — é uma construção independente.",
+      "por_que_erradas": {
+        "1": "Não é função de resumo; ela cifra.",
+        "2": "Não usa par de chaves; é simétrica.",
+        "3": "Não é modo do AES; é outro algoritmo."
+      },
+      "fonte": "RFC 8439; Crypto 101, cap. 7.12",
+      "tags": ["cripto", "chacha20", "aead", "desempenho"]
+    },
+    {
+      "id": "2.1.q24",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "enunciado": "Coloque em ordem as perguntas que você deve fazer ao avaliar como um sistema protege dados em repouso.",
+      "itens": [
+        "Que dado exatamente está sendo protegido, e contra qual adversário",
+        "Qual algoritmo e qual modo de operação são usados",
+        "Como a chave é gerada e onde ela é armazenada",
+        "Quem tem acesso à chave e como esse acesso é revogado",
+        "Com que frequência a chave é rotacionada e como o dado antigo é tratado"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "A primeira pergunta define se as outras importam.",
+        "Algoritmo sem modo não responde nada.",
+        "As três últimas tratam do ciclo de vida da chave, na ordem em que ele acontece."
+      ],
+      "pergunta_socratica": "Antes de conferir: de que adianta saber o algoritmo se você não sabe quem tem a chave?",
+      "explicacao": "A ordem segue a dependência: sem saber o que se protege e contra quem, a escolha de algoritmo é arbitrária; algoritmo sem modo não permite avaliar nada; e as três últimas percorrem o ciclo de vida da chave, que é onde a maior parte das falhas reais acontece. Uma avaliação que pare na segunda pergunta produz um relatório que diz \"usa AES-256\" e não sabe quem consegue ler o dado.",
+      "fonte": "Security Engineering, 3ª ed., cap. 5; NIST SP 800-38D",
+      "tags": ["cripto", "avaliacao", "gestao-de-chaves", "ciclo", "modos"]
+    },
+    {
+      "id": "2.1.q25",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que uma função de resumo criptográfico não serve para guardar um dado que precisa ser recuperado depois?",
+      "alternativas": [
+        "Porque ela não é reversível: o resumo tem tamanho fixo e descarta informação, então não existe caminho de volta",
+        "Porque o resumo ocupa mais espaço que o dado original",
+        "Porque o resumo muda a cada execução, mesmo para a mesma entrada",
+        "Porque funções de resumo exigem uma chave que precisa ser guardada à parte"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o tamanho da entrada com o do resumo.",
+        "O que acontece com a informação excedente?",
+        "O resumo da mesma entrada muda entre execuções?"
+      ],
+      "pergunta_socratica": "Antes de conferir: um arquivo de 1 GB e um de 10 bytes produzem resumos do mesmo tamanho. Para onde foi o resto?",
+      "explicacao": "O resumo tem tamanho fixo independentemente da entrada, então informação é necessariamente descartada e não há como reconstruir o original. Por isso resumo serve para comparar — integridade, verificação de senha —, e não para guardar algo que será recuperado. Ele é determinístico: a mesma entrada sempre gera o mesmo resumo, o que é justamente o que permite comparar. Guardar para recuperar depois pede cifra.",
+      "por_que_erradas": {
+        "1": "O resumo costuma ser muito menor que o dado original.",
+        "2": "Funções de resumo são determinísticas; a variação vem do sal, quando usado.",
+        "3": "Funções de resumo comuns não usam chave; isso é HMAC."
+      },
+      "fonte": "Crypto 101, cap. 10; comportamento verificado em execução",
+      "tags": ["cripto", "hash", "reversibilidade", "fundamentos"]
+    },
+    {
+      "id": "2.1.q26",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3, 2],
+      "enunciado": "Um sistema cifra mensagens com AES-CBC e envia o texto cifrado junto de um resumo SHA-256 do texto original, para verificação. Qual é a avaliação?",
+      "alternativas": [
+        "O resumo não protege: quem altera o texto cifrado também pode recalcular e substituir o resumo, já que ele não depende de nenhum segredo",
+        "O desenho é adequado: SHA-256 garante que qualquer alteração será detectada",
+        "O problema é usar SHA-256, que deveria ser SHA-512 para acompanhar a chave do AES",
+        "O problema é enviar o resumo junto; ele deveria viajar em outra conexão"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que impede o atacante de calcular o resumo também?",
+        "Resumo sem chave é verificável por quem?",
+        "Compare com o que uma etiqueta de autenticação faz de diferente."
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante precisa de algum segredo para calcular um SHA-256?",
+      "explicacao": "SHA-256 não usa chave, então qualquer um o calcula — inclusive quem alterou a mensagem. O resumo só detecta corrupção acidental. Para detectar alteração deliberada é preciso um segredo na verificação: um MAC como HMAC, ou uma cifra autenticada como AES-GCM, que resolve sigilo e integridade de uma vez. Trocar o tamanho do resumo ou o canal de envio não muda nada.",
+      "por_que_erradas": {
+        "1": "O resumo é recalculável por qualquer um; ele não detecta alteração deliberada.",
+        "2": "O tamanho do resumo não é a questão; a ausência de chave é.",
+        "3": "Enviar por outro canal complica a operação sem resolver a falta de segredo na verificação."
+      },
+      "fonte": "Crypto 101, cap. 11.1 e 11.4",
+      "tags": ["cripto", "hash", "mac", "integridade", "aead"]
+    },
+    {
+      "id": "2.1.q27",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Por que \"criptografia de nível militar\" não é uma afirmação técnica útil?",
+      "alternativas": [
+        "Porque não corresponde a nenhuma especificação: não diz algoritmo, modo, tamanho de chave nem como a chave é gerenciada",
+        "Porque algoritmos militares são secretos e não podem ser usados em produtos civis",
+        "Porque criptografia militar é mais fraca que a comercial por exigência regulatória",
+        "Porque a expressão só se aplica a comunicações por rádio"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Que informação verificável a expressão entrega?",
+        "Compare com uma resposta que nomeia algoritmo e modo.",
+        "É linguagem de marketing ou de especificação?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que você conseguiria auditar a partir dessa afirmação?",
+      "explicacao": "A expressão é de marketing e não permite verificar nada. Uma afirmação técnica nomeia algoritmo e modo, tamanho de chave e gestão de chave — só assim alguém pode avaliar. Os algoritmos que protegem informação classificada em muitos países são justamente os públicos, como o AES, o que torna a comparação implícita ainda mais vazia.",
+      "por_que_erradas": {
+        "1": "AES, um algoritmo público, é usado inclusive para informação classificada.",
+        "2": "Não há exigência de enfraquecimento; a premissa é falsa.",
+        "3": "A expressão é usada em qualquer contexto de marketing, sem relação com rádio."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "comunicacao", "auditoria", "marketing"]
+    },
+    {
+      "id": "2.1.q28",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3, 2],
+      "enunciado": "Uma equipe vai começar um sistema novo que precisa cifrar registros no banco. Qual escolha é a mais defensável?",
+      "alternativas": [
+        "Usar uma biblioteca consolidada com AES-GCM ou ChaCha20-Poly1305, com chave em cofre de segredos e nonce único por registro",
+        "Implementar AES-CBC manualmente, para ter controle total sobre o processo",
+        "Cifrar com AES-ECB e compensar com um resumo SHA-256 de cada registro",
+        "Codificar em Base64 e restringir o acesso ao banco por permissões"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Cifra autenticada resolve sigilo e integridade de uma vez.",
+        "Implementar cripto à mão é onde os erros aparecem.",
+        "Duas alternativas já foram descartadas nas questões anteriores."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas escolhas você conseguiria defender em uma auditoria daqui a três anos?",
+      "explicacao": "Biblioteca consolidada, cifra autenticada, chave fora do código e nonce único por registro é a combinação padrão — e o nonce único é a condição que o próximo módulo mostra ser crítica em GCM. Implementar à mão é onde surgem os defeitos, ECB vaza estrutura e o resumo sem chave não protege contra alteração deliberada, e Base64 com permissões não é cifra: é controle de acesso com um nome errado.",
+      "por_que_erradas": {
+        "1": "Implementação manual de criptografia é a fonte clássica de falhas sutis.",
+        "2": "ECB vaza estrutura, e resumo sem chave não impede alteração deliberada.",
+        "3": "Base64 não protege sigilo; permissões são outra camada, e não substituem cifra."
+      },
+      "fonte": "NIST SP 800-38D; RFC 8439; Crypto 101, cap. 11.7",
+      "tags": ["cripto", "aead", "boas-praticas", "projeto", "gestao-de-chaves"]
+    },
+    {
+      "id": "2.1.q29",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Qual é a diferença entre HMAC e uma função de resumo comum?",
+      "alternativas": [
+        "HMAC usa uma chave secreta, então só quem a tem consegue produzir ou verificar o valor",
+        "HMAC produz um resultado de tamanho variável, adaptado ao tamanho da entrada",
+        "HMAC é reversível, permitindo recuperar a mensagem original",
+        "HMAC é mais rápido, por isso é preferido em verificação de integridade"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que falta ao resumo comum para detectar alteração deliberada?",
+        "A letra M da sigla vem de message authentication.",
+        "HMAC continua sendo irreversível."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que um atacante consegue recalcular um SHA-256, mas não um HMAC?",
+      "explicacao": "HMAC combina uma função de resumo com uma chave secreta. Sem a chave, ninguém produz um valor válido — é isso que o torna capaz de detectar alteração deliberada, enquanto um resumo comum só detecta corrupção acidental. Ele continua irreversível e de tamanho fixo, e o custo adicional é irrelevante frente à garantia.",
+      "por_que_erradas": {
+        "1": "O tamanho da saída é fixo, definido pela função de resumo usada.",
+        "2": "HMAC não é reversível.",
+        "3": "Velocidade não é o motivo da escolha; a chave é."
+      },
+      "fonte": "Crypto 101, cap. 11.4; comportamento verificado em execução",
+      "tags": ["cripto", "hmac", "mac", "integridade"]
+    },
+    {
+      "id": "2.1.q30",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um serviço afirma que \"os dados são criptografados de ponta a ponta\". O que é preciso perguntar para saber se isso significa algo?",
+      "alternativas": [
+        "Quais são as duas pontas e quem controla as chaves — se o servidor consegue decifrar, não é ponta a ponta no sentido forte do termo",
+        "Qual é o tamanho da chave usada, já que abaixo de 4096 bits a proteção é insuficiente",
+        "Se a conexão usa a porta 443, que é a única porta segura para tráfego cifrado",
+        "Se o serviço tem certificação internacional, que é o que valida a afirmação"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Ponta a ponta entre quem, exatamente?",
+        "Se o servidor lê o conteúdo, o que a expressão significa?",
+        "Tamanho de chave e porta não respondem à pergunta."
+      ],
+      "pergunta_socratica": "Antes de conferir: o provedor do serviço consegue ler suas mensagens? Como você saberia?",
+      "explicacao": "A expressão só tem conteúdo quando se sabe quais são as pontas e quem detém as chaves. Se o servidor consegue decifrar — o caso mais comum — a cifra protege o caminho e não o provedor, o que é bem diferente do que o termo sugere. Tamanho de chave, porta e certificação não respondem a essa pergunta, que é a única que muda o modelo de ameaça.",
+      "por_que_erradas": {
+        "1": "Tamanho de chave não define quem consegue decifrar, e 4096 bits não é requisito geral.",
+        "2": "A porta indica o serviço, não a arquitetura de chaves.",
+        "3": "Certificação não informa quem detém as chaves."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 15",
+      "tags": ["cripto", "ponta-a-ponta", "gestao-de-chaves", "comunicacao"]
+    },
+    {
+      "id": "2.1.q31",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que um cifrador de bloco precisa de um modo de operação para cifrar uma mensagem longa?",
+      "alternativas": [
+        "Porque ele só transforma um bloco de tamanho fixo; o modo define como aplicar isso a uma sequência de blocos",
+        "Porque mensagens longas exigem chaves maiores, e o modo escolhe o tamanho da chave",
+        "Porque o modo comprime a mensagem para caber em um único bloco",
+        "Porque sem modo o cifrador não consegue decifrar, apenas cifrar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual é o tamanho de entrada que um cifrador de bloco aceita?",
+        "O que fazer quando a mensagem tem mil blocos?",
+        "O modo não altera a chave nem comprime nada."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma mensagem de 10 KB tem quantos blocos de 16 bytes?",
+      "explicacao": "O cifrador de bloco é uma peça pequena: transforma exatamente um bloco de tamanho fixo. Para uma mensagem longa é preciso decidir como encadear as aplicações, e essa decisão é o modo — que também determina se o resultado vaza estrutura, se detecta alteração e se precisa de IV. É por isso que o modo carrega tanto peso quanto o algoritmo na avaliação de segurança.",
+      "por_que_erradas": {
+        "1": "O tamanho da chave é independente do comprimento da mensagem.",
+        "2": "Modos não comprimem dados.",
+        "3": "Cifrar e decifrar são ambos possíveis; o modo trata do encadeamento."
+      },
+      "fonte": "Crypto 101, cap. 6 e 7.3",
+      "tags": ["cripto", "modos", "bloco", "fundamentos"]
+    },
+    {
+      "id": "2.1.q32",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "trecho": "REQUISITO DE SEGURANÇA — proposta de arquitetura\n\"Todo dado sensível será cifrado com AES-256. A chave será derivada do nome do\nambiente (producao, homologacao) para simplificar a implantação, e ficará\ndefinida como constante no código da aplicação.\"",
+      "enunciado": "Quais problemas esta proposta apresenta?",
+      "alternativas": [
+        "Falta o modo de operação, a chave é previsível por ser derivada de um valor conhecido, e fica no código — onde qualquer pessoa com acesso ao repositório a obtém",
+        "Apenas a ausência do modo de operação; a derivação da chave é uma prática aceitável",
+        "Apenas a chave no código; derivar do nome do ambiente é uma boa forma de separar ambientes",
+        "Nenhum: AES-256 é suficiente para atender ao requisito"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Três afirmações, três problemas.",
+        "Quantas pessoas conseguem adivinhar o nome do ambiente?",
+        "Onde o código vai parar depois de commitado?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quanto tempo alguém levaria para descobrir a chave de produção nesse desenho?",
+      "explicacao": "Três defeitos que se somam. Sem modo, não dá para avaliar a cifra. Derivar a chave de um valor público e adivinhável elimina o segredo — o único elemento que deveria ser secreto. E constante no código coloca a chave em cada clone do repositório e no histórico, de onde ela não sai mais. A correção é chave aleatória, guardada em cofre, com modo autenticado declarado.",
+      "por_que_erradas": {
+        "1": "Derivar chave de valor público é grave: destrói o segredo.",
+        "2": "A ausência do modo e a derivação previsível também são problemas sérios.",
+        "3": "AES-256 sem modo, com chave previsível e no código, não protege nada."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; teoria 1.7.t3",
+      "tags": ["cripto", "caca-erro", "gestao-de-chaves", "modos", "segredos"]
+    },
+    {
+      "id": "2.1.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 3],
+      "enunciado": "Em que situação usar uma função de resumo é a escolha certa, e não cifra?",
+      "alternativas": [
+        "Quando você precisa comparar ou verificar sem nunca recuperar o valor original, como conferir integridade de um arquivo",
+        "Quando o dado precisa ser lido de volta apenas por quem tem a chave",
+        "Quando o dado precisa trafegar por um canal que aceita apenas texto",
+        "Quando o dado precisa ser comprimido para ocupar menos espaço"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Resumo é para comparar; cifra é para recuperar.",
+        "Um dos casos descreve codificação, não resumo.",
+        "Outro descreve exatamente o papel da cifra."
+      ],
+      "pergunta_socratica": "Antes de conferir: você precisa do valor de volta, ou só precisa saber se ele é o mesmo?",
+      "explicacao": "Resumo serve quando a pergunta é \"é o mesmo?\" e nunca \"qual era?\": verificação de integridade de arquivo, comparação de senha, detecção de mudança em configuração. Quando o valor precisa voltar, a resposta é cifra. Trafegar por canal de texto é papel da codificação, e reduzir espaço é compressão — três operações distintas que resolvem três perguntas distintas.",
+      "por_que_erradas": {
+        "1": "Recuperar com chave é o papel da cifra.",
+        "2": "Adaptar ao canal é papel da codificação.",
+        "3": "Reduzir espaço é compressão."
+      },
+      "fonte": "Crypto 101, cap. 10; teoria 2.1.t1",
+      "tags": ["cripto", "hash", "escolha", "fundamentos"]
+    },
+    {
+      "id": "2.1.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Um sistema legado cifra dados com uma chave que está no código há oito anos. A equipe quer melhorar isso. Qual é a primeira ação?",
+      "alternativas": [
+        "Tratar a chave como comprometida e planejar a migração: gerar chave nova em cofre, recifrar os dados e revogar a antiga",
+        "Trocar o algoritmo para AES-256, mantendo a chave atual até a próxima grande refatoração",
+        "Ofuscar a chave no código, dificultando que alguém a encontre por inspeção",
+        "Manter como está e documentar o risco no relatório anual"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Em oito anos, quantas cópias do código existem?",
+        "Trocar o algoritmo resolve o problema da chave?",
+        "Ofuscar é obscuridade, e você já viu o que ela vale."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem, ao longo de oito anos, teve acesso a esse repositório?",
+      "explicacao": "Chave no código por oito anos deve ser considerada conhecida: ela está em todos os clones, backups e cópias de ambiente do período. Trocar o algoritmo mantendo a chave não muda nada, e ofuscar apenas atrasa quem procura. A migração completa — chave nova em cofre, recifra dos dados e revogação da antiga — é a única que restabelece o segredo, e é a mesma lógica do segredo vazado em repositório.",
+      "por_que_erradas": {
+        "1": "O algoritmo não é o problema; a exposição da chave é.",
+        "2": "Ofuscação não protege contra quem inspeciona o binário ou lê o repositório.",
+        "3": "Documentar sem agir mantém o risco integralmente."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; teoria 1.7.t3",
+      "tags": ["cripto", "gestao-de-chaves", "legado", "rotacao", "migracao"]
+    },
+    {
+      "id": "2.1.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Você revisa o desenho criptográfico de uma aplicação nova. Quais quatro perguntas rendem mais nas primeiras horas?",
+      "alternativas": [
+        "Qual dado é protegido e em qual estado; qual algoritmo e qual modo; onde a chave mora e quem a alcança; e se a cifra é autenticada",
+        "Qual é o tamanho da chave; quantos algoritmos são usados; qual biblioteca; e qual a versão dela",
+        "Se o código é aberto; se há testes; se a documentação está atualizada; e se há revisão por pares",
+        "Quantos dados são cifrados por dia; qual o custo de processamento; e qual o impacto no tempo de resposta"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Relembre a ordem das perguntas que abrem uma avaliação de cripto.",
+        "Uma das opções mede quantidade em vez de propriedade.",
+        "Outra é boa prática de engenharia, sem tocar em criptografia."
+      ],
+      "pergunta_socratica": "Antes de conferir: das quatro perguntas, qual delas, mal respondida, invalida todas as outras?",
+      "explicacao": "As quatro cobrem o que decide segurança: escopo (dado e estado), construção (algoritmo mais modo), segredo (onde a chave mora e quem a alcança) e integridade (cifra autenticada). Tamanho de chave e versão de biblioteca são detalhes dentro disso; qualidade de código é engenharia geral; e volume e custo são desempenho. Mal respondida, a terceira invalida as demais — chave exposta anula qualquer escolha de algoritmo.",
+      "por_que_erradas": {
+        "1": "São detalhes secundários que não revelam se o desenho é seguro.",
+        "2": "São boas práticas de engenharia, sem cobrir o desenho criptográfico.",
+        "3": "Medem desempenho, não segurança."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 7 e 11",
+      "tags": ["cripto", "revisao", "modos", "gestao-de-chaves", "carreira"]
+    }
+  ]
+}

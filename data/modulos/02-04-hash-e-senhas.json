@@ -1,0 +1,1037 @@
+{
+  "id": "2.4",
+  "nivel": 2,
+  "titulo": "Funções de hash, integridade e armazenamento de senhas",
+  "objetivos": [
+    "Explicar as propriedades de uma função de hash criptográfica e o que significa uma colisão",
+    "Justificar por que MD5 e SHA-1 saíram de uso e o que os substitui",
+    "Escolher a função correta para armazenar senha e explicar o papel do sal e do custo",
+    "Aplicar hash na verificação de integridade e reconhecer os limites dessa verificação"
+  ],
+  "pre_requisitos": ["2.1"],
+  "teoria": [
+    {
+      "id": "2.4.t1",
+      "titulo": "O que uma função de hash promete",
+      "texto": "Uma função de hash criptográfica transforma qualquer entrada em uma saída de tamanho fixo, e promete três propriedades. Resistência de pré-imagem: dado o resumo, é inviável achar uma entrada que o produza. Resistência de segunda pré-imagem: dada uma entrada, é inviável achar outra com o mesmo resumo. Resistência a colisão: é inviável achar qualquer par de entradas com o mesmo resumo.\n\nDuas características valem gravar. A saída tem tamanho fixo — SHA-256 sempre produz 32 bytes, para 10 bytes ou 10 gigabytes de entrada. E a função é determinística: a mesma entrada gera sempre o mesmo resumo, o que é justamente o que permite comparar.\n\nComo o tamanho é fixo e a entrada é ilimitada, colisões existem por necessidade matemática. A promessa não é que não existam, e sim que ninguém consiga encontrá-las.",
+      "analogia": "Uma impressão digital: pequena, sempre do mesmo tamanho, e inviável de forjar para coincidir com a de outra pessoa.",
+      "erro_comum": "Chamar hash de criptografia. Não há chave e não há volta — é comparação, não sigilo.",
+      "fonte": "Crypto 101, cap. 10; Security Engineering, 3ª ed., cap. 5"
+    },
+    {
+      "id": "2.4.t2",
+      "titulo": "MD5 e SHA-1: quebrados, e o que isso significa",
+      "texto": "MD5 tem colisões práticas conhecidas há muitos anos: existem pares de blocos diferentes com o mesmo resumo, e produzir novos pares é barato. SHA-1 caiu depois, com colisão demonstrada publicamente em 2017.\n\nO efeito prático é preciso: o que se perdeu foi a resistência a colisão. Um resumo igual deixou de ser evidência de conteúdo igual, o que derruba assinatura digital, verificação de integridade contra adversário e qualquer uso em que alguém possa escolher as duas entradas.\n\nO que sobra: detectar corrupção acidental de arquivo, onde não há adversário escolhendo o conteúdo. Mesmo aí, não há razão para preferir MD5 hoje — SHA-256 é rápido o suficiente para qualquer uso comum.",
+      "analogia": "Uma impressão digital que duas pessoas conseguem fabricar igual sob encomenda. Ela ainda distingue acidentes; ela não prova mais identidade.",
+      "erro_comum": "Manter MD5 \"porque é só para conferir integridade\". Contra adversário, é justamente onde ele falha.",
+      "fonte": "Crypto 101, cap. 10.2 e 10.3; colisão verificada em execução"
+    },
+    {
+      "id": "2.4.t3",
+      "titulo": "Senha não se guarda com hash rápido",
+      "texto": "Guardar senha exige o oposto do que se quer em integridade: uma função deliberadamente lenta e cara. A razão é o modelo de ataque — quem obtém a base de hashes ataca offline, sem limite de tentativas e sem gerar registro no servidor.\n\nCom função rápida, esse ataque é barato. Em uma máquina comum, cem mil resumos SHA-256 levam décimos de segundo, enquanto uma única verificação de senha bem configurada leva a mesma ordem de grandeza — a diferença de custo por tentativa é de várias ordens de magnitude, e é ela que torna o ataque inviável.\n\nA recomendação atual é Argon2id como primeira escolha, com scrypt em seguida, PBKDF2 quando houver exigência de conformidade, e bcrypt para sistemas legados. SHA-256 puro não está na lista, por mais forte que seja como função de hash.",
+      "analogia": "Um cofre que leva meio segundo para abrir. Irrelevante para você, e proibitivo para quem tenta um bilhão de combinações.",
+      "erro_comum": "Usar SHA-256 para senha achando que basta ser forte. O problema não é força; é velocidade.",
+      "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B; medições verificadas em execução"
+    },
+    {
+      "id": "2.4.t4",
+      "titulo": "Sal, pimenta e por que o sal é público",
+      "texto": "Sem sal, usuários com a mesma senha ficam com o mesmo resumo armazenado — verificável em uma linha. Isso permite identificar senhas repetidas na base e atacar todos os registros de uma vez com tabelas pré-calculadas.\n\nO sal é um valor aleatório, único por usuário, concatenado à senha antes do cálculo. Ele não precisa ser secreto e é guardado junto do resumo; o que ele impede é o reaproveitamento de esforço entre alvos. Com sal, cada senha exige um ataque próprio.\n\nA pimenta é um segredo adicional, igual para toda a base, guardado fora do banco. Ela protege no caso específico de vazamento do banco sem vazamento do segredo — é complemento, e não substituto do sal nem da função lenta.\n\nAs funções modernas de senha geram e embutem o sal automaticamente. Implementar isso à mão é onde os erros aparecem.",
+      "analogia": "Um tempero diferente em cada prato: quem decorou o sabor de um não reconhece os outros.",
+      "erro_comum": "Usar o mesmo sal para todos os usuários, ou tratá-lo como segredo. Ele precisa ser único, e público é aceitável.",
+      "fonte": "OWASP Password Storage Cheat Sheet; comportamento verificado em execução"
+    },
+    {
+      "id": "2.4.t5",
+      "titulo": "Parâmetros atuais",
+      "texto": "As recomendações atuais do OWASP para armazenamento de senha, em ordem de preferência.\n\nArgon2id, primeira escolha: mínimo de 19 MiB de memória, 2 iterações e paralelismo 1 — ou a configuração equivalente com 46 MiB, 1 iteração e paralelismo 1.\n\nscrypt, quando Argon2id não estiver disponível: custo mínimo de 2^17, tamanho de bloco 8 e paralelismo 1.\n\nPBKDF2, quando houver exigência de conformidade FIPS-140: pelo menos 600.000 iterações com HMAC-SHA-256.\n\nbcrypt, apenas para sistemas legados: fator de trabalho mínimo 10, com atenção ao limite de 72 bytes de entrada, que precisa ser tratado pela aplicação.\n\nOs números sobem com o tempo. O que não muda é o método: escolher a função certa e calibrar o custo pelo hardware atual.",
+      "analogia": "A dosagem do remédio muda com o peso do paciente; a receita é a mesma.",
+      "erro_comum": "Copiar parâmetros de um artigo antigo. Iteração adequada em 2010 é fraca hoje.",
+      "fonte": "OWASP Password Storage Cheat Sheet (consultado); NIST SP 800-63B"
+    },
+    {
+      "id": "2.4.t6",
+      "titulo": "Integridade: o que o hash prova e o que não prova",
+      "texto": "Publicar o resumo de um arquivo permite conferir que o download chegou igual ao que gerou aquele valor. É útil contra corrupção e contra troca no caminho.\n\nO limite aparece quando se pergunta de onde veio o resumo. Se ele está no mesmo site que o arquivo, quem controla o site troca os dois — a conferência passa e o arquivo é malicioso. Resumo publicado junto do arquivo protege contra o caminho, não contra a origem.\n\nAssinatura resolve, porque a chave privada não está no servidor. E para comparar resumos em código, a comparação deve ser em tempo constante quando o valor for sensível.",
+      "analogia": "Conferir o lacre da encomenda contra a foto do lacre que veio na mesma caixa.",
+      "erro_comum": "Tratar resumo publicado ao lado do arquivo como prova de origem. Ele prova transporte, e nada mais.",
+      "fonte": "Crypto 101, cap. 10 e 12; comportamento verificado em execução"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "2.4.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "O que caracteriza a saída de uma função de hash criptográfica?",
+      "alternativas": [
+        "Tamanho fixo, independentemente do tamanho da entrada, e sempre o mesmo valor para a mesma entrada",
+        "Tamanho proporcional ao da entrada, para preservar toda a informação",
+        "Um valor diferente a cada execução, mesmo para a mesma entrada",
+        "Um valor que pode ser revertido à entrada original com o algoritmo correto"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o resumo de 10 bytes e de 10 gigabytes.",
+        "Se o valor mudasse a cada execução, daria para comparar?",
+        "Reverter exigiria que a informação estivesse toda lá."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a saída tem sempre 32 bytes e a entrada pode ter qualquer tamanho, o que aconteceu com o excedente?",
+      "explicacao": "A saída tem tamanho fixo — SHA-256 sempre produz 32 bytes, verificado em execução — e a função é determinística, o que é justamente o que permite comparar. Como a entrada é ilimitada e a saída é fixa, informação é descartada e não há volta. Variação entre execuções viria do sal, quando usado, e não da função em si.",
+      "por_que_erradas": {
+        "1": "A saída não cresce com a entrada; é isso que torna o hash útil.",
+        "2": "Funções de hash são determinísticas.",
+        "3": "Não há reversão: informação é descartada por construção."
+      },
+      "fonte": "Crypto 101, cap. 10; comportamento verificado em execução",
+      "tags": ["hash", "fundamentos", "propriedades"]
+    },
+    {
+      "id": "2.4.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "O que é uma colisão em uma função de hash?",
+      "alternativas": [
+        "Duas entradas diferentes que produzem exatamente o mesmo resumo",
+        "Duas execuções da função sobre a mesma entrada que produzem resumos diferentes",
+        "Um resumo que coincide com o da entrada original invertida",
+        "Uma falha de memória ao processar entradas muito grandes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Colidir aqui é dois valores chegarem ao mesmo lugar.",
+        "A função é determinística, então a mesma entrada nunca varia.",
+        "Colisões existem por necessidade matemática; o que importa é serem inviáveis de achar."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a saída tem 32 bytes e as entradas são infinitas, colisões podem não existir?",
+      "explicacao": "Colisão é um par de entradas distintas com o mesmo resumo. Como o conjunto de entradas é infinito e o de saídas é finito, colisões existem necessariamente — a promessa da função não é que não existam, e sim que sejam inviáveis de encontrar. É exatamente essa promessa que MD5 e SHA-1 deixaram de cumprir.",
+      "por_que_erradas": {
+        "1": "A função é determinística; a mesma entrada sempre produz o mesmo resumo.",
+        "2": "Não há relação com inversão da entrada.",
+        "3": "Não se trata de falha de execução."
+      },
+      "fonte": "Crypto 101, cap. 10; colisão verificada em execução",
+      "tags": ["hash", "colisao", "vocabulario", "fundamentos"]
+    },
+    {
+      "id": "2.4.q3",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "artefato": "$ python verificar_colisao.py\nblocos iguais?       False\nmd5 do bloco 1      : 79054025255fb1a26e4bc422aef54eb4\nmd5 do bloco 2      : 79054025255fb1a26e4bc422aef54eb4\nMESMO md5?           True\nsha256 difere?       True",
+      "enunciado": "O que esta saída demonstra?",
+      "alternativas": [
+        "Que MD5 tem colisões práticas: dois conteúdos distintos com o mesmo resumo, enquanto SHA-256 os distingue normalmente",
+        "Que o script está com defeito, pois conteúdos diferentes nunca podem ter o mesmo resumo",
+        "Que MD5 e SHA-256 usam algoritmos equivalentes com saídas de tamanhos diferentes",
+        "Que os dois blocos são, na verdade, o mesmo conteúdo com codificações distintas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia a primeira linha: os blocos são iguais ou diferentes?",
+        "Leia a última linha: o que acontece com SHA-256 nos mesmos blocos?",
+        "Colisões existem sempre; a questão é conseguir produzi-las."
+      ],
+      "pergunta_socratica": "Antes de conferir: se dois arquivos diferentes têm o mesmo MD5, o que a conferência de MD5 ainda prova?",
+      "explicacao": "A saída é de uma execução real com os blocos de colisão conhecidos: conteúdos comprovadamente diferentes produzindo o mesmo MD5, e SHA-256 distinguindo os dois. É a demonstração direta de que resumo MD5 igual deixou de ser evidência de conteúdo igual — o que derruba assinatura, verificação contra adversário e qualquer uso em que alguém possa escolher as entradas.",
+      "por_que_erradas": {
+        "1": "Colisões são matematicamente inevitáveis; o problema é serem fáceis de produzir.",
+        "2": "Os algoritmos são diferentes, e SHA-256 não tem colisão prática conhecida.",
+        "3": "A primeira linha afirma explicitamente que os blocos diferem."
+      },
+      "fonte": "Colisão verificada em execução com blocos conhecidos; Crypto 101, cap. 10.2",
+      "tags": ["hash", "md5", "colisao", "artefato", "obsoleto"]
+    },
+    {
+      "id": "2.4.q4",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "O que exatamente se perdeu quando MD5 e SHA-1 foram quebrados?",
+      "alternativas": [
+        "A resistência a colisão: resumo igual deixou de ser evidência de conteúdo igual",
+        "A capacidade de calcular o resumo, que passou a produzir erros",
+        "A propriedade de tamanho fixo da saída",
+        "O determinismo: a mesma entrada passou a gerar resumos diferentes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As funções continuam calculando normalmente.",
+        "Qual das três propriedades caiu?",
+        "Pense no que um adversário consegue fabricar."
+      ],
+      "pergunta_socratica": "Antes de conferir: as funções pararam de funcionar, ou pararam de garantir alguma coisa?",
+      "explicacao": "As funções continuam calculando, determinísticas e com saída de tamanho fixo. O que caiu foi a resistência a colisão: é viável produzir pares de entradas distintas com o mesmo resumo, e isso invalida qualquer uso em que um adversário possa escolher o conteúdo — assinatura digital em primeiro lugar. Contra corrupção acidental elas ainda servem, mas não há razão para preferi-las hoje.",
+      "por_que_erradas": {
+        "1": "O cálculo continua funcionando normalmente.",
+        "2": "A saída continua de tamanho fixo.",
+        "3": "As funções continuam determinísticas."
+      },
+      "fonte": "Crypto 101, cap. 10.2 e 10.3; colisão verificada em execução",
+      "tags": ["hash", "md5", "sha1", "colisao", "obsoleto"]
+    },
+    {
+      "id": "2.4.q5",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que SHA-256 é inadequado para armazenar senhas, apesar de ser uma função de hash forte?",
+      "alternativas": [
+        "Porque é rápido demais: quem obtém a base testa bilhões de senhas offline a um custo desprezível",
+        "Porque tem colisões práticas conhecidas, como MD5",
+        "Porque produz saída de tamanho fixo, o que limita o espaço de senhas",
+        "Porque não funciona com senhas que contenham caracteres acentuados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual é o modelo de ataque quando a base de hashes vaza?",
+        "Velocidade é vantagem ou desvantagem nesse cenário?",
+        "SHA-256 não tem colisão prática conhecida."
+      ],
+      "pergunta_socratica": "Antes de conferir: em armazenamento de senha, ser rápido ajuda quem — o servidor ou o atacante?",
+      "explicacao": "Com a base em mãos, o ataque é offline: sem limite de tentativas, sem bloqueio de conta e sem registro no servidor. Velocidade, que é virtude em integridade, vira o problema — verificado em execução, cem mil resumos SHA-256 levam décimos de segundo, enquanto uma única verificação de senha bem configurada custa a mesma ordem de grandeza. A defesa é encarecer cada tentativa com uma função lenta de propósito.",
+      "por_que_erradas": {
+        "1": "SHA-256 não tem colisão prática conhecida.",
+        "2": "Tamanho fixo da saída não limita o espaço de senhas.",
+        "3": "A função opera sobre bytes e lida com qualquer caractere."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; medição verificada em execução",
+      "tags": ["hash", "senhas", "velocidade", "ataque-offline"]
+    },
+    {
+      "id": "2.4.q6",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Qual é a primeira escolha atual para armazenar senhas?",
+      "alternativas": [
+        "Argon2id",
+        "SHA-512 com sal",
+        "MD5 com sal e mil iterações",
+        "AES-GCM com chave derivada da senha"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A recomendação atual do OWASP lista quatro opções em ordem.",
+        "Duas das alternativas usam funções rápidas.",
+        "Cifrar a senha é diferente de resumi-la; cifra tem volta."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas opções foi projetada especificamente para ser cara de calcular?",
+      "explicacao": "Argon2id é a primeira escolha na recomendação atual, seguido de scrypt, PBKDF2 quando houver exigência de conformidade, e bcrypt para sistemas legados. SHA-512 e MD5 são rápidos, e nenhum número de iterações artesanais os transforma em função de senha adequada. Cifrar a senha é pior: cifra tem volta, e quem obtiver a chave recupera todas as senhas em claro.",
+      "por_que_erradas": {
+        "1": "SHA-512 é rápido; sal impede tabela pré-calculada, mas não encarece a tentativa.",
+        "2": "MD5 está quebrado e mil iterações são insuficientes.",
+        "3": "Cifra é reversível: senha nunca deve poder ser recuperada."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet (consultado)",
+      "tags": ["hash", "senhas", "argon2", "escolha"]
+    },
+    {
+      "id": "2.4.q7",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Ligue cada função de senha à sua posição na recomendação atual.",
+      "pares": [
+        ["Argon2id", "Primeira escolha, com mínimo de 19 MiB de memória, 2 iterações e paralelismo 1"],
+        ["scrypt", "Segunda opção, quando Argon2id não está disponível, com custo mínimo de 2^17"],
+        ["PBKDF2", "Indicado quando há exigência de conformidade FIPS-140, com 600.000 iterações e HMAC-SHA-256"],
+        ["bcrypt", "Apenas para sistemas legados, fator mínimo 10 e limite de 72 bytes de entrada"]
+      ],
+      "dicas": [
+        "Uma das opções é indicada por motivo regulatório, e não técnico.",
+        "Outra tem um limite de tamanho de entrada que a aplicação precisa tratar.",
+        "A primeira escolha é a que usa memória como custo."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que uma função que consome memória resiste melhor a ataque com hardware dedicado?",
+      "explicacao": "A ordem reflete a recomendação atual do OWASP. Argon2id lidera porque o custo em memória dificulta ataque com hardware paralelo especializado, onde funções que só custam processamento são aceleradas com facilidade. PBKDF2 aparece por conformidade, não por ser preferível tecnicamente, e bcrypt fica para o legado — com o detalhe do limite de 72 bytes, que precisa ser imposto pela aplicação.",
+      "fonte": "OWASP Password Storage Cheat Sheet (consultado)",
+      "tags": ["hash", "senhas", "pareamento", "argon2", "parametros"]
+    },
+    {
+      "id": "2.4.q8",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Para que serve o sal no armazenamento de senhas?",
+      "alternativas": [
+        "Garantir que usuários com a mesma senha tenham resumos diferentes, impedindo o reaproveitamento de esforço entre alvos",
+        "Manter a senha secreta caso o banco de dados vaze",
+        "Tornar o cálculo do hash mais rápido, compensando o custo da função",
+        "Permitir recuperar a senha original quando o usuário esquecer"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Sem sal, dois usuários com a mesma senha ficam com o quê?",
+        "O sal é secreto?",
+        "Nada em hash permite recuperar a senha."
+      ],
+      "pergunta_socratica": "Antes de conferir: sem sal, quantas contas o atacante quebra ao descobrir uma senha comum?",
+      "explicacao": "Sem sal, senhas iguais produzem resumos iguais — verificado em execução — o que revela quais contas compartilham senha e permite atacar todas de uma vez com tabelas pré-calculadas. O sal é único por usuário e obriga um ataque separado para cada um. Ele não é secreto e não protege sozinho: quem guarda o banco guarda o sal junto. Recuperar a senha nunca é possível a partir do resumo.",
+      "por_que_erradas": {
+        "1": "O sal é armazenado junto do resumo e não é secreto.",
+        "2": "O sal não altera a velocidade da função.",
+        "3": "Hash não permite recuperação; recuperação de senha se faz por redefinição."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; comportamento verificado em execução",
+      "tags": ["hash", "senhas", "sal", "tabela-precalculada"]
+    },
+    {
+      "id": "2.4.q9",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Por que o sal não precisa ser secreto?",
+      "alternativas": [
+        "Porque a função dele é impedir o reaproveitamento de esforço entre alvos, e isso funciona mesmo com o sal conhecido",
+        "Porque o sal é descartado após o cálculo e não fica armazenado",
+        "Porque o sal é gerado a partir do nome de usuário, que já é público",
+        "Porque manter o sal em segredo tornaria impossível verificar a senha"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que o atacante ganha ao conhecer o sal de um usuário específico?",
+        "Ele consegue reaproveitar esse trabalho para os outros usuários?",
+        "O sal precisa estar disponível na verificação — de onde ele vem?"
+      ],
+      "pergunta_socratica": "Antes de conferir: conhecendo o sal do usuário A, o atacante economiza esforço ao atacar o usuário B?",
+      "explicacao": "O sal não esconde nada; ele individualiza. Mesmo conhecido, obriga o atacante a refazer todo o trabalho para cada usuário, o que inviabiliza tabelas pré-calculadas e ataques em lote. Ele fica armazenado junto do resumo, porque é necessário na verificação. Derivá-lo do nome de usuário é má prática — nomes se repetem entre sistemas, o que permite reaproveitar tabelas.",
+      "por_que_erradas": {
+        "1": "O sal é armazenado; sem ele não há como verificar a senha.",
+        "2": "Derivar do nome de usuário permite reaproveitamento entre sistemas.",
+        "3": "Um segredo adicional é possível — é a pimenta — e não impede a verificação."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet",
+      "tags": ["hash", "senhas", "sal", "conceito"]
+    },
+    {
+      "id": "2.4.q10",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "trecho": "import hashlib\n\nSAL = \"s4lt0-d4-4plic4c40\"   # sal fixo da aplicacao\n\ndef guardar_senha(senha: str) -> str:\n    return hashlib.sha256((SAL + senha).encode()).hexdigest()\n\ndef conferir(senha: str, guardado: str) -> bool:\n    return guardar_senha(senha) == guardado",
+      "enunciado": "Quantos problemas de segurança este código tem?",
+      "alternativas": [
+        "Três: SHA-256 é rápido demais para senha, o sal é fixo para todos os usuários, e a comparação com == vaza tempo",
+        "Um: apenas o sal fixo, que deveria ser único por usuário",
+        "Dois: SHA-256 e o sal fixo; a comparação está adequada",
+        "Nenhum: a função usa sal e um algoritmo de hash forte"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Conte os problemas separadamente: função, sal e comparação.",
+        "Dois usuários com a mesma senha produzem o mesmo valor aqui?",
+        "A comparação sai na primeira diferença?"
+      ],
+      "pergunta_socratica": "Antes de conferir: trocar SHA-256 por SHA-512 corrigiria este código?",
+      "explicacao": "São três. SHA-256 é rápido, e o ataque offline sobre a base fica barato — trocar por SHA-512 não muda isso. O sal fixo não individualiza nada: usuários com a mesma senha continuam com o mesmo resumo, e uma tabela pré-calculada para esse sal ataca a base inteira. E a comparação com == sai na primeira diferença, vazando tempo. A correção é Argon2id com sal único gerado pela própria biblioteca, e verificação pela função que ela oferece.",
+      "por_que_erradas": {
+        "1": "O sal fixo é um dos três; a função rápida e a comparação também são problemas.",
+        "2": "A comparação com == vaza tempo e deve usar comparação em tempo constante.",
+        "3": "Sal fixo não individualiza, e SHA-256 é inadequado para senha."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; comportamento verificado em execução",
+      "tags": ["hash", "senhas", "caca-erro", "sal", "canal-lateral"]
+    },
+    {
+      "id": "2.4.q11",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que caracteriza um ataque offline contra uma base de senhas?",
+      "alternativas": [
+        "O atacante tem os resumos em mãos e testa candidatos na própria máquina, sem limite de tentativas e sem gerar registro no servidor",
+        "O atacante tenta senhas diretamente na tela de login, uma por vez",
+        "O atacante intercepta a senha durante o envio pela rede",
+        "O atacante engana o usuário para que revele a senha"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Offline aqui significa sem interagir com o sistema atacado.",
+        "Quais defesas do servidor deixam de funcionar nesse cenário?",
+        "As outras três descrevem ataques diferentes."
+      ],
+      "pergunta_socratica": "Antes de conferir: bloqueio de conta após cinco tentativas protege contra esse ataque?",
+      "explicacao": "Com a base em mãos, o atacante testa candidatos localmente: bloqueio de conta, limite de tentativas, alerta e registro no servidor deixam de existir, e a única defesa que resta é o custo por tentativa — que é exatamente o que a função lenta impõe. Tentativa na tela de login, interceptação e engano são ataques distintos, com defesas próprias.",
+      "por_que_erradas": {
+        "1": "Isso é ataque online, contido por limite de tentativas e bloqueio.",
+        "2": "Interceptação é problema de transporte, resolvido por TLS.",
+        "3": "Enganar o usuário é engenharia social."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
+      "tags": ["hash", "senhas", "ataque-offline", "modelo-de-ameaca"]
+    },
+    {
+      "id": "2.4.q12",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Por que Argon2id é preferido a PBKDF2 quando não há exigência de conformidade?",
+      "alternativas": [
+        "Porque o custo em memória dificulta ataques com hardware paralelo especializado, que aceleram com facilidade funções que só custam processamento",
+        "Porque Argon2id produz resumos maiores, mais difíceis de quebrar",
+        "Porque PBKDF2 tem colisões práticas conhecidas",
+        "Porque Argon2id é reversível, permitindo recuperar a senha quando necessário"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que um atacante com hardware dedicado consegue paralelizar facilmente?",
+        "E o que é caro de replicar em milhares de núcleos?",
+        "Nenhuma das duas é reversível."
+      ],
+      "pergunta_socratica": "Antes de conferir: é mais barato multiplicar núcleos de processamento ou multiplicar memória dedicada?",
+      "explicacao": "Funções que custam apenas processamento são aceleradas por hardware com milhares de núcleos simples. Argon2id impõe custo de memória, e replicar dezenas de MiB por núcleo é caro — o que reduz a vantagem do atacante especializado sobre o servidor legítimo. PBKDF2 continua aceitável com iterações suficientes, e é a escolha quando a conformidade exige. Nem uma nem outra é reversível, e o tamanho do resumo não é o critério.",
+      "por_que_erradas": {
+        "1": "O tamanho do resumo não é o diferencial.",
+        "2": "PBKDF2 não tem colisões práticas; ele é construído sobre HMAC.",
+        "3": "Nenhuma função de senha é reversível."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet (consultado)",
+      "tags": ["hash", "senhas", "argon2", "pbkdf2", "hardware"]
+    },
+    {
+      "id": "2.4.q13",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um site publica o SHA-256 de um instalador ao lado do link de download. Contra o que essa conferência protege?",
+      "alternativas": [
+        "Contra corrupção no download e contra troca do arquivo no caminho — não contra comprometimento do próprio site",
+        "Contra qualquer adulteração, inclusive por quem controla o servidor",
+        "Contra a presença de código malicioso no instalador original",
+        "Contra a instalação em máquinas que não atendem aos requisitos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "De onde veio o valor com que você compara?",
+        "Se o atacante controla o site, o que ele consegue trocar?",
+        "Hash diz que os bytes são os mesmos; ele opina sobre o conteúdo?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quem troca o arquivo no site consegue trocar também o número publicado ao lado?",
+      "explicacao": "A conferência garante que os bytes recebidos são os que geraram o valor publicado — resolve corrupção e troca no caminho. Não resolve comprometimento da origem: quem controla o site substitui arquivo e resumo juntos, e a conferência passa. Para isso existe assinatura, cuja chave privada não fica no servidor. E hash nada diz sobre o conteúdo ser malicioso ou não.",
+      "por_que_erradas": {
+        "1": "Quem controla o servidor troca arquivo e resumo ao mesmo tempo.",
+        "2": "Hash compara bytes; ele não avalia o comportamento do programa.",
+        "3": "Requisitos de sistema não têm relação com verificação de integridade."
+      },
+      "fonte": "Crypto 101, cap. 10 e 12; comportamento verificado em execução",
+      "tags": ["hash", "integridade", "cadeia-de-fornecimento", "limites"]
+    },
+    {
+      "id": "2.4.q14",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que a comparação de um resumo calculado com um valor esperado deve usar comparação em tempo constante?",
+      "alternativas": [
+        "Porque a comparação comum retorna na primeira diferença, e o tempo revela quantos caracteres iniciais estão corretos",
+        "Porque a comparação comum não funciona com strings hexadecimais longas",
+        "Porque a comparação em tempo constante é mais rápida",
+        "Porque a comparação comum diferencia maiúsculas e minúsculas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Relembre o vazamento por tempo do módulo anterior.",
+        "O resultado da comparação comum está certo; o problema é outro.",
+        "Tempo constante costuma ser marginalmente mais lento."
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante não vê o valor esperado, mas mede o tempo. Isso basta para reconstruí-lo?",
+      "explicacao": "A comparação comum sai na primeira diferença, então acertar mais caracteres iniciais custa mais tempo — e medir isso em muitas tentativas reconstrói o valor esperado. A função de tempo constante percorre tudo sempre, e foi verificada em execução devolvendo o resultado correto sem depender da posição da diferença. Vale sempre que o valor comparado for sensível: etiqueta de autenticação, token, resumo de senha.",
+      "por_que_erradas": {
+        "1": "A comparação comum funciona corretamente com qualquer string.",
+        "2": "Tempo constante é marginalmente mais lento, e isso é aceitável.",
+        "3": "Sensibilidade a maiúsculas é comportamento das duas."
+      },
+      "fonte": "Comportamento verificado em execução; teoria 2.3.t4",
+      "tags": ["hash", "canal-lateral", "tempo", "comparacao"]
+    },
+    {
+      "id": "2.4.q15",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Uma base de senhas armazenadas com SHA-256 sem sal vazou. Qual é a avaliação e a resposta?",
+      "alternativas": [
+        "Considerar todas as senhas comprometidas, forçar redefinição, e migrar o armazenamento para Argon2id com sal por usuário",
+        "Apenas as senhas fracas estão em risco; basta notificar esses usuários",
+        "Nenhuma ação é necessária, pois SHA-256 não é reversível",
+        "Trocar o algoritmo para SHA-512 e manter os resumos existentes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Sem sal, quantas contas o atacante ataca de uma vez?",
+        "Irreversibilidade impede teste por dicionário?",
+        "Trocar o algoritmo recalcula os resumos antigos?"
+      ],
+      "pergunta_socratica": "Antes de conferir: com a base em mãos e uma função rápida, quantas senhas comuns caem em uma noite?",
+      "explicacao": "Função rápida e sem sal é o pior caso: tabelas pré-calculadas atacam a base inteira de uma vez, e senhas comuns caem imediatamente. Irreversibilidade não impede teste por dicionário. A resposta é tratar todas como comprometidas, forçar redefinição e migrar para Argon2id com sal por usuário — a migração normalmente acontece na próxima autenticação bem-sucedida, quando a senha em claro está disponível para recalcular.",
+      "por_que_erradas": {
+        "1": "Sem sal, mesmo senhas menos comuns caem por comparação em lote.",
+        "2": "Irreversibilidade não impede o teste de candidatos.",
+        "3": "Trocar o algoritmo não recalcula resumos já armazenados nem corrige a ausência de sal."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
+      "tags": ["hash", "senhas", "vazamento", "incidente", "migracao"]
+    },
+    {
+      "id": "2.4.q16",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "O que é a pimenta no armazenamento de senhas, e o que ela acrescenta?",
+      "alternativas": [
+        "Um segredo adicional, igual para toda a base e guardado fora do banco; protege no caso de o banco vazar sem o segredo",
+        "Um sal aleatório gerado a cada verificação de senha",
+        "Um segundo hash aplicado sobre o resultado do primeiro",
+        "Um substituto do sal, com a vantagem de ocupar menos espaço"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A diferença central em relação ao sal é onde o valor é guardado.",
+        "Qual cenário específico ela cobre?",
+        "Ela substitui o sal ou soma a ele?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se o banco vazar mas o segredo da aplicação não, o que muda para o atacante?",
+      "explicacao": "A pimenta é um segredo da aplicação, igual para todos e guardado fora do banco — em variável de ambiente ou cofre. No cenário em que o banco vaza sozinho, o atacante fica sem uma parte da entrada e o ataque offline deixa de ser possível. Ela é complemento: não substitui o sal, que individualiza, nem a função lenta. E se o segredo vazar junto, o benefício desaparece.",
+      "por_que_erradas": {
+        "1": "Sal aleatório por verificação impediria a conferência posterior.",
+        "2": "Aplicar hash duas vezes não acrescenta segredo.",
+        "3": "Ela não substitui o sal; os dois têm funções distintas."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet",
+      "tags": ["hash", "senhas", "pimenta", "sal", "defesa-em-profundidade"]
+    },
+    {
+      "id": "2.4.q17",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 3],
+      "enunciado": "Qual é a diferença entre hash e HMAC na verificação de integridade?",
+      "alternativas": [
+        "O hash detecta corrupção acidental; o HMAC usa chave secreta e detecta também alteração deliberada",
+        "O hash é mais seguro, por não depender de nenhum segredo",
+        "O HMAC é reversível e permite recuperar a mensagem",
+        "O hash funciona com arquivos e o HMAC apenas com mensagens de rede"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem consegue recalcular um hash?",
+        "E um HMAC?",
+        "Nenhum dos dois é reversível."
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante alterou a mensagem. Ele consegue produzir o novo valor em cada caso?",
+      "explicacao": "Qualquer um recalcula um hash, inclusive quem alterou a mensagem — por isso ele detecta acidente, e não adversário. O HMAC exige uma chave secreta, e sem ela não se produz um valor válido. Por isso a escolha depende do modelo de ameaça: contra corrupção, hash basta; contra alteração deliberada, é preciso segredo na verificação — HMAC ou cifra autenticada.",
+      "por_que_erradas": {
+        "1": "Não depender de segredo é justamente a limitação do hash aqui.",
+        "2": "HMAC não é reversível.",
+        "3": "Ambos operam sobre qualquer sequência de bytes."
+      },
+      "fonte": "Crypto 101, cap. 11.4; comportamento verificado em execução",
+      "tags": ["hash", "hmac", "integridade", "modelo-de-ameaca"]
+    },
+    {
+      "id": "2.4.q18",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Um sistema legado usa MD5 para verificar a integridade de arquivos recebidos de parceiros externos. Qual é o risco?",
+      "alternativas": [
+        "Um parceiro comprometido pode entregar um arquivo diferente com o mesmo resumo, e a verificação passa",
+        "Nenhum: MD5 continua adequado para verificação de integridade",
+        "O risco é apenas de desempenho, já que MD5 é lento para arquivos grandes",
+        "O risco é de colisão acidental entre arquivos legítimos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Há adversário nesse cenário?",
+        "Colisões de MD5 são produzíveis sob encomenda.",
+        "MD5 é rápido, não lento."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe alguém interessado em que a verificação passe com outro arquivo?",
+      "explicacao": "Há adversário, e é exatamente onde MD5 falha: produzir dois arquivos com o mesmo resumo é viável, então a verificação pode aprovar um conteúdo substituído. Detectar corrupção acidental ele ainda faz, e colisão acidental é irrelevante na prática — o problema é a colisão deliberada. A correção é migrar para SHA-256 e, se a origem também precisa ser garantida, exigir assinatura.",
+      "por_que_erradas": {
+        "1": "MD5 é inadequado sempre que houver adversário escolhendo o conteúdo.",
+        "2": "MD5 é rápido; desempenho não é o problema.",
+        "3": "Colisão acidental é improvável; a deliberada é o risco."
+      },
+      "fonte": "Crypto 101, cap. 10.2; colisão verificada em execução",
+      "tags": ["hash", "md5", "integridade", "terceiros", "migracao"]
+    },
+    {
+      "id": "2.4.q19",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que os parâmetros recomendados para funções de senha aumentam ao longo dos anos?",
+      "alternativas": [
+        "Porque o hardware fica mais rápido, e o custo por tentativa precisa acompanhar para manter o ataque inviável",
+        "Porque as funções perdem segurança matemática com o tempo",
+        "Porque as senhas dos usuários ficam mais curtas a cada ano",
+        "Porque os padrões exigem revisão anual obrigatória dos valores"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que muda no mundo, a função ou o hardware do atacante?",
+        "O objetivo é manter constante o quê?",
+        "A função em si não se degrada."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o hardware do atacante dobra de velocidade, o que precisa acontecer com o custo por tentativa?",
+      "explicacao": "A função não se degrada; o hardware do atacante melhora. Como a defesa é o custo por tentativa, ele precisa subir junto para que o número de candidatos testáveis por hora permaneça inviável. Daí a prática de calibrar os parâmetros pelo hardware atual e revisitá-los periodicamente — e de nunca copiar valores de artigos antigos.",
+      "por_que_erradas": {
+        "1": "As funções não perdem segurança matemática com o tempo.",
+        "2": "O comprimento das senhas não é a causa do ajuste.",
+        "3": "Não há exigência normativa de revisão anual dos valores."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet",
+      "tags": ["hash", "senhas", "parametros", "calibracao"]
+    },
+    {
+      "id": "2.4.q20",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "trecho": "POLÍTICA DE ARMAZENAMENTO DE CREDENCIAIS — v2\n1. Senhas são armazenadas com hash SHA-256 e sal único por usuário.\n2. O sal é gerado com o gerador aleatório padrão da linguagem.\n3. Em caso de esquecimento, a senha original é recuperada e enviada por e-mail.\n4. A comparação do hash é feita com o operador de igualdade da linguagem.",
+      "enunciado": "Qual item revela que a política não está apenas desatualizada, mas descreve algo tecnicamente impossível?",
+      "alternativas": [
+        "O item 3: hash não é reversível, então recuperar a senha original só seria possível se ela estivesse armazenada de outra forma — o que contradiz o item 1",
+        "O item 1, porque SHA-256 não aceita sal",
+        "O item 2, porque geradores aleatórios não produzem sais válidos",
+        "O item 4, porque o operador de igualdade não funciona com hashes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Releia o item 1 e o item 3 juntos.",
+        "É possível recuperar a senha a partir de um resumo?",
+        "Se a política faz as duas coisas, o que isso implica sobre o armazenamento real?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se só o resumo está guardado, de onde sairia a senha para enviar por e-mail?",
+      "explicacao": "Os itens 1 e 3 se contradizem: hash não tem volta, então enviar a senha original implica que ela está guardada de forma recuperável em algum lugar — em claro ou cifrada — e a política mente sobre o próprio armazenamento. É o sinal clássico de sistema que guarda senha reversível. Os outros itens também são falhos: SHA-256 é rápido demais, o gerador padrão é inadequado para material de segurança e a comparação com igualdade vaza tempo. Mas apenas o item 3 é impossível como descrito.",
+      "por_que_erradas": {
+        "1": "SHA-256 aceita qualquer entrada, inclusive sal concatenado; o problema é ser rápido.",
+        "2": "Geradores padrão produzem valores; o problema é a previsibilidade.",
+        "3": "O operador funciona; o problema é o vazamento de tempo."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; Crypto 101, cap. 10",
+      "tags": ["hash", "senhas", "caca-erro", "politica", "recuperacao"]
+    },
+    {
+      "id": "2.4.q21",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que deve acontecer quando um usuário esquece a senha, em um sistema que armazena senhas corretamente?",
+      "alternativas": [
+        "Um processo de redefinição com token temporário e de uso único, porque a senha original não pode ser recuperada",
+        "O envio da senha original por e-mail, após confirmação de identidade",
+        "A exibição da senha na tela após responder a uma pergunta secreta",
+        "A geração de uma senha idêntica à anterior a partir do resumo armazenado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Hash tem volta?",
+        "Se o sistema envia a senha original, o que isso revela sobre o armazenamento?",
+        "O token de redefinição precisa vir de qual fonte de aleatoriedade?"
+      ],
+      "pergunta_socratica": "Antes de conferir: um sistema que consegue te mostrar a sua senha guarda o quê, exatamente?",
+      "explicacao": "Com armazenamento correto a senha não existe em lugar nenhum de forma recuperável, então só resta a redefinição — com token aleatório de fonte criptográfica, uso único e prazo curto. Qualquer sistema que devolva a senha original está guardando algo reversível, e isso é um achado por si só: em um vazamento, todas as senhas saem em claro.",
+      "por_que_erradas": {
+        "1": "Enviar a senha original implica armazenamento reversível.",
+        "2": "Exibir a senha tem o mesmo problema, agravado pela pergunta secreta como autenticação fraca.",
+        "3": "Não é possível derivar a senha a partir do resumo."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
+      "tags": ["hash", "senhas", "recuperacao", "tokens"]
+    },
+    {
+      "id": "2.4.q22",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "Qual é a diferença entre resistência de segunda pré-imagem e resistência a colisão?",
+      "alternativas": [
+        "Na segunda pré-imagem a entrada é dada e o atacante precisa achar outra com o mesmo resumo; na colisão ele pode escolher as duas livremente",
+        "Segunda pré-imagem trata de resumos duplicados e colisão trata de entradas duplicadas",
+        "São o mesmo conceito, com nomes usados por comunidades diferentes",
+        "Colisão só ocorre em funções com saída pequena; segunda pré-imagem ocorre em qualquer função"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Em qual dos dois o atacante tem mais liberdade?",
+        "Qual é mais fácil de conseguir, por isso mesmo?",
+        "MD5 caiu primeiro em qual das duas?"
+      ],
+      "pergunta_socratica": "Antes de conferir: é mais fácil achar um par qualquer que colida, ou achar algo que colida com um valor específico que te deram?",
+      "explicacao": "A liberdade muda tudo. Na colisão o atacante escolhe as duas entradas e busca qualquer par que coincida, o que é bem mais fácil; na segunda pré-imagem ele recebe uma entrada fixa e precisa encontrar outra que case com ela. MD5 caiu na resistência a colisão, que é a propriedade mais fraca das duas — e isso já basta para derrubar assinatura digital, porque ali o atacante frequentemente controla os dois documentos.",
+      "por_que_erradas": {
+        "1": "A descrição inverte e confunde os conceitos.",
+        "2": "São propriedades distintas, com dificuldades diferentes.",
+        "3": "Ambas dependem do tamanho da saída e da qualidade da função."
+      },
+      "fonte": "Crypto 101, cap. 10",
+      "tags": ["hash", "propriedades", "colisao", "conceito"]
+    },
+    {
+      "id": "2.4.q23",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Uma equipe precisa migrar senhas de SHA-256 sem sal para Argon2id sem forçar todos os usuários a redefinir imediatamente. Qual abordagem funciona?",
+      "alternativas": [
+        "Recalcular com Argon2id na próxima autenticação bem-sucedida, quando a senha em claro está disponível, marcando quais registros já foram migrados",
+        "Aplicar Argon2id sobre os resumos SHA-256 existentes, migrando toda a base de uma vez",
+        "Copiar os resumos para o novo campo e passar a usar Argon2id apenas para senhas novas",
+        "Reverter os resumos SHA-256 para obter as senhas e recalculá-las com Argon2id"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Em que momento o sistema tem a senha em claro?",
+        "É possível reverter um resumo?",
+        "Aplicar a função nova sobre o resumo antigo protege as senhas fracas?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o servidor vê a senha em claro em algum instante? Qual?",
+      "explicacao": "A senha em claro só existe no momento da autenticação, e é ali que se recalcula com a função nova, marcando o registro como migrado. Aplicar Argon2id sobre o resumo antigo é uma técnica usada em alguns casos, mas mantém a fraqueza original — o espaço de busca continua sendo o das senhas contra SHA-256 sem sal. Manter os antigos como estão não corrige nada, e reverter resumos é impossível. Vale combinar com prazo para redefinição forçada dos que não voltarem.",
+      "por_que_erradas": {
+        "1": "Encadear funções sobre o resumo antigo preserva a fraqueza original.",
+        "2": "Deixar os antigos como estão mantém a base vulnerável.",
+        "3": "Resumos não são reversíveis."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet",
+      "tags": ["hash", "senhas", "migracao", "argon2", "legado"]
+    },
+    {
+      "id": "2.4.q24",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1, 2],
+      "enunciado": "Em qual situação MD5 ainda pode ser usado sem problema de segurança?",
+      "alternativas": [
+        "Como verificação de corrupção acidental, onde não há adversário escolhendo o conteúdo — ainda assim, sem razão para preferi-lo a SHA-256",
+        "Para armazenar senhas, desde que com sal único por usuário",
+        "Para assinar documentos, desde que a chave seja de 4096 bits",
+        "Para verificar arquivos recebidos de terceiros pela internet"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A pergunta é se existe adversário escolhendo o conteúdo.",
+        "Três das opções envolvem alguém interessado em enganar a verificação.",
+        "Mesmo no caso permitido, há motivo para preferir MD5?"
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual dessas situações ninguém ganha nada produzindo uma colisão?",
+      "explicacao": "Sem adversário, detectar corrupção acidental continua funcionando — mas SHA-256 é rápido o bastante para qualquer uso comum, então não há motivo para manter MD5. Senha exige função lenta, e nem MD5 nem SHA-256 servem. Assinatura e verificação de arquivo de terceiro têm adversário por definição, e é exatamente onde a colisão produzível derruba a garantia.",
+      "por_que_erradas": {
+        "1": "Senha exige função lenta; sal não corrige a velocidade nem a fraqueza do MD5.",
+        "2": "Assinatura com resumo colidível é quebrada independentemente do tamanho da chave.",
+        "3": "Terceiro na internet é adversário em potencial."
+      },
+      "fonte": "Crypto 101, cap. 10.2; colisão verificada em execução",
+      "tags": ["hash", "md5", "modelo-de-ameaca", "obsoleto"]
+    },
+    {
+      "id": "2.4.q25",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Coloque em ordem as etapas de verificar uma senha em um sistema bem construído.",
+      "itens": [
+        "Localizar o registro do usuário e recuperar o resumo armazenado, que já embute o sal e os parâmetros usados",
+        "Recalcular a função de senha sobre a senha recebida, com o mesmo sal e os mesmos parâmetros",
+        "Comparar o resultado com o armazenado usando comparação em tempo constante",
+        "Se os parâmetros armazenados estiverem defasados, recalcular e atualizar o registro",
+        "Registrar a tentativa e aplicar o controle de taxa antes de responder"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "O sal precisa ser conhecido antes do cálculo.",
+        "A atualização de parâmetros só faz sentido depois de a senha ser confirmada.",
+        "O registro e o controle de taxa acontecem em torno de toda a operação."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que a atualização dos parâmetros só pode acontecer depois da comparação?",
+      "explicacao": "O resumo armazenado carrega sal e parâmetros, então recuperá-lo vem primeiro; em seguida recalcula-se com exatamente os mesmos valores e compara-se em tempo constante. A atualização de parâmetros defasados só é possível depois da confirmação, porque é o único instante em que a senha em claro está disponível — é assim que uma base migra sem forçar redefinição. Registro e controle de taxa fecham a operação, e são o que contém o ataque online.",
+      "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
+      "tags": ["hash", "senhas", "verificacao", "ciclo", "migracao"]
+    },
+    {
+      "id": "2.4.q26",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Ao calcular o hash de um arquivo grande, por que ler em blocos em vez de carregar tudo na memória?",
+      "alternativas": [
+        "Porque o consumo de memória fica constante, e o resumo produzido é exatamente o mesmo",
+        "Porque ler em blocos produz um resumo mais seguro",
+        "Porque funções de hash não aceitam entradas maiores que alguns megabytes",
+        "Porque o resumo de um arquivo grande precisa ser calculado em partes e depois somado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O objeto de hash aceita ser alimentado aos poucos.",
+        "O resultado muda conforme o tamanho do bloco?",
+        "Não há limite de tamanho de entrada."
+      ],
+      "pergunta_socratica": "Antes de conferir: o resumo calculado em blocos de 8 KB é igual ao calculado de uma vez?",
+      "explicacao": "As funções de hash processam a entrada de forma incremental, então alimentar o objeto em blocos produz exatamente o mesmo resumo com consumo de memória constante — verificado em execução. Não há ganho de segurança nem limite de tamanho de entrada, e não existe soma de resumos parciais: o estado interno é atualizado bloco a bloco.",
+      "por_que_erradas": {
+        "1": "O resumo é idêntico; a diferença é só de memória.",
+        "2": "Não há limite prático de tamanho de entrada.",
+        "3": "Não se somam resumos parciais; o estado é atualizado incrementalmente."
+      },
+      "fonte": "Comportamento verificado em execução; Crypto 101, cap. 10",
+      "tags": ["hash", "integridade", "arquivos", "python"]
+    },
+    {
+      "id": "2.4.q27",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um sistema aplica bcrypt em senhas e não trata o limite de tamanho da função. Qual é a consequência?",
+      "alternativas": [
+        "Senhas longas são truncadas em 72 bytes: tudo além disso é ignorado, e senhas com o mesmo prefixo passam a ser equivalentes",
+        "Senhas longas causam erro de execução e impedem o cadastro",
+        "Senhas longas ficam mais fracas porque o bcrypt reduz o fator de trabalho",
+        "Nenhuma: o bcrypt aceita entradas de qualquer tamanho"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O limite do bcrypt é de 72 bytes de entrada.",
+        "O que acontece com o excedente — erro ou descarte?",
+        "Duas senhas longas com o mesmo começo produzem o quê?"
+      ],
+      "pergunta_socratica": "Antes de conferir: duas frases-senha longas que só diferem no final são a mesma senha para o bcrypt?",
+      "explicacao": "O bcrypt tem limite de 72 bytes de entrada, e o excedente é simplesmente ignorado — sem erro. O efeito prático é que frases-senha longas que compartilham os primeiros 72 bytes viram equivalentes, o que reduz a segurança justamente de quem escolheu senhas mais fortes. A aplicação precisa impor o limite explicitamente, e é uma das razões de o bcrypt ficar reservado a sistemas legados.",
+      "por_que_erradas": {
+        "1": "Não há erro; o excedente é descartado em silêncio.",
+        "2": "O fator de trabalho não é alterado pelo tamanho da entrada.",
+        "3": "O limite existe e é de 72 bytes."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet (consultado)",
+      "tags": ["hash", "senhas", "bcrypt", "limite", "armadilha"]
+    },
+    {
+      "id": "2.4.q28",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 2],
+      "enunciado": "Por que armazenar senhas cifradas, em vez de resumidas, é considerado errado?",
+      "alternativas": [
+        "Porque cifra tem volta: quem obtiver a chave recupera todas as senhas em claro, e o sistema não precisa dessa capacidade",
+        "Porque cifrar é mais lento que resumir",
+        "Porque cifras modernas não aceitam entradas curtas como senhas",
+        "Porque a senha cifrada ocupa mais espaço no banco"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O sistema precisa recuperar a senha original em algum momento?",
+        "O que acontece se a chave vazar junto com o banco?",
+        "Resumo é escolhido justamente por não ter volta."
+      ],
+      "pergunta_socratica": "Antes de conferir: para verificar uma senha, é preciso conhecê-la, ou basta comparar?",
+      "explicacao": "Verificar senha só exige comparação, não recuperação — e a irreversibilidade do resumo é uma propriedade desejada, não uma limitação. Cifrar cria uma capacidade que o sistema não precisa e que se transforma em risco: chave e banco costumam vazar juntos, e o resultado é a base inteira em claro. Velocidade, tamanho de entrada e espaço em disco não são os critérios.",
+      "por_que_erradas": {
+        "1": "Velocidade não é o critério; funções de senha são lentas de propósito.",
+        "2": "Cifras aceitam entradas curtas normalmente.",
+        "3": "Espaço em disco é irrelevante nessa decisão."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; Crypto 101, cap. 10.6",
+      "tags": ["hash", "senhas", "cifra", "irreversibilidade"]
+    },
+    {
+      "id": "2.4.q29",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3, 1],
+      "enunciado": "Uma equipe monitora integridade de arquivos de configuração comparando resumos SHA-256 guardados em um arquivo no mesmo servidor. Qual é a limitação?",
+      "alternativas": [
+        "Quem obtiver privilégio no servidor altera o arquivo e o resumo de referência juntos; a referência precisa ficar fora do alcance de quem foi comprometido",
+        "SHA-256 é inadequado para arquivos de texto e deveria ser substituído por MD5",
+        "A comparação de resumos consome muito processamento em verificações frequentes",
+        "Arquivos de configuração mudam com frequência, o que torna a verificação inútil"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Onde está guardada a referência?",
+        "Quem comprometeu o servidor alcança esse arquivo?",
+        "Relembre a mesma lição sobre logs locais."
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante com privilégio no servidor consegue editar os dois arquivos?",
+      "explicacao": "É o mesmo problema do log guardado na máquina comprometida: quem tem privilégio ajusta a referência junto com o arquivo, e a verificação passa a confirmar o estado adulterado. A referência precisa ficar fora do alcance — em destino centralizado com acesso somente de adição, ou assinada com chave que não esteja no servidor. SHA-256 é adequado, o custo é baixo, e mudança legítima se trata atualizando a referência de forma controlada.",
+      "por_que_erradas": {
+        "1": "MD5 seria pior; SHA-256 é adequado para o caso.",
+        "2": "O custo de calcular resumos de arquivos de configuração é baixo.",
+        "3": "Mudança legítima é tratada por atualização controlada da referência."
+      },
+      "fonte": "Crypto 101, cap. 10; teoria 1.1.t6",
+      "tags": ["hash", "integridade", "monitoramento", "centralizacao"]
+    },
+    {
+      "id": "2.4.q30",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que o controle de taxa e o bloqueio de conta não substituem o armazenamento adequado de senhas?",
+      "alternativas": [
+        "Porque eles só atuam no ataque online; se a base vazar, o atacante testa candidatos offline sem passar pelo servidor",
+        "Porque bloqueio de conta é proibido pelas recomendações atuais",
+        "Porque controle de taxa reduz a velocidade do sistema para usuários legítimos",
+        "Porque essas medidas só funcionam em sistemas com múltiplo fator"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Contra qual tipo de ataque essas medidas funcionam?",
+        "E quando o atacante já tem a base em mãos?",
+        "As duas defesas são complementares, não alternativas."
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante testando candidatos na própria máquina passa pelo seu controle de taxa?",
+      "explicacao": "Controle de taxa e bloqueio contêm o ataque online, onde cada tentativa passa pelo servidor. Vazada a base, o ataque migra para a máquina do atacante, e nenhuma dessas defesas participa — resta o custo por tentativa imposto pela função de senha. São camadas complementares: uma cobre o ataque pela porta da frente, a outra cobre o cenário em que a porta deixou de existir.",
+      "por_que_erradas": {
+        "1": "Bloqueio é usado com cuidado por causa de negação de serviço, mas não é proibido.",
+        "2": "Impacto em usuários legítimos é gerenciável e não é a razão.",
+        "3": "Essas medidas funcionam independentemente de múltiplo fator."
+      },
+      "fonte": "NIST SP 800-63B; OWASP Password Storage Cheat Sheet",
+      "tags": ["hash", "senhas", "controle-de-taxa", "defesa-em-profundidade"]
+    },
+    {
+      "id": "2.4.q31",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0, 1],
+      "enunciado": "Por que a resistência a colisão é a propriedade que mais importa em assinatura digital?",
+      "alternativas": [
+        "Porque a assinatura é calculada sobre o resumo: se o atacante produz dois documentos com o mesmo resumo, a assinatura de um vale para o outro",
+        "Porque a assinatura precisa que o resumo seja reversível para ser verificada",
+        "Porque a resistência de pré-imagem não se aplica a documentos assinados",
+        "Porque assinaturas usam resumos de tamanho variável"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Sobre o que a assinatura é calculada?",
+        "Se dois documentos têm o mesmo resumo, a assinatura distingue os dois?",
+        "Quem escolhe os documentos nesse ataque?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante prepara dois contratos com o mesmo resumo e pede sua assinatura em um. O que ele tem depois?",
+      "explicacao": "A assinatura vale para o resumo, não para o documento — então dois documentos com o mesmo resumo compartilham a mesma assinatura válida. O atacante prepara um par colidente, obtém assinatura no documento inofensivo e transfere a assinatura para o outro. É por isso que MD5 e SHA-1 saíram das assinaturas assim que as colisões se tornaram produzíveis: nesse cenário, o atacante controla os dois lados.",
+      "por_que_erradas": {
+        "1": "Resumos não são reversíveis, e a verificação não exige isso.",
+        "2": "A resistência de pré-imagem também importa; a de colisão é a mais explorável aqui.",
+        "3": "Resumos têm tamanho fixo."
+      },
+      "fonte": "Crypto 101, cap. 10 e 12",
+      "tags": ["hash", "colisao", "assinatura", "md5", "sha1"]
+    },
+    {
+      "id": "2.4.q32",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "enunciado": "Uma aplicação nova precisa autenticar usuários por senha. Qual conjunto de decisões é o mais defensável?",
+      "alternativas": [
+        "Argon2id com os parâmetros mínimos recomendados, sal gerado pela própria biblioteca, verificação em tempo constante, controle de taxa e múltiplo fator disponível",
+        "SHA-512 com sal único, controle de taxa agressivo e troca obrigatória de senha a cada 60 dias",
+        "bcrypt com fator 4 para não impactar o tempo de resposta, e sal fixo da aplicação",
+        "Cifrar as senhas com AES-GCM, guardando a chave em variável de ambiente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Relembre a ordem de preferência das funções.",
+        "Rotação periódica de senha é recomendada hoje?",
+        "Fator de trabalho baixo economiza tempo de quem?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas opções continua protegendo depois que a base vazar?",
+      "explicacao": "A primeira reúne as decisões corretas: função recomendada com parâmetros calibrados, sal gerado pela biblioteca — que é onde os erros manuais aparecem —, comparação em tempo constante, contenção do ataque online e múltiplo fator, que é o que sobrevive à senha vazada. SHA-512 é rápido e a rotação periódica é desaconselhada pelo NIST. Fator 4 economiza tempo principalmente do atacante, e sal fixo não individualiza. Cifrar cria a capacidade de recuperar senhas, que ninguém deveria ter.",
+      "por_que_erradas": {
+        "1": "SHA-512 é rápido demais, e rotação periódica é desaconselhada pelo NIST SP 800-63B.",
+        "2": "Fator 4 é muito baixo e sal fixo não individualiza os registros.",
+        "3": "Senha nunca deve ser recuperável; cifra tem volta."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
+      "tags": ["hash", "senhas", "argon2", "projeto", "mfa"]
+    },
+    {
+      "id": "2.4.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual função de hash é adequada para verificação de integridade em projeto novo?",
+      "alternativas": [
+        "SHA-256 ou uma função mais forte da mesma família",
+        "MD5, por ser mais rápido em arquivos grandes",
+        "SHA-1, que ainda não tem colisões demonstradas",
+        "CRC32, que é o padrão para verificação de arquivos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Duas das opções têm colisões demonstradas.",
+        "Uma delas nem é função criptográfica.",
+        "Qual família é a recomendada atualmente?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas resiste a alguém tentando produzir uma colisão de propósito?",
+      "explicacao": "SHA-256 é a escolha padrão, com SHA-384 e SHA-512 disponíveis quando se quer margem maior. MD5 e SHA-1 têm colisões demonstradas — a de SHA-1 foi publicada em 2017 — e não devem ser usados onde haja adversário. CRC32 é detecção de erro de transmissão, não função criptográfica: forjar um valor coincidente é trivial.",
+      "por_que_erradas": {
+        "1": "MD5 tem colisões práticas, verificadas em execução.",
+        "2": "SHA-1 teve colisão demonstrada publicamente em 2017.",
+        "3": "CRC32 não é criptográfico e é trivial de forjar."
+      },
+      "fonte": "Crypto 101, cap. 10.3 e 10.4",
+      "tags": ["hash", "sha256", "integridade", "escolha"]
+    },
+    {
+      "id": "2.4.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "enunciado": "Ao revisar um sistema de autenticação, quais quatro perguntas sobre armazenamento de senha rendem mais?",
+      "alternativas": [
+        "Qual função é usada e com quais parâmetros; o sal é único por usuário; a comparação é em tempo constante; e existe caminho que recupere a senha original",
+        "Qual é o tamanho mínimo de senha exigido; com que frequência ela expira; quantos caracteres especiais são obrigatórios; e se há pergunta secreta",
+        "Quantos usuários existem; qual o volume de autenticações por dia; qual o tempo médio de resposta; e qual banco é usado",
+        "Se o código é revisado por pares; se há testes automatizados; se a documentação está atualizada; e se o time recebeu treinamento"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As quatro perguntas certas correspondem às quatro falhas do módulo.",
+        "Uma das opções lista práticas de senha desaconselhadas pelo NIST.",
+        "Outra mede volume, não segurança."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual pergunta, respondida com sim, revela que o sistema guarda senha de forma reversível?",
+      "explicacao": "As quatro cobrem exatamente as falhas catalogadas: função e parâmetros, individualização pelo sal, vazamento por tempo na comparação, e existência de caminho de recuperação — esta última é a mais reveladora, porque um sim significa armazenamento reversível. A segunda opção lista práticas de composição e rotação que o NIST desaconselha, e as demais medem volume ou qualidade de engenharia.",
+      "por_que_erradas": {
+        "1": "Rotação periódica e regras de composição são desaconselhadas pelo NIST SP 800-63B.",
+        "2": "São métricas de volume, sem relação com o armazenamento.",
+        "3": "São boas práticas de engenharia, sem cobrir o desenho de senha."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
+      "tags": ["hash", "senhas", "revisao", "auditoria"]
+    },
+    {
+      "id": "2.4.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Um sistema usa MD5 sem sal para senhas, e a equipe tem orçamento para uma única mudança neste trimestre. O que priorizar?",
+      "alternativas": [
+        "Migrar o armazenamento para Argon2id com sal por usuário, recalculando na próxima autenticação — é o que protege quando a base vazar",
+        "Trocar MD5 por SHA-256, mantendo a ausência de sal, por ser a alteração mais simples",
+        "Implantar múltiplo fator, mantendo o armazenamento em MD5 sem sal",
+        "Adicionar controle de taxa no login, deixando o armazenamento para o próximo trimestre"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual dessas medidas continua valendo depois que a base vazar?",
+        "SHA-256 sem sal corrige o modelo de ataque?",
+        "Múltiplo fator e controle de taxa protegem contra qual tipo de ataque?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a base vaza amanhã. Qual dessas quatro mudanças teria feito diferença?",
+      "explicacao": "Com uma única mudança, a que mais reduz risco é a que sobrevive ao vazamento da base. Migrar para Argon2id com sal por usuário ataca as duas fraquezas de uma vez — função rápida e ausência de individualização. SHA-256 sem sal mantém tabelas pré-calculadas viáveis. Múltiplo fator é excelente e protege o login, não a base. Controle de taxa contém o ataque online e desaparece no cenário offline. As três descartadas são boas medidas — apenas não são a primeira.",
+      "por_que_erradas": {
+        "1": "SHA-256 continua rápido, e sem sal a base segue atacável em lote.",
+        "2": "Múltiplo fator protege o login, e não as senhas já vazadas.",
+        "3": "Controle de taxa não atua no ataque offline."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
+      "tags": ["hash", "senhas", "priorizacao", "migracao", "carreira"]
+    }
+  ]
+}

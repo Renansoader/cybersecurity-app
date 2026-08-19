@@ -282,7 +282,7 @@
         "2": "O hash não interfere na entrega do arquivo; um download interrompido simplesmente terá hash diferente.",
         "3": "Verificação de vírus é outra coisa. O hash aqui compara o arquivo com o original publicado."
       },
-      "fonte": "Crypto 101, cap. sobre funções de hash; Security Engineering, 3ª ed., cap. 5",
+      "fonte": "Crypto 101, cap. 10 (funções de hash); Security Engineering, 3ª ed., cap. 5",
       "tags": ["triade-cia", "integridade", "hash", "fundamentos"]
     },
     {

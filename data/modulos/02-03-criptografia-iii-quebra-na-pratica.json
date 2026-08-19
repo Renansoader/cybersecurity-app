@@ -1,0 +1,1039 @@
+{
+  "id": "2.3",
+  "nivel": 2,
+  "titulo": "Criptografia III — como a cripto quebra na prática",
+  "objetivos": [
+    "Explicar por que o modo de operação e o uso, e não o algoritmo, são a origem da maioria das falhas",
+    "Reconhecer as consequências do reuso de IV ou nonce em cada modo",
+    "Identificar vazamento por canal lateral, incluindo oráculo de preenchimento e diferença de tempo",
+    "Justificar a regra de não implementar criptografia própria e escolher bibliotecas consolidadas"
+  ],
+  "pre_requisitos": ["2.1", "2.2"],
+  "teoria": [
+    {
+      "id": "2.3.t1",
+      "titulo": "O algoritmo quase nunca é o problema",
+      "texto": "Ninguém quebra o AES. O que quebra é o entorno: modo inadequado, nonce repetido, chave previsível, verificação de integridade ausente, mensagem de erro que entrega informação, chave guardada no lugar errado.\n\nA consequência prática muda a pergunta da avaliação. Em vez de \"que algoritmo vocês usam?\", pergunte como ele é usado: qual modo, de onde vem o nonce, de onde vem a chave, o que acontece quando a verificação falha.\n\nEste módulo é uma coleção de falhas reais e repetidas. Todas têm em comum o fato de a matemática estar intacta e o sistema estar quebrado.",
+      "analogia": "A fechadura é excelente. A chave está debaixo do tapete, a janela ficou aberta e o vigia avisa quando você chega perto.",
+      "erro_comum": "Auditar criptografia perguntando só o nome do algoritmo. É a pergunta que menos discrimina sistemas seguros de inseguros.",
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 7"
+    },
+    {
+      "id": "2.3.t2",
+      "titulo": "ECB: quando a estrutura atravessa a cifra",
+      "texto": "O modo ECB cifra cada bloco isoladamente, sempre com a mesma chave e sem nenhum encadeamento. Entrada igual produz saída igual, e é só isso que um atacante precisa.\n\nO efeito é visível em imagem: cifrada em ECB, uma figura com áreas uniformes continua reconhecível, porque as regiões iguais viram blocos cifrados iguais. Em dados estruturados o mesmo ocorre de forma menos vistosa e igualmente grave — repetições de campo, valores idênticos entre registros, padrões de formato.\n\nECB não vaza a chave: vaza o desenho do dado. É o exemplo mais didático de que segurança não é propriedade do algoritmo isolado.",
+      "analogia": "Traduzir um texto palavra por palavra com o mesmo dicionário. Ninguém lê o idioma, e todo mundo vê onde as palavras se repetem.",
+      "erro_comum": "Escolher ECB por ser o padrão de alguma biblioteca antiga e não perceber, porque o resultado \"parece\" aleatório.",
+      "fonte": "Crypto 101, cap. 7.2 e 7.3"
+    },
+    {
+      "id": "2.3.t3",
+      "titulo": "Reuso de IV e de nonce",
+      "texto": "Modos que produzem fluxo de chave — CTR, GCM, ChaCha20 — dependem de um nonce que nunca se repita com a mesma chave. Repetir gera o mesmo fluxo, e quem tem dois textos cifrados com o mesmo fluxo pode combiná-los e eliminar a cifra, recuperando a relação entre as duas mensagens.\n\nEm GCM a consequência é pior: além do sigilo, o reuso de nonce permite recuperar a subchave de autenticação e forjar mensagens válidas. Não é uma degradação gradual — é falha catastrófica a partir da segunda repetição.\n\nEm CBC o requisito é diferente: o IV precisa ser imprevisível, e não apenas único. IV previsível abre ataques de texto escolhido.\n\nA regra operacional: nonce vem de contador que nunca reinicia ou de fonte aleatória adequada, nunca de valor fixo no código nem de algo derivado do próprio dado.",
+      "analogia": "Duas cartas escritas com o mesmo molde de papel vazado: sobrepondo as duas, o molde some e o texto aparece.",
+      "erro_comum": "Fixar o IV como uma constante para \"simplificar\". É a forma mais rápida de transformar cifra moderna em texto claro.",
+      "fonte": "Crypto 101, cap. 7.5 e 7.14; NIST SP 800-38D"
+    },
+    {
+      "id": "2.3.t4",
+      "titulo": "Oráculo de preenchimento",
+      "texto": "Em modos que exigem preenchimento, como CBC, a mensagem precisa completar o último bloco. Ao decifrar, o sistema verifica se o preenchimento está correto.\n\nO problema aparece quando o sistema reage de forma diferente a preenchimento inválido e a conteúdo inválido: uma mensagem de erro distinta, um código de status diferente, um tempo de resposta maior. Cada resposta dessas é um bit de informação, e com bits suficientes o atacante decifra a mensagem inteira sem nunca descobrir a chave.\n\nÉ o exemplo mais claro de canal lateral: a informação não vaza pelo texto cifrado, vaza pelo comportamento do sistema. A defesa direta é usar cifra autenticada, que rejeita a mensagem antes de qualquer processamento — outra razão para AES-GCM e ChaCha20-Poly1305 serem o padrão.",
+      "analogia": "Um cofre que emite um clique diferente quando o primeiro número está certo. Você abre sem nunca ter sabido a combinação.",
+      "erro_comum": "Diferenciar mensagens de erro para \"ajudar na depuração\". Cada diferença é uma resposta grátis para quem está atacando.",
+      "fonte": "Crypto 101, cap. 7.8 e 7.9"
+    },
+    {
+      "id": "2.3.t5",
+      "titulo": "Aleatoriedade fraca",
+      "texto": "Chaves, nonces e tokens dependem de imprevisibilidade. Geradores comuns de números pseudoaleatórios são feitos para simulação: são rápidos, reprodutíveis e previsíveis a partir de poucas saídas — verificável em uma linha, fixando a semente e observando a sequência se repetir.\n\nUsar esse tipo de gerador para material criptográfico produz chaves que podem ser reconstruídas. O mesmo vale para semear a partir de valores adivinháveis, como o horário atual.\n\nA regra é usar a fonte de aleatoriedade criptográfica do sistema operacional — em Python, o módulo secrets ou os.urandom. Foi por falhas dessa classe, e não por matemática quebrada, que sistemas inteiros caíram.",
+      "analogia": "Sortear a senha do cofre com um dado viciado que sempre cai na mesma sequência.",
+      "erro_comum": "Usar o gerador padrão da linguagem para gerar token de sessão. Funciona, parece aleatório e é previsível.",
+      "fonte": "Crypto 101, cap. 14; comportamento verificado em execução"
+    },
+    {
+      "id": "2.3.t6",
+      "titulo": "Não invente a sua própria criptografia",
+      "texto": "A regra soa arrogante e é estatística: esquemas criptográficos falham por detalhes que não aparecem em teste funcional. O código cifra, decifra, os testes passam — e o esquema é quebrável por alguém que conhece a classe de ataque.\n\nIsso vale também para implementar um algoritmo padrão por conta própria. A especificação do AES é pública, e escrever uma versão que produz a saída correta é viável; escrever uma que não vaze por tempo de execução, por acesso a cache ou por tratamento de erro é outro problema, e é onde as bibliotecas maduras concentram anos de trabalho.\n\nA orientação prática: use uma biblioteca consolidada, prefira a interface de mais alto nível que ela ofereça, e não crie combinação nova de primitivas sem revisão de quem entende do assunto.",
+      "analogia": "Projetar o próprio cinto de segurança. Ele prende, e ninguém testou o que acontece na batida.",
+      "erro_comum": "Concluir que o esquema é seguro porque os testes passam. Teste funcional mostra que cifra e decifra; ele não mostra o que vaza.",
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 6"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "2.3.q1",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Na prática, onde a criptografia de sistemas reais costuma falhar?",
+      "alternativas": [
+        "No uso: modo inadequado, nonce repetido, chave previsível ou mal guardada, e ausência de verificação de integridade",
+        "No algoritmo: AES e RSA têm falhas matemáticas exploradas com frequência",
+        "No tamanho da chave, quase sempre pequeno demais nos sistemas atuais",
+        "Na velocidade de processamento, que obriga a enfraquecer a cifra"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantas vezes você ouviu falar em AES quebrado?",
+        "E em chave encontrada em repositório?",
+        "O ataque procura o caminho mais fácil."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que é mais provável — alguém fatorar uma chave RSA de 2048 bits, ou encontrá-la em um arquivo de configuração?",
+      "explicacao": "Os algoritmos padrão resistem; o entorno é que cede. Modo errado, nonce repetido, chave previsível ou exposta, integridade ausente e mensagens de erro que vazam informação respondem por praticamente todos os casos reais. É por isso que a pergunta útil em uma avaliação não é qual algoritmo, e sim como ele é usado.",
+      "por_que_erradas": {
+        "1": "AES e RSA com parâmetros adequados não têm quebra prática conhecida.",
+        "2": "Tamanho insuficiente ocorre, mas é minoria diante dos erros de uso.",
+        "3": "Desempenho não obriga a enfraquecer cifra em sistemas atuais."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 7",
+      "tags": ["cripto", "falhas", "uso", "fundamentos"]
+    },
+    {
+      "id": "2.3.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Por que dizer \"o sistema usa AES-256\" não permite avaliar a segurança dele?",
+      "alternativas": [
+        "Porque falta o modo de operação, de onde vem o nonce e como a chave é gerenciada — é aí que as falhas moram",
+        "Porque AES-256 é mais fraco que AES-128 em alguns modos",
+        "Porque o número 256 se refere ao tamanho do bloco, e não da chave",
+        "Porque AES foi descontinuado e substituído por outro padrão"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare AES-256-ECB com AES-256-GCM.",
+        "O tamanho da chave responde à pergunta certa?",
+        "Duas alternativas afirmam coisas tecnicamente falsas."
+      ],
+      "pergunta_socratica": "Antes de conferir: dois sistemas usam AES-256. Um cifra tudo com nonce fixo. Eles são igualmente seguros?",
+      "explicacao": "A informação que falta é a que decide: modo, origem do nonce e gestão da chave. AES-256-ECB vaza estrutura; AES-256-GCM com nonce fixo é catastrófico; AES-256-GCM com nonce único e chave em cofre é sólido. Os três dizem \"AES-256\". O bloco do AES tem 128 bits independentemente da chave, e o algoritmo continua sendo o padrão.",
+      "por_que_erradas": {
+        "1": "AES-256 não é mais fraco que AES-128; a diferença de modo é que importa.",
+        "2": "O bloco do AES é de 128 bits; 256 é o tamanho da chave.",
+        "3": "AES continua sendo o padrão vigente."
+      },
+      "fonte": "Crypto 101, cap. 7.3; NIST SP 800-38D",
+      "tags": ["cripto", "modos", "aes", "avaliacao"]
+    },
+    {
+      "id": "2.3.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "O que acontece quando o mesmo nonce é usado duas vezes com a mesma chave em AES-GCM?",
+      "alternativas": [
+        "Falha catastrófica: o sigilo das duas mensagens é comprometido e a subchave de autenticação pode ser recuperada, permitindo forjar mensagens válidas",
+        "Nada relevante: o nonce é público e pode se repetir sem consequência",
+        "A cifra fica mais lenta, porque o algoritmo precisa recalcular o fluxo",
+        "A segunda mensagem simplesmente não é cifrada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Modos de fluxo geram o mesmo fluxo de chave para o mesmo par chave e nonce.",
+        "O que se obtém combinando dois textos cifrados com o mesmo fluxo?",
+        "Em GCM há uma consequência adicional, além do sigilo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se dois textos cifrados usam o mesmo fluxo de chave, o que a combinação dos dois elimina?",
+      "explicacao": "O nonce é público, e é justamente por isso que ele precisa ser único: com o mesmo par chave e nonce, o fluxo de chave se repete, e combinar os dois textos cifrados cancela o fluxo e revela a relação entre as mensagens. Em GCM há o agravante de a repetição permitir recuperar a subchave de autenticação, o que abre a porta para forjar mensagens que passam na verificação. É falha imediata, não degradação gradual.",
+      "por_que_erradas": {
+        "1": "Ser público não dispensa a unicidade; são requisitos diferentes.",
+        "2": "Não há impacto relevante de desempenho; o impacto é de segurança.",
+        "3": "A segunda mensagem é cifrada normalmente — e é isso que cria o problema."
+      },
+      "fonte": "NIST SP 800-38D; Crypto 101, cap. 7.14 e 11.9",
+      "tags": ["cripto", "nonce", "gcm", "falha-catastrofica"]
+    },
+    {
+      "id": "2.3.q4",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Qual é a diferença entre os requisitos de IV em CBC e de nonce em CTR ou GCM?",
+      "alternativas": [
+        "Em CBC o IV precisa ser imprevisível; em CTR e GCM o nonce precisa ser único, e a repetição é catastrófica",
+        "Em CBC o IV precisa ser secreto; em CTR e GCM ele pode ser público",
+        "Em CBC o IV é opcional; em CTR e GCM ele é obrigatório",
+        "Não há diferença: ambos exigem apenas que o valor seja aleatório"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Único e imprevisível são exigências diferentes.",
+        "Um contador é único e perfeitamente previsível.",
+        "Nenhum dos dois é secreto."
+      ],
+      "pergunta_socratica": "Antes de conferir: um contador simples serve como IV de CBC? E como nonce de CTR?",
+      "explicacao": "As exigências não coincidem. Em CBC, um IV previsível — um contador, por exemplo — permite ataques de texto escolhido, então ele precisa ser imprevisível. Em CTR e GCM, um contador é perfeitamente aceitável desde que nunca repita com a mesma chave; o que mata é a repetição. Nenhum dos dois é secreto: ambos viajam junto do texto cifrado. Tratar as duas exigências como a mesma coisa produz erro nos dois sentidos.",
+      "por_que_erradas": {
+        "1": "Nem IV nem nonce são secretos.",
+        "2": "Ambos são obrigatórios nos respectivos modos.",
+        "3": "Único e imprevisível são requisitos distintos, e a confusão entre eles causa falhas."
+      },
+      "fonte": "Crypto 101, cap. 7.4, 7.5 e 7.14; NIST SP 800-38D",
+      "tags": ["cripto", "iv", "nonce", "cbc", "ctr"]
+    },
+    {
+      "id": "2.3.q5",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "trecho": "IV = b\"0000000000000000\"   # fixo, para simplificar a implantacao\n\ndef cifrar(chave, mensagem):\n    return aes_cbc_encrypt(chave, IV, mensagem)\n\ndef decifrar(chave, texto_cifrado):\n    return aes_cbc_decrypt(chave, IV, texto_cifrado)",
+      "enunciado": "Qual é a consequência do IV fixo neste código?",
+      "alternativas": [
+        "Mensagens iguais produzem textos cifrados iguais, e mensagens com início igual produzem blocos iniciais iguais — a estrutura do dado vaza",
+        "O código não funciona: CBC não aceita IV constante",
+        "A cifra fica mais lenta, porque o IV precisa ser recalculado a cada bloco",
+        "Nenhuma: como o IV não é secreto, o valor dele é irrelevante"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Para que serve o IV em CBC?",
+        "Duas mensagens que começam igual produzem o quê?",
+        "IV não ser secreto significa que ele pode ser constante?"
+      ],
+      "pergunta_socratica": "Antes de conferir: dois usuários com a mesma senha, cifrada com esse código, produzem o mesmo valor?",
+      "explicacao": "O IV existe para que a mesma mensagem, cifrada duas vezes com a mesma chave, produza saídas diferentes. Fixo, essa propriedade desaparece: valores iguais viram textos cifrados iguais, e mensagens com prefixo comum compartilham os blocos iniciais — o problema do ECB reaparece por outro caminho. O IV realmente não é secreto, mas precisa ser imprevisível e diferente a cada mensagem, gerado com aleatoriedade adequada e enviado junto do texto cifrado.",
+      "por_que_erradas": {
+        "1": "O código funciona; ele apenas é inseguro.",
+        "2": "Não há impacto relevante de desempenho.",
+        "3": "Não ser secreto não significa poder ser constante."
+      },
+      "fonte": "Crypto 101, cap. 7.4 e 7.5",
+      "tags": ["cripto", "iv", "cbc", "caca-erro", "vazamento"]
+    },
+    {
+      "id": "2.3.q6",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que caracteriza um ataque de oráculo de preenchimento?",
+      "alternativas": [
+        "O sistema reage de forma distinguível a preenchimento inválido, e o atacante usa essas respostas para decifrar a mensagem sem descobrir a chave",
+        "O atacante descobre a chave testando todas as combinações possíveis",
+        "O atacante substitui o algoritmo de preenchimento por um mais fraco",
+        "O sistema aceita mensagens sem preenchimento, o que permite injetar blocos extras"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Oráculo, aqui, é algo que responde perguntas.",
+        "Que informação uma mensagem de erro diferente entrega?",
+        "O ataque recupera o texto claro, não a chave."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o sistema responde de um jeito para preenchimento errado e de outro para conteúdo errado, o que o atacante aprende a cada tentativa?",
+      "explicacao": "O sistema vira um oráculo: cada resposta distinguível — mensagem diferente, código diferente, tempo diferente — informa se o preenchimento estava correto, e isso basta para recuperar o texto claro byte a byte. A chave nunca é descoberta e não precisa ser. A defesa direta é cifra autenticada, que verifica a etiqueta antes de qualquer processamento e responde sempre da mesma forma quando ela falha.",
+      "por_que_erradas": {
+        "1": "Força bruta contra a chave é outro ataque, e inviável em chaves adequadas.",
+        "2": "O atacante não altera o algoritmo; ele explora as respostas do sistema.",
+        "3": "O problema não é a ausência de preenchimento, e sim a reação distinguível a ele."
+      },
+      "fonte": "Crypto 101, cap. 7.8 e 7.9",
+      "tags": ["cripto", "padding-oracle", "canal-lateral", "cbc"]
+    },
+    {
+      "id": "2.3.q7",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Por que responder com mensagens de erro diferentes para \"preenchimento inválido\" e \"assinatura inválida\" é perigoso?",
+      "alternativas": [
+        "Porque a diferença entre as respostas é informação útil ao atacante, e é exatamente ela que viabiliza o oráculo",
+        "Porque mensagens longas consomem mais banda do servidor",
+        "Porque usuários legítimos podem se confundir com a terminologia técnica",
+        "Porque mensagens diferentes exigem mais código de tratamento de erro"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem lê essas mensagens além do desenvolvedor?",
+        "Quantos bits de informação uma resposta distinguível entrega?",
+        "Duas alternativas tratam de custo ou usabilidade, não de segurança."
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante manda mil requisições e recebe duas mensagens diferentes. O que ele monta com isso?",
+      "explicacao": "Cada resposta distinguível é um bit entregue ao atacante, e com bits suficientes ele reconstrói o texto claro. Por isso, em caminho criptográfico, a falha deve ser genérica e uniforme — mesma mensagem, mesmo código, tempo semelhante — com o detalhe registrado apenas em log interno. É a regra que concilia depuração e segurança: quem opera vê o detalhe, quem ataca não.",
+      "por_que_erradas": {
+        "1": "Banda não é a questão.",
+        "2": "Clareza para o usuário é desejável em outros contextos, não no caminho criptográfico.",
+        "3": "Quantidade de código não é o problema."
+      },
+      "fonte": "Crypto 101, cap. 7.9; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "canal-lateral", "mensagens-de-erro", "padding-oracle"]
+    },
+    {
+      "id": "2.3.q8",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que é um canal lateral em criptografia?",
+      "alternativas": [
+        "Informação que vaza pelo comportamento do sistema — tempo, consumo, mensagens de erro — e não pelo texto cifrado",
+        "Um canal de comunicação secundário usado para transmitir a chave",
+        "Uma vulnerabilidade no algoritmo que permite reduzir o espaço de chaves",
+        "Um modo de operação alternativo usado quando o principal falha"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O vazamento não está no dado; está em como o sistema se comporta.",
+        "Tempo de resposta é um exemplo clássico.",
+        "Não é falha matemática do algoritmo."
+      ],
+      "pergunta_socratica": "Antes de conferir: duas verificações levam tempos diferentes. O que isso informa a quem mede?",
+      "explicacao": "O canal lateral é o vazamento por observação indireta: quanto tempo a operação levou, quanta energia consumiu, qual mensagem de erro voltou, quais linhas de cache foram tocadas. A matemática permanece intacta e o segredo escapa mesmo assim — é por isso que comparar valores sensíveis em tempo constante é regra, e não capricho.",
+      "por_que_erradas": {
+        "1": "Não se trata de um canal de transmissão adicional.",
+        "2": "Falha no algoritmo é outro tipo de problema, e não canal lateral.",
+        "3": "Não é um modo de operação."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 19; Crypto 101, cap. 7.9",
+      "tags": ["cripto", "canal-lateral", "vocabulario", "tempo"]
+    },
+    {
+      "id": "2.3.q9",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "trecho": "def token_valido(recebido: str, esperado: str) -> bool:\n    if len(recebido) != len(esperado):\n        return False\n    for a, b in zip(recebido, esperado):\n        if a != b:\n            return False\n    return True",
+      "enunciado": "Qual é a falha desta comparação?",
+      "alternativas": [
+        "Ela retorna assim que encontra a primeira diferença, então o tempo de execução revela quantos caracteres iniciais estão corretos",
+        "Ela não trata o caso de os tokens serem vazios",
+        "O uso de zip é ineficiente e deveria ser substituído por índices",
+        "A comparação deveria ser feita sobre bytes, e não sobre str"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quanto tempo leva a comparação quando o primeiro caractere já difere? E quando os dez primeiros batem?",
+        "Quem consegue medir essa diferença?",
+        "A função está correta; o problema não é o resultado."
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante envia milhares de tentativas e mede o tempo de resposta. O que ele descobre?",
+      "explicacao": "A função devolve o resultado certo e vaza pelo tempo: sair no primeiro caractere diferente faz a comparação demorar proporcionalmente ao prefixo correto, e medindo isso o atacante reconstrói o token caractere a caractere. A correção é comparar em tempo constante com hmac.compare_digest — verificado em execução, devolvendo True para iguais e False para diferentes sem depender da posição da diferença. A verificação de tamanho no início também vaza o comprimento.",
+      "por_que_erradas": {
+        "1": "Tokens vazios são tratados corretamente pela lógica atual.",
+        "2": "Eficiência não é o problema; o problema é a saída antecipada.",
+        "3": "O tipo não altera o vazamento de tempo."
+      },
+      "fonte": "Comportamento verificado em execução; Security Engineering, 3ª ed., cap. 19",
+      "tags": ["cripto", "canal-lateral", "tempo", "caca-erro", "python"]
+    },
+    {
+      "id": "2.3.q10",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que gerar chaves com o gerador de números aleatórios padrão de uma linguagem é inadequado?",
+      "alternativas": [
+        "Porque esses geradores são determinísticos e previsíveis a partir de poucas saídas; material criptográfico exige a fonte aleatória do sistema operacional",
+        "Porque eles são lentos demais para gerar chaves longas",
+        "Porque eles só produzem números inteiros pequenos",
+        "Porque eles exigem uma semente informada manualmente a cada uso"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Fixe a semente e gere a sequência duas vezes. O que acontece?",
+        "Para que esses geradores foram projetados?",
+        "Qual módulo do Python é o indicado para segurança?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se alguém descobrir o estado interno do gerador, o que consegue prever?",
+      "explicacao": "Geradores comuns são feitos para simulação: rápidos e reprodutíveis. Verificado em execução — fixando a semente, a sequência se repete exatamente. Quem observa saídas suficientes reconstrói o estado interno e prevê as próximas, o que transforma chaves e tokens em valores adivinháveis. A fonte correta é a do sistema operacional, exposta em Python por secrets e os.urandom.",
+      "por_que_erradas": {
+        "1": "Geradores comuns são rápidos; velocidade não é a objeção.",
+        "2": "Eles produzem valores de qualquer magnitude necessária.",
+        "3": "A semente é definida automaticamente quando não informada."
+      },
+      "fonte": "Crypto 101, cap. 14; comportamento verificado em execução",
+      "tags": ["cripto", "aleatoriedade", "chaves", "python"]
+    },
+    {
+      "id": "2.3.q11",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3, 1],
+      "enunciado": "Um sistema gera tokens de recuperação de senha usando o horário atual como semente do gerador aleatório. Qual é o risco?",
+      "alternativas": [
+        "O espaço de possibilidades cai ao número de instantes plausíveis: quem sabe aproximadamente quando o token foi gerado consegue reproduzi-lo",
+        "Nenhum, desde que o token tenha pelo menos 32 caracteres",
+        "O risco é apenas de colisão entre dois tokens gerados no mesmo segundo",
+        "O risco é de desempenho, porque consultar o relógio é uma operação cara"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantos valores diferentes o relógio assume em uma janela de uma hora?",
+        "O atacante sabe aproximadamente quando pediu a recuperação?",
+        "Comprimento do token importa se ele for previsível?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante pede a recuperação e sabe o segundo em que isso aconteceu. Quantas tentativas ele precisa?",
+      "explicacao": "Semear pelo horário reduz o espaço de busca ao número de instantes plausíveis — alguns milhares, se a resolução for de milissegundos numa janela conhecida. Como o atacante costuma controlar o momento do pedido, ele estreita ainda mais a janela e reproduz a sequência. Comprimento não ajuda: um token longo e previsível continua previsível. A correção é secrets.token_urlsafe, alimentado pela fonte do sistema.",
+      "por_que_erradas": {
+        "1": "Comprimento não compensa previsibilidade.",
+        "2": "Colisão é consequência menor diante da possibilidade de reprodução.",
+        "3": "Consultar o relógio é barato; o problema é de segurança."
+      },
+      "fonte": "Crypto 101, cap. 14; comportamento verificado em execução",
+      "tags": ["cripto", "aleatoriedade", "tokens", "recuperacao-de-senha"]
+    },
+    {
+      "id": "2.3.q12",
+      "tipo": "pareamento",
+      "dificuldade": 3,
+      "objetivos": [1, 2],
+      "enunciado": "Ligue cada erro de uso à sua consequência.",
+      "pares": [
+        ["Modo ECB", "A estrutura do dado atravessa a cifra: blocos iguais viram saídas iguais"],
+        ["Nonce repetido em GCM", "Sigilo comprometido e possibilidade de forjar mensagens válidas"],
+        ["IV previsível em CBC", "Abre ataques de texto escolhido contra a cifra"],
+        ["Erro distinguível ao decifrar", "Oráculo que permite recuperar o texto claro sem a chave"],
+        ["Gerador não criptográfico", "Chaves e tokens reproduzíveis por quem observa saídas suficientes"]
+      ],
+      "dicas": [
+        "Duas consequências envolvem recuperar conteúdo sem saber a chave.",
+        "Uma delas é a única que permite também forjar mensagens.",
+        "Uma tem a ver com o que o sistema responde, e não com o que ele cifra."
+      ],
+      "pergunta_socratica": "Antes de conferir: em quantos desses cinco casos o algoritmo em si está intacto?",
+      "explicacao": "Nos cinco casos a matemática está intacta e o sistema está quebrado. Cada linha é um erro de uso com consequência específica, e juntas formam a lista de verificação prática de uma revisão criptográfica: qual modo, de onde vem o nonce, o IV é imprevisível, o que o sistema responde quando falha, e de onde vem a aleatoriedade.",
+      "fonte": "Crypto 101, cap. 7 e 14; NIST SP 800-38D",
+      "tags": ["cripto", "pareamento", "falhas", "revisao"]
+    },
+    {
+      "id": "2.3.q13",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Por que implementar por conta própria um algoritmo padrão, como o AES, é desaconselhado mesmo com a especificação pública?",
+      "alternativas": [
+        "Porque produzir a saída correta é a parte fácil; não vazar por tempo, cache ou tratamento de erro é o trabalho que as bibliotecas maduras concentram",
+        "Porque a especificação do AES é protegida por patente e não pode ser implementada livremente",
+        "Porque implementações próprias sempre produzem resultados incompatíveis com as bibliotecas",
+        "Porque o AES exige instruções de processador que só bibliotecas conseguem acessar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O teste funcional verifica o quê, exatamente?",
+        "Uma implementação pode estar correta e ainda vazar. Vazar por onde?",
+        "Duas alternativas afirmam impedimentos que não existem."
+      ],
+      "pergunta_socratica": "Antes de conferir: seus testes passam e a saída bate com a referência. O que ainda pode estar errado?",
+      "explicacao": "Teste funcional confirma que a saída é a esperada e não diz nada sobre canais laterais. Uma implementação ingênua pode ter tempo de execução dependente da chave, padrões de acesso a memória que vazam por cache, ou tratamento de erro que distingue casos — defeitos invisíveis em teste e exploráveis na prática. Bibliotecas maduras carregam anos de trabalho nesse ponto. Não há patente sobre o AES, e implementações corretas são interoperáveis.",
+      "por_que_erradas": {
+        "1": "O AES é um padrão aberto, sem restrição de patente para implementação.",
+        "2": "Implementações corretas produzem resultados idênticos por definição.",
+        "3": "O AES pode ser implementado em software puro, sem instruções dedicadas."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5 e 19; Crypto 101, cap. 6",
+      "tags": ["cripto", "implementacao", "canal-lateral", "boas-praticas"]
+    },
+    {
+      "id": "2.3.q14",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 3],
+      "enunciado": "Uma equipe criou um esquema próprio: cifra o dado com AES-CBC e depois calcula um SHA-256 do texto cifrado, guardando os dois. Os testes passam. Qual é a avaliação?",
+      "alternativas": [
+        "O resumo sem chave não protege: quem altera o texto cifrado recalcula o resumo; a construção correta é cifra autenticada ou MAC com chave",
+        "O esquema é adequado, já que SHA-256 detecta qualquer alteração",
+        "O problema é a ordem: o resumo deveria ser calculado antes da cifra",
+        "O problema é o uso de SHA-256, que deveria ser SHA-512 para acompanhar o AES"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem consegue calcular um SHA-256?",
+        "Testes funcionais detectariam essa falha?",
+        "O que falta ao resumo para virar prova de integridade contra um atacante?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante altera o texto cifrado. O que impede ele de calcular o novo resumo também?",
+      "explicacao": "Resumo sem chave é calculável por qualquer um, inclusive por quem alterou a mensagem — a construção detecta corrupção acidental e nada mais. É o caso típico de esquema caseiro que passa em todos os testes funcionais e falha contra um adversário. A correção é usar cifra autenticada, ou um MAC com chave aplicado sobre o texto cifrado. Trocar o tamanho do resumo ou a ordem das operações não resolve a ausência de segredo na verificação.",
+      "por_que_erradas": {
+        "1": "SHA-256 detecta alteração acidental, não deliberada.",
+        "2": "Inverter a ordem não acrescenta o segredo que falta.",
+        "3": "O tamanho do resumo é irrelevante para o problema."
+      },
+      "fonte": "Crypto 101, cap. 11.2 e 11.7",
+      "tags": ["cripto", "mac", "integridade", "esquema-caseiro", "aead"]
+    },
+    {
+      "id": "2.3.q15",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Qual pergunta revela mais sobre a segurança criptográfica de um sistema?",
+      "alternativas": [
+        "\"Qual algoritmo, em qual modo, com nonce vindo de onde e chave guardada onde?\"",
+        "\"Vocês usam criptografia?\"",
+        "\"Qual é o tamanho da chave?\"",
+        "\"A biblioteca usada é de código aberto?\""
+      ],
+      "correta": 0,
+      "dicas": [
+        "A pergunta útil cobre construção e operação ao mesmo tempo.",
+        "Tamanho de chave sozinho discrimina pouco.",
+        "Código aberto é bom sinal, e não responde como o sistema usa a biblioteca."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas perguntas um sistema inseguro consegue responder bem?",
+      "explicacao": "As três perguntas fracas são respondidas satisfatoriamente por sistemas quebrados: \"sim, usamos\", \"256 bits\", \"é aberta\". A pergunta forte cobre os quatro pontos onde as falhas realmente acontecem — algoritmo, modo, origem do nonce e gestão da chave — e um sistema mal feito não consegue respondê-la sem expor o defeito.",
+      "por_que_erradas": {
+        "1": "Praticamente todo sistema responde que sim, sem informar nada.",
+        "2": "Tamanho de chave não distingue GCM de ECB.",
+        "3": "Biblioteca aberta pode ser usada de forma insegura."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; teoria 2.3.t1",
+      "tags": ["cripto", "avaliacao", "auditoria", "modos"]
+    },
+    {
+      "id": "2.3.q16",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um sistema cifra registros com AES-GCM e gera o nonce com um contador de 32 bits que reinicia quando o serviço é reiniciado. Qual é o problema?",
+      "alternativas": [
+        "O contador reiniciado repete nonces já usados com a mesma chave, o que compromete o sigilo e permite forjar mensagens",
+        "Contadores não podem ser usados como nonce em GCM; apenas valores aleatórios são aceitos",
+        "32 bits é grande demais e desperdiça espaço no registro",
+        "O problema é o AES-GCM, que não aceita nonce de 32 bits"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O requisito de nonce em GCM é unicidade com a mesma chave.",
+        "O que acontece com o contador depois de um reinício?",
+        "Contador é aceitável — desde que nunca repita."
+      ],
+      "pergunta_socratica": "Antes de conferir: o serviço reinicia e o contador volta a zero. A chave também mudou?",
+      "explicacao": "Contador é uma forma válida de gerar nonce em GCM, e o requisito é que ele nunca repita com a mesma chave. Reiniciar o contador sem trocar a chave produz exatamente a repetição proibida, com todas as consequências — sigilo comprometido e possibilidade de forjar mensagens. As saídas são persistir o contador entre reinícios, derivar chave nova a cada inicialização, ou usar nonce aleatório de tamanho adequado.",
+      "por_que_erradas": {
+        "1": "Contadores são aceitos e recomendados, desde que não repitam.",
+        "2": "O tamanho não é o problema; a reinicialização é.",
+        "3": "GCM aceita nonces de tamanhos variados, com 96 bits como recomendado."
+      },
+      "fonte": "NIST SP 800-38D; Crypto 101, cap. 11.9",
+      "tags": ["cripto", "nonce", "gcm", "contador", "falha-catastrofica"]
+    },
+    {
+      "id": "2.3.q17",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2, 3],
+      "enunciado": "Por que a cifra autenticada elimina a classe de ataque do oráculo de preenchimento?",
+      "alternativas": [
+        "Porque a etiqueta de autenticação é verificada antes de qualquer processamento, e a falha é sempre a mesma, sem revelar o motivo",
+        "Porque ela não usa preenchimento em nenhuma circunstância",
+        "Porque ela cifra a mensagem duas vezes, mascarando o padrão",
+        "Porque ela impede que o atacante envie mensagens modificadas ao servidor"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Em que momento a verificação acontece?",
+        "O que o sistema responde quando a etiqueta não bate?",
+        "O atacante continua podendo enviar o que quiser."
+      ],
+      "pergunta_socratica": "Antes de conferir: se toda mensagem adulterada produz exatamente a mesma resposta, quanta informação o atacante coleta?",
+      "explicacao": "A etiqueta é conferida antes de decifrar ou interpretar qualquer coisa, e qualquer adulteração produz a mesma rejeição — o atacante não obtém nenhum bit distinguível, e o oráculo deixa de existir. O atacante continua livre para enviar o que quiser; o que muda é que as respostas param de informar. É a razão mais prática para adotar AES-GCM ou ChaCha20-Poly1305 por padrão.",
+      "por_que_erradas": {
+        "1": "Alguns modos autenticados dispensam preenchimento, mas a razão é a verificação prévia e uniforme.",
+        "2": "Não há dupla cifra.",
+        "3": "Nada impede o envio de mensagens modificadas; elas apenas são rejeitadas de forma uniforme."
+      },
+      "fonte": "Crypto 101, cap. 11.7; NIST SP 800-38D",
+      "tags": ["cripto", "aead", "padding-oracle", "defesa"]
+    },
+    {
+      "id": "2.3.q18",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "artefato": "Registros cifrados na tabela `clientes` (coluna `cpf_cifrado`, hex, truncado):\n\nid=1041  8f2a91c4e7b30d55...\nid=1188  3c7e02aa19f4b6d1...\nid=1263  8f2a91c4e7b30d55...\nid=1402  d5b1478e2c09f3aa...\nid=1517  8f2a91c4e7b30d55...",
+      "enunciado": "O que esta amostra revela sobre o esquema de cifra usado?",
+      "alternativas": [
+        "Valores iguais produzem textos cifrados iguais, o que indica cifra determinística — ECB ou IV fixo — e permite agrupar registros que compartilham o mesmo CPF",
+        "Os registros estão corrompidos, já que textos cifrados nunca se repetem",
+        "A chave foi trocada entre os registros 1188 e 1263",
+        "O algoritmo usado é assimétrico, o que explica a repetição"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare os valores das linhas 1041, 1263 e 1517.",
+        "O que faz duas cifras do mesmo valor saírem iguais?",
+        "O atacante precisa da chave para tirar conclusões daqui?"
+      ],
+      "pergunta_socratica": "Antes de conferir: sem decifrar nada, o que você já sabe sobre esses três registros?",
+      "explicacao": "Três registros compartilham exatamente o mesmo texto cifrado, o que só acontece com cifra determinística: ECB, ou um modo com IV fixo. Sem descobrir a chave, já é possível afirmar que esses clientes têm o mesmo CPF, contar valores distintos e cruzar com informação externa. É o vazamento estrutural em dados tabulares — menos vistoso que a imagem do ECB, e mais explorável. A correção é modo autenticado com nonce único por registro.",
+      "por_que_erradas": {
+        "1": "A repetição é consequência esperada de cifra determinística, e não corrupção.",
+        "2": "Troca de chave produziria valores diferentes, não iguais.",
+        "3": "Cifra assimétrica bem construída também não é determinística dessa forma."
+      },
+      "fonte": "Crypto 101, cap. 7.2 e 7.4",
+      "tags": ["cripto", "artefato", "ecb", "iv", "vazamento", "banco-de-dados"]
+    },
+    {
+      "id": "2.3.q19",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0, 2],
+      "enunciado": "Por que testes automatizados raramente detectam falhas criptográficas de uso?",
+      "alternativas": [
+        "Porque eles verificam que cifrar e decifrar funcionam, e as falhas estão no que vaza para um adversário — algo que o teste não observa",
+        "Porque bibliotecas criptográficas não podem ser testadas automaticamente",
+        "Porque os testes só rodam em ambiente de desenvolvimento, onde a criptografia é desabilitada",
+        "Porque falhas criptográficas só aparecem com volume alto de dados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que um teste de ida e volta comprova?",
+        "IV fixo quebra o teste de ida e volta?",
+        "Nonce repetido quebra o teste de ida e volta?"
+      ],
+      "pergunta_socratica": "Antes de conferir: um sistema com IV fixo passa no teste de cifrar e decifrar?",
+      "explicacao": "O teste de ida e volta passa com IV fixo, com nonce repetido, com ECB e com resumo no lugar de MAC — todas as falhas deste módulo. Elas se manifestam apenas diante de um observador que compara mensagens, mede tempo ou altera texto cifrado, e nada disso está no teste funcional. Por isso revisão criptográfica é atividade separada, com uma lista própria de perguntas.",
+      "por_que_erradas": {
+        "1": "Bibliotecas criptográficas são amplamente testadas; a lacuna é o que o teste observa.",
+        "2": "Criptografia costuma estar ativa também em desenvolvimento.",
+        "3": "Volume não é a condição; IV fixo falha já na segunda mensagem."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; teoria 2.3.t6",
+      "tags": ["cripto", "testes", "revisao", "limites"]
+    },
+    {
+      "id": "2.3.q20",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Uma equipe precisa cifrar milhões de registros com a mesma chave. Qual estratégia de nonce é segura?",
+      "alternativas": [
+        "Nonce único por registro, vindo de contador persistido ou de fonte aleatória com espaço grande o bastante, armazenado junto do texto cifrado",
+        "Nonce derivado do identificador do registro, que já é único no banco",
+        "Nonce fixo, já que a chave é a mesma para todos os registros",
+        "Nonce derivado do conteúdo do registro, garantindo unicidade por dado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O requisito é nunca repetir com a mesma chave.",
+        "Identificador de registro é único — mas ele muda quando o registro é atualizado?",
+        "Derivar do conteúdo faz registros iguais terem nonce igual."
+      ],
+      "pergunta_socratica": "Antes de conferir: o registro 1041 é atualizado e recifrado. O nonce derivado do identificador seria o mesmo?",
+      "explicacao": "Contador persistido ou aleatório com espaço adequado atende ao requisito e sobrevive a atualizações. Derivar do identificador falha quando o mesmo registro é recifrado — o nonce se repete com a mesma chave, que é exatamente o caso proibido. Derivar do conteúdo é pior: registros com o mesmo valor recebem o mesmo nonce, recriando a determinística. Fixo é o caso catastrófico. O nonce é público e deve ser gravado junto do texto cifrado.",
+      "por_que_erradas": {
+        "1": "Atualizar e recifrar o mesmo registro repetiria o nonce com a mesma chave.",
+        "2": "Nonce fixo é justamente o caso catastrófico em modos de fluxo.",
+        "3": "Conteúdos iguais gerariam nonces iguais, reintroduzindo o determinismo."
+      },
+      "fonte": "NIST SP 800-38D; Crypto 101, cap. 11.9",
+      "tags": ["cripto", "nonce", "gcm", "projeto", "banco-de-dados"]
+    },
+    {
+      "id": "2.3.q21",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Ao usar uma biblioteca criptográfica, qual interface deve ser preferida?",
+      "alternativas": [
+        "A de mais alto nível que resolva o problema, porque ela decide modo, nonce e integridade por você e reduz a chance de erro",
+        "A de mais baixo nível, para ter controle total sobre cada parâmetro",
+        "Aquela que permitir escolher o modo ECB, por ser a mais simples de depurar",
+        "Aquela que aceitar chaves em formato de texto, facilitando a configuração"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Onde estão as decisões que este módulo inteiro mostrou serem perigosas?",
+        "Controle total significa também responsabilidade total.",
+        "Duas alternativas propõem justamente os erros já vistos."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas decisões deste módulo você prefere tomar sozinho?",
+      "explicacao": "As decisões perigosas — modo, nonce, integridade, preenchimento — são exatamente as que a interface de alto nível toma por você, com escolhas revisadas. Baixo nível é necessário em casos específicos e transfere toda a responsabilidade para quem chama. Preferir ECB por simplicidade e aceitar chave em texto são justamente os erros que o módulo cataloga.",
+      "por_que_erradas": {
+        "1": "Controle total significa assumir todas as decisões perigosas.",
+        "2": "ECB é inadequado, e facilidade de depuração não é critério de segurança.",
+        "3": "Chave em texto de configuração costuma acabar em repositório."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; teoria 2.3.t6",
+      "tags": ["cripto", "bibliotecas", "boas-praticas", "projeto"]
+    },
+    {
+      "id": "2.3.q22",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um endpoint de login responde em 40 ms quando o usuário não existe e em 180 ms quando existe mas a senha está errada. Qual é o problema?",
+      "alternativas": [
+        "A diferença de tempo revela quais contas existem, permitindo enumerar usuários válidos antes de tentar senhas",
+        "Nenhum: tempos diferentes são consequência natural de caminhos de código diferentes",
+        "O problema é o tempo de 180 ms, que indica hash de senha lento demais",
+        "O problema é o tempo de 40 ms, que indica que a senha não está sendo verificada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que o atacante mede e o que ele conclui?",
+        "Por que o caminho com usuário existente demora mais?",
+        "Hash de senha lento é defeito ou é proposital?"
+      ],
+      "pergunta_socratica": "Antes de conferir: por que só o caminho com usuário existente executa o cálculo caro?",
+      "explicacao": "Quando o usuário não existe, o sistema retorna sem calcular o hash da senha; quando existe, executa a função lenta de propósito. A diferença de tempo vira um oráculo de existência de contas, que é o primeiro passo de um ataque direcionado. A correção é executar o cálculo mesmo para usuário inexistente, comparando contra um hash fictício, de modo que os dois caminhos custem o mesmo. O hash lento é característica desejada, não defeito.",
+      "por_que_erradas": {
+        "1": "Ser consequência natural do código não a torna aceitável; é justamente o vazamento.",
+        "2": "Hash de senha lento é proposital e desejável.",
+        "3": "O tempo curto indica retorno antecipado, que é a causa do vazamento."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 19; NIST SP 800-63B",
+      "tags": ["cripto", "canal-lateral", "tempo", "enumeracao", "autenticacao"]
+    },
+    {
+      "id": "2.3.q23",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0, 1],
+      "enunciado": "Por que o reuso de nonce é chamado de falha catastrófica, e não de enfraquecimento?",
+      "alternativas": [
+        "Porque a partir da segunda repetição as garantias colapsam de uma vez, em vez de degradarem aos poucos",
+        "Porque destrói fisicamente a chave, exigindo regeneração de todo o material",
+        "Porque afeta apenas mensagens futuras, e não as já enviadas",
+        "Porque impede que o sistema continue funcionando"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare com o efeito de usar uma chave um pouco menor.",
+        "Quantas repetições são necessárias para o dano acontecer?",
+        "O sistema continua funcionando normalmente — esse é parte do problema."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas mensagens com nonce repetido o atacante precisa para começar a explorar?",
+      "explicacao": "Não há transição suave: bastam duas mensagens com o mesmo par chave e nonce para que o sigilo entre elas caia, e em GCM para que a subchave de autenticação fique ao alcance. Diferente de uma chave curta demais, que exige esforço crescente, aqui a garantia simplesmente deixa de existir. E o sistema continua operando normalmente, o que faz a falha passar despercebida.",
+      "por_que_erradas": {
+        "1": "Nada acontece fisicamente com a chave; a falha é matemática.",
+        "2": "As mensagens já enviadas com o nonce repetido são justamente as afetadas.",
+        "3": "O sistema continua funcionando, o que agrava o problema."
+      },
+      "fonte": "NIST SP 800-38D; Crypto 101, cap. 7.14",
+      "tags": ["cripto", "nonce", "gcm", "falha-catastrofica", "conceito"]
+    },
+    {
+      "id": "2.3.q24",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3, 0],
+      "trecho": "PROPOSTA — proteção de dados no aplicativo\n\"Vamos criar nosso próprio esquema: embaralhar os bytes com uma permutação\nsecreta, aplicar XOR com uma chave repetida ao longo da mensagem e codificar o\nresultado em Base64. Como ninguém conhece a permutação, é seguro. Os testes de\nida e volta já passam.\"",
+      "enunciado": "Quantos problemas distintos esta proposta tem?",
+      "alternativas": [
+        "Quatro: esquema caseiro, segurança apoiada no sigilo do método, XOR com chave repetida — que é quebrável por análise estatística — e Base64 tratado como camada de proteção",
+        "Um: apenas o uso de Base64, que deveria ser substituído por AES",
+        "Dois: o esquema caseiro e a ausência de testes de segurança",
+        "Nenhum: como os testes passam e o método é secreto, o esquema atende"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Conte as afirmações e teste cada uma contra o que o módulo mostrou.",
+        "XOR com chave repetida tem nome e tem ataque conhecido há mais de um século.",
+        "\"Os testes passam\" prova o quê?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quanto tempo o método permanece secreto depois que o aplicativo é publicado?",
+      "explicacao": "São quatro falhas somadas. Esquema caseiro sem revisão; segurança apoiada no sigilo do método, contra o princípio de Kerckhoffs — e o método vira público assim que alguém abre o aplicativo; XOR com chave repetida é cifra de Vigenère, quebrável por análise de frequência; e Base64 não é camada de proteção. O detalhe final é o mais revelador: os testes de ida e volta passariam igualmente em um esquema totalmente inseguro.",
+      "por_que_erradas": {
+        "1": "Base64 é apenas um dos quatro problemas.",
+        "2": "Há também o sigilo do método e o XOR com chave repetida.",
+        "3": "Teste funcional não demonstra segurança, e sigilo do método não é proteção."
+      },
+      "fonte": "Crypto 101, cap. 5 e 6; Security Engineering, 3ª ed., cap. 5",
+      "tags": ["cripto", "caca-erro", "esquema-caseiro", "xor", "kerckhoffs"]
+    },
+    {
+      "id": "2.3.q25",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Qual é a orientação correta sobre mensagens de erro em operações criptográficas?",
+      "alternativas": [
+        "Responder de forma genérica e uniforme ao usuário, registrando o detalhe apenas em log interno",
+        "Detalhar ao máximo, para facilitar a depuração por quem integra o sistema",
+        "Não registrar nada, nem em log, para evitar qualquer vazamento",
+        "Variar a mensagem aleatoriamente, para confundir quem estiver analisando"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem lê a resposta e quem lê o log são as mesmas pessoas?",
+        "Detalhe para o operador não precisa ir para o cliente.",
+        "Não registrar nada inviabiliza a investigação."
+      ],
+      "pergunta_socratica": "Antes de conferir: como dar informação a quem opera sem dar informação a quem ataca?",
+      "explicacao": "Separar destinatários resolve: o cliente recebe uma falha genérica e uniforme, sem distinguir causas, e o log interno guarda o detalhe para quem opera. Detalhar para o cliente é alimentar o oráculo; não registrar nada cega a investigação; e variar aleatoriamente não elimina a diferença estatística e ainda atrapalha a depuração legítima.",
+      "por_que_erradas": {
+        "1": "Detalhe na resposta é exatamente o que viabiliza o oráculo.",
+        "2": "Sem log não há como investigar incidente nem depurar.",
+        "3": "Aleatoriedade na mensagem não elimina o vazamento e prejudica a operação."
+      },
+      "fonte": "Crypto 101, cap. 7.9; NIST SP 800-61",
+      "tags": ["cripto", "mensagens-de-erro", "canal-lateral", "logs", "boas-praticas"]
+    },
+    {
+      "id": "2.3.q26",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 3],
+      "enunciado": "Você foi chamado para revisar o uso de criptografia em um sistema em produção. Por onde começar?",
+      "alternativas": [
+        "Levantar onde há cifra, qual algoritmo e modo em cada ponto, de onde vêm nonces e chaves, e se a integridade é verificada",
+        "Medir o tempo de resposta das operações criptográficas e otimizar as mais lentas",
+        "Substituir imediatamente todos os algoritmos pelos mais recentes disponíveis",
+        "Aumentar o tamanho de todas as chaves para o máximo suportado pelas bibliotecas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Sem inventário, o que você está revisando?",
+        "Duas alternativas mudam coisas antes de entender o que existe.",
+        "Desempenho é revisão de outra natureza."
+      ],
+      "pergunta_socratica": "Antes de conferir: você consegue avaliar um sistema cujo mapa de cifras ninguém tem?",
+      "explicacao": "A revisão começa por inventário — onde há cifra e como cada ponto está construído — porque sem isso qualquer alteração é palpite. As quatro perguntas cobrem exatamente as falhas deste módulo: modo, nonce, chave e integridade. Trocar algoritmos ou inflar chaves sem diagnóstico corre o risco de quebrar produção e deixar intacto o defeito real, que raramente é o algoritmo.",
+      "por_que_erradas": {
+        "1": "Desempenho é outra revisão e não indica falha de segurança.",
+        "2": "Substituir sem diagnóstico arrisca quebrar produção sem corrigir o problema.",
+        "3": "Tamanho de chave não corrige modo errado nem nonce repetido."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; teoria 2.3.t1",
+      "tags": ["cripto", "revisao", "inventario", "priorizacao"]
+    },
+    {
+      "id": "2.3.q27",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1, 2],
+      "enunciado": "Por que a cifra de fluxo exige cuidado especial com a reutilização de material?",
+      "alternativas": [
+        "Porque ela combina a mensagem com um fluxo de chave; reutilizar o mesmo fluxo em duas mensagens permite eliminá-lo combinando os dois textos cifrados",
+        "Porque ela só funciona com mensagens de tamanho fixo",
+        "Porque ela exige que a chave seja maior que a mensagem",
+        "Porque ela não pode ser usada com verificação de integridade"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Como uma cifra de fluxo combina fluxo e mensagem?",
+        "O que acontece ao combinar dois textos cifrados que usam o mesmo fluxo?",
+        "ChaCha20-Poly1305 é cifra de fluxo com integridade."
+      ],
+      "pergunta_socratica": "Antes de conferir: se dois textos cifrados usam o mesmo fluxo, o que a combinação dos dois cancela?",
+      "explicacao": "A cifra de fluxo combina a mensagem com um fluxo de chave gerado a partir de chave e nonce. Combinando dois textos cifrados produzidos com o mesmo fluxo, o fluxo se cancela e resta a combinação das duas mensagens em claro — a partir daí, conhecimento parcial de uma revela a outra. É a mesma falha do reuso de bloco de uso único, e por isso a unicidade do nonce é requisito absoluto. Cifras de fluxo aceitam mensagens de qualquer tamanho, chave curta, e são usadas com integridade.",
+      "por_que_erradas": {
+        "1": "Cifras de fluxo lidam com mensagens de qualquer tamanho.",
+        "2": "A chave é curta; o fluxo é que é gerado no tamanho necessário.",
+        "3": "ChaCha20-Poly1305 combina cifra de fluxo com autenticação."
+      },
+      "fonte": "Crypto 101, cap. 5.5 e 7.10; RFC 8439",
+      "tags": ["cripto", "cifra-de-fluxo", "nonce", "reuso"]
+    },
+    {
+      "id": "2.3.q28",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2],
+      "enunciado": "Coloque em ordem as verificações de uma revisão criptográfica, da que descarta mais casos com menos esforço à mais específica.",
+      "itens": [
+        "Existe cifra neste ponto, ou o dado trafega e é gravado em claro?",
+        "Qual algoritmo e qual modo de operação são usados",
+        "De onde vem o IV ou o nonce, e ele pode repetir com a mesma chave",
+        "A integridade é verificada, e a falha responde de forma uniforme",
+        "Como a chave é gerada, onde é guardada e quem a alcança"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "A primeira pergunta pode encerrar a revisão daquele ponto.",
+        "Sem saber o modo, as perguntas seguintes não se aplicam.",
+        "A gestão de chave é a mais trabalhosa de auditar."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual verificação, respondida com \"não há cifra\", torna todas as outras irrelevantes?",
+      "explicacao": "A ordem vai do que descarta rápido ao que exige investigação. Se não há cifra, o resto não se aplica. Sabendo algoritmo e modo, define-se quais perguntas seguintes fazem sentido — nonce importa em modos de fluxo, IV imprevisível importa em CBC. Integridade e uniformidade das falhas vêm em seguida, e a gestão de chave por último, por ser a mais trabalhosa e a que costuma revelar o problema mais grave.",
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 7 e 11",
+      "tags": ["cripto", "revisao", "ciclo", "modos", "nonce"]
+    },
+    {
+      "id": "2.3.q29",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um desenvolvedor argumenta que seu esquema criptográfico é seguro porque \"ninguém nunca conseguiu quebrar\". Qual é a objeção?",
+      "alternativas": [
+        "Ninguém tentou: ausência de ataque conhecido em um esquema que nunca foi analisado não é evidência de segurança",
+        "A objeção é que todo esquema é quebrável, então a afirmação é sempre falsa",
+        "A objeção é que a afirmação precisa de certificação formal para valer",
+        "Não há objeção: resistência observada é a melhor medida de segurança"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantas pessoas analisaram o AES? Quantas analisaram esse esquema?",
+        "Ausência de evidência é evidência de ausência?",
+        "O que dá confiança em um algoritmo padrão?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quem, exatamente, tentou quebrar esse esquema?",
+      "explicacao": "A confiança em criptografia vem de exposição prolongada a especialistas tentando quebrar. Um esquema que ninguém analisou não acumulou evidência nenhuma — o silêncio é falta de tentativa, não resistência. É a diferença entre um algoritmo padrão, atacado por décadas em público, e um esquema interno que nunca saiu da equipe. Nem todo esquema é quebrável, e certificação formal não é o que produz confiança.",
+      "por_que_erradas": {
+        "1": "Esquemas bem construídos resistem; a afirmação exagera.",
+        "2": "Certificação é processo administrativo, não fonte de confiança criptográfica.",
+        "3": "Resistência observada só vale quando houve tentativa séria e ampla."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 6",
+      "tags": ["cripto", "esquema-caseiro", "evidencia", "raciocinio"]
+    },
+    {
+      "id": "2.3.q30",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1, 3],
+      "enunciado": "Uma equipe descobre que usou nonce fixo em AES-GCM por seis meses em produção. Qual é a resposta correta?",
+      "alternativas": [
+        "Tratar os dados cifrados nesse período como comprometidos, trocar a chave, recifrar com nonce único e avaliar se houve acesso ao material",
+        "Corrigir o código para gerar nonce único e manter os dados já cifrados como estão",
+        "Aumentar o tamanho da chave, o que compensa o nonce repetido",
+        "Registrar o achado como dívida técnica e corrigir na próxima refatoração"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que já foi cifrado com nonce repetido continua vulnerável?",
+        "Corrigir o código protege os dados antigos?",
+        "Relembre que a falha compromete também a autenticação."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem tiver cópia dos dados cifrados desses seis meses consegue o quê?",
+      "explicacao": "Corrigir o código protege daqui para frente e não desfaz nada: os dados cifrados no período continuam vulneráveis a quem tiver cópia deles, e a subchave de autenticação pode ter sido exposta. A resposta é tratar o período como comprometido — trocar a chave, recifrar com nonce único, e avaliar quem teve acesso ao material cifrado. Chave maior não compensa nonce repetido, e adiar mantém dados expostos.",
+      "por_que_erradas": {
+        "1": "Os dados antigos permanecem vulneráveis; corrigir o código não os protege.",
+        "2": "Tamanho de chave não tem efeito sobre reuso de nonce.",
+        "3": "Adiar mantém o comprometimento ativo."
+      },
+      "fonte": "NIST SP 800-38D; Crypto 101, cap. 11.9",
+      "tags": ["cripto", "nonce", "gcm", "incidente", "resposta"]
+    },
+    {
+      "id": "2.3.q31",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que a comparação de valores sensíveis deve ser feita em tempo constante?",
+      "alternativas": [
+        "Porque comparação que retorna na primeira diferença revela, pelo tempo, quantos caracteres iniciais estão corretos",
+        "Porque comparações comuns podem produzir resultado incorreto com strings longas",
+        "Porque tempo constante é mais rápido do que a comparação padrão",
+        "Porque a comparação padrão não funciona com valores hexadecimais"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o tempo quando a diferença está no primeiro caractere e no último.",
+        "Quem mede esse tempo, e quantas vezes?",
+        "O resultado da comparação comum está certo; o problema é outro."
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante não vê o valor esperado, mas vê o tempo. Isso basta?",
+      "explicacao": "A comparação comum sai na primeira diferença, então acertar mais caracteres iniciais custa mais tempo, e medir isso em muitas tentativas reconstrói o valor esperado caractere a caractere. A função de tempo constante percorre tudo sempre — verificado em execução, devolvendo o resultado correto sem depender de onde está a diferença. O resultado da comparação comum está certo; o que ela entrega a mais é o vazamento.",
+      "por_que_erradas": {
+        "1": "A comparação comum produz o resultado correto.",
+        "2": "Tempo constante costuma ser marginalmente mais lento, e isso é aceitável.",
+        "3": "A comparação padrão funciona com qualquer texto."
+      },
+      "fonte": "Comportamento verificado em execução; Security Engineering, 3ª ed., cap. 19",
+      "tags": ["cripto", "canal-lateral", "tempo", "comparacao", "boas-praticas"]
+    },
+    {
+      "id": "2.3.q32",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 2],
+      "enunciado": "Um sistema decifra um token recebido do cliente e, se a decifra falhar, responde \"token corrompido\"; se decifrar mas o conteúdo for inválido, responde \"token inválido\". Qual é a avaliação?",
+      "alternativas": [
+        "As duas respostas distinguíveis formam um oráculo; a resposta deve ser única para qualquer falha, com o detalhe apenas no log",
+        "O desenho é adequado, pois ajuda a depurar problemas de integração",
+        "O problema é apenas de usabilidade: as mensagens são técnicas demais",
+        "O problema é decifrar no servidor; a validação deveria ocorrer no cliente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quantos estados distinguíveis o atacante consegue observar?",
+        "O que ele aprende ao ver uma resposta em vez da outra?",
+        "Validar no cliente resolve alguma coisa?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o atacante manipula bytes do token e observa qual das duas mensagens volta. O que ele está construindo?",
+      "explicacao": "Duas respostas distinguíveis são um oráculo: manipulando o token e observando qual mensagem volta, o atacante obtém um bit por tentativa e caminha para recuperar o conteúdo ou forjar um token aceito. A correção é responder de forma única a qualquer falha, com o detalhe apenas em log interno — e usar cifra autenticada, que rejeita antes de processar. Validar no cliente não resolve, porque o cliente é justamente quem está sob controle do atacante.",
+      "por_que_erradas": {
+        "1": "Facilitar a depuração externa é exatamente o que cria o oráculo.",
+        "2": "Não é questão de redação; é a distinguibilidade que vaza.",
+        "3": "Validação no cliente não protege o servidor."
+      },
+      "fonte": "Crypto 101, cap. 7.9; teoria 2.3.t4",
+      "tags": ["cripto", "padding-oracle", "canal-lateral", "tokens", "mensagens-de-erro"]
+    },
+    {
+      "id": "2.3.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Qual afirmação sobre criptografia própria é correta?",
+      "alternativas": [
+        "Combinar primitivas padrão de forma nova também conta como criptografia própria e exige revisão especializada",
+        "Só criar um algoritmo do zero conta; combinar primitivas existentes é sempre seguro",
+        "Usar biblioteca padrão em modo de baixo nível elimina qualquer risco",
+        "Criptografia própria é aceitável desde que o código seja revisado pela equipe"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Cifrar e depois resumir com SHA-256 usa primitivas padrão. Isso é seguro?",
+        "Onde a falha do esquema caseiro costuma aparecer?",
+        "Revisão pela mesma equipe que escreveu detecta o quê?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o esquema de cifrar com AES e anexar um SHA-256 usa alguma primitiva ruim?",
+      "explicacao": "Todas as primitivas do esquema \"AES-CBC mais SHA-256\" são padrão, e a combinação é insegura — o defeito está na composição, não nas peças. Por isso combinar primitivas de forma nova é criptografia própria para todos os efeitos, e exige revisão de quem conhece as classes de ataque. Baixo nível aumenta o risco em vez de eliminá-lo, e revisão interna pela mesma equipe raramente enxerga o que ela não conhece.",
+      "por_que_erradas": {
+        "1": "A composição de primitivas boas pode ser insegura, como no caso do resumo sem chave.",
+        "2": "Baixo nível transfere as decisões perigosas para quem chama.",
+        "3": "Revisão interna não substitui conhecimento especializado das classes de ataque."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 11.2",
+      "tags": ["cripto", "esquema-caseiro", "composicao", "revisao"]
+    },
+    {
+      "id": "2.3.q34",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2, 3],
+      "enunciado": "Uma equipe quer reduzir o risco de canais laterais em um serviço de autenticação. Qual conjunto de medidas ajuda mais?",
+      "alternativas": [
+        "Comparar segredos em tempo constante, responder de forma uniforme a qualquer falha, e fazer o caminho de usuário inexistente custar o mesmo do caminho normal",
+        "Aumentar o tamanho das chaves e trocar o algoritmo por um mais recente",
+        "Adicionar um atraso aleatório em todas as respostas do serviço",
+        "Registrar em log o tempo de cada operação para análise posterior"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Relembre os três vazamentos deste módulo: comparação, mensagem e caminho.",
+        "Atraso aleatório elimina a diferença ou apenas a esconde no ruído?",
+        "Registrar tempo ajuda a investigar; ele fecha o vazamento?"
+      ],
+      "pergunta_socratica": "Antes de conferir: ruído aleatório sobre uma diferença sistemática desaparece com quantas medições?",
+      "explicacao": "As três medidas fecham os três vazamentos vistos: comparação em tempo constante, resposta uniforme e equalização do caminho de usuário inexistente. Atraso aleatório apenas adiciona ruído sobre uma diferença que permanece sistemática — com medições suficientes, a média a revela. Trocar algoritmo não trata canal lateral, e registrar tempo ajuda a investigar sem corrigir nada.",
+      "por_que_erradas": {
+        "1": "Canal lateral não se resolve com algoritmo mais novo nem chave maior.",
+        "2": "Ruído aleatório é removido pela média em número suficiente de medições.",
+        "3": "Registrar é observar, não corrigir."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 19; NIST SP 800-63B",
+      "tags": ["cripto", "canal-lateral", "tempo", "autenticacao", "defesa"]
+    },
+    {
+      "id": "2.3.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Você tem duas horas para avaliar o risco criptográfico de uma aplicação que você não conhece. Qual roteiro rende mais?",
+      "alternativas": [
+        "Localizar todos os pontos de cifra, anotar algoritmo e modo de cada um, rastrear a origem de nonces e chaves, e verificar como o sistema responde quando a decifra falha",
+        "Ler a documentação de segurança e conferir se ela menciona os algoritmos recomendados",
+        "Executar uma ferramenta de varredura e reportar os achados de configuração de TLS",
+        "Medir o desempenho das rotinas criptográficas e comparar com valores de referência"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As quatro etapas do roteiro correto correspondem às quatro classes de falha do módulo.",
+        "Documentação descreve a intenção; você quer o que o código faz.",
+        "Varredura de TLS cobre uma fatia pequena do problema."
+      ],
+      "pergunta_socratica": "Antes de conferir: onde estão as falhas que você aprendeu neste módulo — na documentação, na configuração do TLS ou no código?",
+      "explicacao": "O roteiro correto persegue as quatro classes de falha catalogadas: modo inadequado, nonce ou IV mal originado, integridade ausente e resposta distinguível na falha — e todas moram no código, não na documentação. Documentação descreve intenção, varredura de TLS cobre apenas o transporte, e desempenho não é risco. Em duas horas, o inventário de pontos de cifra com essas quatro anotações produz uma lista acionável.",
+      "por_que_erradas": {
+        "1": "Documentação descreve a intenção, que frequentemente diverge do código.",
+        "2": "Varredura de TLS cobre o transporte e ignora a cifra em repouso e a de aplicação.",
+        "3": "Desempenho não indica risco criptográfico."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 5; Crypto 101, cap. 7 e 11",
+      "tags": ["cripto", "revisao", "roteiro", "modos", "carreira"]
+    }
+  ]
+}
