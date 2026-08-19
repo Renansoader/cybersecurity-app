@@ -1,0 +1,1366 @@
+{
+  "id": "2.7",
+  "nivel": 2,
+  "titulo": "Fator humano — por que a segurança falha nas pessoas",
+  "objetivos": [
+    "Explicar por que sistemas seguros no papel falham no uso: carga cognitiva, atenção e incentivo",
+    "Reconhecer e nomear os gatilhos de persuasão e os vieses cognitivos que os ataques exploram",
+    "Analisar phishing, pretexting e fraude de e-mail corporativo: sinais reais e defesa que é mecanismo, não vigilância",
+    "Avaliar a usabilidade da segurança — avisos, senha, MFA — e desenhar controle que não dependa de heroísmo do usuário"
+  ],
+  "pre_requisitos": [
+    "0.3"
+  ],
+  "teoria": [
+    {
+      "id": "2.7.t1",
+      "titulo": "A matemática não é o elo fraco",
+      "texto": "Falsificar um site de banco custa o preço de um domínio; falsificar uma agência numa rua movimentada custa uma reforma e alguns funcionários. O ataque migra para onde o custo é menor, e desde que as relações com banco, patrão e governo passaram para canais online, esse lugar é a pessoa — não porque ela seja frágil, mas porque nossos instintos antifraude foram calibrados para o contato cara a cara e recebem quase nenhuma informação de uma mensagem.\n\nO capítulo 3 de Security Engineering organiza esse deslocamento em torno de uma regra de projeto: o jeito mais fácil de usar o sistema tem que ser o mais seguro. A analogia do livro é o descascador de batatas, ótimo para descascar e péssimo como arma. Computadores quase nunca têm essa assimetria.\n\nA conclusão do capítulo não é que o usuário seja o elo mais fraco. É que o desenho falhou em prever um comportamento previsível.",
+      "analogia": "Uma vitrine falsa na internet sai pelo preço de um domínio; uma agência falsa na esquina exige obra, fachada e gente de plantão.",
+      "erro_comum": "Fechar o assunto com \"o usuário é o elo mais fraco\". O capítulo conclui o contrário: o elo fraco é o desenho que ignorou como as pessoas funcionam.",
+      "fonte": "Security Engineering, 3ª ed., cap. 3.1 e 3.3"
+    },
+    {
+      "id": "2.7.t2",
+      "titulo": "Erro humano é previsível, logo é projetável",
+      "texto": "O livro separa o erro de operação em camadas. No nível da habilidade estão os deslizes (slips) — apertar o botão vizinho — e os lapsos (lapses), acionar a habilidade errada, como sair do trabalho e pegar automaticamente o caminho de casa. Ali também mora o erro de arremate (post-completion error): cumprida a meta, a pessoa se desliga das ações finais, e o caixa eletrônico que entregava o dinheiro antes do cartão acumulava cartões esquecidos.\n\nNo nível das regras estão os enganos (mistakes). Sob sobrecarga, a pessoa aplica a regra mais forte e mais geral que conhece, não a melhor. É o que o phishing explora com endereços como www.seubanco.autenticacao-segura.net: procurar o nome do banco é uma regra mais forte do que analisar em que posição ele aparece.\n\nNada disso é falha de caráter. É propriedade da cognição, e o atacante a lê como especificação.",
+      "analogia": "Nenhum engenheiro chama de descuido do pedestre a calçada em que todo mundo tropeça no mesmo degrau.",
+      "erro_comum": "Tratar deslize e engano como a mesma coisa. Deslize se corrige mudando a interface; engano se corrige mudando a regra que foi ensinada.",
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.1"
+    },
+    {
+      "id": "2.7.t3",
+      "titulo": "Autoridade, conformidade e responsabilidade difusa",
+      "texto": "Asch mostrou que muita gente nega a própria percepção para acompanhar o grupo; Milgram, que muita gente obedece a ordens contra a própria consciência — experimento hoje controverso, como o livro registra. E entre 1995 e 2005 um trote telefônico convenceu gerentes de dezenas de lojas nos Estados Unidos a deter e revistar funcionários: bastava quem ligava se dizer policial.\n\nO efeito espectador (bystander effect) vem em seguida: quanto mais gente parece estar vendo, menos cada um se sente responsável. Mas a leitura pessimista dos anos 1960 envelheceu — imagens de circuito fechado de conflitos em vários países mostram intervenção de algum espectador na grande maioria dos casos, e Anderson conclui que o nome do efeito é enganoso.\n\nO que sobrevive é operacional: dentro de organizações, responsabilidade difusa é real. Se você quer que algo seja feito, mande para uma pessoa, não para três.",
+      "analogia": "O alarme que toca no corredor inteiro é o que ninguém atende; o que toca no celular de uma pessoa nomeada é atendido.",
+      "erro_comum": "Citar o efeito espectador como se a conclusão dos anos 1960 continuasse de pé. A evidência mais recente do próprio capítulo a corrige.",
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.3.1 e 3.2.3.2"
+    },
+    {
+      "id": "2.7.t4",
+      "titulo": "O catálogo de vieses que o golpe usa",
+      "texto": "Teoria do prospecto: perder dói mais do que ganhar agrada, então enquadrar a ação como evitar uma perda faz agir — é o gancho de \"sua conta será bloqueada\". Viés do presente (present bias), formalizado como desconto hiperbólico: custo imediato e certo pesa mais que benefício futuro e incerto, e a atualização fica para depois.\n\nPadrão pré-definido (default): a maioria fica onde o sistema a deixou, então quem escolhe o padrão escolhe o comportamento, e a arquitetura de escolha serve tanto para proteger quanto para vender. Heurística do afeto: a emoção, tornada saliente, ocupa a atenção e derruba o raciocínio sobre probabilidade.\n\nDissonância cognitiva: admitir que foi enganado ameaça a autoimagem, então a vítima insiste no caminho errado. E o termostato de risco: torne algo mais seguro e as pessoas compensam com mais ousadia, efeito que só aparece em teste com validade ecológica.",
+      "analogia": "O cinto de segurança que faz o motorista pisar mais fundo: a proteção vira orçamento para correr mais risco.",
+      "erro_comum": "Achar que conhecer o viés já protege. O gatilho age antes de a parte deliberada entrar, e é para isso que ele foi escolhido.",
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.5"
+    },
+    {
+      "id": "2.7.t5",
+      "titulo": "Persuasão profissional, engenharia social e phishing",
+      "texto": "Cialdini catalogou seis classes de técnica de influência trabalhando no ramo: reciprocidade, compromisso e consistência, prova social, simpatia, autoridade e escassez. Stajano e Wilson destilaram sete princípios dos golpes reais: distração, conformidade social, princípio do rebanho, desonestidade, gentileza, necessidade e ganância, e pressão de tempo. Vendedor e golpista usam o mesmo repertório; a diferença está na intenção, não na técnica.\n\nPretexting é a versão dirigida: uma história falsa para que quem opera o sistema entregue informação ou execute uma ação. Foi assim que detetives obtiveram dados de saúde no Reino Unido e registros telefônicos de conselheiros da HP em 2006.\n\nFraude de e-mail corporativo (BEC) é a combinação mais rentável: autoridade aparente, urgência e um canal único — sem link nem anexo para o filtro pegar.",
+      "analogia": "O bom vendedor e o golpista leem o mesmo manual de persuasão; um dos dois entrega o produto no fim.",
+      "erro_comum": "Procurar link ou anexo malicioso em todo ataque. A fraude de e-mail corporativo costuma ser só texto, e é justamente por isso que passa.",
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.1, 3.3.2 e 3.3.3"
+    },
+    {
+      "id": "2.7.t6",
+      "titulo": "Usabilidade da segurança: o defeito é do desenho",
+      "texto": "A educação antiphishing dos bancos virou uma corrida armamentista, e cada rodada mostra por que instrução técnica perde. \"Confira o português\" foi respondido com quem escreve bem; \"procure o cadeado\", com certificado válido; \"confira os quatro últimos dígitos da conta\", com os quatro primeiros, iguais para todo mundo. A cada rodada o conselho fica mais complexo e confunde mais gente — que é o que o atacante quer.\n\nAvisos ajudam quando são específicos e concretos, não genéricos. Mas nem otimizados alcançam todo mundo: para impedir a maioria de abrir um endereço sabidamente ruim é preciso bloquear no navegador ou na rede.\n\nSenha tem a mesma lógica. A recomendação atual, do NIST SP 800-63B rev. 4, tira do usuário o que ele não consegue entregar: sem rotação periódica, sem regra de composição de caracteres, verificação contra listas de senhas vazadas e MFA resistente a phishing disponível.\n\nA mesma lógica vale para a política inteira. Cada pessoa tolera um volume finito de fricção que não a ajuda a entregar o próprio trabalho — é o orçamento de conformidade (compliance budget). Passado esse limite, ela contorna o controle. Descobrir onde está o limite e gastá-lo com a regra certa é decisão de projeto, não de disciplina.",
+      "analogia": "Um degrau em que todo mundo tropeça não se resolve com placa. Resolve-se refazendo o degrau.",
+      "erro_comum": "Encerrar o relatório de incidente com \"falha humana, reforçar treinamento\". É diagnóstico preguiçoso: falta explicar por que o desenho deixou um erro previsível virar incidente.",
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.4, 3.4.4.6 e 3.4.4.7; NIST SP 800-63B rev. 4"
+    },
+    {
+      "id": "2.7.t7",
+      "titulo": "Autenticação de e-mail: o que SPF, DKIM e DMARC provam",
+      "texto": "Três mecanismos respondem perguntas diferentes sobre a mesma mensagem. O SPF autoriza quais servidores podem enviar em nome do domínio do envelope — o Return-Path, que o destinatário nem chega a ver. O DKIM assina a mensagem com a chave de um domínio e permite conferir a assinatura pelo DNS. Nenhum dos dois olha o campo From, que é justamente o único que aparece na tela.\n\nO DMARC amarra o nó: exige que o domínio validado por SPF ou por DKIM alinhe com o domínio do From, publica num registro TXT do rótulo _dmarc.<domínio> o que fazer quando não alinha — none, quarantine ou reject — e devolve relatórios ao dono do domínio. Na linha Authentication-Results, escrita pelo servidor que recebeu e nunca por quem enviou, isso aparece como spf=, dkim= e dmarc= com o resultado de cada etapa. A revisão vigente é a RFC 9989, que obsoletou a RFC 7489 e levou o DMARC para o Standards Track; a descoberta da política passou a usar caminhada na árvore de DNS (tree walk) no lugar da lista de sufixos públicos.\n\nE o limite, que é a parte que importa: autenticação prova que quem enviou controla aquele domínio. Nunca prova que aquele é o domínio certo daquela relação comercial. O atacante que registra um domínio sósia e configura SPF, DKIM e DMARC direito recebe dmarc=pass e continua sendo o atacante.",
+      "analogia": "O crachá confere que a pessoa é quem diz ser, não que ela é a pessoa que você esperava.",
+      "erro_comum": "Ler dmarc=pass como prova de remetente legítimo. Ele prova controle sobre o domínio que enviou, e esse domínio pode ser um sósia registrado ontem.",
+      "fonte": "RFC 9989 (DMARC), seções 4.4 (alinhamento de identificadores), 4.7 (registro e tag p=) e 4.10.1 (descoberta pelo rótulo _dmarc); RFC 8601 (Authentication-Results)"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "2.7.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que o ataque migrou da criptografia para as pessoas?",
+      "alternativas": [
+        "Porque falsificar uma comunicação online custa muito menos do que quebrar a matemática",
+        "Porque as cifras em uso hoje têm falhas matemáticas conhecidas e baratas de explorar",
+        "Porque as pessoas são naturalmente descuidadas e não têm interesse em aprender segurança",
+        "Porque a maioria das empresas ainda não implantou nenhum controle técnico de segurança"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o custo de montar um site falso com o de montar uma agência falsa.",
+        "O atacante escolhe o caminho mais barato, não o mais interessante.",
+        "A resposta é sobre economia do ataque, não sobre caráter de quem usa."
+      ],
+      "pergunta_socratica": "Antes de conferir: com orçamento limitado, você atacaria a matemática ou a caixa de entrada?",
+      "explicacao": "O ataque vai para onde o custo é menor. Montar uma vitrine falsa de banco na internet sai pelo preço de um domínio, enquanto quebrar cifra moderna não é viável e montar uma agência falsa é caro e arriscado. Some a isso que os instintos antifraude humanos foram calibrados no contato cara a cara e quase não recebem informação de uma mensagem. O capítulo não conclui que a pessoa é frágil: conclui que o desenho não previu um comportamento previsível.",
+      "por_que_erradas": {
+        "1": "As cifras modernas em uso não são o ponto fraco; é por isso que o ataque contorna a matemática.",
+        "2": "O capítulo rejeita essa leitura: o erro é previsível e projetável, não fruto de descuido.",
+        "3": "Controles técnicos são comuns; o ataque os contorna pela pessoa em vez de enfrentá-los."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.1",
+      "tags": [
+        "fator-humano",
+        "economia-do-ataque",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "2.7.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Qual é a diferença entre um deslize (slip) e um engano (mistake)?",
+      "alternativas": [
+        "O deslize é executar errado a ação certa; o engano é executar certo a ação errada",
+        "O deslize acontece com iniciantes e o engano acontece com quem já automatizou a tarefa",
+        "O deslize é intencional e o engano é acidental, o que muda a responsabilidade de quem opera",
+        "O deslize ocorre em interface gráfica e o engano ocorre em interface de linha de comando"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte em qual dos dois a intenção já estava certa.",
+        "Um se corrige mexendo na interface; o outro, na regra que foi ensinada.",
+        "Nada nessa taxonomia depende do nível de experiência de quem opera."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem clica em um link de phishing quis clicar no link errado, ou aplicou a regra errada?",
+      "explicacao": "No nível da habilidade estão deslizes e lapsos: a intenção era certa e a execução escorregou, seja apertando o botão vizinho, seja acionando por hábito a habilidade de outra situação. No nível das regras estão os enganos: sob sobrecarga, a pessoa escolhe a regra mais forte e mais geral que conhece e a executa direitinho. A distinção importa porque a correção é diferente — deslize se ataca mudando a interface, engano se ataca mudando a regra ensinada.",
+      "por_que_erradas": {
+        "1": "Os dois tipos ocorrem em qualquer nível de experiência; a taxonomia é sobre a natureza do erro.",
+        "2": "Nenhum dos dois é intencional; ambos são erros de operação, não desvios de conduta.",
+        "3": "A taxonomia é cognitiva e independe do tipo de interface usada."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.1",
+      "tags": [
+        "fator-humano",
+        "erro-humano",
+        "taxonomia",
+        "usabilidade"
+      ]
+    },
+    {
+      "id": "2.7.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0,
+        3
+      ],
+      "enunciado": "O que é o erro de arremate (post-completion error) e o que ele ensina sobre projeto?",
+      "alternativas": [
+        "Cumprida a meta, a pessoa larga as ações finais; peça o passo crítico antes de entregar o resultado",
+        "A pessoa desiste no meio da tarefa; reduza o número de etapas necessárias até chegar ao resultado",
+        "A pessoa repete a última ação por hábito; exija confirmação explícita ao fim de cada uma das etapas",
+        "A pessoa erra a primeira etapa por falta de treino; exiba instruções na tela antes de ela começar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no instante exato em que a sua cabeça considera a tarefa terminada.",
+        "O erro acontece depois de a meta ser atingida, não antes.",
+        "A correção mexe na sequência das etapas, e não no que é dito ao usuário."
+      ],
+      "pergunta_socratica": "Antes de conferir: assim que o dinheiro sai da máquina, o que ainda falta fazer — e você lembraria?",
+      "explicacao": "A meta que ocupa a atenção é o dinheiro; assim que ela é atingida, o que sobrou da sequência evapora. Caixas eletrônicos que entregavam as notas antes do cartão acumulavam cartões esquecidos, e a correção não foi avisar mais: foi inverter a ordem, deixando o passo esquecível antes da recompensa. A lição de projeto se generaliza: coloque a ação crítica antes do desfecho, e faça toda ação perigosa exigir uma sequência diferente das rotineiras.",
+      "por_que_erradas": {
+        "1": "Não se trata de abandono da tarefa; o erro ocorre justamente depois de a meta ser cumprida.",
+        "2": "Repetição por hábito é lapso, e confirmar cada etapa só produz habituação a confirmar.",
+        "3": "O erro não está no começo nem na falta de treino; ele atinge quem já domina a tarefa."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.1",
+      "tags": [
+        "fator-humano",
+        "erro-humano",
+        "desenho",
+        "usabilidade"
+      ]
+    },
+    {
+      "id": "2.7.q4",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que um endereço como www.seubanco.autenticacao-segura.net engana tanta gente?",
+      "alternativas": [
+        "Porque sob sobrecarga a pessoa aplica a regra mais forte que conhece: procurar o nome, não a posição",
+        "Porque o navegador esconde por padrão tudo o que aparece depois do primeiro ponto do endereço",
+        "Porque esse endereço é tecnicamente equivalente ao do banco e resolve para o mesmo servidor final",
+        "Porque o certificado TLS desse endereço é emitido em nome do banco imitado, o que valida a fraude"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A pessoa está sob sobrecarga de informação; ela vai usar a regra mais barata.",
+        "Qual regra é mais forte: \"o nome do banco aparece em algum lugar\" ou \"o nome do banco é o rótulo imediatamente antes de .com.br / .net\"?",
+        "Nenhum navegador esconde o resto do domínio, e o nome do domínio de fato é o último rótulo antes do sufixo."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual parte desse endereço decide para onde o navegador vai, e ela é a parte que salta aos olhos?",
+      "explicacao": "O domínio que manda é o rótulo imediatamente antes do sufixo — aqui, autenticacao-segura.net —, mas a atenção humana busca o nome conhecido em qualquer posição. É um engano de nível de regra: a regra usada (\"o nome do banco aparece\") é mais forte e mais geral do que a correta (\"o nome do banco está na posição do domínio\"), e sob pressa ela vence. Ensinar a dissecar endereços tem retorno limitado: quem se perde no detalhe técnico decide pelo emocional, e nessa disputa o phisher joga melhor.",
+      "por_que_erradas": {
+        "1": "Nenhum navegador comum esconde o restante do domínio; o problema é onde o olho pousa.",
+        "2": "São domínios diferentes e apontam para servidores diferentes.",
+        "3": "Uma autoridade não emite certificado do banco para domínio de terceiro; o certificado válido é do próprio domínio falso."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.1 e 3.2.5.4",
+      "tags": [
+        "fator-humano",
+        "phishing",
+        "erro-humano",
+        "dominio"
+      ]
+    },
+    {
+      "id": "2.7.q5",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0,
+        3
+      ],
+      "enunciado": "O que é o orçamento de conformidade (compliance budget) de um funcionário?",
+      "alternativas": [
+        "O número limitado de horas por ano que ele aceita gastar em tarefas que não ajudam nos objetivos dele",
+        "A verba anual que a área de segurança recebe para comprar ferramentas de conformidade regulatória",
+        "O número de erros de segurança que a política tolera antes de aplicar sanção disciplinar a ele",
+        "O tempo que a auditoria reserva por ano para revisar a aderência da equipe à política interna"
+      ],
+      "correta": 0,
+      "dicas": [
+        "É um orçamento de atenção e tempo, não de dinheiro.",
+        "Quem paga esse orçamento é a pessoa que executa a tarefa.",
+        "Se você gasta tudo com o controle errado, não sobra para o que importa."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas horas por ano você aceita gastar com regras que não ajudam no seu trabalho?",
+      "explicacao": "As pessoas toleram um volume finito de fricção que não as ajuda a entregar o próprio trabalho; passado esse ponto, elas contornam. Descobrir qual é esse limite e gastá-lo com sabedoria é decisão de projeto, não de disciplina. O corolário é direto: se existe informação que você não quer que arranquem da sua equipe, é mais seguro desenhar o sistema para que ela simplesmente não possa ser divulgada, ou para que divulgá-la exija envolver outra pessoa e vencer outros obstáculos.",
+      "por_que_erradas": {
+        "1": "O orçamento é de tempo e atenção da pessoa, não de dinheiro da área.",
+        "2": "Não tem relação com tolerância a erro nem com sanção.",
+        "3": "Não descreve o esforço da auditoria, e sim o do funcionário."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.4",
+      "tags": [
+        "fator-humano",
+        "opsec",
+        "incentivos",
+        "desenho"
+      ]
+    },
+    {
+      "id": "2.7.q6",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Qual viés a mensagem \"sua conta será bloqueada em 24 horas\" explora?",
+      "alternativas": [
+        "Teoria do prospecto: a perda pesa mais que o ganho equivalente, e enquadrar como perda faz agir",
+        "Efeito espectador: quem recebe a mensagem espera que outra pessoa resolva o problema por ela",
+        "Termostato de risco: quem se sente protegido compensa assumindo um pouco mais de risco",
+        "Dissonância cognitiva: a pessoa procura informação que confirme aquilo que já pensava antes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A frase promete uma perda, não um ganho.",
+        "Qual desses vieses é sobre como a perda e o ganho pesam de forma diferente?",
+        "Os outros três aparecem no capítulo, mas descrevem outros fenômenos."
+      ],
+      "pergunta_socratica": "Antes de conferir: você agiria mais rápido por \"ganhe um bônus\" ou por \"você vai perder o bônus\"?",
+      "explicacao": "A teoria do prospecto descreve a assimetria: perder cem dói mais do que ganhar cem agrada. Enquadrar a ação como forma de evitar uma perda eleva a chance de a pessoa agir, e agir rápido. Por isso o gancho clássico do phishing é a suspensão, o bloqueio ou a cobrança indevida, e não um prêmio. Reconhecer o enquadramento não desliga o efeito, mas dá um nome ao desconforto e cria a pausa que o atacante não quer que exista.",
+      "por_que_erradas": {
+        "1": "Efeito espectador é sobre difusão de responsabilidade em grupo, não sobre perda.",
+        "2": "Termostato de risco descreve compensação após um ganho de proteção.",
+        "3": "Dissonância cognitiva explica por que a vítima insiste depois, não por que ela age agora."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.5.1",
+      "tags": [
+        "fator-humano",
+        "vies-cognitivo",
+        "phishing",
+        "persuasao"
+      ]
+    },
+    {
+      "id": "2.7.q7",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Uma pessoa sozinha, que conhece o risco e não consulta ninguém, adia a atualização. Qual viés explica isso?",
+      "alternativas": [
+        "Viés do presente (present bias): o custo é imediato e certo, e o benefício é futuro e incerto",
+        "Prova social: elas observam que os colegas também não atualizam e acabam seguindo o grupo",
+        "Heurística da disponibilidade: elas não lembram de nenhuma atualização recente que fosse útil",
+        "Erro de arremate: elas iniciam a atualização e se distraem antes de concluir o processo todo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o que a atualização cobra agora com o que ela paga depois.",
+        "O modelo formal desse viés se chama desconto hiperbólico.",
+        "A resposta certa explica por que adiar parece racional na hora."
+      ],
+      "pergunta_socratica": "Antes de conferir: o reinício de dez minutos é certo; a invasão evitada é provável. Qual dos dois o cérebro pesa mais?",
+      "explicacao": "O custo de atualizar — tempo, reinício, risco de algo quebrar — é imediato e determinado. O benefício é probabilístico e fica no futuro. O desconto hiperbólico modela essa preferência: o presente recebe peso desproporcional, e adiar parece a escolha certa em cada instante isolado. A resposta de projeto não é insistir com avisos, é reduzir o custo imediato a quase zero para que a atualização possa ser praticamente obrigatória, como fazem navegadores e serviços em nuvem.",
+      "por_que_erradas": {
+        "1": "A pessoa do enunciado não observa o comportamento de ninguém; a decisão de adiar acontece do mesmo jeito.",
+        "2": "Disponibilidade trata da facilidade de lembrar exemplos, não do peso do agora.",
+        "3": "O erro de arremate ocorre depois da meta cumprida; aqui a pessoa nem começa."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.5.2",
+      "tags": [
+        "fator-humano",
+        "vies-cognitivo",
+        "atualizacao",
+        "desconto-hiperbolico"
+      ]
+    },
+    {
+      "id": "2.7.q8",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1,
+        3
+      ],
+      "enunciado": "Por que o padrão pré-definido (default) é o controle mais poderoso de uma interface?",
+      "alternativas": [
+        "Porque a maioria não muda configuração alguma, então quem escolhe o padrão escolhe o comportamento",
+        "Porque o padrão é o único ajuste que o usuário não consegue alterar depois de instalar o produto",
+        "Porque o padrão é aplicado por política de grupo e por isso não depende de o usuário concordar",
+        "Porque o padrão é auditado por reguladores, o que obriga o fabricante a escolher a opção segura"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense em quantas configurações do seu celular você já mudou.",
+        "O padrão é o que acontece quando a pessoa não faz nada.",
+        "Padrão não é o mesmo que imposição técnica nem que exigência legal."
+      ],
+      "pergunta_socratica": "Antes de conferir: se ninguém mexer em nada, quem decidiu o nível de segurança do produto?",
+      "explicacao": "O caminho mais fácil é não decidir, e quase todo mundo o segue — daí a arquitetura de escolha ser o controle de maior alcance que existe em um produto. O padrão pode trabalhar a favor, como no plano de previdência com adesão automática, ou contra, quando o produto parte de compartilhamento aberto e obriga a pessoa a optar por sair repetidas vezes. Há ainda o paradoxo do controle: oferecer muitos ajustes finos dá sensação de domínio e costuma fazer a pessoa expor mais, não menos.",
+      "por_que_erradas": {
+        "1": "O padrão é justamente alterável; a força dele vem de quase ninguém alterar.",
+        "2": "Padrão de fábrica e imposição por política são coisas distintas.",
+        "3": "Não há auditoria regulatória geral de padrões, e muitos padrões de mercado são inseguros."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.5.3",
+      "tags": [
+        "fator-humano",
+        "default",
+        "arquitetura-de-escolha",
+        "desenho"
+      ]
+    },
+    {
+      "id": "2.7.q9",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Como a heurística do afeto ajuda quem aplica um golpe?",
+      "alternativas": [
+        "Emoção forte ocupa a atenção que faria o cálculo de probabilidade, e a pessoa para de estimar risco",
+        "Emoção forte melhora a memória do episódio, o que faz a vítima lembrar do golpe com mais clareza",
+        "Emoção forte reduz o tempo de digitação, o que aumenta a taxa de erro em formulários muito longos",
+        "Emoção forte ativa a heurística da ancoragem, que prende a pessoa ao primeiro valor apresentado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A cognição consegue fazer várias coisas ao mesmo tempo; a emoção, não.",
+        "O que o golpista precisa desligar é a estimativa de probabilidade.",
+        "Ancoragem e memória são outros fenômenos do mesmo capítulo."
+      ],
+      "pergunta_socratica": "Antes de conferir: com o coração acelerado, você consegue estimar a chance de aquilo ser verdade?",
+      "explicacao": "Tornar a emoção saliente é uma forma barata de desligar o raciocínio probabilístico: com medo, raiva ou entusiasmo no comando, a pessoa deixa de estimar a chance de o pedido ser legítimo. Some-se a fadiga de autocontrole, em que a parte deliberada cansa ao longo do dia. Há uma consequência incômoda para quem projeta: um site cheio de estímulo e movimento talvez venda mais, e ao mesmo tempo deixa o cliente em pior estado para reconhecer uma fraude.",
+      "por_que_erradas": {
+        "1": "Memória mais vívida não ajuda o golpista; o proveito dele está no instante da decisão.",
+        "2": "O efeito não é sobre velocidade de digitação nem sobre erro de preenchimento.",
+        "3": "Ancoragem é outra heurística, ligada ao valor inicial de referência."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.5.5",
+      "tags": [
+        "fator-humano",
+        "vies-cognitivo",
+        "afeto",
+        "persuasao"
+      ]
+    },
+    {
+      "id": "2.7.q10",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Por que a vítima de um golpe costuma insistir mesmo diante de evidência de fraude?",
+      "alternativas": [
+        "Dissonância cognitiva: admitir o engano ameaça a autoimagem, e ela busca o que confirma a decisão",
+        "Efeito espectador: ela assume que alguém do banco já teria interrompido a operação se fosse golpe",
+        "Viés do presente: o prejuízo já ocorrido pesa mais do que qualquer prejuízo futuro ainda possível",
+        "Prova social: ela verifica que outras pessoas fizeram a mesma transferência e acaba se tranquilizando"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O custo de parar não é só financeiro; é também admitir uma coisa desconfortável.",
+        "Qual viés trata do conflito entre a evidência nova e a autoimagem?",
+        "O golpista conta com esse desconforto e o usa para manter a vítima em movimento."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que dói mais na hora — perder o dinheiro, ou reconhecer que você foi enganado?",
+      "explicacao": "Sustentar duas visões conflitantes é desconfortável, então a pessoa busca informação que confirme a escolha já feita e descarta o que ameaça sua autoestima. É por isso que vítimas seguem transferindo depois do primeiro sinal ruim, e por que muitas nem reportam. A contramedida sugerida no capítulo é pessoal e treinável: desconfiar de si mesmo quando pistas sociais recém-criadas empurram para \"só fazer\" algo sobre o qual normalmente haveria reserva.",
+      "por_que_erradas": {
+        "1": "Efeito espectador trata de responsabilidade difusa entre observadores, não da própria vítima.",
+        "2": "Viés do presente explica adiamento de custo, não a recusa em reconhecer o engano.",
+        "3": "Prova social pode iniciar o golpe, mas não explica a persistência diante da evidência."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.5.6",
+      "tags": [
+        "fator-humano",
+        "vies-cognitivo",
+        "dissonancia",
+        "vitima"
+      ]
+    },
+    {
+      "id": "2.7.q11",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        1,
+        3
+      ],
+      "enunciado": "O que o termostato de risco prevê sobre um novo controle de segurança?",
+      "alternativas": [
+        "Que parte do ganho será consumida por comportamento mais ousado, porque as pessoas miram um nível de risco",
+        "Que o ganho de segurança será integralmente preservado, desde que o controle seja obrigatório para todos",
+        "Que o controle perderá eficácia com o tempo apenas por desgaste técnico do mecanismo implantado",
+        "Que o ganho aparecerá só no primeiro mês, até que os atacantes desenvolvam uma técnica alternativa"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O modelo diz que as pessoas gerenciam o risco até um patamar que consideram aceitável.",
+        "Se o carro fica mais seguro, o que acontece com a velocidade?",
+        "O efeito é comportamental, não técnico nem sobre a reação do atacante."
+      ],
+      "pergunta_socratica": "Antes de conferir: depois de instalar o MFA, a equipe passa a tratar a senha com mais ou com menos cuidado?",
+      "explicacao": "O modelo diz que as pessoas gerenciam a própria exposição até um nível-alvo: aumente a proteção e parte do ganho é gasta em ousadia. A ilustração do livro é a discussão de John Adams sobre cinto de segurança obrigatório, achado contestado na literatura de segurança viária — vale como modelo conceitual, não como consenso. A lição de método é o que interessa: avalie a intervenção no ambiente mais realista possível, porque a compensação só aparece em campo, nunca no laboratório.",
+      "por_que_erradas": {
+        "1": "Tornar o controle obrigatório garante que ele seja usado, mas não altera o nível de risco que as pessoas aceitam correr — e é esse nível que produz a compensação.",
+        "2": "O modelo é sobre comportamento humano, não sobre degradação do mecanismo.",
+        "3": "A reação do atacante é outro fenômeno; aqui quem compensa é o próprio protegido."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.5.7",
+      "tags": [
+        "fator-humano",
+        "vies-cognitivo",
+        "termostato-de-risco",
+        "avaliacao"
+      ]
+    },
+    {
+      "id": "2.7.q12",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "O que a evidência mais recente diz sobre o efeito espectador (bystander effect)?",
+      "alternativas": [
+        "Que em conflitos públicos filmados quase sempre alguém intervém, e que o nome do efeito é enganoso",
+        "Que o efeito é ainda mais forte do que os experimentos dos anos 1960 haviam conseguido medir",
+        "Que o efeito só aparece quando há mais de cinquenta pessoas presentes na cena do incidente",
+        "Que o efeito foi confirmado em laboratório e refutado somente em ambientes virtuais e online"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O experimento clássico foi feito em laboratório; a evidência recente veio de outro tipo de observação.",
+        "Pergunte se o que caiu foi a chance de UM indivíduo agir ou a chance de ALGUÉM agir.",
+        "Difusão de responsabilidade continua real; o que mudou foi a leitura pessimista do desfecho."
+      ],
+      "pergunta_socratica": "Antes de conferir: o experimento mediu a chance de uma pessoa agir ou o desfecho do grupo inteiro?",
+      "explicacao": "Os experimentos clássicos mediram a probabilidade de um indivíduo agir, e ela de fato cai com mais observadores. Mas análises de imagens de circuito fechado de conflitos públicos em vários países encontraram intervenção de ao menos um espectador na grande maioria dos casos, com mais sucesso quanto mais gente entra — e Anderson conclui que o nome do efeito é enganoso. O que continua valendo é operacional: dentro de uma organização, tarefa endereçada a três pessoas é tarefa de ninguém.",
+      "por_que_erradas": {
+        "1": "A evidência recente vai na direção oposta: intervenção é a regra, não a exceção.",
+        "2": "Não há limiar de cinquenta pessoas; o efeito medido já aparecia com poucos observadores.",
+        "3": "A correção veio de observação em ambiente real, não da distinção entre online e presencial."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.3.2",
+      "tags": [
+        "fator-humano",
+        "psicologia-social",
+        "responsabilidade",
+        "organizacao"
+      ]
+    },
+    {
+      "id": "2.7.q13",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Ligue cada classe de influência de Cialdini ao gancho usado no ataque.",
+      "pares": [
+        [
+          "Reciprocidade",
+          "O atacante presta um pequeno favor antes de pedir o que quer, e a vítima sente que deve retribuir"
+        ],
+        [
+          "Autoridade",
+          "A mensagem se apresenta como vinda do diretor, da polícia ou do setor de TI, e o pedido não é questionado"
+        ],
+        [
+          "Escassez",
+          "A oferta some em poucas horas, e o medo de ficar de fora encurta a análise da proposta"
+        ],
+        [
+          "Prova social",
+          "A mensagem afirma que o resto da equipe já respondeu, e ninguém quer ser o único a destoar"
+        ],
+        [
+          "Simpatia",
+          "O contato elogia, encontra interesses em comum e conversa antes de pedir — recusar quem parece próximo custa mais"
+        ],
+        [
+          "Compromisso e consistência",
+          "O alvo aceita antes um pedido pequeno, e negar o grande depois exigiria contradizer a si mesmo"
+        ]
+      ],
+      "dicas": [
+        "Uma das classes explora dívida; outra, hierarquia.",
+        "Uma delas explora o que os OUTROS fizeram; outra, o que o INTERLOCUTOR construiu com você.",
+        "Uma trabalha o tempo, e não a relação."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas técnicas um vendedor honesto também usaria, sem nada de errado nisso?",
+      "explicacao": "Cialdini catalogou as seis classes trabalhando como vendedor para documentar as manhas do ramo, e o repertório do golpista é o mesmo dos profissionais da persuasão — vendedores, arrecadadores, publicitários, quem tem por ofício fazer os outros fazerem coisas. A diferença está na intenção, não na técnica, e é por isso que detectores automáticos de fraude por linguagem têm tanta dificuldade: corretores legítimos escrevem igual. Nomear o gatilho não desliga o efeito, mas cria a pausa que o ataque tenta eliminar.",
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.1",
+      "tags": [
+        "fator-humano",
+        "persuasao",
+        "cialdini",
+        "pareamento"
+      ]
+    },
+    {
+      "id": "2.7.q14",
+      "tipo": "pareamento",
+      "dificuldade": 3,
+      "objetivos": [
+        1,
+        2
+      ],
+      "enunciado": "Ligue cada princípio de golpe de Stajano e Wilson ao seu exemplo.",
+      "pares": [
+        [
+          "Distração",
+          "O alvo é levado a olhar para o lugar errado enquanto o golpe acontece em outro"
+        ],
+        [
+          "Gentileza",
+          "O ataque vive da vontade de ajudar: segurar a porta para quem está de mãos ocupadas"
+        ],
+        [
+          "Desonestidade",
+          "Quem entrou em algo escuso dificilmente reclama, e o golpista conta com esse silêncio"
+        ],
+        [
+          "Pressão de tempo",
+          "O prazo curto empurra a decisão para o impulso, antes que a conferência aconteça"
+        ],
+        [
+          "Necessidade e ganância",
+          "A oferta responde a algo que o alvo já queria muito, e o desejo faz a análise ceder"
+        ],
+        [
+          "Princípio do rebanho",
+          "Cercado por cúmplices que se passam por desconhecidos, o alvo lê a cena como normal"
+        ]
+      ],
+      "dicas": [
+        "Dois destes princípios exploram algo que a vítima faz de bom; outros exploram o que ela faz sob pressão.",
+        "Um deles explica não o golpe, mas o silêncio depois dele.",
+        "Os sete princípios saíram de centenas de golpes aplicados em pessoas reais e filmados."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses princípios explica por que a vítima não denuncia depois?",
+      "explicacao": "Stajano e Wilson destilaram sete princípios de centenas de golpes reais aplicados e filmados. Dois deles costumam surpreender. A gentileza mostra que a engenharia social explora a virtude da vítima — o tailgating funciona porque a pessoa é educada, não porque é ingênua. A desonestidade explica a subnotificação: quando a vítima estava participando de algo duvidoso, ela engole o prejuízo. Um bom controle não pede que as pessoas deixem de ser prestativas; ele torna a prestatividade inofensiva.",
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.1",
+      "tags": [
+        "fator-humano",
+        "engenharia-social",
+        "golpes",
+        "pareamento"
+      ]
+    },
+    {
+      "id": "2.7.q15",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "O que caracteriza o pretexting?",
+      "alternativas": [
+        "Uma história falsa construída para que quem opera o sistema entregue informação ou execute uma ação",
+        "Um anexo malicioso enviado em massa para colher credenciais de quem abrir o arquivo recebido",
+        "Uma página clonada de login hospedada em um domínio parecido com o da empresa que é alvo",
+        "Um grampo no canal de comunicação para capturar credenciais em trânsito dentro da rede local"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O pretexto é a história, não a carga.",
+        "O alvo não é a máquina, é quem tem acesso a ela.",
+        "O nome vem do que sustenta a conversa, não do que trafega no anexo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se ninguém clica em nada e nada é instalado, ainda pode haver um ataque?",
+      "explicacao": "Pretexting é a versão dirigida da engenharia social: uma história plausível o bastante para que a pessoa do outro lado colabore. Detetives no Reino Unido localizavam pacientes ligando para administrativos de saúde e fingindo ser de outra unidade do mesmo serviço, e em 2006 investigadores contratados obtiveram registros telefônicos de conselheiros da HP pelo mesmo método. No experimento dos autores numa health authority inglesa, o que derrotou os pretextos foi uma política estrita de retorno de chamada — só discutir prontuário depois de ligar para um número tirado da lista interna do serviço (cap. 3.3.4). Em escala nacional o problema levou mais de uma década para ser contido, e nem ali o remédio foi a lei de privacidade: os administrativos simplesmente pararam de tratar desses assuntos por telefone (cap. 3.3.2).",
+      "por_que_erradas": {
+        "1": "Anexo em massa é phishing com carga, e não pretexto dirigido.",
+        "2": "Página clonada é a infraestrutura de um phishing, não a técnica de pretexto.",
+        "3": "Interceptação de tráfego é ataque técnico ao canal, não à pessoa."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.2 e 3.3.4",
+      "tags": [
+        "fator-humano",
+        "pretexting",
+        "engenharia-social",
+        "telefone"
+      ]
+    },
+    {
+      "id": "2.7.q16",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "artefato": "Return-Path: <faturamento@contoso-financeiro.com>\nAuthentication-Results: mx.contoso.com.br;\n  spf=pass smtp.mailfrom=faturamento@contoso-financeiro.com (IP 203.0.113.47);\n  dkim=pass header.d=contoso-financeiro.com;\n  dmarc=fail (p=reject) header.from=contoso.com.br\nFrom: \"Contoso TI — Suporte\" <suporte@contoso.com.br>\nReply-To: <suporte.contoso@mail-recuperacao.net>\nTo: ana.silva@contoso.com.br\nSubject: [Acao necessaria] Sua conta sera desativada em 24 horas\nDate: Tue, 12 Aug 2026 03:14:22 -0300\n\nPrezada Ana,\n\nDetectamos acesso nao autorizado a sua conta. Por seguranca, ela sera\ndesativada em 24 horas caso a identidade nao seja confirmada.\n\nConfirmar agora: https://contoso.com.br.acesso-seguro-suporte.net/login",
+      "enunciado": "Qual linha do cabeçalho prova que o remetente exibido foi falsificado?",
+      "alternativas": [
+        "O dmarc=fail: SPF e DKIM validaram contoso-financeiro.com, que não alinha com o From exibido",
+        "O Return-Path diferente do From, o que por si só já caracteriza remetente falsificado",
+        "O spf=pass, que só aparece quando o atacante controla o servidor usado para o envio",
+        "O campo Date de madrugada somado ao assunto entre colchetes, padrão de envio automatizado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o domínio que o SPF e o DKIM validaram com o domínio do campo From.",
+        "Quem escreve a linha Authentication-Results é o servidor que recebeu a mensagem.",
+        "Return-Path diferente do From é comum em listas e encaminhamentos legítimos."
+      ],
+      "pergunta_socratica": "Antes de conferir: SPF e DKIM passaram. Passaram para qual domínio, e é esse o domínio que a Ana vê?",
+      "explicacao": "SPF valida o domínio do envelope e DKIM valida o domínio da assinatura; nenhum dos dois olha o campo From, que é o único que o destinatário lê. Aqui os dois passaram para contoso-financeiro.com, um domínio de terceiro, enquanto o From exibe contoso.com.br. É exatamente esse desalinhamento que o DMARC detecta, e o resultado dmarc=fail com p=reject diz que o domínio legítimo pediu para essa mensagem ser recusada. O endereço do link também é enganoso, mas prova de falsificação do remetente está na linha de autenticação.",
+      "por_que_erradas": {
+        "1": "Return-Path diferente do From ocorre em listas, encaminhadores e sistemas de disparo legítimos.",
+        "2": "spf=pass é o resultado normal de qualquer envio autorizado, inclusive legítimo.",
+        "3": "Horário e formato de assunto não provam nada; comunicados legítimos usam os dois."
+      },
+      "fonte": "Artefato construído com domínio fictício; RFC 8601 (Authentication-Results); RFC 9989 (DMARC, que obsoletou a RFC 7489), seções 4.4 (alinhamento de identificadores) e 5.3.6 (aplicação da política)",
+      "tags": [
+        "fator-humano",
+        "phishing",
+        "artefato",
+        "dmarc",
+        "cabecalho"
+      ]
+    },
+    {
+      "id": "2.7.q17",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "artefato": "Authentication-Results: mx.contoso.com.br;\n  spf=pass smtp.mailfrom=financeiro@aurora-suprimentos.com.br;\n  dkim=pass header.d=aurora-suprimentos.com.br;\n  dmarc=pass (p=quarantine) header.from=aurora-suprimentos.com.br\nFrom: \"Financeiro — Aurora Suprimentos\" <financeiro@aurora-suprimentos.com.br>\nTo: contas.pagar@contoso.com.br\nSubject: Re: NF 4471 — atualização de dados bancários\nDate: Fri, 28 Aug 2026 17:41:05 -0300\n\nPessoal, boa tarde.\n\nTrocamos de banco este mês. O pagamento da NF 4471, que vence na segunda,\ndeve ir para a conta nova: Banco 077, ag. 0001, c/c 88213-4.\nO Marcos está viajando e pediu para eu resolver ainda hoje.",
+      "enunciado": "No cadastro interno de fornecedores da Contoso, a Aurora Suprimentos Ltda consta com o domínio aurorasuprimentos.com.br, contato Marcos Pereira, tel. (11) 4002-8922. O DMARC passou e não há link nem anexo. Qual é o sinal decisivo de fraude?",
+      "alternativas": [
+        "O domínio do remetente é sósia do que consta no cadastro: o DMARC só prova controle daquele domínio",
+        "O resultado dmarc=pass é forjado, já que a linha de autenticação é escrita pelo próprio remetente",
+        "A ausência de anexo com a nova ficha bancária, sinal de que o filtro removeu a carga maliciosa",
+        "O horário de envio perto do fim do expediente de sexta, que nenhum fornecedor legítimo utiliza"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o domínio do From com o domínio do cadastro, caractere por caractere.",
+        "Quem escreve a linha Authentication-Results é o servidor de quem recebe, não quem envia.",
+        "DMARC responde \"quem enviou controla este domínio?\", e não \"este é o domínio certo?\"."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o atacante registra o próprio domínio e configura tudo direito, o DMARC dele passa ou falha?",
+      "explicacao": "O cadastro registra aurorasuprimentos.com.br e a mensagem veio de aurora-suprimentos.com.br, com um hífen a mais. O atacante registrou esse domínio, publicou SPF, DKIM e DMARC corretamente e por isso tudo passa — autenticação de e-mail prova que quem enviou controla aquele domínio, jamais que aquele é o domínio certo. O resto é o roteiro clássico da fraude de e-mail corporativo: autoridade ausente que não pode ser consultada, prazo curto e um canal único, sem carga maliciosa para o filtro pegar.",
+      "por_que_erradas": {
+        "1": "A linha Authentication-Results é escrita pelo servidor receptor; o remetente não a controla.",
+        "2": "A ausência de anexo é característica do ataque, não vestígio de remoção pelo filtro.",
+        "3": "Pressão de prazo é gatilho de persuasão, e não prova: fornecedores legítimos também cobram na sexta."
+      },
+      "fonte": "Artefato construído com domínios fictícios; Security Engineering, 3ª ed., cap. 3.3.3; RFC 8601; RFC 9989 (DMARC), seção 4.4",
+      "tags": [
+        "fator-humano",
+        "bec",
+        "artefato",
+        "dominio-sosia",
+        "fraude"
+      ]
+    },
+    {
+      "id": "2.7.q18",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Qual comando mostra a política DMARC publicada pelo domínio contoso.com.br?",
+      "alternativas": [
+        "dig +short TXT _dmarc.contoso.com.br",
+        "dig +short TXT contoso.com.br",
+        "dig +short MX contoso.com.br",
+        "dig +short A contoso.com.br"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A política do DMARC não fica na raiz do domínio.",
+        "O nome do subdomínio usado pelo padrão começa com sublinhado.",
+        "O TXT da raiz costuma guardar o SPF e tokens de verificação."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o DMARC ficasse no TXT da raiz, como o resolvedor distinguiria da política de SPF?",
+      "explicacao": "O padrão publica a política DMARC como um registro TXT no subdomínio _dmarc do domínio consultado, e é ali que aparece algo como v=DMARC1; p=reject; rua=mailto:... O TXT da raiz guarda outra coisa: SPF e tokens de verificação de serviços. MX lista os servidores de entrada e A resolve o endereço — nenhum dos dois diz o que fazer com mensagem não alinhada.",
+      "por_que_erradas": {
+        "1": "O TXT da raiz costuma trazer SPF e tokens de verificação, não a política DMARC.",
+        "2": "MX lista os servidores que recebem e-mail do domínio.",
+        "3": "A resolve o nome para endereço IP e nada informa sobre autenticação de e-mail."
+      },
+      "fonte": "RFC 9989 (DMARC), seção 4.10.1 (descoberta de política, rótulo _dmarc)",
+      "tags": [
+        "fator-humano",
+        "dmarc",
+        "dns",
+        "comando",
+        "politica"
+      ]
+    },
+    {
+      "id": "2.7.q19",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "O que o DMARC acrescenta ao SPF e ao DKIM?",
+      "alternativas": [
+        "Exige que o domínio validado por SPF ou DKIM alinhe com o do campo From, que é o que o usuário vê",
+        "Verifica se o domínio do From consta na lista de domínios que aquele servidor receptor já viu antes",
+        "Exige que o Return-Path e o From sejam idênticos em todos os casos, o que reprovaria qualquer encaminhamento",
+        "Substitui o SPF e o DKIM por uma consulta única ao registro _dmarc, dispensando os dois no receptor"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte qual campo o SPF valida e qual campo o destinatário enxerga.",
+        "A palavra-chave do padrão é alinhamento, e ele admite alinhamento relaxado.",
+        "O DMARC não substitui nem refaz o trabalho de SPF e DKIM; ele amarra o resultado deles ao From."
+      ],
+      "pergunta_socratica": "Antes de conferir: o SPF valida o domínio do envelope. O destinatário chega a ver o envelope?",
+      "explicacao": "SPF autoriza servidores para o domínio do envelope e DKIM assina em nome do domínio da chave; nenhum dos dois se preocupa com o campo From, que é justamente o único visível. O DMARC amarra pelo menos um deles ao domínio do From, publica o que fazer quando não alinha — none, quarantine ou reject — e devolve relatórios ao dono do domínio. O limite é essencial: DMARC prova controle sobre o domínio que enviou, e nunca que esse domínio é o correto para aquela relação comercial.",
+      "por_que_erradas": {
+        "1": "Não existe lista de domínios conhecidos no padrão; o critério é alinhamento com o From, não histórico.",
+        "2": "O alinhamento é relaxado por padrão e basta valer para SPF ou para DKIM — é o alinhamento por DKIM que sobrevive ao encaminhamento.",
+        "3": "O registro _dmarc não autentica nada sozinho: ele só diz como tratar o resultado que SPF e DKIM produziram."
+      },
+      "fonte": "RFC 9989 (DMARC, que obsoletou a RFC 7489), seções 4.4 (alinhamento) e 4.7 (registro e tag p=)",
+      "tags": [
+        "fator-humano",
+        "dmarc",
+        "spf",
+        "dkim",
+        "email"
+      ]
+    },
+    {
+      "id": "2.7.q20",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        2,
+        3
+      ],
+      "enunciado": "Uma empresa sofre roubo de credenciais por phishing todo mês. Qual conjunto de medidas corta o ataque?",
+      "alternativas": [
+        "MFA resistente a phishing, filtro de mensagens e DMARC com política de rejeição bem configurada",
+        "Campanha trimestral de conscientização, cartaz com os dez sinais e termo de ciência assinado por cada funcionário",
+        "Bloqueio de anexos executáveis, quarentena de remetentes externos e banner \"e-mail externo\" em toda mensagem de fora",
+        "MFA por TOTP para todos, rotação trimestral de senha e proibição de gerenciador de senhas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual dessas opções continua funcionando quando alguém clica mesmo assim?",
+        "Uma defesa que depende da atenção de todo mundo, todo dia, é uma defesa de qual qualidade?",
+        "Uma das opções continua funcionando mesmo depois de a credencial ser digitada no site falso."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um único funcionário entre mil clicar, qual dessas medidas ainda impede o roubo?",
+      "explicacao": "Conscientização tem valor real — encurta o tempo até alguém reportar —, mas não é a defesa principal: treinar a equipe para vencer profissionais de persuasão é uma corrida que o atacante ganha, e cada nova regra confunde mais gente. O que corta o ataque é mecanismo. Credencial vinculada à origem não pode ser reaproveitada pelo site falso; o filtro remove a mensagem antes de ela chegar; e o DMARC com rejeição impede que o domínio da própria empresa seja usado contra ela. O NIST define resistência a phishing como não depender da vigilância de quem autentica.",
+      "por_que_erradas": {
+        "1": "Tudo ali depende da atenção de todo mundo, todo dia; nada muda quando alguém clica mesmo assim.",
+        "2": "São mecanismos de verdade, mas atacam a carga e a origem da mensagem — nenhum impede que a credencial digitada no site falso seja reaproveitada.",
+        "3": "TOTP é código que a vítima digita no site falso e o atacante repassa em segundos; rotação e proibição do gerenciador pioram a senha e desligam a checagem de origem."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.4.4.6; NIST SP 800-63B rev. 4, seção 3.2.5; RFC 9989 (DMARC)",
+      "tags": [
+        "fator-humano",
+        "phishing",
+        "mfa",
+        "defesa",
+        "mecanismo"
+      ]
+    },
+    {
+      "id": "2.7.q21",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Contas a pagar já retorna a ligação pelo telefone do cadastro antes de mudar conta de fornecedor. Ainda assim a fraude passou. Qual é a falha mais provável?",
+      "alternativas": [
+        "Semanas antes, um pedido de \"atualização de contato\" trocou o telefone do cadastro: o canal de verificação já era do atacante",
+        "O atacante forjou a assinatura DKIM do fornecedor, e por isso a mensagem passou como legítima na verificação",
+        "A mensagem trazia um Reply-To diferente, e foi esse endereço que o procedimento acabou usando para verificar",
+        "A mensagem chegou fora do expediente, quando o responsável pela segunda aprovação não estava disponível"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O procedimento confia num dado guardado. Quem pode ter mexido nesse dado, e quando?",
+        "Fraude de e-mail corporativo costuma ter uma etapa preparatória semanas antes do pedido de dinheiro.",
+        "Pergunte se a alteração do próprio cadastro é tratada como mudança crítica ou como recado administrativo."
+      ],
+      "pergunta_socratica": "Antes de conferir: o cadastro interno é confiável por natureza, ou porque alguém controla quem o altera?",
+      "explicacao": "Retorno de chamada só vale se o número discado vier de uma fonte que o atacante não conseguiu tocar. O roteiro maduro da fraude de e-mail corporativo ataca justamente isso: primeiro um pedido banal de atualização de contato muda o telefone ou o e-mail do fornecedor no cadastro, e semanas depois chega o pedido de mudança de conta bancária — que passa na verificação porque a verificação liga para o próprio atacante. A consequência de projeto é que alterar o cadastro é mudança crítica, com o mesmo rigor da alteração de pagamento: verificação fora de banda e segunda pessoa. Um canal só é confiável enquanto o controle sobre quem o define for confiável.",
+      "por_que_erradas": {
+        "1": "Forjar assinatura DKIM exige a chave privada do domínio; o caminho barato é registrar domínio sósia ou mexer no cadastro.",
+        "2": "O procedimento verifica por telefone, e o número sai do cadastro; Reply-To não participa dessa etapa.",
+        "3": "Horário não é mecanismo: se a segunda aprovação pode ser pulada por ser tarde, o defeito é a exceção, não o relógio."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.2, 3.3.3 e 3.3.4",
+      "tags": [
+        "fator-humano",
+        "bec",
+        "cadastro",
+        "fora-de-banda",
+        "pagamento"
+      ]
+    },
+    {
+      "id": "2.7.q22",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um proxy de phishing intercepta o login em tempo real e repassa o segundo fator. O que resiste?",
+      "alternativas": [
+        "Passkey ou chave FIDO2: a credencial é vinculada à origem e a chave privada não sai do autenticador",
+        "Código TOTP de aplicativo, porque muda a cada trinta segundos e expira antes de o proxy reenviar",
+        "Código por SMS, porque exige posse do chip e chega por um canal separado do próprio navegador",
+        "Senha longa em frase de várias palavras, porque o proxy não consegue capturar texto tão extenso"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O proxy repassa qualquer coisa que o usuário digite, e repassa na hora.",
+        "Existe algum segredo digitável no fluxo do WebAuthn?",
+        "Quem confere a origem nesse fluxo: o usuário ou o navegador?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o código de trinta segundos serve para qualquer site, ou só para o site certo?",
+      "explicacao": "O proxy fica no meio e retransmite na hora: TOTP e SMS são segredos digitáveis que valem para qualquer origem dentro da janela, então trinta segundos são de sobra. Na WebAuthn não há segredo a digitar. O navegador só oferece a credencial para a origem registrada, inclui a origem real nos dados assinados e a chave privada nunca deixa o autenticador — a assinatura produzida no site do atacante não serve no site verdadeiro. É o que o NIST chama de resistência a phishing: a verificação não depende da vigilância de quem autentica.",
+      "por_que_erradas": {
+        "1": "O proxy repassa o código dentro da janela de validade; trinta segundos são suficientes.",
+        "2": "Posse do chip não impede o repasse, e o SMS ainda sofre troca de chip e portabilidade.",
+        "3": "Comprimento de senha não muda nada: o proxy captura o que for digitado."
+      },
+      "fonte": "NIST SP 800-63B rev. 4, seção 3.2.5; W3C WebAuthn, seções 4 e 5.8.1; OWASP Multifactor Authentication Cheat Sheet",
+      "tags": [
+        "fator-humano",
+        "mfa",
+        "webauthn",
+        "passkey",
+        "phishing"
+      ]
+    },
+    {
+      "id": "2.7.q23",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Uma empresa publica o ranking dos setores que mais clicaram na última simulação de phishing. Qual é a crítica dominante a essa prática?",
+      "alternativas": [
+        "Causa sofrimento e desconfiança na equipe e muda pouco o comportamento, sem tocar na causa do risco",
+        "Mede o indicador errado: a taxa de clique cai porque as pessoas decoram o formato da simulação, e nenhum ataque real se parece com ela",
+        "Perde eficácia porque os funcionários avisam uns aos outros assim que percebem que a campanha começou",
+        "Só funciona com mensagens genéricas, já que campanha dirigida exigiria autorização individual de cada funcionário"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A simulação punitiva parte do princípio de que o problema é falta de esforço da pessoa.",
+        "Qual indicador realmente importa: taxa de clique ou tempo até alguém reportar?",
+        "Pense no que o funcionário faz na PRÓXIMA vez em que cair, sabendo que o nome dele foi exposto."
+      ],
+      "pergunta_socratica": "Antes de conferir: depois de ser exposto num ranking, o funcionário vai reportar mais ou menos?",
+      "explicacao": "Desde meados dos anos 2010 a opinião virou contra o phishing punitivo: ele produz sofrimento, corrói a confiança entre equipe e segurança e altera pouco o comportamento, porque o problema nunca foi falta de esforço da pessoa. O efeito colateral é o pior de todos — quem caiu deixa de avisar, e avisar cedo é justamente o que a conscientização entrega de melhor. Se a simulação existir, o indicador útil é a taxa e o tempo de reporte, e a resposta a quem clicou é suporte, nunca sanção.",
+      "por_que_erradas": {
+        "1": "Há alguma aprendizagem de formato, mas ataques reais usam os mesmos gatilhos; a crítica dominante é o dano à confiança e ao reporte, não a métrica.",
+        "2": "Avisar o colega é exatamente o comportamento que se quer da equipe; tratá-lo como defeito inverte o objetivo.",
+        "3": "Não existe tal exigência de autorização individual, e campanhas dirigidas são usadas normalmente."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.2",
+      "tags": [
+        "fator-humano",
+        "conscientizacao",
+        "simulacao",
+        "cultura",
+        "reporte"
+      ]
+    },
+    {
+      "id": "2.7.q24",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Antes do pedido de reset de senha, o mesmo número ligou duas vezes ao suporte tratando de assunto banal. Que função essas ligações cumprem?",
+      "alternativas": [
+        "Compromisso e consistência: aceita a premissa de que ele é quem diz ser, negar depois custa contradizer-se",
+        "Reciprocidade: as ligações anteriores prestaram um favor ao atendente, que agora se sente em dívida",
+        "Escassez: as ligações repetidas encurtam o prazo disponível para o atendente conferir o pedido",
+        "Prova social: as ligações mostram ao atendente que outros colegas já atenderam pedidos parecidos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Nas duas primeiras ligações não foi pedido nada de valor. Então o que foi obtido?",
+        "Pense no custo, para o atendente, de tratar na terceira ligação como impostor quem ele já tratou como legítimo duas vezes.",
+        "O gatilho age sobre a coerência do próprio atendente, não sobre dívida, prazo ou grupo."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que o atendente já concedeu, sem perceber, antes de o pedido de valor chegar?",
+      "explicacao": "O roteiro do pretexting quase nunca começa pelo pedido caro. As ligações banais servem para instalar a premissa — ele é o assistente do diretor — e obter dela uma aceitação barata. Uma vez aceita, recusar na terceira ligação obriga o atendente a se contradizer, e é essa a força do princípio de compromisso e consistência de Cialdini: as pessoas pagam caro para não parecer incoerentes com o que já fizeram. A defesa não é o atendente desconfiar mais, é o procedimento não aceitar autoridade alegada por telefone em nenhuma ligação, inclusive nas banais.",
+      "por_que_erradas": {
+        "1": "Nada foi dado ao atendente; a reciprocidade exige um favor prévio, e aqui o favor veio dele.",
+        "2": "Escassez trabalha prazo e disponibilidade; ligações anteriores não encurtam prazo nenhum.",
+        "3": "Prova social depende do que outras pessoas fizeram; aqui a referência é a própria conduta anterior do atendente."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.1 e 3.3.2",
+      "tags": [
+        "fator-humano",
+        "pretexting",
+        "cialdini",
+        "persuasao",
+        "helpdesk"
+      ]
+    },
+    {
+      "id": "2.7.q25",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Uma empresa quer acabar com entradas coladas (tailgating) sem instalar catraca. O que funciona?",
+      "alternativas": [
+        "Criar a regra social de mostrar o crachá a quem segurou a porta, repetida pela liderança nas reuniões",
+        "Publicar a proibição no manual interno e exigir assinatura de termo de ciência de cada funcionário",
+        "Instalar câmeras na entrada e apurar os casos de acompanhamento indevido ao fim de cada mês",
+        "Enviar lembrete mensal por e-mail com o número de entradas irregulares registradas no período"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O tailgating funciona porque as pessoas são educadas; a regra precisa conviver com isso.",
+        "O que faz uma regra pegar: estar no PDF ou virar hábito comentado entre colegas?",
+        "Pergunte o que muda no instante em que a porta está aberta, não no mês seguinte."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas medidas muda o que acontece na porta, no instante em que acontece?",
+      "explicacao": "O caso é de uma grande empresa de tecnologia que não quis catraca para não destruir o ambiente. A solução foi inserir socialmente uma regra pequena: quem recebe a gentileza da porta aberta mostra o crachá. O fator crítico não foi o treinamento, foi a inserção social — a liderança repetia a mensagem em reuniões gerais até virar o jeito de trabalhar. Câmera e relatório mensal detectam depois; manual assinado transfere culpa. E a regra respeita a educação das pessoas em vez de tentar suprimi-la.",
+      "por_que_erradas": {
+        "1": "Termo assinado documenta responsabilidade e não muda o comportamento na porta.",
+        "2": "Câmera registra o que já aconteceu; a apuração mensal chega tarde demais.",
+        "3": "Lembrete por e-mail é mais um item competindo por atenção, sem alterar o momento crítico."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.4",
+      "tags": [
+        "fator-humano",
+        "opsec",
+        "tailgating",
+        "cultura",
+        "mecanismo"
+      ]
+    },
+    {
+      "id": "2.7.q26",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "trecho": "POLÍTICA DE SENHAS — CONTOSO, v7\n1. Mínimo de 8 caracteres, com maiúscula, minúscula, número e símbolo.\n2. Troca obrigatória a cada 90 dias; não repetir as 5 últimas senhas.\n3. É proibido usar gerenciador de senhas ou salvar a senha no navegador.\n4. A recuperação usa três perguntas secretas cadastradas no primeiro acesso.\n5. Toda senha nova é comparada contra uma lista de senhas vazadas e comuns.",
+      "enunciado": "Quais itens desta política contrariam a orientação atual sobre senha?",
+      "alternativas": [
+        "Os itens 1, 2, 3 e 4; o item 5 é justamente um controle que a norma vigente exige",
+        "Apenas o item 2, porque a rotação periódica é a única prática hoje formalmente proibida",
+        "Os itens 3, 4 e 5; regra de composição e troca periódica continuam sendo recomendadas",
+        "Apenas os itens 1 e 2; o gerenciador de senhas e as perguntas secretas seguem recomendados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A revisão 4 do NIST usa o verbo proibir, e não desaconselhar, em mais de um ponto desta política.",
+        "Pergunte, item por item: este exige do usuário algo que ele consegue entregar?",
+        "Confira também o número do item 1: o mínimo depende de a senha ser fator único ou estar dentro de MFA."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses itens ajuda o usuário a escolher uma senha melhor?",
+      "explicacao": "A revisão 4 do NIST SP 800-63B proíbe regras de composição de caracteres e proíbe exigir troca periódica — a troca só é forçada com evidência de comprometimento. Também proíbe pergunta secreta como autenticação. O mínimo do item 1 igualmente está errado: são 15 caracteres quando a senha é fator único, e 8 apenas dentro de MFA. Proibir gerenciador contraria o requisito de permitir colar a senha e desliga uma defesa antiphishing que não depende da atenção de ninguém. O item 5 é o único alinhado: comparar a senha nova contra lista de vazadas e comuns é exigência da norma, e é o controle que de fato melhora a escolha.",
+      "por_que_erradas": {
+        "1": "Regra de composição, pergunta secreta e bloqueio de gerenciador também contrariam a orientação vigente.",
+        "2": "Inverte o quadro: composição e rotação são proibidas, e a comparação com listas de vazadas é exigida.",
+        "3": "Perguntas secretas são proibidas pela revisão vigente, e o gerenciador é aliado, não risco."
+      },
+      "fonte": "NIST SP 800-63B rev. 4, seção 3.1.1; Security Engineering, 3ª ed., cap. 3.4.4.3 e 3.4.11",
+      "tags": [
+        "fator-humano",
+        "senhas",
+        "nist",
+        "caca-erro",
+        "politica"
+      ]
+    },
+    {
+      "id": "2.7.q27",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Por que a troca periódica obrigatória de senha piora a segurança?",
+      "alternativas": [
+        "Porque o usuário produz variação previsível da anterior, e a nova fica adivinhável a partir dela",
+        "Porque o servidor precisa guardar em texto claro o histórico das senhas antigas para compará-las",
+        "Porque cada troca exige recalcular o hash de toda a base, o que abre uma janela de falha no sistema",
+        "Porque a troca invalida as sessões ativas e força autenticação em rede possivelmente hostil"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no que uma pessoa faz quando precisa inventar uma senha nova pela décima vez.",
+        "Se a senha de março é julia03, qual é a de abril?",
+        "O histórico de senhas anteriores é guardado como resumo, não em claro."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem já sabe a sua senha do trimestre passado precisa de quantas tentativas para a deste?",
+      "explicacao": "As pessoas não inventam uma senha nova a cada ciclo: elas transformam a anterior, incrementando um número ou trocando um caractere. Já nos anos 1980 se observava julia03 em março e julia04 em abril. O primeiro estudo sistemático dessas transformações (Zhang, Monrose e Reiter, 2010) mostrou que, em sistema com expiração forçada, mais de 40% das senhas podiam ser adivinhadas a partir das anteriores, que a troca forçada não ajudava quem já escolhia senha fraca, e que o esforço repetido tendia a piorar a qualidade da escolha. O NIST se retratou em 2017, e a revisão vigente proíbe a exigência: troca apenas com evidência de comprometimento.",
+      "por_que_erradas": {
+        "1": "O histórico é guardado como resumo com sal, não em texto claro.",
+        "2": "A troca de um usuário não recalcula a base inteira; cada senha é independente.",
+        "3": "Invalidar sessão é efeito colateral menor, e não a razão de a prática ser desaconselhada."
+      },
+      "fonte": "NIST SP 800-63B rev. 4, seção 3.1.1; Security Engineering, 3ª ed., cap. 3.4.4.3",
+      "tags": [
+        "fator-humano",
+        "senhas",
+        "rotacao",
+        "nist",
+        "usabilidade"
+      ]
+    },
+    {
+      "id": "2.7.q28",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Qual é o efeito líquido de um site bloquear o gerenciador de senhas do navegador?",
+      "alternativas": [
+        "Empurra o usuário para senha mais fraca e desliga o preenchimento que só ocorre na origem registrada",
+        "Impede que as senhas salvas sejam lidas no perfil do navegador após o roubo do aparelho, sem efeito colateral relevante na escolha da senha",
+        "O usuário digita a mesma senha à mão, sem mudança de comportamento relevante na escolha ou no uso",
+        "Obriga a memorizar a senha, o que reduz o reúso da mesma senha entre sites diferentes"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O gerenciador preenche em qualquer página, ou só na origem que ele registrou?",
+        "O gerenciador preenche em qualquer página, ou só na origem registrada?",
+        "Existe um ganho real no argumento do site — ele é maior ou menor que a perda?"
+      ],
+      "pergunta_socratica": "Antes de conferir: que senha você escolhe quando sabe que vai ter de digitá-la todo dia?",
+      "explicacao": "O argumento do site existe: com o aparelho roubado, senhas salvas no navegador podem ser lidas. Só que o ganho é menor que a perda. O gerenciador só preenche na página cuja origem confere com a registrada, e essa é uma defesa antiphishing que funciona sem depender da atenção de ninguém — bloqueá-lo remove exatamente isso. E a resposta previsível de quem não pode salvar é escolher algo memorizável, ou seja, mais curta e mais reusada. Um banco que desligou o armazenamento teve de voltar atrás no dia seguinte pela reação dos clientes.",
+      "por_que_erradas": {
+        "1": "A leitura do banco de senhas exige o aparelho roubado; o efeito colateral não é irrelevante — a senha fica mais fraca e some a checagem de origem, que age todo dia.",
+        "2": "O comportamento muda: sem poder salvar, a pessoa escolhe algo memorizável, ou seja, mais curto e mais reusado.",
+        "3": "Memorizar leva a senhas curtas e repetidas entre sites, e não ao contrário."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.4.11; NIST SP 800-63B rev. 4, seção 3.1.1",
+      "tags": [
+        "fator-humano",
+        "senhas",
+        "gerenciador",
+        "antiphishing",
+        "usabilidade"
+      ]
+    },
+    {
+      "id": "2.7.q29",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O que a pesquisa citada no capítulo mostra sobre avisos de segurança eficazes?",
+      "alternativas": [
+        "Aviso específico e concreto funciona melhor que genérico, mas nem otimizado alcança quase todo mundo",
+        "Aviso com rosto humano ganha saliência psicológica e eleva a adesão, ainda que não chegue a todos",
+        "Aviso repetido a cada acesso cria hábito de leitura e melhora a decisão com o tempo, embora custe atenção",
+        "Aviso técnico detalhado convence mais o usuário comum, mesmo que exija dele uma leitura mais lenta"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare \"pode danificar seu computador\" com uma frase que diz o que exatamente vai acontecer.",
+        "Uma das ideias testadas pela equipe do Google não funcionou.",
+        "Repetir muito produz habituação, não atenção."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o aviso melhorasse a adesão de trinta e cinco para cinquenta por cento, o problema estaria resolvido?",
+      "explicacao": "Avisos concretos vencem os vagos: dizer que o site foi confirmado como hospedeiro de programa que rouba conta bancária prende mais atenção do que \"visitar este site pode danificar seu computador\". Testes de usabilidade de navegador da época mostraram que rosto humano não ajuda, texto simples ajuda, e destacar o caminho seguro ajuda — a adesão sobe, e ainda assim fica longe de universal. A conclusão prática é dura: para impedir a maioria de abrir um endereço sabidamente ruim, adesão voluntária não basta, é preciso bloquear.",
+      "por_que_erradas": {
+        "1": "O recurso do rosto foi testado nos experimentos de navegador e não produziu o efeito esperado.",
+        "2": "Repetição produz habituação, não hábito de leitura: a pessoa aprende a clicar sem ler para conseguir trabalhar.",
+        "3": "Detalhe técnico de certificado é justamente o que o usuário comum não consegue interpretar, e leitura lenta ele não faz."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.4.4.7",
+      "tags": [
+        "fator-humano",
+        "avisos",
+        "usabilidade",
+        "navegador",
+        "habituacao"
+      ]
+    },
+    {
+      "id": "2.7.q30",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [
+        2,
+        3
+      ],
+      "enunciado": "Ordene o procedimento ao receber um pedido de mudança de dados bancários de fornecedor.",
+      "itens": [
+        "Parar: não responder nem encaminhar pelo canal em que o pedido chegou",
+        "Buscar o contato no cadastro interno, ignorando telefone e e-mail que vieram na mensagem",
+        "Ligar para esse contato e confirmar o pedido com quem tem autoridade sobre os dados bancários",
+        "Registrar a confirmação e submeter a alteração à aprovação de uma segunda pessoa",
+        "Confirmada a fraude, reportar ao time de segurança para bloquear o domínio sósia e alertar as demais áreas"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dicas": [
+        "A primeira decisão é sobre o canal, antes de qualquer verificação.",
+        "O número de telefone precisa vir de uma fonte que o atacante não controle.",
+        "A segunda aprovação existe justamente porque uma pessoa pode ter sido convencida."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual seria o custo de inverter os dois primeiros passos e ligar para o número da mensagem?",
+      "explicacao": "A ordem é a do risco. Primeiro parar, porque responder no canal do atacante entrega a ele a chance de conduzir a conversa. Depois buscar o contato numa fonte que ele não controla — o cadastro interno, nunca a assinatura da mensagem. Só então confirmar por voz com quem tem autoridade. A quarta etapa é estrutural: alterar destino de pagamento exige duas pessoas, porque a persuasão foi desenhada sob medida para uma. E reportar fecha o ciclo, transformando um caso isolado em bloqueio de domínio e alerta para as outras áreas.",
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.2 e 3.3.4",
+      "tags": [
+        "fator-humano",
+        "bec",
+        "procedimento",
+        "ordenacao",
+        "fora-de-banda"
+      ]
+    },
+    {
+      "id": "2.7.q31",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        0,
+        3
+      ],
+      "trecho": "CARTILHA ANTIFRAUDE — CONTOSO\nTodo e-mail fraudulento tem pelo menos um destes sinais:\n1. Erros de português e saudação genérica.\n2. Link encurtado ou anexo inesperado.\n3. Remetente com endereço estranho — confira o campo 'De'.\n4. Pedido urgente fora do processo normal.\nNa dúvida, confie no seu bom senso.",
+      "enunciado": "Por que esta cartilha falha justamente contra a fraude de e-mail corporativo (BEC)?",
+      "alternativas": [
+        "Porque a mensagem de BEC não tem link, anexo nem erro, e o remetente pode ser um domínio sósia",
+        "Porque a mensagem de BEC chega por aplicativo de mensagens, e não por e-mail, ficando fora do escopo",
+        "Porque a mensagem de BEC é sempre enviada de dentro da rede da empresa, e o filtro não a inspeciona",
+        "Porque a mensagem de BEC exige ler o cabeçalho técnico, coisa que a cartilha manda o leitor evitar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A cartilha é uma lista fechada. Liste os sinais e pergunte se algum ataque real pode não ter nenhum deles.",
+        "O campo 'De' pode exibir um domínio que passa em toda a autenticação e ainda assim é do atacante.",
+        "A cartilha promete que todo e-mail fraudulento tem pelo menos um dos sinais. Isso é verdade?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a primeira linha promete que TODO e-mail fraudulento tem um destes sinais. Quem garante essa promessa?",
+      "explicacao": "A fraude de e-mail corporativo é texto limpo, bem escrito, sem link e sem anexo, e costuma vir de um domínio sósia registrado pelo atacante, que passa em SPF, DKIM e DMARC. Ela marca no máximo o item 4, e a urgência sozinha não distingue fraude de cobrança legítima. O defeito é a promessa da primeira linha: nenhuma lista de sinais é completa, e cada rodada dessa corrida só torna o conselho mais complicado. O fecho \"confie no seu bom senso\" transfere a decisão para quem tem menos informação.",
+      "por_que_erradas": {
+        "1": "A fraude de e-mail corporativo chega por e-mail; é justamente por isso que o nome é esse.",
+        "2": "O envio vem de fora, em geral de domínio sósia registrado pelo atacante.",
+        "3": "A cartilha até manda conferir o remetente; o problema é que conferir o campo 'De' não basta."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.3.3 e 3.4.4.6",
+      "tags": [
+        "fator-humano",
+        "bec",
+        "caca-erro",
+        "conscientizacao",
+        "sinais"
+      ]
+    },
+    {
+      "id": "2.7.q32",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        0,
+        3
+      ],
+      "trecho": "+------------------------------------------------+\n|  Aviso de segurança                            |\n|                                                |\n|  Este site pode não ser seguro.                |\n|  Deseja continuar?                             |\n|                                                |\n|          [ CONTINUAR ]      ( cancelar )       |\n|                                                |\n|  [x] Não mostrar este aviso novamente          |\n+------------------------------------------------+\n\nTelemetria do produto: este diálogo aparece, em média,\n12 vezes por dia para cada usuário.",
+      "enunciado": "Quais defeitos de desenho este diálogo acumula?",
+      "alternativas": [
+        "Texto genérico, botão inseguro em destaque, frequência que produz habituação e opção de desligar o aviso em definitivo",
+        "Texto genérico, falta de botão de ajuda com o significado técnico do aviso e ausência de link para a documentação",
+        "Frequência baixa demais para criar hábito, ausência de registro da escolha do usuário e falta de um prazo para reexibição",
+        "Excesso de detalhe técnico no texto, falta de tradução do termo de segurança e ausência de um resumo em linguagem simples"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia a frase do aviso: ela diz o que exatamente vai acontecer?",
+        "Compare o destaque visual do botão perigoso com o do botão seguro.",
+        "Doze vezes por dia treina qual comportamento?"
+      ],
+      "pergunta_socratica": "Antes de conferir: depois de ver esse diálogo cem vezes, o que a sua mão faz antes de o seu olho ler?",
+      "explicacao": "São três defeitos somados. O texto é vago, e aviso concreto funciona melhor que genérico. O padrão visual privilegia o caminho perigoso: o botão em destaque deveria ser o seguro, e o caminho arriscado deveria custar mais esforço. E doze aparições por dia produzem habituação — a pessoa aprende a clicar em qualquer coisa para conseguir trabalhar, que é exatamente o comportamento explorado por quem registra domínios parecidos e por quem manda phishing. A caixa \"não mostrar novamente\" ainda transforma uma decisão isolada em desligamento permanente do controle.",
+      "por_que_erradas": {
+        "1": "Botão de ajuda e link para documentação acrescentam leitura opcional; não corrigem destaque, frequência nem o desligamento permanente.",
+        "2": "A frequência é alta demais, não baixa, e é ela que gera o clique automático.",
+        "3": "O texto é genérico e não técnico; o problema é falta de conteúdo concreto, não excesso dele."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.1 e 3.4.4.7",
+      "tags": [
+        "fator-humano",
+        "avisos",
+        "habituacao",
+        "caca-erro",
+        "interface"
+      ]
+    },
+    {
+      "id": "2.7.q33",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0,
+        1
+      ],
+      "enunciado": "Alguém liga para uma loja dizendo ser policial e manda revistar um funcionário. O que o procedimento deve prever?",
+      "alternativas": [
+        "Que nenhuma ordem por telefone seja executada sem retorno de chamada e sem envolver um segundo responsável",
+        "Que o gerente peça a matrícula funcional de quem ligou e registre o número no livro de ocorrências",
+        "Que a revista aconteça apenas com duas testemunhas presentes e seja gravada pela câmera da loja",
+        "Que o funcionário assine um termo autorizando a revista antes de o procedimento ser iniciado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A autoridade aqui é apenas alegada; nada foi verificado.",
+        "Registrar um dado inventado verifica alguma coisa?",
+        "Pergunte o que exatamente foi verificado — e por quem foi fornecido o dado que você verificou."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que impede alguém de dizer qualquer matrícula ao telefone?",
+      "explicacao": "Entre 1995 e 2005 um trote com esse roteiro convenceu gerentes de dezenas de estabelecimentos nos Estados Unidos, com consequências graves para as vítimas, condenações de quem obedeceu e indenizações contra os empregadores. Autoridade aparente é vetor concreto, e a defesa não é o gerente ser mais desconfiado — é o procedimento tornar impossível que uma voz ao telefone acione sozinha uma ação séria. Registrar matrícula não verifica nada: quem liga inventa o número. Retorno de chamada e um segundo responsável verificam.",
+      "por_que_erradas": {
+        "1": "A matrícula é fornecida pelo próprio interlocutor e pode ser inventada.",
+        "2": "Testemunhas e gravação documentam uma revista que nunca deveria ter começado.",
+        "3": "Termo assinado sob coação de autoridade aparente não valida nada e agrava o caso."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.3.1",
+      "tags": [
+        "fator-humano",
+        "autoridade",
+        "engenharia-social",
+        "procedimento",
+        "telefone"
+      ]
+    },
+    {
+      "id": "2.7.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Uma conta usa passkey, e a recuperação é por pergunta secreta e código por e-mail. Qual é a avaliação?",
+      "alternativas": [
+        "A força efetiva é a da recuperação: pergunta secreta é proibida e e-mail não vale como canal fora de banda",
+        "A força efetiva é a da passkey, porque a recuperação responde por uma fração pequena dos acessos",
+        "A combinação é adequada, porque exige dois fatores distintos em qualquer caminho de acesso à conta",
+        "A recuperação é o ponto forte, porque a pergunta secreta é um segredo que nunca trafega pela rede"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O atacante escolhe o caminho, e ele vai escolher o mais barato.",
+        "A revisão vigente do NIST tem veredito explícito sobre pergunta secreta.",
+        "E sobre e-mail como canal fora de banda, o que a norma diz?"
+      ],
+      "pergunta_socratica": "Antes de conferir: por que o atacante enfrentaria a passkey se existe um botão \"esqueci meu acesso\"?",
+      "explicacao": "Um sistema de autenticação vale o que vale seu mecanismo de retaguarda mais fraco, e aqui a retaguarda anula a passkey. A revisão vigente do NIST proíbe autenticação por conhecimento prévio, incluindo pergunta secreta, e proíbe e-mail como canal fora de banda; SMS é permitido, porém classificado como restrito, com obrigação de observar indicadores como troca de chip e portabilidade. Uma retaguarda decente aqui seria um segundo autenticador registrado, códigos de recuperação gerados no cadastro e guardados fora do aparelho, e notificação de todo registro novo.",
+      "por_que_erradas": {
+        "1": "A fração de uso não importa: o atacante escolhe o caminho, e escolherá o mais fraco.",
+        "2": "Pergunta secreta e código por e-mail não formam dois fatores distintos e independentes.",
+        "3": "Respostas de pergunta secreta são públicas ou adivinháveis, e o próprio NIST as proíbe."
+      },
+      "fonte": "NIST SP 800-63B rev. 4, seções 3.1.1 e 3.1.3.3; Security Engineering, 3ª ed., cap. 3.4.1",
+      "tags": [
+        "fator-humano",
+        "recuperacao",
+        "mfa",
+        "nist",
+        "retaguarda"
+      ]
+    },
+    {
+      "id": "2.7.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "enunciado": "O relatório de um incidente conclui: \"falha humana; reforçar o treinamento\". Qual é a crítica?",
+      "alternativas": [
+        "Para no sintoma: falta explicar por que o desenho permitiu que um erro previsível virasse incidente",
+        "É severa demais com a pessoa envolvida e deveria omitir a causa humana do relatório final",
+        "Confunde treinamento com conscientização, dois programas com orçamentos e responsáveis distintos",
+        "Deveria quantificar o custo do incidente antes de propor qualquer medida corretiva à diretoria"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Erro humano é previsível. Um requisito que ninguém consegue cumprir é requisito de quem?",
+        "Pergunte o que o sistema deveria ter tornado impossível.",
+        "Treinar tem valor real — mas valor de quê, exatamente?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se a mesma pessoa tirar férias, o próximo funcionário no lugar dela erraria igual?",
+      "explicacao": "Deslizes, enganos, regra mais forte, viés do presente e autoridade aparente são previsíveis, e um desenho que depende de a pessoa não errar carrega um requisito que ninguém entrega. A conclusão útil pergunta o que o sistema deveria ter tornado impossível: aprovação única para mudar destino de pagamento, credencial que serve em qualquer origem, aviso que aparece doze vezes por dia. Treinar tem valor — encurta o tempo até alguém reportar —, mas nunca é a defesa principal. Culpar o usuário é o diagnóstico que fecha o caso sem corrigir nada.",
+      "por_que_erradas": {
+        "1": "Omitir a causa humana piora o relatório; o problema é parar nela em vez de seguir até o desenho.",
+        "2": "A distinção entre os dois programas é administrativa e não muda o erro de diagnóstico.",
+        "3": "Quantificar custo ajuda a priorizar, mas não corrige uma causa raiz mal identificada."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.2.1 e 3.4.4.6",
+      "tags": [
+        "fator-humano",
+        "incidente",
+        "causa-raiz",
+        "desenho",
+        "carreira"
+      ]
+    }
+  ]
+}

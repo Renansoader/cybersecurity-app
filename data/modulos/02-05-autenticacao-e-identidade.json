@@ -1,0 +1,1336 @@
+{
+  "id": "2.5",
+  "nivel": 2,
+  "titulo": "Autenticação e identidade — fatores, sessão, OAuth e JWT",
+  "objetivos": [
+    "Distinguir os fatores de autenticação e aplicar a recomendação atual do NIST SP 800-63B para senha e múltiplo fator (MFA)",
+    "Explicar como sessão e cookie sustentam o login e quais atributos e ciclos protegem a sessão",
+    "Separar autorização (OAuth 2.0) de autenticação (OpenID Connect) e descrever o fluxo authorization code com PKCE",
+    "Ler um JWT, reconhecer que assinado não é cifrado e identificar os erros clássicos de verificação"
+  ],
+  "pre_requisitos": [
+    "2.4"
+  ],
+  "teoria": [
+    {
+      "id": "2.5.t1",
+      "titulo": "Os três fatores, e o que o segundo fator compra",
+      "texto": "Autenticação responde a uma pergunta só: quem está do outro lado. As evidências aceitas se agrupam em três fatores — algo que você sabe (senha, PIN), algo que você tem (chave de segurança, celular com aplicativo de código temporário, o TOTP) e algo que você é (biometria). Múltiplo fator (MFA) exige evidências de fatores diferentes; senha mais pergunta de segurança são duas coisas que você sabe, e não somam nada.\n\nO que o segundo fator compra é preciso: ele quebra a premissa de que saber a senha basta. Contra vazamento de base, reuso de senha e adivinhação em massa, é a medida isolada que mais reduz risco.\n\nMas nem todo segundo fator resiste ao mesmo ataque. Código por SMS ou por aplicativo (TOTP) barra o bot que adivinha senhas, e ainda assim o usuário pode digitá-lo em uma página falsa. A chave FIDO2/WebAuthn não pode ser digitada em lugar nenhum: a credencial está presa à origem do site.",
+      "analogia": "Crachá, senha e digital são três provas de natureza diferente. Duas cópias do crachá continuam sendo uma prova só.",
+      "erro_comum": "Chamar de dois fatores a soma de senha com pergunta de segurança. São duas coisas que você sabe, e as duas vazam pela mesma porta.",
+      "fonte": "NIST SP 800-63B rev. 4, Sec. 3.1 e 3.2.5; OWASP Multifactor Authentication Cheat Sheet; Security Engineering, 3ª ed., cap. 3.4.12"
+    },
+    {
+      "id": "2.5.t2",
+      "titulo": "A senha segundo a recomendação vigente",
+      "texto": "A revisão vigente do NIST SP 800-63B, publicada em 2025, inverteu boa parte do que se ensinava. O comprimento mínimo é de 15 caracteres quando a senha é o único fator, e de 8 apenas quando ela faz parte de um processo de múltiplo fator; o verificador deve aceitar pelo menos 64 caracteres, para caber frase-senha.\n\nTrês práticas antigas passaram a ser proibidas em texto normativo, com \"SHALL NOT\": impor regras de composição de caracteres, exigir troca periódica de senha e usar perguntas de segurança. Troca forçada só existe com evidência de comprometimento.\n\nNo lugar delas entram duas obrigações. Comparar a senha escolhida contra uma lista de senhas comuns e vazadas, no momento do cadastro. E armazenar com sal e uma função de hash de senha adequada — Argon2id é a primeira escolha do OWASP, com mínimo de 19 MiB de memória, 2 iterações e paralelismo 1.",
+      "analogia": "Trocar a fechadura todo mês não adianta se a chave está publicada em uma lista. Melhor conferir a lista e instalar uma segunda tranca.",
+      "erro_comum": "Repetir \"o NIST manda no mínimo 8 caracteres\". Oito só vale dentro de MFA; sozinha, a senha precisa de 15.",
+      "fonte": "NIST SP 800-63B rev. 4, Sec. 3.1.1 e 3.1.1.2; OWASP Authentication Cheat Sheet; OWASP Password Storage Cheat Sheet"
+    },
+    {
+      "id": "2.5.t3",
+      "titulo": "Sessão e cookie: o que sobra depois do login",
+      "texto": "HTTP não guarda estado: cada requisição chega sem memória da anterior. O login resolve isso emitindo um identificador de sessão (session ID) — valor aleatório de gerador criptográfico, com pelo menos 64 bits de entropia — que o navegador devolve em um cookie a cada requisição. A partir dali, quem tem o cookie é a sessão; a senha não é mais consultada.\n\nDaí os atributos do cookie de sessão. HttpOnly impede que JavaScript o leia, Secure impede que ele trafegue fora de HTTPS, SameSite limita o envio em requisições vindas de outro site, e o prefixo __Host- fecha o escopo a um único domínio com Path=/.\n\nE daí o ciclo: rotacionar o identificador no login e a cada mudança de privilégio, expirar por inatividade e por tempo absoluto, e invalidar do lado do servidor no logout.",
+      "analogia": "A pulseira do evento. Ninguém confere seu documento de novo — confere a pulseira. Por isso ela precisa ser difícil de copiar, e ser cortada na saída.",
+      "erro_comum": "Achar que HttpOnly resolve script injetado no site (XSS). Ele impede o roubo do cookie; o script continua podendo agir dentro da sessão da vítima.",
+      "fonte": "OWASP Session Management Cheat Sheet, seções de session ID, atributos de cookie, expiração e logout"
+    },
+    {
+      "id": "2.5.t4",
+      "titulo": "OAuth 2.0 autoriza; OpenID Connect autentica",
+      "texto": "OAuth 2.0 é delegação de autorização: o usuário permite que um aplicativo acesse um recurso em seu nome, e o aplicativo recebe um token de acesso (access token) opaco, endereçado ao servidor de recursos. O próprio RFC 6749 declara que autenticar o dono do recurso perante o cliente está fora do escopo da especificação.\n\nOpenID Connect (OIDC) é a camada de identidade construída em cima disso. Ele acrescenta o ID Token: um JWT assinado cuja audiência é o cliente, com iss, sub, aud, exp, iat e nonce. É o único artefato do conjunto que o cliente pode validar como prova de um evento de autenticação.\n\nO fluxo recomendado é o authorization code com PKCE (Proof Key for Code Exchange). O código volta pelo navegador, mas a troca por token acontece no canal de servidor, e o code_verifier prova que quem troca o código é quem o pediu.",
+      "analogia": "A chave do manobrista dá acesso ao carro; ela não prova quem é o dono. O documento do veículo é outro papel.",
+      "erro_comum": "Tratar token de acesso válido como prova de identidade. Ele não carrega audiência que o cliente possa verificar.",
+      "fonte": "RFC 6749 §1.1, §4.1 e §10.16; OpenID Connect Core 1.0 §2 e §3.1.3.7; RFC 7636 §4; RFC 9700 §2.1.1"
+    },
+    {
+      "id": "2.5.t5",
+      "titulo": "JWT: assinado (JWS) não é cifrado (JWE)",
+      "texto": "Um JWT em uso comum tem três partes separadas por ponto: cabeçalho (header), carga útil (payload) e assinatura, cada uma codificada em base64url. Base64url é codificação, não cifra: qualquer pessoa que tenha o token lê o payload inteiro sem chave nenhuma, com um comando de uma linha.\n\nEssa forma assinada chama-se JWS. Ela entrega autenticidade e integridade — quem não tem a chave não altera o conteúdo sem quebrar a assinatura — e não entrega confidencialidade. Quem precisa esconder claims usa JWE, em que o payload é de fato cifrado.\n\nA consequência é direta: número de documento, endereço, dado de saúde e regra interna de negócio não têm lugar no payload de um JWS. O token aparece em registro de acesso, em cache de navegador e em relatório de erro, e em todos esses lugares ele é legível.",
+      "analogia": "Um documento com firma reconhecida em cartório: ninguém altera sem que se note, e todo mundo consegue ler.",
+      "erro_comum": "Dizer que o JWT é \"criptografado\" porque parece ilegível. O que parece ilegível é base64url, e qualquer navegador decodifica sem chave.",
+      "fonte": "OWASP JSON Web Token Cheat Sheet, seções Token Structure e Threats on JWTs; RFC 7515 (JWS) e RFC 7516 (JWE); leitura de payload verificada em execução"
+    },
+    {
+      "id": "2.5.t6",
+      "titulo": "Os erros clássicos de verificação de JWT",
+      "texto": "Três falhas se repetem, e as três nascem da mesma decisão: deixar o token escolher como será verificado. A primeira é aceitar alg:none — token sem assinatura, cujo campo de algoritmo declara que não há uma. A segunda é a confusão de algoritmo: o servidor emite RS256 (assinatura RSA PKCS#1 v1.5 com SHA-256) e aceita HS256 (HMAC-SHA-256 com segredo compartilhado), e o atacante assina usando a chave pública, que é pública. A terceira é buscar a chave de verificação em jku, jwk ou kid do próprio token.\n\nA defesa é a mesma nos três casos: algoritmo e chave são configuração do servidor, nunca campo do token.\n\nFalta a revogação. Um JWT vale até expirar, inclusive depois do logout. Quem precisa cortar antes mantém uma lista de negação por jti mais iss, e encurta o tempo de vida.",
+      "analogia": "Deixar o visitante dizer ao porteiro qual crachá deve ser conferido, e com qual régua.",
+      "erro_comum": "Usar o token cru, ou o hash dele, como chave da lista de negação. O OWASP alerta que isso é contornável por maleabilidade da assinatura.",
+      "fonte": "OWASP JSON Web Token Cheat Sheet, seções Threats on JWTs e JWT revocation; OWASP REST Security Cheat Sheet; comportamento verificado em execução (laboratórios jwt_lab e confusao_alg)"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "2.5.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Quais são os três fatores de autenticação?",
+      "alternativas": [
+        "Algo que você sabe, algo que você tem e algo que você é",
+        "Algo que você sabe, algo que você tem e algo que você faz, como responder à pergunta de segurança",
+        "Nome de usuário, senha e endereço de e-mail cadastrado na conta",
+        "Autenticação, autorização e auditoria dos acessos realizados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Nome de usuário diz quem alguém alega ser; ele prova alguma coisa?",
+        "A última alternativa lista três etapas de um processo, não fatores.",
+        "Pergunte, de cada item, se ele é uma categoria de prova ou apenas um exemplo de dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: nome de usuário e senha são um fator ou dois?",
+      "explicacao": "Os fatores são conhecimento (senha, PIN), posse (chave de segurança, celular com aplicativo de código temporário) e inerência (biometria). Nome de usuário identifica, e identificar não é autenticar: ele declara uma alegação que ainda precisa ser provada. Autenticação, autorização e auditoria são etapas do controle de acesso, assunto diferente. Múltiplo fator (MFA) exige evidências de fatores distintos, e não duas evidências do mesmo fator.",
+      "por_que_erradas": {
+        "1": "Responder à pergunta de segurança continua sendo conhecimento; o terceiro fator é inerência, algo que você é.",
+        "2": "Nome de usuário e e-mail identificam a conta, mas não provam quem está usando.",
+        "3": "São três etapas do controle de acesso, não fatores de autenticação."
+      },
+      "fonte": "NIST SP 800-63B rev. 4, Sec. 3.1; Security Engineering, 3ª ed., cap. 3.4.12",
+      "tags": [
+        "autenticacao",
+        "fatores",
+        "fundamentos",
+        "mfa"
+      ]
+    },
+    {
+      "id": "2.5.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que senha mais pergunta de segurança não constitui múltiplo fator?",
+      "alternativas": [
+        "Porque as duas são conhecimento, e as duas vazam pela mesma porta",
+        "Porque a pergunta de segurança é opcional em todo sistema moderno",
+        "Porque a resposta da pergunta costuma ser mais curta do que a senha",
+        "Porque a pergunta de segurança só conta quando há biometria junto"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Classifique cada uma nos três fatores antes de decidir.",
+        "Quem consegue a senha por phishing consegue também a resposta pela mesma tela.",
+        "A recomendação atual do NIST tem uma posição explícita sobre esse tipo de pergunta."
+      ],
+      "pergunta_socratica": "Antes de conferir: em que fator cai \"o nome da sua primeira escola\"?",
+      "explicacao": "As duas são fatores de conhecimento, então somá-las não acrescenta categoria nenhuma: a mesma tela de phishing colhe as duas, e o mesmo vazamento entrega as duas. Pior, as respostas quase nunca são secretas — endereço, data de nascimento e nome de solteira da mãe circulam em bases vazadas. A revisão vigente do NIST SP 800-63B proíbe autenticação baseada em conhecimento (KBA) com \"SHALL NOT\". Múltiplo fator de verdade combina conhecimento com posse ou inerência.",
+      "por_que_erradas": {
+        "1": "Ser opcional não tem relação com a classificação em fatores.",
+        "2": "O comprimento da resposta não muda o fator a que ela pertence.",
+        "3": "A biometria seria um terceiro fator; ela não converte a pergunta em posse."
+      },
+      "fonte": "NIST SP 800-63B rev. 4, Sec. 3.1.1.2; Security Engineering, 3ª ed., cap. 3.4.4.3",
+      "tags": [
+        "autenticacao",
+        "mfa",
+        "fatores",
+        "kba",
+        "nist-800-63b"
+      ]
+    },
+    {
+      "id": "2.5.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Qual é o comprimento mínimo de senha na recomendação vigente do NIST SP 800-63B?",
+      "alternativas": [
+        "15 caracteres como fator único; 8 apenas dentro de múltiplo fator",
+        "8 caracteres sempre, com ao menos um número e um caractere especial",
+        "12 caracteres, com troca obrigatória a cada 90 dias por segurança",
+        "6 caracteres, desde que exista bloqueio de conta após três erros"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Mais de uma alternativa traz um número que a revisão vigente considera baixo demais para senha sozinha.",
+        "Duas alternativas trazem práticas que a revisão vigente proíbe.",
+        "O texto atual também manda aceitar senhas bem longas, para caber frase-senha."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que uma senha protegida por segundo fator poderia ser mais curta?",
+      "explicacao": "A revisão vigente exige 15 caracteres quando a senha é o único fator, e permite 8 apenas quando ela integra um processo de múltiplo fator. O verificador também deve aceitar pelo menos 64 caracteres, para caber frase-senha. As outras opções repetem o que foi abandonado: regra de composição de caracteres e troca periódica passaram a ser proibidas com \"SHALL NOT\". E bloqueio após poucos erros não compensa senha curta, porque no ataque offline o servidor nem chega a participar.",
+      "por_que_erradas": {
+        "1": "Oito só vale dentro de MFA, e exigir mistura de tipos de caractere é proibido.",
+        "2": "Troca periódica é proibida; a mudança só ocorre com evidência de comprometimento.",
+        "3": "Bloqueio contém o ataque online; contra base vazada ele não existe."
+      },
+      "fonte": "NIST SP 800-63B rev. 4, Sec. 3.1.1.2; OWASP Authentication Cheat Sheet",
+      "tags": [
+        "senhas",
+        "nist-800-63b",
+        "comprimento",
+        "politica"
+      ]
+    },
+    {
+      "id": "2.5.q4",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Levantamento interno mostrou que vários funcionários usam a mesma senha do e-mail corporativo em sites pessoais, e algumas dessas senhas já apareceram em vazamentos públicos. Qual mitigação ataca o problema de verdade?",
+      "alternativas": [
+        "Exigir múltiplo fator (MFA) no acesso corporativo, de preferência resistente a phishing",
+        "Obrigar a troca de senha a cada 30 dias e notificar o usuário por e-mail a cada troca",
+        "Exigir três caracteres especiais e proibir a repetição dos últimos cinco valores",
+        "Publicar a proibição em política assinada e reforçá-la em treinamento anual"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O atacante já tem a senha. Pergunte o que ainda o impediria de entrar.",
+        "Algumas das alternativas aumentam o incômodo do usuário sem tirar valor da senha que já vazou.",
+        "Separe as medidas que mudam o mecanismo do ataque das que mudam o comportamento esperado do usuário."
+      ],
+      "pergunta_socratica": "Antes de conferir: supondo que a senha já esteja na mão do atacante hoje, qual dessas medidas ainda o barra?",
+      "explicacao": "MFA quebra a premissa do ataque: a senha vazada deixa de ser suficiente para entrar. É a única das quatro que atua sobre o mecanismo do ataque, e não sobre a boa vontade do usuário. A medida complementar, também recomendada pelo NIST SP 800-63B, é comparar a senha escolhida contra listas de credenciais vazadas no momento do cadastro. As regras antigas de rotação periódica e de composição obrigatória de caracteres foram abandonadas justamente por não resolverem este caso.",
+      "por_que_erradas": {
+        "1": "Rotação periódica não impede o uso da senha vazada na janela em que ela é válida, e leva o usuário a criar variações previsíveis (Senha1!, Senha2!). Notificar a troca não muda nada disso. O NIST SP 800-63B proíbe a prática.",
+        "2": "Regras de composição aumentam pouco a entropia real e empurram o usuário para padrões conhecidos; proibir repetição só produz a variação seguinte. Também foram abandonadas pelo NIST SP 800-63B.",
+        "3": "Política e treinamento não têm como impedir o reuso, porque a empresa não tem visibilidade sobre o cadastro do funcionário em sites pessoais. É controle de intenção, não de mecanismo."
+      },
+      "fonte": "NIST SP 800-63B rev. 4, Sec. 3.1.1.2 (senhas)",
+      "tags": [
+        "autenticacao",
+        "senhas",
+        "mfa",
+        "nist-800-63b"
+      ]
+    },
+    {
+      "id": "2.5.q5",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "trecho": "POLÍTICA DE SENHAS — v4\n1. A senha deve ter no mínimo 15 caracteres.\n2. A senha NÃO pode conter caracteres especiais.\n3. Senhas conhecidamente vazadas são rejeitadas no cadastro.\n4. O acesso remoto exige segundo fator.",
+      "enunciado": "Um item desta política enfraquece a segurança em vez de reforçá-la. Qual é, e por quê?",
+      "alternativas": [
+        "O item 2: proibir uma classe inteira de caracteres reduz o espaço de senhas possíveis e facilita o trabalho de quem tenta adivinhá-las",
+        "O item 1: 15 caracteres é excessivo e leva o usuário a anotar a senha em papel",
+        "O item 3: rejeitar senha vazada no cadastro revela ao usuário que aquela senha existe em uma lista",
+        "O item 4: exigir segundo fator só no acesso remoto cria uma falsa sensação de segurança e deveria ser removido"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Para cada item, pergunte se ele aumenta ou diminui o número de senhas que um atacante precisaria testar.",
+        "Nem todo item restritivo aumenta a segurança.",
+        "Três itens estão alinhados com a recomendação vigente do NIST. Um vai na direção contrária."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual item, se você fosse o atacante, deixaria seu trabalho mais fácil?",
+      "explicacao": "Proibir caracteres especiais corta um pedaço do alfabeto disponível e, portanto, encolhe o espaço de busca que o atacante precisa cobrir. É uma restrição que tem cara de rigor e só trabalha a favor de quem adivinha. Os itens 1, 3 e 4 estão alinhados com o NIST SP 800-63B: 15 caracteres é exatamente o mínimo exigido para senha usada como fator único, e bloqueio de senhas vazadas e segundo fator são as duas obrigações que entraram no lugar das regras antigas.",
+      "por_que_erradas": {
+        "1": "Quinze caracteres é exatamente o mínimo que a revisão vigente exige para senha usada como fator único, que é o caso do acesso local desta política. O NIST prefere senha longa a regra de composição.",
+        "2": "Rejeitar senha vazada é uma boa prática recomendada. O usuário saber que aquela senha circula em listas é informação útil, não vazamento.",
+        "3": "Ampliar o segundo fator a todos os acessos é melhora; removê-lo é o oposto do que a política precisa."
+      },
+      "fonte": "NIST SP 800-63B rev. 4, Sec. 3.1.1.2; Security Engineering, 3ª ed., cap. 3.4.4",
+      "tags": [
+        "senhas",
+        "politica",
+        "nist-800-63b",
+        "caca-erro"
+      ]
+    },
+    {
+      "id": "2.5.q6",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "O que torna a autenticação FIDO2/WebAuthn resistente a phishing?",
+      "alternativas": [
+        "A credencial é escopada à origem do site e a chave privada não sai do autenticador",
+        "O segundo fator é biométrico, e biometria não pode ser copiada por um site falso",
+        "O código gerado expira em segundos, e não dá tempo de repassá-lo ao site legítimo",
+        "O usuário aprende a conferir o endereço da página antes de aprovar cada acesso"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quem valida a origem: o usuário ou o navegador?",
+        "O que exatamente o servidor recebe — um segredo que pode ser repassado, ou uma assinatura?",
+        "A definição do NIST fala em não depender da vigilância de quem se autentica."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que o usuário poderia digitar em uma página falsa, nesse esquema?",
+      "explicacao": "A credencial fica presa ao identificador da parte confiável (RP ID), e a origem real entra nos dados assinados. Em outro domínio, o navegador simplesmente não oferece a credencial, e a assinatura não serviria de qualquer forma. Some-se a isso que a chave privada nunca deixa o autenticador: não existe segredo que o usuário possa repassar. O NIST define resistência a phishing exatamente como não depender da vigilância de quem se autentica. Biometria, ali, é só o desbloqueio local do dispositivo.",
+      "por_que_erradas": {
+        "1": "Biometria destranca o autenticador; ela não é o que impede o uso em outra origem.",
+        "2": "Não há código digitável; um proxy de phishing em tempo real derrota justamente esse modelo.",
+        "3": "Treinar o olho do usuário é o que a definição do NIST descarta como garantia."
+      },
+      "fonte": "W3C WebAuthn Level 2, §4 e §5.8.1; NIST SP 800-63B rev. 4, Sec. 3.2.5; FIDO Alliance, passkeys",
+      "tags": [
+        "fido2",
+        "webauthn",
+        "phishing",
+        "passkey",
+        "mfa"
+      ]
+    },
+    {
+      "id": "2.5.q7",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Qual é a posição atual do NIST sobre código de uso único (OTP) enviado por SMS?",
+      "alternativas": [
+        "É autenticador restrito: permitido, com aviso ao usuário e análise de risco",
+        "É proibido desde a revisão anterior, e nenhum sistema pode mais oferecê-lo",
+        "É equivalente a uma chave FIDO2, com custo operacional bem mais baixo",
+        "É aceitável sem ressalvas, porque a rede da operadora já autentica o assinante"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Existe um canal fora de banda que o NIST realmente proíbe — e não é o SMS.",
+        "Pense nos ataques específicos do canal telefônico.",
+        "O NIST não trabalha só com duas caixas, permitido e proibido; existe uma terceira posição."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que acontece com o segundo fator se alguém convencer a operadora a emitir um chip novo?",
+      "explicacao": "O SMS é classificado como autenticador restrito: continua permitido, mas exige avisar o usuário da limitação e considerar indicadores de risco como troca de chip, portabilidade de número e comportamento anômalo. Os vetores conhecidos são troca de chip (SIM swap), portabilidade fraudulenta e ataques na rede de sinalização SS7. O que o NIST proíbe para autenticação fora de banda é o e-mail. Como segundo fator, SMS é melhor que senha sozinha e não substitui FIDO2 em aplicação de alto valor.",
+      "por_que_erradas": {
+        "1": "Restrito não é proibido; quem foi proibido para esse uso foi o e-mail.",
+        "2": "SMS não resiste a phishing: o código pode ser digitado em uma página falsa.",
+        "3": "A rede da operadora não é barreira: troca de chip e portabilidade fraudulenta trocam o assinante sem quebrar nada, e é por isso que o NIST anexa ressalvas ao método."
+      },
+      "fonte": "NIST SP 800-63B rev. 4, Sec. 3.1.3.3 e 3.2.9; OWASP Multifactor Authentication Cheat Sheet",
+      "tags": [
+        "mfa",
+        "sms",
+        "sim-swap",
+        "nist-800-63b",
+        "otp"
+      ]
+    },
+    {
+      "id": "2.5.q8",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "artefato": "$ python totp_lab.py\n[...]\nRFC 6238 (TOTP, 8 digitos, SHA-1, passo de 30 s)\n  T=59: 94287082  esperado 94287082  OK\n  T=1111111109: 07081804  esperado 07081804  OK\n  T=1111111111: 14050471  esperado 14050471  OK\n[...]\n\nmesma chave, tres instantes consecutivos:\n  T=1111111109 -> 07081804  T=1111111110 -> 14050471\n  T=1111111111 -> 14050471",
+      "enunciado": "O que esta saída mostra sobre o funcionamento do TOTP?",
+      "alternativas": [
+        "O valor depende do passo de 30 s: instantes do mesmo passo geram o mesmo código",
+        "O valor muda a cada segundo, porque cada instante T produz um resultado próprio",
+        "O valor depende só da chave, e por isso instantes diferentes coincidiram aqui",
+        "O valor é sorteado a cada geração, e o servidor guarda a lista dos aceitos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare os três valores de T e veja quais produzem o mesmo código.",
+        "O contador do TOTP não é T; é uma função de T. Qual?",
+        "Se fosse sorteado, o servidor conseguiria recalcular o mesmo valor?"
+      ],
+      "pergunta_socratica": "Antes de conferir: T=1111111110 e T=1111111111 caem no mesmo intervalo de 30 s?",
+      "explicacao": "TOTP é HOTP com o contador definido como o tempo dividido pelo passo. Dividindo por 30, T=1111111110 e T=1111111111 caem no mesmo passo e produzem 14050471; T=1111111109 cai no passo anterior e produz 07081804. Não há sorteio: cliente e servidor derivam o mesmo valor da mesma chave compartilhada, e é por isso que a conferência funciona sem comunicação. Na prática o servidor costuma aceitar um passo vizinho, para tolerar diferença de relógio. Os vetores são os da RFC 6238 e foram conferidos em execução.",
+      "por_que_erradas": {
+        "1": "A saída mostra dois valores de T com o mesmo código; não muda a cada segundo.",
+        "2": "A chave é a mesma nos três casos, e mesmo assim um dos códigos difere.",
+        "3": "Um valor sorteado no cliente não poderia ser recalculado pelo servidor."
+      },
+      "fonte": "RFC 6238 (TOTP) e RFC 4226 (HOTP); vetores oficiais verificados em execução",
+      "tags": [
+        "totp",
+        "mfa",
+        "artefato",
+        "rfc-6238",
+        "otp"
+      ]
+    },
+    {
+      "id": "2.5.q9",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Ligue cada autenticador à característica que o define em termos de risco.",
+      "pares": [
+        [
+          "Senha",
+          "Fator de conhecimento; sofre com reuso entre sites, adivinhação e vazamento de base"
+        ],
+        [
+          "Código TOTP em aplicativo",
+          "Fator de posse gerado no próprio aparelho a partir de segredo compartilhado; não depende de terceiros, e ainda assim é digitável em página falsa"
+        ],
+        [
+          "Código por SMS",
+          "Fator de posse classificado como restrito; exposto a troca de chip e a ataques de sinalização"
+        ],
+        [
+          "Chave FIDO2/WebAuthn",
+          "Fator de posse ligado à origem do site; a chave privada nunca deixa o autenticador"
+        ]
+      ],
+      "dicas": [
+        "Um deles é gerado no próprio aparelho; outro é entregue por uma rede que você não controla.",
+        "Um deles depende de um terceiro fora do seu controle: a operadora de telefonia.",
+        "Só um deles nunca entrega ao servidor um segredo que possa ser reutilizado."
+      ],
+      "pergunta_socratica": "Antes de conferir: quais desses o usuário conseguiria digitar em um site falso?",
+      "explicacao": "A separação útil não é por fator, e sim por ataque coberto. Senha cai por reuso e vazamento. TOTP e SMS resolvem o vazamento de senha, mas os dois são digitáveis: um proxy de phishing em tempo real colhe o código e o usa no site real. O SMS acrescenta a dependência da operadora, o que o NIST trata como autenticador restrito. FIDO2/WebAuthn não entrega segredo algum e amarra a credencial à origem, o que fecha justamente esse caminho.",
+      "fonte": "NIST SP 800-63B rev. 4, Sec. 3.1 e 3.2.5; OWASP Multifactor Authentication Cheat Sheet",
+      "tags": [
+        "mfa",
+        "pareamento",
+        "totp",
+        "sms",
+        "fido2"
+      ]
+    },
+    {
+      "id": "2.5.q10",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um verificador guarda a senha com Argon2id bem configurado e, no login, emite um JWT com a claim papel. Onde está o elo mais fraco desse conjunto?",
+      "alternativas": [
+        "No JWT: a claim papel continua valendo até o token expirar, mesmo depois de o papel mudar no servidor",
+        "No Argon2id: uma função com memória alta atrasa o login legítimo mais do que atrasa o ataque offline",
+        "No par senha e token: guardar hash e emitir token são funções que nunca deveriam ficar no mesmo serviço",
+        "Em nenhum: hash de senha moderno e token assinado cobrem autenticação e autorização de ponta a ponta"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quem decide o papel do usuário depois que o token já foi emitido.",
+        "O hash protege a base vazada. O token protege o quê, e por quanto tempo?",
+        "Compare o instante em que o privilégio muda no servidor com o instante em que o token deixa de valer."
+      ],
+      "pergunta_socratica": "Antes de conferir: o administrador rebaixa o papel do usuário às 10h e o token expira às 11h. O que vale nesse intervalo?",
+      "explicacao": "Argon2id bem configurado resolve o problema do armazenamento: a base vazada não entrega as senhas. O elo fraco está adiante — a claim papel é uma decisão de autorização congelada dentro do token. Enquanto ele não expirar, o servidor aceita o papel que o token carrega, mesmo que o papel tenha mudado ou a conta tenha sido desativada. Daí a combinação usual: tempo de vida curto, rotação de refresh token e, quando o corte precisa ser imediato, lista de negação por jti mais iss. Autenticação forte não conserta autorização desatualizada.",
+      "por_que_erradas": {
+        "1": "O custo de memória é justamente o que encarece o ataque offline; o atraso no login legítimo é de milissegundos e é intencional.",
+        "2": "Separar os dois serviços é decisão de arquitetura, não a falha deste conjunto; nada aqui quebra por eles estarem juntos.",
+        "3": "O conjunto cobre a entrada, e não a mudança de estado depois dela: papel revogado continua valendo dentro do token."
+      },
+      "fonte": "OWASP JSON Web Token Cheat Sheet, seção JWT revocation; NIST SP 800-63B rev. 4, Sec. 3.1.1.2",
+      "tags": [
+        "jwt",
+        "autorizacao",
+        "revogacao",
+        "argon2",
+        "sessao"
+      ]
+    },
+    {
+      "id": "2.5.q11",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Uma empresa exige chave FIDO2 no login e permite recuperar a conta respondendo a perguntas pessoais. Onde está a falha?",
+      "alternativas": [
+        "A recuperação vira o caminho mais barato e define a força real do conjunto",
+        "A chave FIDO2 perde validade sempre que existe um caminho alternativo",
+        "As perguntas pessoais só valem quando combinadas com um código por SMS",
+        "A falha é de custo: manter chave física eleva o volume de atendimento"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O atacante escolhe por onde entrar; ele vai escolher o quê?",
+        "As respostas dessas perguntas são secretas depois de tantos vazamentos?",
+        "A recomendação atual tem uma posição normativa sobre esse tipo de pergunta."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dos dois caminhos um atacante tentaria primeiro?",
+      "explicacao": "Um sistema de autenticação vale o que vale seu mecanismo de recuperação mais fraco, e o atacante ataca o caminho mais barato. Endereço, data de nascimento e nome de solteira da mãe circulam em bases vazadas há anos, então essas perguntas não são segredo. A revisão vigente do NIST veta perguntas de segurança com \"SHALL NOT\", e o raciocínio vale aqui: resposta pública não autentica ninguém. O desenho correto registra uma segunda chave FIDO2 desde o início e emite códigos de recuperação de uso único, guardados fora do computador.",
+      "por_que_erradas": {
+        "1": "A chave continua válida; o problema é existir uma porta paralela mais fraca.",
+        "2": "Somar SMS a uma pergunta pública não corrige a fraqueza da pergunta.",
+        "3": "Custo de atendimento existe, mas não é a falha de segurança do desenho."
+      },
+      "fonte": "NIST SP 800-63B rev. 4, Sec. 3.1.1; Security Engineering, 3ª ed., cap. 3.4.1",
+      "tags": [
+        "recuperacao",
+        "kba",
+        "fido2",
+        "elo-fraco",
+        "autenticacao"
+      ]
+    },
+    {
+      "id": "2.5.q12",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Por que uma aplicação web precisa de sessão depois do login?",
+      "alternativas": [
+        "Porque HTTP não guarda estado: cada requisição chega sem memória da anterior",
+        "Porque a senha precisa ser conferida de novo a cada requisição do usuário",
+        "Porque o servidor mantém uma conexão aberta com o navegador enquanto durar",
+        "Porque o navegador não consegue repetir cabeçalhos em requisições seguidas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no que o servidor sabe sobre a segunda requisição que chega.",
+        "Se a senha fosse reenviada a cada clique, o que isso criaria de risco?",
+        "A sessão existe justamente para não repetir a autenticação."
+      ],
+      "pergunta_socratica": "Antes de conferir: como o servidor sabe que esta requisição vem de quem entrou há dois minutos?",
+      "explicacao": "HTTP trata cada requisição de forma independente, sem memória do que veio antes. A sessão é o estado que a aplicação cria no login e associa a um identificador; o navegador devolve esse identificador em um cookie a cada requisição, e o servidor reconhece quem está falando. Reenviar a senha a cada clique multiplicaria a exposição do segredo, e conexão aberta não é como o protocolo funciona.",
+      "por_que_erradas": {
+        "1": "Reenviar a senha exporia o segredo em toda requisição, sem ganho nenhum.",
+        "2": "HTTP não depende de conexão persistente para identificar o usuário.",
+        "3": "O navegador repete cabeçalhos normalmente; o que falta é estado no servidor."
+      },
+      "fonte": "OWASP Session Management Cheat Sheet, introdução e seção de session ID",
+      "tags": [
+        "sessao",
+        "http",
+        "cookie",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "2.5.q13",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "O que HttpOnly, Secure e SameSite fazem no cookie de sessão?",
+      "alternativas": [
+        "Bloqueiam leitura por JavaScript, envio fora de HTTPS e envio a partir de outro site",
+        "Cifram o valor do cookie, assinam o cookie e limitam o tamanho do valor guardado",
+        "Definem a validade do cookie, o domínio de escopo e a prioridade de envio dele",
+        "Eliminam XSS, eliminam CSRF e eliminam fixação de sessão, cada um por sua vez"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Nenhum dos três altera o valor do cookie.",
+        "Um deles trata de quem lê, outro de por onde trafega, outro de quem dispara a requisição.",
+        "Mitigar um ataque é diferente de eliminá-lo."
+      ],
+      "pergunta_socratica": "Antes de conferir: com HttpOnly ligado, um script injetado ainda consegue agir na sua sessão?",
+      "explicacao": "HttpOnly impede que o cookie seja lido por document.cookie, o que mitiga o roubo por XSS sem eliminar o XSS: o script continua podendo agir dentro da sessão da vítima. Secure impede o envio fora de HTTPS. SameSite limita o envio em requisições disparadas por outro site, e a recomendação é declarar Strict, ou Lax, sempre de forma explícita — None nunca sem Secure. Nenhum dos três cifra ou assina coisa alguma.",
+      "por_que_erradas": {
+        "1": "Os três são regras de envio e de leitura; não alteram o valor do cookie.",
+        "2": "Validade e domínio são Expires/Max-Age e Domain, atributos diferentes.",
+        "3": "Eles mitigam esses ataques; nenhum deles elimina a classe inteira."
+      },
+      "fonte": "OWASP Session Management Cheat Sheet, seção de atributos de cookie",
+      "tags": [
+        "sessao",
+        "cookie",
+        "httponly",
+        "samesite",
+        "atributos"
+      ]
+    },
+    {
+      "id": "2.5.q14",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Um site aceita identificador de sessão vindo pela URL e mantém o mesmo valor depois do login. Qual é o ataque?",
+      "alternativas": [
+        "Fixação de sessão: o atacante planta o identificador e o usa já autenticado",
+        "Força bruta de sessão: o atacante testa identificadores válidos um a um",
+        "Roubo de cookie por script: o atacante lê o valor com document.cookie",
+        "Repetição de requisição: o atacante reenvia o login que capturou na rede"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O atacante conhece o identificador antes de a vítima autenticar.",
+        "O que muda no identificador quando a vítima faz login? Nada.",
+        "Pense em qual momento do ciclo deveria gerar um valor novo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o identificador não muda no login, o que o atacante ganha ao escolhê-lo antes?",
+      "explicacao": "É fixação de sessão (session fixation). O atacante envia à vítima um link com um identificador que ele mesmo escolheu; a vítima autentica, o identificador permanece o mesmo, e o atacante passa a usar uma sessão autenticada sem nunca saber a senha. As duas correções andam juntas: nunca aceitar identificador de sessão pela URL, e rotacionar o identificador imediatamente após a autenticação e a cada mudança de nível de privilégio.",
+      "por_que_erradas": {
+        "1": "Adivinhar exige identificador fraco; aqui o atacante nem precisa adivinhar.",
+        "2": "Não há script envolvido; o valor foi entregue pelo próprio link.",
+        "3": "Não há repetição de requisição; quem autentica é a própria vítima."
+      },
+      "fonte": "OWASP Session Management Cheat Sheet, seção de renovação do identificador",
+      "tags": [
+        "sessao",
+        "fixacao-de-sessao",
+        "rotacao",
+        "login"
+      ]
+    },
+    {
+      "id": "2.5.q15",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "O que é preciso para que o logout realmente encerre a sessão?",
+      "alternativas": [
+        "Invalidar a sessão no servidor, além de apagar o cookie no navegador",
+        "Apagar o cookie no navegador, que é onde a sessão de fato existe",
+        "Redirecionar para a tela de login e limpar o histórico da aba aberta",
+        "Trocar a senha do usuário, o que derruba qualquer sessão em aberto"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem guarda o estado da sessão: o navegador ou o servidor?",
+        "E se alguém já tiver uma cópia do valor do cookie?",
+        "Pense no que o servidor faz quando chega uma requisição com um identificador de sessão que ele já não reconhece."
+      ],
+      "pergunta_socratica": "Antes de conferir: apagado o cookie do seu navegador, a cópia que o atacante tem para de funcionar?",
+      "explicacao": "O estado vive no servidor; o cookie é só a referência. Apagar o cookie sem invalidar a sessão deixa a sessão viva, e quem já tiver uma cópia do valor continua entrando. O logout precisa destruir a sessão do lado do servidor e, do lado do cliente, apagar o cookie — com Clear-Site-Data e cabeçalhos de não armazenamento em cache ajudando no resto. Trocar a senha é outra operação, e nem sempre derruba as sessões existentes.",
+      "por_que_erradas": {
+        "1": "A sessão existe no servidor; o cookie é apenas um ponteiro para ela.",
+        "2": "Redirecionar e limpar histórico não invalidam nada do lado do servidor.",
+        "3": "Trocar a senha é outra ação, e por si só pode não encerrar sessões abertas."
+      },
+      "fonte": "OWASP Session Management Cheat Sheet, seção de logout e expiração",
+      "tags": [
+        "sessao",
+        "logout",
+        "invalidacao",
+        "cookie"
+      ]
+    },
+    {
+      "id": "2.5.q16",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "trecho": "Set-Cookie: JSESSIONID=8f21c3; Domain=.contoso.com; Path=/; SameSite=None; Max-Age=2592000",
+      "enunciado": "Quais correções os atributos deste cookie de sessão exigem?",
+      "alternativas": [
+        "Acrescentar HttpOnly e Secure, trocar SameSite para Strict, remover Domain e encurtar a validade",
+        "Acrescentar apenas Secure e manter SameSite=None, que é o valor esperado em cookie de sessão",
+        "Ampliar a validade para um ano inteiro e acrescentar Priority=High, para o cookie não ser descartado",
+        "Nenhuma: o cookie já declara Path e Domain, que são os atributos de escopo que importam"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Liste os três atributos de proteção e veja quais estão ausentes.",
+        "SameSite=None só é aceito acompanhado de outro atributo. Qual?",
+        "Domain com ponto inicial compartilha o cookie com o quê?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quanto tempo, em dias, vale um cookie com Max-Age de 2592000?",
+      "explicacao": "Faltam HttpOnly e Secure, e SameSite=None nunca deve ser usado sem Secure — aqui ele está sozinho. O Domain com ponto inicial estende o cookie a todos os subdomínios, inclusive os que a equipe não controla; o correto é omitir Domain. E 2.592.000 segundos são 30 dias de sessão persistente, quando o recomendado é cookie de sessão com expiração por inatividade e por tempo absoluto. Achado extra: o valor tem entropia baixa demais para um identificador de sessão.",
+      "por_que_erradas": {
+        "1": "None é o valor menos restritivo; o recomendado é Strict, ou Lax, e nunca sem Secure.",
+        "2": "Ampliar a validade piora exatamente o problema, e Priority não é atributo de segurança.",
+        "3": "Path e Domain sozinhos não protegem; faltam HttpOnly, Secure e SameSite adequado."
+      },
+      "fonte": "OWASP Session Management Cheat Sheet, seções de atributos, prefixos de nome e expiração",
+      "tags": [
+        "sessao",
+        "cookie",
+        "caca-erro",
+        "samesite",
+        "escopo"
+      ]
+    },
+    {
+      "id": "2.5.q17",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Que propriedades o identificador de sessão precisa ter?",
+      "alternativas": [
+        "Pelo menos 64 bits de entropia, de gerador criptográfico, com nome genérico",
+        "Ser derivado do nome de usuário e do horário do login, para facilitar auditoria",
+        "Ser curto e sequencial, para reduzir o tamanho do cookie em cada requisição",
+        "Conter o papel do usuário em texto claro, para poupar consulta ao banco"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que acontece se o valor puder ser previsto a partir de dados públicos?",
+        "Gerador aleatório comum serve para material de segurança?",
+        "O que o nome do cookie conta sobre a aplicação para quem olha?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se o identificador carrega o papel do usuário, quem decide o papel?",
+      "explicacao": "O identificador precisa ser imprevisível: pelo menos 64 bits de entropia, o que equivale a 16 caracteres em hexadecimal, gerado por gerador criptográfico. Derivar de nome de usuário e horário torna o valor previsível a partir de informação pública. Sequencial é pior ainda. E carregar o papel no próprio identificador entrega ao cliente uma decisão que é do servidor. O nome do cookie deve ser genérico, porque nomes como JSESSIONID ou PHPSESSID revelam a tecnologia.",
+      "por_que_erradas": {
+        "1": "Derivar de dados públicos torna o identificador previsível.",
+        "2": "Valor curto e sequencial é adivinhável; a economia de bytes é irrelevante.",
+        "3": "Dado de autorização no cliente é dado que o cliente pode tentar alterar."
+      },
+      "fonte": "OWASP Session Management Cheat Sheet, seção de propriedades do session ID",
+      "tags": [
+        "sessao",
+        "entropia",
+        "identificador",
+        "csprng"
+      ]
+    },
+    {
+      "id": "2.5.q18",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Coloque em ordem as etapas do ciclo de vida de uma sessão bem construída.",
+      "itens": [
+        "Conferir a credencial apresentada e recusar tudo o que não passar",
+        "Aceita a credencial, gerar um identificador de sessão novo e descartar qualquer valor que o navegador já carregasse",
+        "Devolver esse identificador em cookie com HttpOnly, Secure, SameSite e escopo restrito ao domínio",
+        "A cada requisição, conferir no servidor a expiração por inatividade e a absoluta",
+        "No logout, invalidar a sessão no servidor e apagar o cookie no navegador"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dicas": [
+        "Nada de sessão antes de a credencial ser aceita.",
+        "A rotação do identificador acontece em um instante específico do login.",
+        "A última etapa precisa acontecer dos dois lados."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que a rotação do identificador vem depois da autenticação, e não antes?",
+      "explicacao": "A ordem não é arbitrária. Nada acontece antes de a credencial ser conferida. O identificador novo nasce no instante seguinte à autenticação, e é exatamente isso que impede a fixação de sessão: o valor que o atacante possa ter plantado morre ali. Só então esse identificador é devolvido ao navegador, e é na emissão do cookie que os atributos entram — não depois. A expiração é verificada no servidor a cada requisição, nunca no cliente. E o logout fecha os dois lados: sessão destruída no servidor, cookie apagado no navegador.",
+      "fonte": "OWASP Session Management Cheat Sheet, seções de renovação, expiração e logout",
+      "tags": [
+        "sessao",
+        "ciclo",
+        "ordenacao",
+        "rotacao",
+        "logout"
+      ]
+    },
+    {
+      "id": "2.5.q19",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Qual é a diferença entre expiração por inatividade e expiração absoluta da sessão?",
+      "alternativas": [
+        "A primeira conta da última requisição; a segunda conta do login e não renova",
+        "A primeira vale no navegador; a segunda vale no servidor, e uma substitui a outra",
+        "A primeira se aplica a cookie persistente; a segunda, só a cookie de sessão",
+        "A primeira é conferida pelo cliente; a segunda depende do relógio do navegador"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Uma delas é reiniciada a cada clique do usuário; a outra não.",
+        "Qual das duas limita quanto tempo uma sessão roubada pode ser usada?",
+        "Onde toda expiração precisa ser verificada?"
+      ],
+      "pergunta_socratica": "Antes de conferir: com só a expiração por inatividade, quanto tempo dura uma sessão de alguém que clica a cada minuto?",
+      "explicacao": "A expiração por inatividade reinicia a cada requisição; a absoluta conta do login e não renova, o que impõe um teto ao tempo de vida da sessão, inclusive de uma sessão roubada. As duas são complementares, e as duas são verificadas no servidor — timeout de cliente não é controle. Como referência, o OWASP cita inatividade de 2 a 5 minutos em aplicação de alto valor e de 15 a 30 minutos em risco baixo, com expiração absoluta de 4 a 8 horas para uma jornada de trabalho. No AAL2 do NIST, a inatividade tem teto de uma hora.",
+      "por_que_erradas": {
+        "1": "As duas são verificadas no servidor, e uma não substitui a outra.",
+        "2": "Ambas se aplicam à sessão, independentemente de o cookie ser persistente.",
+        "3": "Nenhuma expiração deve depender do relógio ou do código do cliente."
+      },
+      "fonte": "OWASP Session Management Cheat Sheet, seção de expiração; NIST SP 800-63B rev. 4, requisitos de reautenticação por nível AAL",
+      "tags": [
+        "sessao",
+        "expiracao",
+        "inatividade",
+        "timeout"
+      ]
+    },
+    {
+      "id": "2.5.q20",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Qual problema o OAuth 2.0 resolve?",
+      "alternativas": [
+        "Delegação de autorização: um aplicativo acessa um recurso em nome do usuário",
+        "Autenticação: o provedor informa ao aplicativo quem é o usuário que acabou de entrar",
+        "Confidencialidade: o tráfego entre o aplicativo e o servidor de recursos é cifrado",
+        "Armazenamento: o aplicativo passa a guardar a senha do usuário de forma segura"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Repare em quem recebe o token de acesso e a quem ele é endereçado.",
+        "O RFC 6749 diz explicitamente o que está fora do escopo dele.",
+        "Cifra de transporte é papel de outro protocolo."
+      ],
+      "pergunta_socratica": "Antes de conferir: quando você autoriza um aplicativo a ler sua agenda, o que exatamente você está afirmando?",
+      "explicacao": "OAuth 2.0 existe para que o usuário conceda a um aplicativo acesso limitado a um recurso sem entregar a senha. O aplicativo recebe um token de acesso, normalmente opaco para ele, endereçado ao servidor de recursos. O próprio RFC 6749 declara que autenticar o dono do recurso perante o cliente está fora do escopo. Quem quer identidade usa OpenID Connect por cima. A cifra do transporte é papel do TLS, e a senha simplesmente não passa pelo aplicativo.",
+      "por_que_erradas": {
+        "1": "Autenticar o usuário perante o cliente é explicitamente fora do escopo do RFC 6749.",
+        "2": "Confidencialidade do transporte é papel do TLS, não do OAuth.",
+        "3": "O ponto do OAuth é justamente o aplicativo nunca ver a senha."
+      },
+      "fonte": "RFC 6749 §1.1, §1.4 e §10.16",
+      "tags": [
+        "oauth",
+        "autorizacao",
+        "delegacao",
+        "rfc-6749"
+      ]
+    },
+    {
+      "id": "2.5.q21",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "O que o OpenID Connect acrescenta ao OAuth 2.0?",
+      "alternativas": [
+        "O ID Token: um JWT assinado cuja audiência é o próprio cliente que pediu o login",
+        "Um token de acesso mais longo, com escopo maior e validade estendida pelo servidor",
+        "Uma camada de cifra sobre o token de acesso, que deixa de ser legível por terceiros",
+        "Um endpoint de perfil que dispensa o cliente de validar os artefatos que recebe"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte a quem cada artefato é endereçado.",
+        "Qual deles o cliente consegue validar sozinho, e contra o quê?",
+        "Consultar um endpoint de perfil prova autenticação, ou só devolve dados?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual campo do ID Token permite ao cliente saber que o token foi emitido para ele?",
+      "explicacao": "OIDC é uma camada de identidade sobre o OAuth 2.0, e o artefato novo é o ID Token: um JWT assinado com iss, sub, aud, exp, iat e, quando pedido, nonce. A audiência é o cliente, então ele valida que aud contém o próprio client_id, que iss é o emissor esperado, que a assinatura confere e que o nonce bate com o que enviou. O endpoint de perfil consome um token de acesso e devolve dados; ele não é prova de autenticação. E nada aqui cifra o token de acesso.",
+      "por_que_erradas": {
+        "1": "OIDC não altera o tamanho, o escopo nem a validade do token de acesso.",
+        "2": "O ID Token é assinado, não cifrado; ele continua legível por quem o tiver.",
+        "3": "O endpoint de perfil devolve dados; validar os artefatos continua obrigatório."
+      },
+      "fonte": "OpenID Connect Core 1.0 §2, §3.1.3.7 e §5.3",
+      "tags": [
+        "oidc",
+        "id-token",
+        "autenticacao",
+        "oauth",
+        "claims"
+      ]
+    },
+    {
+      "id": "2.5.q22",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Coloque em ordem as etapas do fluxo authorization code com PKCE.",
+      "itens": [
+        "O cliente sorteia o code_verifier e calcula o code_challenge com SHA-256 (método S256)",
+        "O navegador vai ao servidor de autorização com client_id, redirect_uri, escopo e o code_challenge",
+        "O usuário autentica e consente no servidor de autorização, e não dentro do cliente",
+        "O servidor de autorização devolve o código pelo redirecionamento previamente registrado",
+        "O cliente troca o código por token no canal de servidor, enviando o code_verifier",
+        "O servidor recalcula a transformação sobre o code_verifier e só emite o token se coincidir"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "dicas": [
+        "O segredo do PKCE nasce antes de qualquer requisição sair.",
+        "O que viaja pelo navegador é o desafio; o verificador fica guardado no cliente.",
+        "A troca por token não passa pelo navegador."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem intercepta o código no navegador consegue trocá-lo por um token?",
+      "explicacao": "O code_verifier nasce no cliente antes de tudo, e só o desafio derivado dele viaja pelo navegador. O usuário autentica no servidor de autorização, nunca dentro do cliente — é isso que mantém a senha fora do aplicativo. O código volta pelo redirecionamento registrado e é trocado por token no canal de servidor, acompanhado do code_verifier. O servidor recalcula a transformação e recusa se não coincidir. Por isso o código interceptado sozinho não vale nada: falta o verificador.",
+      "fonte": "RFC 6749 §4.1; RFC 7636 §4.1 a §4.6; RFC 9700 §2.1.1",
+      "tags": [
+        "oauth",
+        "pkce",
+        "authorization-code",
+        "ordenacao",
+        "fluxo"
+      ]
+    },
+    {
+      "id": "2.5.q23",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Por que o método S256 do PKCE protege e o método plain não?",
+      "alternativas": [
+        "No plain o desafio é o próprio verificador, e quem intercepta a requisição já o tem",
+        "No plain o desafio é curto demais, e o servidor consegue adivinhá-lo por força bruta",
+        "No plain o desafio viaja pelo canal de servidor, onde não há proteção de transporte",
+        "No plain o desafio é reaproveitado entre sessões, o que permite repetir a requisição"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Escreva o que cada método envia na primeira requisição.",
+        "O objetivo do PKCE é que o interceptador do código não consiga trocá-lo.",
+        "Qual das duas transformações é de mão única?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se desafio e verificador são iguais, o que sobra de segredo?",
+      "explicacao": "Em S256 o desafio é o resumo SHA-256 do verificador em base64url, então quem observa a requisição de autorização vê apenas o resumo e não consegue reconstruir o verificador exigido na troca. Em plain os dois são o mesmo valor: interceptou a requisição, tem o verificador, e a proteção desaparece. Verificado em execução com o vetor da RFC 7636: o verificador dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk gera o desafio E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM. A RFC obriga S256 quando o cliente é capaz de usá-lo.",
+      "por_que_erradas": {
+        "1": "O tamanho é o mesmo nos dois métodos; o problema é a ausência de transformação.",
+        "2": "O desafio viaja pelo navegador nos dois métodos, e não pelo canal de servidor.",
+        "3": "O verificador é sorteado a cada requisição; reaproveitamento não é o ponto."
+      },
+      "fonte": "RFC 7636 §4.2 e §7.2; vetor do apêndice B verificado em execução",
+      "tags": [
+        "oauth",
+        "pkce",
+        "s256",
+        "rfc-7636",
+        "codigo"
+      ]
+    },
+    {
+      "id": "2.5.q24",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "O que o parâmetro state protege, e o que o PKCE protege?",
+      "alternativas": [
+        "state cobre CSRF no redirecionamento; PKCE cobre interceptação e injeção do código",
+        "state cobre interceptação do código; PKCE cobre a expiração do token de acesso",
+        "state cifra o código no redirecionamento; PKCE assina a requisição de autorização",
+        "Os dois cobrem a mesma coisa, e implementar um deles dispensa o outro sempre"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um deles amarra a resposta à sessão do navegador que iniciou o fluxo.",
+        "O outro amarra o código a quem o pediu.",
+        "Existe assimetria: um pode cobrir o papel do outro, mas não o contrário."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que impede alguém de injetar o próprio código de autorização na sua sessão?",
+      "explicacao": "O state carrega um valor imprevisível de uso único que o cliente confere na volta, e é a defesa contra falsificação de requisição entre sites (CSRF) no endpoint de redirecionamento. O PKCE amarra o código a quem o pediu, cobrindo interceptação e injeção de código; como efeito colateral, ele também resolve o CSRF, e o RFC 9700 permite dispensar o state quando o cliente confirmou que o servidor suporta PKCE. A recíproca não vale: state nunca substitui PKCE.",
+      "por_que_erradas": {
+        "1": "Está invertido, e PKCE não tem relação com validade de token.",
+        "2": "Nenhum dos dois cifra ou assina a requisição de autorização.",
+        "3": "PKCE pode cobrir o papel do state; o contrário nunca é verdade."
+      },
+      "fonte": "RFC 6749 §10.12; RFC 9700 §2.1 e §2.1.1",
+      "tags": [
+        "oauth",
+        "pkce",
+        "state",
+        "csrf",
+        "rfc-9700"
+      ]
+    },
+    {
+      "id": "2.5.q25",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        2,
+        3
+      ],
+      "enunciado": "Um aplicativo móvel manda ao próprio backend o token de acesso do provedor, e o backend consulta o endpoint de perfil para saber quem entrou. Qual é o problema?",
+      "alternativas": [
+        "O token de acesso não tem audiência verificável pelo cliente: outro token serve igual",
+        "O endpoint de perfil não devolve identificador estável, e o backend fica sem chave",
+        "A consulta ao endpoint de perfil consome cota do provedor e falha sob carga alta",
+        "O token de acesso expira antes de o backend concluir a consulta, gerando erro falso"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte a quem o token de acesso é endereçado.",
+        "O backend consegue distinguir um token emitido para outro aplicativo?",
+        "Existe um artefato do conjunto cuja audiência é o cliente. Qual?"
+      ],
+      "pergunta_socratica": "Antes de conferir: um token roubado de outro aplicativo produziria uma resposta diferente nesse fluxo?",
+      "explicacao": "O token de acesso responde \"este portador foi autorizado\", e não \"este usuário é fulano\". Ele não carrega audiência que o cliente possa verificar, então um token roubado, ou emitido para outro aplicativo, produz exatamente a mesma resposta no endpoint de perfil e o backend conclui a identidade errada. É o clássico problema do deputado confuso. A correção é usar o ID Token do OpenID Connect e validar assinatura, iss, aud igual ao próprio client_id, exp e nonce.",
+      "por_que_erradas": {
+        "1": "O identificador do usuário no escopo do emissor existe; o problema é a origem do token.",
+        "2": "Cota e carga são questões operacionais, não a falha de segurança do desenho.",
+        "3": "Expiração produziria erro visível; aqui a falha passa silenciosamente."
+      },
+      "fonte": "RFC 6749 §10.16; OpenID Connect Core 1.0 §3.1.3.7",
+      "tags": [
+        "oauth",
+        "oidc",
+        "id-token",
+        "anti-padrao",
+        "identidade"
+      ]
+    },
+    {
+      "id": "2.5.q26",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Por que o implicit grant e o password grant saíram das recomendações do OAuth 2.0?",
+      "alternativas": [
+        "Um entrega o token pela URL; o outro faz o usuário digitar a senha dentro do cliente",
+        "Os dois exigem chave assimétrica, que os clientes públicos não conseguem guardar",
+        "Os dois foram substituídos pelo client credentials, que atende a todos os casos",
+        "Os dois dependem de cookie de terceiro, hoje bloqueado pelos navegadores atuais"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Onde o token aparece no implicit? Pense em histórico e cabeçalho de referência.",
+        "Quem vê a senha no password grant?",
+        "Um dos dois recebeu proibição mais severa que o outro."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a senha é digitada dentro do aplicativo, o que acontece com o segundo fator?",
+      "explicacao": "No implicit o token de acesso volta no fragmento da URL, o que o expõe a vazamento por histórico do navegador, cabeçalho de referência e injeção na resposta; a recomendação atual diz que clientes não deveriam usá-lo. No password grant o usuário entrega a senha ao próprio cliente, o que amplia a superfície de exposição, treina o usuário a digitar credencial em qualquer tela e não acomoda múltiplo fator — este recebeu proibição explícita. O substituto dos dois é o authorization code com PKCE.",
+      "por_que_erradas": {
+        "1": "Nenhum dos dois depende de chave assimétrica no cliente.",
+        "2": "Client credentials é para acesso entre serviços, sem usuário envolvido.",
+        "3": "O problema não é cookie de terceiro; é onde o token e a senha aparecem."
+      },
+      "fonte": "RFC 6749 §4.2 e §4.3; RFC 9700 §2.1.2 e §2.4",
+      "tags": [
+        "oauth",
+        "implicit",
+        "ropc",
+        "rfc-9700",
+        "obsoleto"
+      ]
+    },
+    {
+      "id": "2.5.q27",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um servidor de autorização compara a redirect_uri recebida por prefixo, em vez de exigir correspondência exata. Qual é o risco?",
+      "alternativas": [
+        "Um caminho inesperado casa com o prefixo e o código vai parar em endereço do atacante",
+        "A comparação por prefixo é lenta e abre negação de serviço no endpoint de autorização",
+        "O navegador recusa o redirecionamento e o usuário fica preso na tela de consentimento",
+        "O código passa a ser emitido sem escopo, e o cliente recebe permissão total na conta"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Escreva um endereço que comece igual ao registrado e termine em outro lugar.",
+        "Para onde o servidor manda o código depois do consentimento?",
+        "A regra atual não admite curinga nem comparação parcial."
+      ],
+      "pergunta_socratica": "Antes de conferir: o endereço registrado é um prefixo de quantos endereços possíveis?",
+      "explicacao": "Com comparação por prefixo, um endereço controlado pelo atacante que comece igual ao registrado é aceito, e o código de autorização é entregue a ele — o mesmo vale para um redirecionador aberto hospedado no domínio legítimo. A regra atual exige comparação exata de string, com exceção apenas da porta em endereços de localhost em aplicativos nativos. Nada de curinga, nada de comparação por início. O PKCE reduz o dano, porque falta ao atacante o code_verifier, mas não substitui a validação.",
+      "por_que_erradas": {
+        "1": "O custo da comparação é irrelevante; o problema é aceitar destino errado.",
+        "2": "O redirecionamento acontece normalmente — é justamente esse o problema.",
+        "3": "O escopo continua sendo o pedido; o que muda é para onde o código vai."
+      },
+      "fonte": "RFC 6749 §3.1.2 e §10.15; RFC 9700 §2.1 e §4.1",
+      "tags": [
+        "oauth",
+        "redirect-uri",
+        "open-redirect",
+        "rfc-9700",
+        "validacao"
+      ]
+    },
+    {
+      "id": "2.5.q28",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Qual risco o login único (SSO) concentra, e como ele é tratado?",
+      "alternativas": [
+        "Uma conta tomada abre todos os sistemas ligados; a conta de SSO exige o fator mais forte",
+        "Cada sistema passa a guardar cópia da senha do usuário; a defesa é cifrar essas cópias",
+        "O usuário precisa lembrar de mais senhas; a defesa é distribuir um gerenciador de senhas",
+        "Os sistemas ligados perdem o registro de quem acessou o quê; a defesa é duplicar os logs"
+      ],
+      "correta": 0,
+      "dicas": [
+        "SSO troca muitas credenciais por uma. O que isso faz com o valor dela?",
+        "Duas alternativas descrevem exatamente o oposto do que o SSO faz.",
+        "Pense também no que acontece quando o provedor de identidade fica fora do ar."
+      ],
+      "pergunta_socratica": "Antes de conferir: quanto vale, para o atacante, a conta que abre trinta sistemas de uma vez?",
+      "explicacao": "O SSO reduz o número de senhas, centraliza a detecção de intrusão e barateia a recuperação — e por isso mesmo transforma uma conta em ponto único de falha, além de tornar o provedor de identidade um ponto único de indisponibilidade. O tratamento é proporcional: fator resistente a phishing obrigatório nessa conta, monitoração dedicada, revisão de quais aplicativos receberam consentimento e um plano para a queda do provedor. O consentimento a um aplicativo malicioso com nome plausível é o caminho de ataque correspondente.",
+      "por_que_erradas": {
+        "1": "SSO existe justamente para os sistemas não guardarem cópias de credencial.",
+        "2": "O SSO diminui o número de senhas do usuário, não aumenta.",
+        "3": "O registro de acesso continua em cada sistema, e ganha uma fonte central."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 3.4 e 3.4.9.3; NIST SP 800-63B rev. 4, Sec. 3.2.5",
+      "tags": [
+        "sso",
+        "identidade",
+        "concentracao",
+        "mfa",
+        "consentimento"
+      ]
+    },
+    {
+      "id": "2.5.q29",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Qual comando exibe a carga útil (payload) de um JWT guardado em token.txt?",
+      "alternativas": [
+        "cut -d. -f2 token.txt | tr '_-' '/+' | base64 -d",
+        "cut -d. -f1 token.txt | tr '_-' '/+' | base64 -d",
+        "cut -d. -f3 token.txt | tr '_-' '/+' | base64 -d",
+        "base64 -d token.txt"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As três partes do token são separadas por ponto. Qual delas é o payload?",
+        "Base64url troca + e / por - e _. O que o tr está fazendo ali?",
+        "O comando base64 do shell não entende o alfabeto url por conta própria."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que sairia se você decodificasse a primeira parte? E a terceira?",
+      "explicacao": "O payload é o campo do meio, codificado em base64url. Recortá-lo e decodificar já mostra as claims, sem chave nenhuma — foi assim que o laboratório imprimiu o conteúdo do token. O tr é necessário porque base64url usa - e _ no lugar de + e /, que é o alfabeto que o base64 espera. O preenchimento com = também é omitido, então o comando costuma imprimir as claims e ainda reclamar \"invalid input\" no fim; para uma saída limpa, recomponha os sinais de igual antes de decodificar. A primeira parte é o cabeçalho, a terceira é a assinatura em bytes binários, e o token inteiro não decodifica porque os pontos não pertencem ao alfabeto base64.",
+      "por_que_erradas": {
+        "1": "Campo 1 é o cabeçalho: sai o alg e o typ, não as claims.",
+        "2": "Campo 3 é a assinatura: saem bytes binários, não JSON.",
+        "3": "O token inteiro tem dois pontos, que não pertencem ao alfabeto base64; a decodificação não produz o payload."
+      },
+      "fonte": "RFC 7515 (JWS); OWASP JSON Web Token Cheat Sheet, seção Token Structure; leitura verificada em execução",
+      "tags": [
+        "jwt",
+        "jws",
+        "base64url",
+        "comando",
+        "payload"
+      ]
+    },
+    {
+      "id": "2.5.q30",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "artefato": "$ python jwt_lab.py\n=== 1. token HS256 legitimo ===\neyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDQyIiwibm9tZSI6ImFuYS5zaWx2YSIsInBhcGVsIjoidXN1YXJpbyIsImV4cCI6MTc4NzAwMDAwMH0.82xb8i4JIj5z5-3eKWTpKTX2Am0Bucaw9JsVwW0wjR8\n\n=== 2. leitura do payload SEM nenhuma chave ===\nheader : {\"alg\":\"HS256\",\"typ\":\"JWT\"}\npayload: {\"sub\":\"1042\",\"nome\":\"ana.silva\",\"papel\":\"usuario\",\"exp\":1787000000}\n\n=== 3. payload adulterado, assinatura mantida ===\nverificacao correta aceita? False",
+      "enunciado": "O que esta execução demonstra sobre o JWT?",
+      "alternativas": [
+        "O conteúdo é legível sem chave, mas alterá-lo quebra a verificação da assinatura",
+        "O conteúdo é cifrado com o segredo do servidor, e só ele consegue lê-lo inteiro",
+        "A assinatura cifra o payload, e foi por isso que a adulteração foi rejeitada",
+        "A leitura sem chave só funcionou porque o token usa HS256 em vez de RS256"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O bloco 2 rodou sem receber chave nenhuma. O que isso diz sobre confidencialidade?",
+        "O bloco 3 mudou o payload e manteve a assinatura. O que aconteceu?",
+        "Autenticidade e sigilo são duas promessas distintas."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o conteúdo fosse mesmo cifrado, o bloco 2 poderia ter impresso o payload?",
+      "explicacao": "O bloco 2 imprime cabeçalho e payload sem receber chave alguma: base64url é codificação, e não cifra. O bloco 3 mostra o outro lado da moeda — alterar o payload e manter a assinatura faz a verificação falhar. Ou seja, o JWS entrega autenticidade e integridade, e não confidencialidade; para esconder claims existe o JWE. HS256 é HMAC-SHA-256 com segredo compartilhado, e trocar para RS256 ou EdDSA muda a assinatura, nunca a legibilidade do payload.",
+      "por_que_erradas": {
+        "1": "Se estivesse cifrado, o bloco 2 não teria impresso o payload sem chave.",
+        "2": "A assinatura autentica; ela não transforma o conteúdo em texto ilegível.",
+        "3": "Qualquer algoritmo de assinatura deixa o payload igualmente legível."
+      },
+      "fonte": "RFC 7515 (JWS) e RFC 7516 (JWE); comportamento verificado em execução (laboratório jwt_lab)",
+      "tags": [
+        "jwt",
+        "jws",
+        "jwe",
+        "artefato",
+        "integridade"
+      ]
+    },
+    {
+      "id": "2.5.q31",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O payload de um JWT precisa carregar o CPF do usuário para as telas internas. Qual desenho resolve?",
+      "alternativas": [
+        "Guardar no payload apenas um identificador opaco e buscar o dado sensível no servidor; se as claims mesmo precisarem ser sigilosas, usar JWE",
+        "Cifrar só esse campo com uma chave da aplicação e concatenar o resultado no payload do token assinado",
+        "Assinar o token com RS256 em vez de HS256, para que só o servidor consiga produzir a assinatura",
+        "Encurtar o exp do token para poucos minutos, para reduzir a janela em que o dado fica exposto"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quem consegue ler o payload, e com qual chave.",
+        "O token vai parar em registro de acesso, cache e relatório de erro. O dado sai de lá quando o token expira?",
+        "Existe um formato do mesmo conjunto que cifra o conteúdo. Qual?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o token vai parar no log do servidor. Quem lê aquele log lê o quê?",
+      "explicacao": "O JWT assinado é um JWS: garante que ninguém alterou as claims, e não esconde nada — qualquer pessoa com o token decodifica o payload em uma linha, sem chave. E o token circula: registro de acesso, cache do navegador, relatório de erro, ferramenta de depuração; o que foi lido de lá não expira junto com o exp. Por isso o desenho correto tira o dado do token: no payload fica um identificador opaco, e a tela busca o CPF no servidor, sob autorização. Quando as claims precisam mesmo viajar sigilosas, o formato é o JWE (RFC 7516), que cifra o conteúdo em vez de só assiná-lo.",
+      "por_que_erradas": {
+        "1": "Cifra montada à mão dentro do payload cria gerência de chave e formato próprios; o JWE existe exatamente para esse caso.",
+        "2": "Trocar o algoritmo de assinatura muda quem consegue assinar, nunca a legibilidade do payload.",
+        "3": "Expiração curta reduz a janela de uso do token; não desfaz a leitura de quem já viu o CPF no registro de acesso."
+      },
+      "fonte": "OWASP JSON Web Token Cheat Sheet, seção Token Structure; RFC 7515 e RFC 7516",
+      "tags": [
+        "jwt",
+        "jws",
+        "jwe",
+        "dados-sensiveis",
+        "privacidade"
+      ]
+    },
+    {
+      "id": "2.5.q32",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "trecho": "def verifica(token, chave):\n    h, p, s = token.split(\".\")\n    alg = json.loads(base64url_decode(h))[\"alg\"]\n    if alg == \"none\":\n        return True\n    esperado = base64url(hmac.new(chave, f\"{h}.{p}\".encode(), hashlib.sha256).digest())\n    return hmac.compare_digest(esperado, s)",
+      "enunciado": "Qual é a falha deste verificador de JWT?",
+      "alternativas": [
+        "Ele lê o algoritmo do próprio token, e um token com alg:none passa sem assinatura",
+        "Ele usa comparação em tempo constante, que falha quando os valores têm tamanhos diferentes",
+        "Ele divide o token em três partes, quando um JWT válido tem quatro campos separados por ponto",
+        "Ele calcula o HMAC sobre cabeçalho e payload, quando deveria calcular apenas sobre o payload"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Siga o caminho de um token cujo cabeçalho diz que não há assinatura.",
+        "Quem decide como o token será verificado: o servidor ou o token?",
+        "Duas linhas do código estão certas; uma decisão está errada."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que este código devolve para um token cujo cabeçalho é {\"alg\":\"none\"}?",
+      "explicacao": "O verificador confia no campo alg do próprio token e devolve verdadeiro para qualquer token que declare alg:none — ou seja, aceita um token forjado, sem assinatura, com o papel que o atacante quiser. Isso foi verificado em execução: o mesmo token com papel de administrador é aceito por este verificador e recusado pelo que fixa HS256 no código. A correção é fixar algoritmo e chave na configuração do servidor e rejeitar explicitamente tokens sem assinatura. A comparação em tempo constante e o HMAC sobre cabeçalho e payload estão corretos.",
+      "por_que_erradas": {
+        "1": "Comparação em tempo constante é a escolha certa; tamanhos diferentes apenas não coincidem.",
+        "2": "Um JWS compacto tem exatamente três campos separados por ponto.",
+        "3": "A assinatura do JWS cobre cabeçalho e payload; calcular só sobre o payload seria o erro."
+      },
+      "fonte": "OWASP JSON Web Token Cheat Sheet, seção Threats on JWTs; OWASP REST Security Cheat Sheet; comportamento verificado em execução",
+      "tags": [
+        "jwt",
+        "alg-none",
+        "caca-erro",
+        "verificacao",
+        "assinatura"
+      ]
+    },
+    {
+      "id": "2.5.q33",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um servidor emite JWT em RS256 e escolhe o algoritmo de verificação pelo campo alg do token. Como o atacante explora isso?",
+      "alternativas": [
+        "Troca alg para HS256 e assina com a chave pública, que o servidor usa como segredo",
+        "Troca alg para RS512 e assina com uma chave RSA maior, que o servidor aceita igual",
+        "Remove a assinatura e conta com o servidor tratando string vazia como valor válido",
+        "Reenvia um token antigo do mesmo usuário, porque RS256 não carrega data de validade"
+      ],
+      "correta": 0,
+      "dicas": [
+        "RS256 usa par de chaves; HS256 usa um segredo compartilhado. Que material o servidor tem em mãos?",
+        "A chave pública é secreta?",
+        "O atacante não precisa quebrar nada; ele precisa que o servidor troque de modo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o servidor passa a verificar HMAC, qual chave ele vai usar?",
+      "explicacao": "RS256 é assinatura RSA PKCS#1 v1.5 com SHA-256, verificada com a chave pública; HS256 é HMAC-SHA-256 com segredo compartilhado. Se o servidor lê o alg do token e troca de modo, ele usa como segredo do HMAC o único material que tem: a chave pública — que é pública. O atacante forja o token com o papel que quiser e assina com ela. Verificado em execução com par de chaves RSA real: o servidor que lê o alg aceita o token forjado, e o que fixa RS256 recusa. A defesa é fixar o algoritmo no código e separar o material de chave por tipo.",
+      "por_que_erradas": {
+        "1": "RS512 continua exigindo a chave privada, que o atacante não tem.",
+        "2": "Assinatura vazia é o caso do alg:none, e não a confusão de algoritmo.",
+        "3": "RS256 é o algoritmo de assinatura; a validade vem da claim exp, presente ou não."
+      },
+      "fonte": "OWASP JSON Web Token Cheat Sheet, seção Threats on JWTs (key confusion); comportamento verificado em execução (laboratório confusao_alg)",
+      "tags": [
+        "jwt",
+        "confusao-de-algoritmo",
+        "rs256",
+        "hs256",
+        "chave-publica"
+      ]
+    },
+    {
+      "id": "2.5.q34",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        3,
+        1
+      ],
+      "enunciado": "Como revogar um JWT antes de ele expirar?",
+      "alternativas": [
+        "Manter no servidor uma lista de negação por jti e iss, e encurtar o tempo de vida",
+        "Guardar o resumo do token em uma lista de negação, que é o índice mais seguro",
+        "Apagar o token do navegador, que é onde ele continua valendo até o prazo terminar",
+        "Trocar a chave de assinatura a cada logout, invalidando o token daquele usuário"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Duas alternativas propõem chaves diferentes para a mesma lista. Qual é a segura?",
+        "O que a troca da chave de assinatura faz com os tokens dos outros usuários?",
+        "Uma lista de negação devolve estado ao servidor. Isso é custo ou benefício?"
+      ],
+      "pergunta_socratica": "Antes de conferir: depois do logout, o token que ficou no bolso do atacante continua válido?",
+      "explicacao": "Um JWT vale até expirar, inclusive depois do logout. Para cortar antes, mantém-se uma lista de negação chaveada por jti mais iss; o OWASP alerta explicitamente contra usar o token cru ou seu resumo como chave, porque a maleabilidade da assinatura permite contornar a lista. A lista devolve estado ao servidor e reduz o ganho do modelo sem estado, então a combinação usual é tempo de vida curto, rotação de refresh token e tokens vinculados ao remetente (sender-constrained), como DPoP ou token ligado ao certificado TLS do cliente (mTLS). Trocar a chave de assinatura derruba todo mundo, não um usuário.",
+      "por_que_erradas": {
+        "1": "O OWASP desaconselha: a maleabilidade da assinatura permite contornar a lista.",
+        "2": "O token pode ter sido copiado; apagar a cópia do usuário não invalida as outras.",
+        "3": "A troca de chave invalida os tokens de toda a base, não os de um usuário."
+      },
+      "fonte": "OWASP JSON Web Token Cheat Sheet, seção JWT revocation; OWASP REST Security Cheat Sheet",
+      "tags": [
+        "jwt",
+        "revogacao",
+        "jti",
+        "logout",
+        "denylist"
+      ]
+    },
+    {
+      "id": "2.5.q35",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3,
+        1
+      ],
+      "enunciado": "Em que situação a sessão com estado no servidor é a escolha melhor que o token sem estado?",
+      "alternativas": [
+        "Quando é preciso encerrar acesso na hora: invalidar a sessão é imediato e barato",
+        "Quando há muitos servidores, porque a sessão dispensa qualquer estado compartilhado",
+        "Quando o cliente é móvel, porque cookie funciona melhor fora do navegador",
+        "Quando o volume é alto, porque consultar a sessão custa menos que verificar assinatura"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o custo de tirar alguém do ar em cada um dos dois modelos.",
+        "Quem precisa de armazenamento compartilhado entre servidores?",
+        "Três alternativas descrevem justamente as vantagens do modelo sem estado."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma conta é comprometida agora. Em qual dos dois modelos você a derruba em um segundo?",
+      "explicacao": "O token sem estado dispensa consulta a cada requisição e escala bem entre servidores, mas paga na revogação: ele vale até expirar, inclusive depois do logout, e cortar antes exige uma lista de negação que devolve estado ao sistema. A sessão com estado inverte o custo — cada requisição consulta o armazenamento compartilhado, e em troca invalidar é imediato, além de ser fácil listar e encerrar as sessões abertas de um usuário. A escolha segue o requisito: velocidade de corte contra custo de consulta.",
+      "por_que_erradas": {
+        "1": "É o contrário: a sessão exige armazenamento compartilhado entre os servidores.",
+        "2": "Cliente móvel lida bem com token; o modelo não depende de navegador.",
+        "3": "Verificar assinatura costuma ser mais barato que consultar armazenamento."
+      },
+      "fonte": "OWASP Session Management Cheat Sheet; OWASP Top 10:2021 A01, recomendação 8",
+      "tags": [
+        "sessao",
+        "jwt",
+        "sem-estado",
+        "revogacao",
+        "arquitetura"
+      ]
+    }
+  ]
+}

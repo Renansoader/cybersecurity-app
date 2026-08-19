@@ -1,0 +1,1337 @@
+{
+  "id": "2.6",
+  "nivel": 2,
+  "titulo": "Controle de acesso — DAC, MAC, RBAC, ABAC e Zero Trust",
+  "objetivos": [
+    "Distinguir DAC, MAC, RBAC e ABAC e escolher o modelo pelo problema, e não pela moda",
+    "Aplicar menor privilégio e separação de funções em casos concretos, e reconhecer o acúmulo de privilégio",
+    "Ler permissões reais — bits POSIX e ACL do Windows — e dizer quem pode o que",
+    "Explicar Zero Trust como arquitetura (NIST SP 800-207) e reconhecer quebra de controle de acesso na aplicação",
+    "Distinguir o mecanismo de armazenamento da permissão — ACL e capacidade — da política que decide o conteúdo dela"
+  ],
+  "pre_requisitos": [
+    "2.5"
+  ],
+  "teoria": [
+    {
+      "id": "2.6.t1",
+      "titulo": "A matriz de controle de acesso: ACL e capacidade",
+      "texto": "Todo controle de acesso pode ser desenhado como uma matriz: as linhas são os principais (pessoas, processos, máquinas), as colunas são os recursos, e cada célula diz o que aquele principal pode fazer com aquele recurso. É um bom modelo e um péssimo mecanismo — um banco com 50 mil funcionários e 300 aplicações teria 15 milhões de células para administrar.\n\nDaí as duas formas de comprimir a matriz. Guardá-la por coluna produz a lista de controle de acesso (ACL): junto de cada recurso fica a lista de quem pode o quê. Guardá-la por linha produz a capacidade (capability): o principal carrega consigo os direitos que possui.\n\nAs duas escolhas são espelhadas. Com ACL é barato responder \"quem acessa este arquivo?\" e caro responder \"a que este usuário tem acesso?\". Com capacidade, delegar é trivial e descobrir quem tem acesso vira trabalho de investigação.",
+      "analogia": "A ACL é a lista de convidados afixada na porta de cada sala. A capacidade é o crachá que o convidado carrega no bolso.",
+      "erro_comum": "Tratar ACL como se fosse um modelo de política. ACL é onde a permissão fica guardada; quem decide o conteúdo dela é a política — DAC, MAC, RBAC ou ABAC.",
+      "fonte": "Security Engineering, 3ª ed., cap. 6.2, 6.2.2 e 6.2.4 (p. 209–215)"
+    },
+    {
+      "id": "2.6.t2",
+      "titulo": "DAC e MAC: quem tem a palavra final",
+      "texto": "No controle de acesso discricionário (DAC), a autoridade é o dono do objeto: ele decide com quem compartilha. Funciona bem quando o dono do dado é mesmo quem deve arbitrar. As fraquezas são formais e conhecidas: a concessão de leitura é transitiva — quem recebe copia o conteúdo para um objeto seu e redistribui sem o conhecimento de quem concedeu — e o programa herda a identidade de quem o invoca, o que abre caminho para cavalo de Troia.\n\nNo controle de acesso mandatório (MAC), a política vem de uma autoridade central, o sistema a impõe, e nem o dono nem o administrador local podem violá-la. O preço é que o dono da máquina deixa de ser o chefe dela.\n\nDois modelos formais descrevem MAC, e são duais. Bell-LaPadula protege confidencialidade: não lê acima, não escreve abaixo. Biba protege integridade e inverte as duas regras: não lê abaixo, não escreve acima.",
+      "analogia": "DAC é você decidindo quem entra na sua sala. MAC é o cofre da empresa dentro da sua sala: a regra é do cofre, não sua.",
+      "erro_comum": "Trocar as regras de Bell-LaPadula pelas de Biba. Confidencialidade impede vazar para baixo; integridade impede contaminar para cima.",
+      "fonte": "NISTIR 7316 §2.2.1 e §2.2.2.1; Security Engineering, 3ª ed., cap. 6.2.5 (p. 215–217)"
+    },
+    {
+      "id": "2.6.t3",
+      "titulo": "RBAC: papéis, hierarquia e separação de funções",
+      "texto": "Manter permissão por usuário não escala, e a aritmética verificada em execução mostra o tamanho do problema: 500 usuários e 200 recursos dão 100.000 entradas individuais; com 12 papéis são 2.400 concessões mais 500 atribuições de papel, ou 2.900 entradas. É essa diferença que explica por que o controle de acesso baseado em papéis (RBAC) existe.\n\nA norma ANSI INCITS 359 define quatro componentes. O núcleo traz a atribuição de usuário a papel e de permissão a papel, com ativação dentro de uma sessão — o que apoia o menor privilégio de Saltzer e Schroeder, ao limitar o privilégio ao tempo da tarefa. A hierarquia ordena os papéis: o sênior adquire as permissões do júnior, e o júnior adquire os usuários do sênior.\n\nOs outros dois componentes são a separação de funções, estática e dinâmica. O propósito declarado é que fraude e erro grave exijam colusão deliberada de mais de uma pessoa.",
+      "analogia": "Papel é o cargo, não a pessoa. O oficial de quarto do navio existe sempre; quem o exerce muda a cada turno, com rendição formal.",
+      "erro_comum": "Descrever a herança da hierarquia num sentido só. Permissões sobem e usuários descem — metade da definição é uma definição errada.",
+      "fonte": "ANSI INCITS 359 (RBAC), §5.1–5.3 — numeração conforme a edição 359-2004 consultada; edição vigente: 359-2012 (R2022); aritmética verificada em execução"
+    },
+    {
+      "id": "2.6.t4",
+      "titulo": "ABAC: decisão por atributos, e o preço dela",
+      "texto": "No controle de acesso baseado em atributos (ABAC), a decisão sai da avaliação de uma regra sobre quatro conjuntos: atributos do sujeito, atributos do objeto, a operação pedida e condições de ambiente — hora, local, nível de ameaça. É o que permite escrever \"enfermeira lotada na ala X lê o prontuário de paciente internado na ala X\" sem criar um papel por ala.\n\nO NIST descreve os outros modelos como casos particulares dessa formulação: a ACL decide pelo atributo identidade, o RBAC decide pelo atributo papel. A diferença do ABAC é a política como expressão booleana sobre muitos atributos.\n\nE o mesmo documento faz a ressalva que o discurso de mercado costuma omitir: o custo de desenvolver, implantar e manter ABAC pode superar o benefício no longo prazo, e ele não é a solução certa para todo problema de controle de acesso. Não é o sucessor do RBAC — é outro instrumento.",
+      "analogia": "RBAC é um crachá com o cargo impresso. ABAC é o porteiro que lê o crachá, olha o relógio e confere em que andar você está.",
+      "erro_comum": "Vender ABAC como evolução natural do RBAC. O próprio SP 800-162 declara que não é uma análise de alternativas e que o custo pode não compensar.",
+      "fonte": "NIST SP 800-162, resumo, §2, §2.1 e §3.1.2.1"
+    },
+    {
+      "id": "2.6.t5",
+      "titulo": "Ler permissão de verdade: bits POSIX e ACL do Windows",
+      "texto": "No Unix, o modo do arquivo tem três ternos rwx — dono, grupo e demais. Verificado em execução: 0644 é rw-r--r--, 0640 é rw-r----- e 0755 é rwxr-xr-x. Três bits extras mudam o comportamento: 04755 vira rwsr-xr-x e marca SUID, fazendo o programa rodar com o privilégio do dono do arquivo; 01777 vira rwxrwxrwt, o sticky bit do /tmp, onde todos gravam mas remover fica restrito ao dono do arquivo, ou ao dono do diretório. E o umask retira bits: ele é uma máscara do que sai, não uma subtração. Com umask 022, um arquivo pedido como 666 nasce 0644.\n\nNo Windows, o icacls mostra a ACL entrada por entrada. (F) é controle total, (M) é modificar, (RX) é ler e executar; (I) marca a entrada como herdada do contêiner pai, e (OI)(CI) marcam a herança que se propaga a arquivos e subpastas.\n\nUm detalhe muda a leitura: no Windows, uma negação explícita encerra a decisão, por mais permissões conflitantes que existam.",
+      "analogia": "Ler o modo é ler a etiqueta da porta: três aberturas — dono, grupo e o resto do mundo — e um selo dizendo se a regra foi escrita ali ou veio de fora.",
+      "erro_comum": "Ajustar a permissão no arquivo quando a entrada aparece marcada com (I). A política mora no diretório pai, e a próxima aplicação da herança desfaz o ajuste.",
+      "fonte": "Bits, umask e saída de icacls verificados em execução; Security Engineering, 3ª ed., cap. 6.2.3 e 6.2.9"
+    },
+    {
+      "id": "2.6.t6",
+      "titulo": "Zero Trust e quebra de controle de acesso",
+      "texto": "Zero Trust é um conjunto de princípios de arquitetura, não um produto. A definição do NIST SP 800-207 é operativa: decisões de acesso por requisição, com menor privilégio, diante de uma rede considerada comprometida. Localização de rede não implica confiança, e autorizar um recurso não autoriza outro.\n\nA arquitetura nomeia dois pontos. O ponto de decisão de política (PDP) decide; o ponto de imposição de política (PEP) fica no caminho, habilita, monitora e encerra a conexão. O documento é explícito sobre os limites: não é uma arquitetura única, a maioria das empresas opera em modo híbrido com perímetro, e a zona de confiança implícita não desaparece — apenas encolhe.\n\nNa aplicação isso vira a categoria número um do OWASP Top 10:2021, a quebra de controle de acesso (broken access control): negar por padrão e verificar no servidor, a cada requisição, sobre a identidade da sessão.",
+      "analogia": "Não é trocar a fechadura da portaria: é conferir o crachá na porta de cada sala, toda vez, inclusive para quem já está dentro do prédio.",
+      "erro_comum": "Chamar de Zero Trust a compra de um gateway. \"Nunca confie, sempre verifique\" só vale quando vira mecanismo: PDP, PEP e decisão por requisição.",
+      "fonte": "NIST SP 800-207 §1, §2, §2.1, §3 e §7.2; OWASP Top 10:2021 A01"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "2.6.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "O que uma lista de controle de acesso (ACL) guarda, em relação à matriz de controle de acesso?",
+      "alternativas": [
+        "A coluna do recurso: junto de cada objeto fica a lista de quem pode fazer o quê com ele",
+        "A linha do principal: junto de cada conta fica a lista de tudo que ela pode alcançar",
+        "A matriz inteira, replicada em cada recurso para acelerar a verificação em tempo real",
+        "Apenas o dono do objeto, de quem derivam por herança todas as demais permissões"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Na matriz, os principais estão nas linhas e os recursos nas colunas.",
+        "Pergunte onde a informação fica guardada: junto do recurso ou junto do usuário.",
+        "A outra forma de comprimir a matriz existe e tem outro nome."
+      ],
+      "pergunta_socratica": "Antes de conferir: para saber quem acessa um arquivo, você olha o arquivo ou percorre todos os usuários?",
+      "explicacao": "A matriz de controle de acesso tem principais nas linhas e recursos nas colunas. A ACL é essa matriz comprimida por coluna: cada recurso carrega a lista de quem pode o quê. Comprimir por linha produz a capacidade, em que o principal carrega os próprios direitos. As duas são compressões da mesma matriz, e cada uma barateia uma pergunta enquanto encarece a outra.",
+      "por_que_erradas": {
+        "1": "Essa é a descrição de capacidade, que é a compressão por linha.",
+        "2": "Replicar a matriz inteira desfaz justamente a compressão que a ACL existe para fazer.",
+        "3": "O dono é um campo à parte; a ACL guarda entradas para vários principais."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6.2 e 6.2.2 (p. 209–212)",
+      "tags": [
+        "controle-de-acesso",
+        "acl",
+        "matriz",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "2.6.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "O que fica fácil e o que fica caro quando os direitos são guardados como capacidades?",
+      "alternativas": [
+        "Delegar um direito fica trivial; descobrir quem tem acesso a um recurso fica difícil",
+        "Delegar um direito fica difícil; descobrir quem tem acesso a um recurso fica trivial",
+        "As duas operações ficam triviais, e por isso capacidades substituíram as ACLs",
+        "As duas operações ficam caras, e capacidades só servem a sistemas embarcados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A capacidade fica com o principal, e não junto do recurso.",
+        "Se o direito viaja com quem o carrega, repassá-lo exige a autorização de quem?",
+        "Depois de repassado, quem fica sabendo que ele existe?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se o direito está no bolso de quem o carrega, onde você procura para saber quem entrou?",
+      "explicacao": "Capacidade é a matriz guardada por linha: o principal carrega os próprios direitos. Delegar é emitir um novo direito, sem tocar no recurso. O preço aparece na investigação: como nada fica registrado junto do objeto, responder quem tem acesso a ele e revogar de todos exige varrer o sistema. Descritor de arquivo no Unix e ticket Kerberos são capacidades de fato, e seguem valendo por algum tempo depois que a permissão muda.",
+      "por_que_erradas": {
+        "1": "Essa é a assimetria da ACL, e não a da capacidade.",
+        "2": "As duas coexistem justamente porque nenhuma resolve os dois lados.",
+        "3": "Capacidades são amplamente usadas: certificados e tickets são exemplos."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6.2.4 (p. 214–215)",
+      "tags": [
+        "controle-de-acesso",
+        "capacidade",
+        "acl",
+        "revogacao"
+      ]
+    },
+    {
+      "id": "2.6.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Qual é a fraqueza estrutural do controle de acesso discricionário (DAC)?",
+      "alternativas": [
+        "A concessão de leitura é transitiva: quem recebe copia o conteúdo e redistribui por conta própria",
+        "O dono não consegue revogar um acesso depois de concedido, porque a concessão é permanente por definição",
+        "A política é imposta pelo fornecedor do sistema, e o dono do objeto não pode alterá-la",
+        "Todo objeto exige uma regra escrita por uma autoridade central antes de poder ser criado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Em DAC, quem decide o compartilhamento é o dono do objeto.",
+        "O que impede o segundo destinatário de virar o terceiro?",
+        "Pergunte se o defeito é de implementação ou do próprio modelo."
+      ],
+      "pergunta_socratica": "Antes de conferir: você deu leitura a um colega. O que impede que ele mande uma cópia para fora?",
+      "explicacao": "Em DAC a decisão pertence ao dono do objeto. O NIST lista as consequências: a leitura é transitiva, porque o destinatário copia o conteúdo para um objeto dele e o redistribui. Nada restringe o uso depois que a informação chegou, e o programa herda a identidade de quem o invoca, o que abre caminho para cavalo de Troia. Nada disso é defeito de implementação — é o modelo.",
+      "por_que_erradas": {
+        "1": "Revogar é possível em DAC; o que escapa ao controle do dono é a cópia já feita pelo destinatário.",
+        "2": "Política imposta de fora, que o dono não pode alterar, é a definição de MAC.",
+        "3": "Regra central obrigatória também descreve MAC."
+      },
+      "fonte": "NISTIR 7316 §2.2.1",
+      "tags": [
+        "controle-de-acesso",
+        "dac",
+        "transitividade",
+        "modelos"
+      ]
+    },
+    {
+      "id": "2.6.q4",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Qual é a relação entre ACL e DAC?",
+      "alternativas": [
+        "ACL é o mecanismo que guarda a permissão; DAC é a política que decide o conteúdo dela",
+        "São dois nomes para a mesma coisa, usados por comunidades técnicas diferentes",
+        "ACL é o nome do mecanismo no Windows e DAC é o nome do mesmo mecanismo no Unix",
+        "ACL só existe em sistemas MAC; em DAC as permissões ficam sempre em capacidades"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quem tem autoridade para escrever as entradas da lista.",
+        "Um sistema mandatório também guarda decisões em listas.",
+        "Mecanismo e política respondem a perguntas diferentes."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a autoridade central escreve as entradas e o dono não pode mudá-las, o modelo ainda é discricionário?",
+      "explicacao": "ACL responde onde a permissão está guardada; DAC e MAC respondem quem tem autoridade para defini-la. A ACL é o mecanismo típico do DAC, e por isso os termos viraram sinônimos na conversa informal — mas um sistema mandatório também materializa decisões em listas, e o NIST registra que o ABAC consegue impor tanto conceitos de DAC quanto de MAC. Confundir os dois leva alguém a concluir que mexer na ACL muda o modelo de política.",
+      "por_que_erradas": {
+        "1": "São camadas distintas: uma é armazenamento, a outra é autoridade.",
+        "2": "Unix e Windows usam listas; a diferença entre eles não está aí.",
+        "3": "ACL é o mecanismo clássico do DAC, e capacidades aparecem nos dois casos."
+      },
+      "fonte": "NISTIR 7316 §2.2.1; NIST SP 800-162 §2; Security Engineering, 3ª ed., cap. 6.2.2",
+      "tags": [
+        "controle-de-acesso",
+        "acl",
+        "dac",
+        "mecanismo",
+        "politica"
+      ]
+    },
+    {
+      "id": "2.6.q5",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "O que define o controle de acesso mandatório (MAC)?",
+      "alternativas": [
+        "A política vem de uma autoridade central, e o dono do objeto não pode alterar os direitos",
+        "O dono do objeto define os direitos, e o sistema apenas registra a escolha que ele fez",
+        "Todo acesso exige aprovação manual de um administrador antes de cada operação",
+        "As permissões são recalculadas a cada requisição a partir de condições de ambiente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quem tem a palavra final: o dono ou o sistema.",
+        "Uma das alternativas é a definição de DAC.",
+        "Outra descreve o modelo por atributos."
+      ],
+      "pergunta_socratica": "Antes de conferir: o administrador local quer liberar o arquivo. Em qual modelo ele simplesmente não consegue?",
+      "explicacao": "MAC significa que a decisão de proteção não pertence ao dono do objeto e que o sistema impõe essa decisão — o NIST nomeia exatamente essas duas condições. É o modelo das classificações militares e dos rótulos do SELinux, e também o dos níveis de integridade que o Windows Vista trouxe para impedir que código baixado altere arquivo de sistema. O preço é que o dono da máquina deixa de ser a autoridade final sobre ela.",
+      "por_que_erradas": {
+        "1": "Isso é DAC: a discrição pertence ao dono.",
+        "2": "MAC é imposto automaticamente; aprovação manual é fluxo de trabalho, não modelo.",
+        "3": "Decisão por condições de ambiente é ABAC."
+      },
+      "fonte": "NISTIR 7316 §2.2.2.1; Security Engineering, 3ª ed., cap. 6.2.5",
+      "tags": [
+        "controle-de-acesso",
+        "mac",
+        "modelos",
+        "selinux"
+      ]
+    },
+    {
+      "id": "2.6.q6",
+      "tipo": "pareamento",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Ligue cada regra ao modelo formal de MAC a que ela pertence.",
+      "pares": [
+        [
+          "Bell-LaPadula, leitura",
+          "Um processo Secreto não abre um arquivo Ultrassecreto"
+        ],
+        [
+          "Bell-LaPadula, escrita",
+          "Um processo Ultrassecreto não grava em arquivo Confidencial"
+        ],
+        [
+          "Biba, leitura",
+          "Um processo que gera laudo oficial não consome dado vindo de formulário público"
+        ],
+        [
+          "Biba, escrita",
+          "Um script de usuário comum não altera o binário do sistema"
+        ]
+      ],
+      "dicas": [
+        "Um dos dois modelos protege confidencialidade; o outro protege integridade.",
+        "As regras de um são a inversão exata das regras do outro.",
+        "Pergunte o que se perde em cada caso: o sigilo ou a confiabilidade do dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dos dois modelos impede que um relatório seja escrito a partir de dado não confiável?",
+      "explicacao": "Bell-LaPadula protege confidencialidade — não lê acima, não escreve abaixo. Biba protege integridade e inverte as duas: não lê abaixo, não escreve acima. Os modelos são duais, e aplicar os dois ao mesmo tempo tende a colapsar o sistema em um único nível utilizável.",
+      "fonte": "NISTIR 7316 §2.2.2.1 (regras de Bell-LaPadula e atribuição confidencialidade/integridade); K. J. Biba, \"Integrity Considerations for Secure Computer Systems\", MITRE MTR-3153 (1977), para as regras de integridade",
+      "tags": [
+        "controle-de-acesso",
+        "mac",
+        "bell-lapadula",
+        "biba",
+        "pareamento"
+      ]
+    },
+    {
+      "id": "2.6.q7",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Sob Bell-LaPadula, por que um processo Ultrassecreto é impedido de gravar em uma pasta Confidencial?",
+      "alternativas": [
+        "Porque a regra de escrita existe para impedir que conteúdo de nível alto desça de nível",
+        "Porque a pasta Confidencial precisa ser protegida contra dado de procedência duvidosa",
+        "Porque processos de nível alto não recebem permissão de escrita em recurso nenhum",
+        "Porque o rótulo do processo é recalculado a cada gravação e perderia a credencial"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quem está sendo protegido: o arquivo de baixo ou o segredo de cima.",
+        "A alternativa mais tentadora descreve o objetivo do outro modelo.",
+        "A regra tem nome: não escreve abaixo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a gravação fosse permitida, quem sairia prejudicado — o dono da pasta ou o segredo?",
+      "explicacao": "A regra de não escrever abaixo protege o segredo, e não a pasta: sem ela, qualquer processo com credencial alta copiaria conteúdo classificado para um nível que gente com credencial menor lê. Proteger o destino contra dado de baixa qualidade é o propósito de Biba, o modelo dual, que inverte as duas regras. E processos de nível alto continuam gravando normalmente no próprio nível ou acima dele.",
+      "por_que_erradas": {
+        "1": "Proteger o destino contra dado duvidoso é o propósito de Biba.",
+        "2": "A escrita no próprio nível ou acima continua permitida.",
+        "3": "O rótulo do processo não é recalculado a cada operação."
+      },
+      "fonte": "NISTIR 7316 §2.2.2.1",
+      "tags": [
+        "controle-de-acesso",
+        "mac",
+        "bell-lapadula",
+        "confidencialidade",
+        "cenario"
+      ]
+    },
+    {
+      "id": "2.6.q8",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Qual é a diferença entre grupo e papel no controle de acesso?",
+      "alternativas": [
+        "Grupo é uma lista de principais; papel é um conjunto de permissões que alguém assume por um período",
+        "Grupo é um conjunto de permissões; papel é a lista de pessoas que recebe essas permissões",
+        "Grupo existe apenas no Unix, e papel apenas em sistemas corporativos que adotaram RBAC",
+        "São sinônimos exatos, e a distinção existe apenas por tradução entre fornecedores"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte o que cada um agrupa: pessoas ou permissões.",
+        "Pense em um cargo que continua existindo quando muda quem o ocupa.",
+        "Alguns fornecedores tratam os termos como sinônimos; isso não os torna iguais."
+      ],
+      "pergunta_socratica": "Antes de conferir: o oficial de quarto do navio é uma pessoa, ou uma função que alguém exerce agora?",
+      "explicacao": "Grupo é uma lista de principais; papel é um conjunto fixo de permissões que um ou mais principais assumem por um período, com procedimento formal de entrada e saída. O oficial de quarto do navio é o exemplo clássico: existe exatamente um a cada momento, e há rendição. Alguns fornecedores usam os termos como sinônimos, o que embaralha a modelagem — e a distinção importa quando a política depende de quem exerce a função agora.",
+      "por_que_erradas": {
+        "1": "A descrição está invertida.",
+        "2": "Os dois conceitos aparecem em Unix, em Windows e em sistemas corporativos.",
+        "3": "Fornecedores confundem os termos, mas os conceitos são distintos."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6.2.1 (p. 210–211)",
+      "tags": [
+        "controle-de-acesso",
+        "rbac",
+        "papel",
+        "grupo",
+        "vocabulario"
+      ]
+    },
+    {
+      "id": "2.6.q9",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        0,
+        1
+      ],
+      "artefato": "$ python pkce_acl_lab.py\n=== explosao combinatoria: ACL por usuario x RBAC ===\n  500 usuarios x 200 recursos = 100000 entradas individuais\n  12 papeis x 200 recursos + 500 atribuicoes = 2900 entradas",
+      "enunciado": "O que esta comparação explica sobre a existência do RBAC?",
+      "alternativas": [
+        "Que papéis comprimem a matriz: a política passa a ser mantida por função, e não por usuário",
+        "Que o RBAC é mais seguro porque concede menos permissão a cada usuário do que a ACL",
+        "Que o RBAC dispensa listas de permissão, substituindo-as por condições de ambiente",
+        "Que 200 recursos são poucos, e a diferença desapareceria em um sistema maior"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o que é multiplicado em cada conta: usuários por recursos, ou papéis por recursos.",
+        "O que acontece com os dois números quando a empresa contrata cem pessoas?",
+        "O RBAC muda a quantidade de entradas — muda a permissão efetiva?"
+      ],
+      "pergunta_socratica": "Antes de conferir: com cem contratações, quantas entradas novas aparecem em cada um dos dois desenhos?",
+      "explicacao": "A conta foi verificada em execução: manter permissão por usuário dá 500 × 200 = 100.000 entradas; com 12 papéis são 2.400 concessões mais 500 atribuições de papel, ou 2.900. Cem contratações acrescentam 20.000 entradas no primeiro desenho e 100 no segundo. O ganho é de manutenção e de auditoria — o RBAC não concede menos permissão por si só; ele torna possível revisar o que foi concedido.",
+      "por_que_erradas": {
+        "1": "O RBAC organiza a concessão; conceder demais dentro de um papel continua possível.",
+        "2": "Papéis continuam sendo materializados em listas; condição de ambiente é ABAC.",
+        "3": "A razão entre os dois números cresce com a escala, em vez de diminuir."
+      },
+      "fonte": "Aritmética verificada em execução; Security Engineering, 3ª ed., cap. 6.2 e 6.2.1",
+      "tags": [
+        "controle-de-acesso",
+        "rbac",
+        "escala",
+        "artefato",
+        "manutencao"
+      ]
+    },
+    {
+      "id": "2.6.q10",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Em uma hierarquia de papéis do RBAC, o que o papel sênior herda do papel júnior?",
+      "alternativas": [
+        "As permissões do júnior; e o júnior, por sua vez, herda os usuários do sênior",
+        "Os usuários do júnior; e o júnior, por sua vez, herda as permissões do sênior",
+        "Permissões e usuários, os dois no mesmo sentido, sempre de baixo para cima",
+        "Nada: a hierarquia só organiza a exibição dos papéis na interface de administração"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A herança corre nos dois sentidos, mas em coisas diferentes.",
+        "Quem exerce a função mais graduada consegue fazer o que a menos graduada faz?",
+        "E quem passa a contar como autorizado para o papel júnior?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se o gerente pode tudo que o analista pode, quem está autorizado no papel de analista?",
+      "explicacao": "A norma define a hierarquia como uma ordem parcial de senioridade. O papel sênior adquire as permissões dos juniores, e os papéis juniores adquirem os usuários dos seniores. Descrever só metade disso produz erro prático: na separação de funções estática, a restrição precisa ser avaliada sobre os usuários autorizados do papel, e não apenas sobre quem foi atribuído diretamente a ele. Sem isso, a herança contorna a separação em silêncio.",
+      "por_que_erradas": {
+        "1": "A descrição inverte os dois sentidos da herança.",
+        "2": "Permissões sobem e usuários descem; os sentidos são opostos.",
+        "3": "A hierarquia altera permissões efetivas e usuários autorizados."
+      },
+      "fonte": "ANSI INCITS 359 (RBAC), §5.2 e §5.3.1 — numeração conforme a edição 359-2004 consultada; edição vigente: 359-2012 (R2022)",
+      "tags": [
+        "controle-de-acesso",
+        "rbac",
+        "hierarquia",
+        "heranca"
+      ]
+    },
+    {
+      "id": "2.6.q11",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Uma empresa chegou a 900 papéis para 1.100 funcionários, muitos com um único membro. O que a organização perdeu ao chegar nesse ponto?",
+      "alternativas": [
+        "A compressão que justificava o RBAC: revisar 900 papéis custa o mesmo que revisar usuário a usuário",
+        "Desempenho: o sistema passa a avaliar os 900 papéis a cada verificação de acesso",
+        "Segurança efetiva: papel com um único membro concede mais permissão do que papel amplo",
+        "Conformidade: a norma de RBAC fixa um teto de papéis por quantidade de funcionários"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte o que o RBAC prometia economizar em relação a manter permissão por usuário.",
+        "Um papel com um único membro comprime alguma coisa?",
+        "Compare o custo de auditar 900 papéis com o de auditar 1.100 usuários."
+      ],
+      "pergunta_socratica": "Antes de conferir: um papel de um membro só é papel, ou é a permissão daquela pessoa com outro nome?",
+      "explicacao": "É a explosão de papéis, que o NIST nomeia como limite do RBAC. O ganho do modelo é de compressão e de auditoria: poucos papéis para muita gente. Com 900 papéis para 1.100 pessoas, e vários com um membro só, a matriz não foi comprimida — ela foi renomeada. A revisão de acesso volta a ter o tamanho da folha de pagamento, e ainda com uma camada de indireção no meio.",
+      "por_que_erradas": {
+        "1": "O custo é administrativo, e não de execução: a avaliação usa os papéis do usuário, não os 900.",
+        "2": "Papel estreito não concede mais permissão; o problema é a quantidade de papéis a revisar.",
+        "3": "A norma não fixa teto de papéis; o limite que aparece aqui é prático, não normativo."
+      },
+      "fonte": "NIST SP 800-162 §2.1",
+      "tags": [
+        "controle-de-acesso",
+        "rbac",
+        "explosao-de-papeis",
+        "auditoria",
+        "modelagem"
+      ]
+    },
+    {
+      "id": "2.6.q12",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Além dos atributos do sujeito, que conjuntos de informação o ABAC avalia para decidir um acesso?",
+      "alternativas": [
+        "Atributos do objeto, a operação pedida e condições de ambiente, como hora, local e ameaça",
+        "Apenas o papel do sujeito, avaliado contra a lista de permissões daquele papel",
+        "Apenas a identidade do sujeito, comparada com a lista guardada junto do objeto",
+        "O histórico de acessos anteriores do sujeito, sem consultar nada a respeito do objeto"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A sigla fala em atributos, no plural — vindos de quantas fontes?",
+        "Duas das alternativas descrevem RBAC e ACL.",
+        "O que muda entre nove da manhã e três da madrugada?"
+      ],
+      "pergunta_socratica": "Antes de conferir: para decidir se a enfermeira pode ler este prontuário, o que você precisa saber além de quem ela é?",
+      "explicacao": "O ABAC avalia uma política sobre quatro conjuntos: atributos do sujeito, atributos do objeto, a operação pedida e as condições de ambiente. O NIST descreve os outros modelos como casos particulares dessa formulação: a ACL decide pelo atributo identidade, e o RBAC decide pelo atributo papel. A diferença é a política como expressão booleana sobre muitos atributos, o que permite regras que dependem da relação entre sujeito e objeto.",
+      "por_que_erradas": {
+        "1": "Decidir só pelo papel é RBAC, um caso particular do mesmo esquema.",
+        "2": "Decidir só pela identidade é ACL, outro caso particular.",
+        "3": "Histórico pode virar atributo, mas objeto e operação sempre entram na decisão."
+      },
+      "fonte": "NIST SP 800-162, resumo e §2",
+      "tags": [
+        "controle-de-acesso",
+        "abac",
+        "atributos",
+        "modelos"
+      ]
+    },
+    {
+      "id": "2.6.q13",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Um hospital precisa liberar o prontuário para a enfermeira lotada na ala em que o paciente está. Qual modelo se encaixa melhor?",
+      "alternativas": [
+        "ABAC sobre base de papéis: o papel diz enfermeira, e o atributo de ala relaciona sujeito e objeto",
+        "RBAC puro, com um papel por ala e reatribuição de papel a cada transferência de paciente",
+        "DAC, com cada médico decidindo quem lê o prontuário dos pacientes sob seu cuidado",
+        "MAC, classificando cada prontuário em um nível e cada enfermeira em uma credencial"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A regra depende de uma relação entre sujeito e objeto, e essa relação muda todo dia.",
+        "Quantos papéis o desenho puro por papéis exigiria, e com que frequência mudariam?",
+        "Qual opção devolve a decisão a quem não deveria arbitrá-la?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quando o paciente muda de ala às três da manhã, quem precisa mexer em quê, em cada desenho?",
+      "explicacao": "A regra depende de uma relação que muda o tempo todo — a ala do paciente e a ala da enfermeira — e é o caso em que o atributo ganha do papel. Com papel por ala, cada transferência vira trabalho administrativo e a quantidade de papéis explode. DAC devolveria a decisão a quem não deve arbitrá-la, e níveis de MAC não expressam relação: o prontuário não é mais sensível, ele é de outra ala. O desenho comum é RBAC como base, com atributos refinando.",
+      "por_que_erradas": {
+        "1": "Papel por ala explode em quantidade e exige reatribuição a cada transferência.",
+        "2": "Dado clínico regulado não deve depender da discrição individual do médico.",
+        "3": "Níveis de classificação não expressam a relação entre sujeito e objeto."
+      },
+      "fonte": "NIST SP 800-162 §2 e §2.1; Security Engineering, 3ª ed., cap. 6.2.4",
+      "tags": [
+        "controle-de-acesso",
+        "abac",
+        "rbac",
+        "escolha",
+        "saude"
+      ]
+    },
+    {
+      "id": "2.6.q14",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Qual ressalva o próprio NIST faz sobre adotar ABAC?",
+      "alternativas": [
+        "Que o custo de implantar e manter pode superar o benefício, e que ele não serve a todo problema",
+        "Que ele só pode ser usado junto de rótulos mandatórios impostos por autoridade central",
+        "Que ele foi descontinuado em favor do RBAC hierárquico com separação de funções",
+        "Que ele exige que todo sujeito esteja pré-provisionado na organização de destino"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O documento declara explicitamente que não é uma análise de alternativas entre modelos.",
+        "Uma das alternativas descreve uma limitação do RBAC, e não do ABAC.",
+        "Duas das alternativas contradizem o que o próprio documento diz que o ABAC consegue expressar."
+      ],
+      "pergunta_socratica": "Antes de conferir: o NIST recomenda ABAC para todo problema de controle de acesso, ou delimita onde ele vale?",
+      "explicacao": "O SP 800-162 registra que o custo de desenvolvimento, implantação e manutenção do ABAC pode superar o benefício no longo prazo. E diz mais: ele não é a solução certa para todo problema de controle de acesso. Vale onde sujeitos e objetos carregam atributos ricos e a decisão envolve relações complexas entre eles. O documento declara ainda que não é uma análise de alternativas, o que derruba o uso dele como prova de que ABAC substitui RBAC.",
+      "por_que_erradas": {
+        "1": "O ABAC consegue expressar conceitos de DAC e de MAC, sem depender de rótulos.",
+        "2": "Nada foi descontinuado; os modelos convivem e se complementam.",
+        "3": "Pré-provisionamento é uma limitação do RBAC no acesso entre organizações."
+      },
+      "fonte": "NIST SP 800-162, Resumo Executivo e §3.1.2.1",
+      "tags": [
+        "controle-de-acesso",
+        "abac",
+        "custo",
+        "nist",
+        "escolha"
+      ]
+    },
+    {
+      "id": "2.6.q15",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "O que o princípio do menor privilégio exige de um programa ou de uma conta?",
+      "alternativas": [
+        "Apenas os direitos necessários à tarefa, e apenas pelo tempo em que a tarefa dura",
+        "Direitos suficientes para qualquer tarefa futura, para evitar pedidos repetidos de liberação",
+        "Nenhum direito por padrão, com liberação manual de um administrador a cada operação",
+        "Os mesmos direitos dos colegas da equipe, para que o trabalho não pare em ausências"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O princípio é de Saltzer e Schroeder, e não fala só de quantidade de direito.",
+        "Pense no serviço de backup que roda o ano inteiro com o direito que usa uma vez por noite.",
+        "Direito que continua ativo depois de a tarefa terminar ainda cabe no princípio?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o serviço de backup precisa de administrador de domínio, ou de leitura em pastas específicas?",
+      "explicacao": "Menor privilégio é conceder o mínimo necessário à tarefa, e apenas enquanto ela dura — as duas dimensões contam. O RBAC apoia a segunda com a ativação de papel dentro da sessão, o que a norma chama de revogação oportuna de confiança. Conceder por antecipação e copiar o perfil de um colega são justamente os hábitos que produzem acúmulo de privilégio; aprovação manual por operação é processo, e não o princípio.",
+      "por_que_erradas": {
+        "1": "Conceder por antecipação é a origem clássica do acúmulo de privilégio.",
+        "2": "Aprovação manual a cada operação é fluxo de trabalho, e não o princípio.",
+        "3": "Copiar o perfil do colega propaga privilégio que ninguém revisou."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6.4.4; ANSI INCITS 359 §5.3.2",
+      "tags": [
+        "menor-privilegio",
+        "principios",
+        "rbac",
+        "sessao"
+      ]
+    },
+    {
+      "id": "2.6.q16",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "A área financeira tem apenas duas pessoas, e não é possível separar cadastro de fornecedor de aprovação de pagamento. Qual é a saída correta?",
+      "alternativas": [
+        "Controle compensatório: aprovação por gestor de fora da área, alçada por valor e revisão do log",
+        "Aceitar o risco por escrito, com o diretor assinando um termo de responsabilidade",
+        "Confiar na auditoria anual, que apanharia o desvio no fechamento do exercício",
+        "Conceder os dois acessos e desativar um deles fora do horário comercial"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quando o controle preventivo não cabe, o que se coloca no lugar dele?",
+        "Pergunte quem, de fora da área, consegue olhar a operação antes de o dinheiro sair.",
+        "Duas das opções não são controle nenhum: uma documenta o risco, a outra o descobre tarde."
+      ],
+      "pergunta_socratica": "Antes de conferir: se não dá para dividir as duas permissões entre pessoas, o que ainda pode ser dividido?",
+      "explicacao": "Equipe pequena é o caso em que a separação de funções esbarra na realidade, e a resposta não é abandonar o controle: é substituí-lo por controle compensatório. O desenho usual tem três peças — aprovação por alguém de fora da área, alçada por faixa de valor e revisão do log de cadastro contra os pagamentos feitos. Aceitar o risco por escrito não impede a fraude, e auditoria anual descobre o desvio quando o dinheiro já saiu.",
+      "por_que_erradas": {
+        "1": "Documentar o risco não é controle; ele registra quem responde, e não impede a operação.",
+        "2": "Auditoria anual é detecção tardia, com meses de dano acumulado até o fechamento.",
+        "3": "O horário não é o eixo do conflito: a fraude cabe inteira dentro do expediente."
+      },
+      "fonte": "ANSI INCITS 359 (RBAC), §5.3 — numeração conforme a edição 359-2004 consultada; edição vigente: 359-2012 (R2022)",
+      "tags": [
+        "separacao-de-funcoes",
+        "controle-compensatorio",
+        "fraude",
+        "cenario"
+      ]
+    },
+    {
+      "id": "2.6.q17",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Qual é a diferença entre separação de funções estática e dinâmica?",
+      "alternativas": [
+        "A estática restringe a atribuição do papel ao usuário; a dinâmica restringe a ativação na sessão",
+        "A estática vale para papéis e a dinâmica vale para grupos, com a mesma regra de exclusão",
+        "A estática é imposta por auditoria periódica e a dinâmica por revisão anual do gestor",
+        "A estática impede dois papéis conflitantes e a dinâmica impede dois usuários no mesmo papel"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Uma das duas exige que o sistema tenha o conceito de sessão com papel ativo.",
+        "Pense em que momento a restrição é verificada: quando o acesso é concedido, ou quando é usado.",
+        "Estático e dinâmico aqui dizem respeito ao momento da verificação, não à frequência da auditoria."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual das duas o usuário chega a ter os dois papéis cadastrados?",
+      "explicacao": "A separação estática (SSD) atua na atribuição: o usuário não pode ser membro do conjunto conflitante — e a norma a define por conjunto de papéis mais cardinalidade, e não apenas por pares exclusivos. A dinâmica (DSD) atua na ativação: o usuário pode ter os dois papéis, mas ativar um exige largar o outro dentro da sessão. O exemplo da norma é o caixa que precisa fechar a gaveta para assumir o papel de supervisor.",
+      "por_que_erradas": {
+        "1": "As duas tratam de papéis; o que muda é o momento em que agem.",
+        "2": "Nenhuma das duas é auditoria: ambas são restrições impostas pelo sistema.",
+        "3": "Nenhuma delas limita quantos usuários ocupam um mesmo papel."
+      },
+      "fonte": "ANSI INCITS 359 (RBAC), §5.3.1 e §5.3.2 — numeração conforme a edição 359-2004 consultada; edição vigente: 359-2012 (R2022)",
+      "tags": [
+        "separacao-de-funcoes",
+        "rbac",
+        "ssd",
+        "dsd",
+        "sessao"
+      ]
+    },
+    {
+      "id": "2.6.q18",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Um analista passou por três áreas em seis anos e manteve os acessos de todas. Qual é o problema e a correção?",
+      "alternativas": [
+        "Acúmulo de privilégio: a correção é revisão periódica, removendo o que a função atual não exige",
+        "Nenhum problema, desde que ele tenha assinado o termo de confidencialidade de cada área",
+        "Excesso de papéis no sistema: a correção é fundir os três em um único perfil ampliado",
+        "Falha de autenticação: a correção é exigir múltiplo fator nas três aplicações envolvidas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare o que a função atual exige com o que a conta ainda alcança.",
+        "Conceder acesso costuma ter processo formal; remover também tem?",
+        "Múltiplo fator protege o login — ele protege contra excesso de permissão?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se essa conta for comprometida amanhã, o atacante alcança uma área ou três?",
+      "explicacao": "É acúmulo de privilégio, e vem de um desequilíbrio de processo: conceder tem fluxo formal, remover raramente tem. O efeito é uma conta cuja superfície é a soma de toda a carreira, o que amplia o dano de qualquer comprometimento e quebra a separação de funções sem que ninguém tenha decidido isso. A correção é recertificação periódica, com o gestor respondendo pelo que mantiver e remoção dentro de prazo. Fundir os papéis apenas oficializa o acúmulo.",
+      "por_que_erradas": {
+        "1": "Termo de confidencialidade é controle jurídico; ele não reduz o acesso técnico.",
+        "2": "Fundir os papéis transforma o desvio em política declarada.",
+        "3": "Múltiplo fator melhora a autenticação, e não o excesso de autorização."
+      },
+      "fonte": "NIST SP 800-162 §2 (\"Failure to remove or revoke access over time leads to users accumulating privileges\"); ANSI INCITS 359 (RBAC), §5.3 — numeração conforme a edição 359-2004 consultada; edição vigente: 359-2012 (R2022)",
+      "tags": [
+        "acumulo-de-privilegio",
+        "revisao-de-acesso",
+        "menor-privilegio",
+        "cenario"
+      ]
+    },
+    {
+      "id": "2.6.q19",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "A ferramenta de backup roda com uma conta membro de Administradores do Domínio. Qual é a melhor correção?",
+      "alternativas": [
+        "Conta dedicada ao serviço, com leitura nos compartilhamentos alvo e só os direitos que a tarefa exige",
+        "Manter a conta atual e trocar a senha dela com mais frequência, registrando cada troca em planilha",
+        "Manter a conta atual e permitir o uso apenas em janelas de manutenção agendadas com antecedência",
+        "Migrar a ferramenta para uma conta de administrador local em cada um dos servidores de arquivos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte de que direitos a tarefa de backup realmente precisa.",
+        "Trocar a senha reduz o que um comprometimento alcança?",
+        "Administrador local em muitos servidores é menos privilégio, ou o mesmo espalhado?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se essa conta vazar hoje, o que o atacante alcança em cada uma das quatro opções?",
+      "explicacao": "Uma conta de backup precisa de leitura nos dados e de um punhado de direitos específicos, não do domínio inteiro. A defesa é conta dedicada por serviço, com o mínimo necessário, credencial longa gerenciada automaticamente e uso monitorado. Trocar a senha não reduz o que um comprometimento alcança. A janela limita quando, não o quê. E administrador local em vários servidores espalha o problema em vez de reduzi-lo.",
+      "por_que_erradas": {
+        "1": "Trocar a senha não reduz o alcance de um comprometimento; a credencial da conta de serviço deve ser longa e gerenciada automaticamente.",
+        "2": "A janela restringe o horário, e não o que a conta comprometida alcança.",
+        "3": "Administrador local em vários servidores mantém privilégio excessivo, só que distribuído."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6.4.4 (menor privilégio, de Saltzer e Schroeder)",
+      "tags": [
+        "menor-privilegio",
+        "conta-de-servico",
+        "ataque-defesa",
+        "active-directory"
+      ]
+    },
+    {
+      "id": "2.6.q20",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "trecho": "POLÍTICA DE ACESSO — SISTEMA FINANCEIRO (v3)\n1. O perfil \"Financeiro\" concede cadastro de fornecedor e aprovação de pagamento.\n2. Novos funcionários recebem cópia do perfil de um colega da mesma função.\n3. Os acessos são revisados no desligamento do funcionário.\n4. A tela de aprovação é escondida do menu de quem não deve aprovar.",
+      "enunciado": "Qual item, sozinho, reúne em uma mesma pessoa duas permissões que deveriam estar separadas?",
+      "alternativas": [
+        "O item 1, que reúne cadastro de fornecedor e aprovação de pagamento no mesmo perfil",
+        "O item 2, que propaga permissões antigas para cada funcionário recém-contratado",
+        "O item 3, que deixa passar anos sem nenhuma revisão dos acessos já concedidos",
+        "O item 4, que esconde a tela em vez de negar a operação no lado do servidor"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Some as permissões concedidas por um único item e veja o que uma pessoa passa a poder fazer.",
+        "Os quatro itens têm defeito; a pergunta é qual deles concede a combinação conflitante.",
+        "Esconder a tela é falha grave, mas ela não concede permissão nenhuma."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses itens entrega a uma só pessoa as duas pontas da mesma operação?",
+      "explicacao": "Os quatro itens têm defeito, mas só o item 1 reúne as duas permissões conflitantes no mesmo perfil: quem cadastra o fornecedor também aprova o pagamento a ele. O item 2 propaga acúmulo de privilégio a cada contratação. O item 3 troca recertificação periódica por revisão só no desligamento. E o item 4 é controle no cliente: esconder a tela não impede a requisição, que precisa ser negada no servidor.",
+      "por_que_erradas": {
+        "1": "Copiar perfil propaga permissão antiga, mas não é o item que junta as duas funções.",
+        "2": "A revisão tardia agrava o acúmulo; ela não concede a combinação conflitante.",
+        "3": "Esconder o menu é controle no cliente e falha real, mas não concede permissão nenhuma — é outro defeito, não a combinação conflitante."
+      },
+      "fonte": "ANSI INCITS 359 (RBAC), §5.3 — numeração conforme a edição 359-2004 consultada; edição vigente: 359-2012 (R2022); OWASP Top 10:2021 A01",
+      "tags": [
+        "separacao-de-funcoes",
+        "caca-erro",
+        "politica",
+        "acumulo-de-privilegio"
+      ]
+    },
+    {
+      "id": "2.6.q21",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Coloque em ordem as etapas de uma recertificação de acesso que realmente reduz privilégio.",
+      "itens": [
+        "Levantar quem tem acesso a quê, incluindo contas de serviço e acessos concedidos fora do fluxo padrão",
+        "Enviar a cada gestor a lista da sua equipe, com o papel e a justificativa registrada de cada acesso",
+        "Marcar cada acesso como manter, reduzir ou remover, com o gestor respondendo pelo que mantiver",
+        "Executar as remoções e reduções aprovadas dentro de um prazo definido, e conferir o resultado",
+        "Guardar a evidência e comparar com a revisão anterior, para achar acúmulo que se repete"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dicas": [
+        "Não dá para revisar o que ninguém levantou.",
+        "A decisão precisa ter dono: quem responde pelo acesso que ficou?",
+        "Uma revisão sem execução e sem evidência é uma reunião."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual etapa a revisão que só produz relatório costuma parar?",
+      "explicacao": "A recertificação começa pelo inventário — e é ali que aparecem as contas de serviço e os acessos concedidos por exceção, que costumam ser os mais antigos. Depois vem a revisão pelo gestor, que precisa ter dono e justificativa, e não uma lista anônima de permissões. A etapa que separa revisão de teatro é a execução dentro de prazo. A comparação com a revisão anterior é o que revela acúmulo recorrente e problema no processo de concessão.",
+      "fonte": "NIST SP 800-162 §2 (\"Failure to remove or revoke access over time leads to users accumulating privileges\"); ANSI INCITS 359 (RBAC), §5.3 — numeração conforme a edição 359-2004 consultada; edição vigente: 359-2012 (R2022)",
+      "tags": [
+        "revisao-de-acesso",
+        "acumulo-de-privilegio",
+        "processo",
+        "ordenacao"
+      ]
+    },
+    {
+      "id": "2.6.q22",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "artefato": "> icacls C:\\dados\\folha.txt\nC:\\dados\\folha.txt AUTORIDADE NT\\SISTEMA:(I)(F)\n                   BUILTIN\\Administradores:(I)(F)\n                   CONTOSO\\ana.silva:(I)(F)\n\nProcessados com sucesso 1 arquivos; falha no processamento de 0 arquivos",
+      "enunciado": "O que esta saída informa sobre a origem e o alcance das permissões deste arquivo?",
+      "alternativas": [
+        "As três entradas vieram herdadas do diretório pai, e as três concedem controle total",
+        "As três entradas foram definidas no próprio arquivo, e as três concedem apenas leitura",
+        "Só a conta do usuário tem controle total; as outras duas herdam leitura e execução",
+        "O arquivo está sem ACL, e o acesso é decidido pelo dono no momento da abertura"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Procure o que a marca (I) significa em cada entrada.",
+        "Compare a sigla de direito que aparece nas três linhas.",
+        "Se a permissão foi herdada, onde ela foi de fato definida?"
+      ],
+      "pergunta_socratica": "Antes de conferir: você remove a permissão neste arquivo. O que acontece na próxima vez que a herança for aplicada?",
+      "explicacao": "A saída é real, anonimizada. As três entradas — SISTEMA, Administradores e a conta do usuário — vieram herdadas do diretório pai e concedem controle total. A lição prática é onde a política mora: ajustar a permissão no arquivo isolado é remendo, porque a próxima aplicação da herança desfaz o ajuste. Quem quer mudar de verdade mexe no diretório pai, ou quebra a herança de forma explícita.",
+      "por_que_erradas": {
+        "1": "(I) indica herança, e (F) é controle total, e não leitura.",
+        "2": "As três entradas trazem (F); nenhuma está limitada a leitura e execução.",
+        "3": "A ACL existe e está listada; o dono não decide caso a caso."
+      },
+      "fonte": "Saída de icacls verificada em execução e anonimizada; documentação do comando icacls",
+      "tags": [
+        "windows",
+        "icacls",
+        "acl",
+        "heranca",
+        "artefato"
+      ]
+    },
+    {
+      "id": "2.6.q23",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um arquivo tem modo 0640. Quem pode fazer o quê com ele?",
+      "alternativas": [
+        "O dono lê e grava, o grupo só lê, e os demais usuários não têm acesso nenhum",
+        "O dono lê e grava, o grupo lê e grava, e os demais usuários apenas leem",
+        "O dono lê, grava e executa, o grupo lê e executa, e os demais apenas leem",
+        "Todos leem e gravam, e apenas a execução fica reservada ao dono do arquivo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Traduza cada dígito octal em três bits, na ordem leitura, escrita e execução.",
+        "6 é 110 e 4 é 100; e o que significa o zero final?",
+        "O último dígito vale para quem não é dono nem membro do grupo."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantos ternos de bits o modo tem, e a quem cada um deles se aplica?",
+      "explicacao": "Cada dígito octal é um terno rwx: 6 = 110 = rw-, 4 = 100 = r--, e 0 = --- . Verificado em execução, 0640 é rw-r----- : o dono lê e grava, o grupo lê, e os demais não acessam. É o modo típico de um arquivo de configuração com segredo, compartilhado com um grupo de serviço. Para comparação, 0644 é rw-r--r--, que deixa o arquivo legível por qualquer conta da máquina.",
+      "por_que_erradas": {
+        "1": "Escrita para o grupo exigiria 6 no segundo dígito, ou seja, modo 0660.",
+        "2": "Não há bit de execução em terno nenhum: os dígitos são 6, 4 e 0.",
+        "3": "O último dígito é zero: quem não é dono nem do grupo não tem acesso."
+      },
+      "fonte": "Tabela de bits verificada em execução; Security Engineering, 3ª ed., cap. 6.2.3",
+      "tags": [
+        "linux",
+        "permissoes",
+        "posix",
+        "comando"
+      ]
+    },
+    {
+      "id": "2.6.q24",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1,
+        2
+      ],
+      "enunciado": "O que o bit SUID faz em um executável com modo 04755 (rwsr-xr-x), e por que ele é arriscado?",
+      "alternativas": [
+        "Faz o programa rodar com o privilégio do dono do arquivo, e não com o de quem o invocou",
+        "Faz o programa rodar com o privilégio de quem o invocou, ignorando o dono do arquivo",
+        "Impede que qualquer usuário execute o programa sem antes digitar a senha do dono",
+        "Marca o programa como somente leitura, bloqueando alteração por quem não é o dono"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Repare no s ocupando o lugar do x no terno do dono.",
+        "O Unix precisava aproximar a tripla usuário, programa e arquivo com só duas dimensões.",
+        "Quem invoca o programa controla o ambiente em que ele roda."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o dono do binário é root, com que privilégio o programa roda quando você o executa?",
+      "explicacao": "Verificado em execução: 04755 é rwsr-xr-x, e o s marca SUID. O programa passa a rodar com o privilégio do dono do arquivo — foi assim que o Unix aproximou a tripla usuário, programa e arquivo em um mecanismo de duas dimensões. O risco está no atalho: marcar como SUID root para a aplicação poder fazer tudo transfere a decisão de acesso do sistema para o programa, e quem o invoca controla o ambiente que ele enxerga.",
+      "por_que_erradas": {
+        "1": "Rodar com o privilégio de quem invoca é o comportamento normal, sem SUID.",
+        "2": "O SUID não pede senha nenhuma.",
+        "3": "Somente leitura seria a ausência do bit de escrita, e não o SUID."
+      },
+      "fonte": "Bits verificados em execução; Security Engineering, 3ª ed., cap. 6.2.3 (p. 212–214)",
+      "tags": [
+        "linux",
+        "suid",
+        "permissoes",
+        "menor-privilegio"
+      ]
+    },
+    {
+      "id": "2.6.q25",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um diretório tem modo 01777 (rwxrwxrwt). O que o t final garante?",
+      "alternativas": [
+        "Que qualquer um cria arquivos ali, mas remover ou renomear fica restrito ao dono do arquivo (ou ao dono do diretório)",
+        "Que qualquer um cria arquivos ali, e qualquer um também pode remover os arquivos dos outros",
+        "Que apenas o dono do diretório cria arquivos ali, e os demais conseguem somente listar",
+        "Que todo arquivo criado ali nasce automaticamente com o modo 0777 e dono compartilhado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "É o modo do /tmp; pense no problema que ele precisa resolver.",
+        "Sem esse bit, quem tem escrita no diretório apaga arquivo alheio.",
+        "O t ocupa o lugar do x no terno dos demais usuários."
+      ],
+      "pergunta_socratica": "Antes de conferir: ter escrita em um diretório dá o direito de apagar o que está dentro dele?",
+      "explicacao": "Verificado em execução, 01777 é rwxrwxrwt, e o t é o sticky bit. Em um diretório com escrita para todos, ele restringe remoção e renomeação ao dono do arquivo, ou ao dono do diretório. Sem esse bit, permissão de escrita no diretório bastaria para apagar arquivo de qualquer um — que é exatamente a razão de ele existir no /tmp. Ele não altera o modo dos arquivos criados nem restringe quem cria.",
+      "por_que_erradas": {
+        "1": "É precisamente isso que o sticky bit impede.",
+        "2": "Os três ternos são rwx; qualquer usuário cria arquivos ali.",
+        "3": "O modo do arquivo novo vem do pedido do programa combinado com o umask."
+      },
+      "fonte": "Bits verificados em execução; Security Engineering, 3ª ed., cap. 6.2.3",
+      "tags": [
+        "linux",
+        "sticky-bit",
+        "permissoes",
+        "diretorio"
+      ]
+    },
+    {
+      "id": "2.6.q26",
+      "tipo": "comando",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Com umask 022, que permissão recebe um arquivo que o programa pede como 666?",
+      "alternativas": [
+        "0644, porque o umask retira os bits de escrita do grupo e dos demais usuários",
+        "0666, porque o umask só se aplica a diretórios recém-criados, e não a arquivos",
+        "0022, porque o valor do umask substitui integralmente o modo pedido pelo programa",
+        "0640, porque o umask retira também o bit de leitura dos demais usuários"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O umask é uma máscara de bits retirados, e não de bits concedidos.",
+        "666 é rw-rw-rw-; quais bits o 022 retira?",
+        "Escreva 666 e 022 em binário e veja quais bits sobram."
+      ],
+      "pergunta_socratica": "Antes de conferir: o umask concede permissão, ou tira permissão?",
+      "explicacao": "O umask retira bits do modo pedido. Verificado em execução: com umask 022 sobre 666, o arquivo nasce 0644, isto é, rw-r--r--. Os dois na segunda e na terceira posição retiram a escrita do grupo e dos demais, deixando a leitura. Ele não substitui o modo pedido nem se soma a ele, e vale também para diretórios — com umask 077 sobre 777, um diretório novo nasce 0700.",
+      "por_que_erradas": {
+        "1": "O umask vale igualmente para arquivos, como a execução mostra.",
+        "2": "O umask é máscara de remoção, e não um valor de substituição.",
+        "3": "O 2 do umask retira apenas a escrita; a leitura dos demais sobrevive, e o resultado é 0644."
+      },
+      "fonte": "Comportamento verificado em execução; Security Engineering, 3ª ed., cap. 6.2.3",
+      "tags": [
+        "linux",
+        "umask",
+        "permissoes",
+        "comando"
+      ]
+    },
+    {
+      "id": "2.6.q27",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ligue cada sigla do icacls ao que ela indica na entrada da ACL.",
+      "pares": [
+        [
+          "(F)",
+          "Controle total sobre o objeto, incluindo alterar as próprias permissões"
+        ],
+        [
+          "(M)",
+          "Modificar: ler, gravar e excluir, sem poder alterar as permissões"
+        ],
+        [
+          "(RX)",
+          "Ler e executar, sem nenhum direito de gravação"
+        ],
+        [
+          "(I)",
+          "Entrada herdada do contêiner pai, e não definida no próprio objeto"
+        ],
+        [
+          "(OI)(CI)",
+          "Herança de objeto e de contêiner: propaga para arquivos e subpastas"
+        ]
+      ],
+      "dicas": [
+        "Algumas siglas dizem o que pode ser feito; outras dizem de onde a entrada veio.",
+        "A diferença entre as duas primeiras está em quem pode mudar a própria permissão.",
+        "As siglas de herança aparecem em diretórios, e não em arquivos comuns."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas marcas explica por que a permissão volta depois que você a remove no arquivo?",
+      "explicacao": "As siglas se dividem em dois grupos. Direitos: (F) é controle total, incluindo mudar permissão e assumir a propriedade; (M) é modificar, que lê, grava e exclui mas não altera a ACL; (RX) é ler e executar. Herança: (I) marca a entrada como vinda do contêiner pai, e (OI)(CI) marcam a propagação para arquivos e subpastas. Ler uma ACL do Windows é separar essas duas perguntas: o que a entrada concede, e de onde ela veio.",
+      "fonte": "Documentação do comando icacls; saída verificada em execução",
+      "tags": [
+        "windows",
+        "icacls",
+        "acl",
+        "pareamento",
+        "heranca"
+      ]
+    },
+    {
+      "id": "2.6.q28",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        1,
+        2
+      ],
+      "trecho": "RELATÓRIO DE ENDURECIMENTO — ESTAÇÕES WINDOWS (trecho)\n1. Todos os usuários operam com conta de administrador local.\n2. O UAC funciona como limite de segurança entre o contexto comum e o elevado.\n3. As contas de serviço usam a mesma senha, guardada no cofre da equipe.\n4. As permissões NTFS foram revisadas só nas pastas com dado classificado como sensível.",
+      "enunciado": "Qual item afirma uma garantia técnica que a própria fornecedora do sistema não sustenta?",
+      "alternativas": [
+        "O item 2: o UAC reduz o uso cotidiano de privilégio, mas não é um limite de segurança",
+        "O item 1, porque usuário administrador por padrão contraria o menor privilégio",
+        "O item 3, porque senha compartilhada entre serviços elimina a responsabilização individual",
+        "O item 4, porque revisar só o que já foi classificado deixa de fora o que ninguém classificou"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um dos itens afirma o que um mecanismo garante; os outros descrevem práticas.",
+        "Se aquele mecanismo fosse um limite, contorná-lo seria tratado como vulnerabilidade.",
+        "Prática ruim e afirmação falsa não são a mesma coisa."
+      ],
+      "pergunta_socratica": "Antes de conferir: se contornar o prompt de elevação não é tratado como vulnerabilidade, ele é um limite de segurança?",
+      "explicacao": "O item 2 é o único que afirma uma garantia inexistente. O UAC reduz o uso cotidiano de privilégio e contém aplicações mal comportadas por virtualização, mas não é tratado como limite de segurança: para quem já é administrador, contorná-lo não é considerado vulnerabilidade. Os outros três são práticas ruins, e não afirmações falsas. Usuário administrador por padrão contraria menor privilégio, senha compartilhada elimina a responsabilização individual, e revisar só o que já foi classificado deixa de fora tudo que ninguém classificou.",
+      "por_que_erradas": {
+        "1": "É prática ruim, mas o item não afirma garantia técnica nenhuma — a pergunta é sobre a afirmação falsa.",
+        "2": "Também é prática ruim, e também não afirma que um mecanismo garante alguma coisa.",
+        "3": "Cobertura incompleta de revisão é falha de processo, não uma garantia técnica declarada."
+      },
+      "fonte": "Security Engineering, 3ª ed., cap. 6.2.9 (UAC no Vista); posição pública da Microsoft sobre o UAC",
+      "tags": [
+        "windows",
+        "uac",
+        "caca-erro",
+        "menor-privilegio",
+        "administrador"
+      ]
+    },
+    {
+      "id": "2.6.q29",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Qual é a definição operativa de Zero Trust segundo o NIST SP 800-207?",
+      "alternativas": [
+        "Decidir acesso por requisição, com menor privilégio, tratando a rede como já comprometida",
+        "Cifrar todo o tráfego interno e externo, dispensando decisão de autorização por recurso",
+        "Substituir a rede privada virtual por um portal que autentica o usuário uma vez por dia",
+        "Confiar apenas em dispositivos gerenciados pela empresa, dentro do perímetro corporativo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A definição do documento é operativa: ela diz o que o sistema faz a cada pedido, e não que tecnologia usar.",
+        "Uma das alternativas ainda deriva confiança da localização de rede.",
+        "Autenticar uma vez e valer para tudo é justamente o que o documento rejeita."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a rede interna é considerada hostil, quanto passa a valer a localização de quem pede?",
+      "explicacao": "A definição do NIST é operativa: reduzir a incerteza ao impor decisões de acesso precisas, de menor privilégio e por requisição, diante de uma rede considerada comprometida. Daí decorrem duas consequências diretas: localização de rede não implica confiança, e autorização a um recurso não vale automaticamente para outro. Cifrar o tráfego é um dos requisitos, não o modelo; e um portal que autentica uma vez por dia recria a confiança implícita que o modelo abandona.",
+      "por_que_erradas": {
+        "1": "Cifrar é requisito de comunicação, e não substitui a decisão de autorização.",
+        "2": "Autenticação única por dia recria a confiança implícita que o modelo rejeita.",
+        "3": "Confiança derivada do perímetro é exatamente o que o modelo abandona."
+      },
+      "fonte": "NIST SP 800-207 §2 e §2.1",
+      "tags": [
+        "zero-trust",
+        "nist-800-207",
+        "arquitetura",
+        "autorizacao"
+      ]
+    },
+    {
+      "id": "2.6.q30",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Qual é a diferença entre o ponto de decisão de política (PDP) e o ponto de imposição (PEP)?",
+      "alternativas": [
+        "O PDP avalia a política e decide; o PEP habilita, monitora e encerra a conexão com o recurso",
+        "O PDP fica no cliente e o PEP no servidor, cada um decidindo sobre a sua própria metade",
+        "O PDP registra os acessos para auditoria e o PEP avalia a política a cada requisição",
+        "O PDP substitui o firewall de perímetro e o PEP substitui o diretório de identidades"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Uma das siglas decide e a outra impõe; identifique qual é qual.",
+        "O PDP se divide em motor de política e administrador de política.",
+        "Qual dos dois precisa ficar no caminho entre o sujeito e o recurso?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quem toma a decisão precisa estar no caminho dos dados, ou basta responder a quem está?",
+      "explicacao": "O PDP é onde a decisão nasce, e no SP 800-207 ele se divide em motor de política, que decide, e administrador de política, que executa a decisão abrindo ou encerrando o caminho. O PEP fica entre sujeito e recurso, habilitando, monitorando e encerrando a conexão. Os dois conversam por um plano de controle separado do plano de dados. Separá-los é o que permite que a decisão use contexto que o ponto de imposição não conhece.",
+      "por_que_erradas": {
+        "1": "A divisão não é cliente e servidor; o PEP pode ter componente dos dois lados.",
+        "2": "Os papéis estão invertidos: quem avalia a política é o PDP.",
+        "3": "Nenhum dos dois é substituto de firewall ou de diretório de identidades."
+      },
+      "fonte": "NIST SP 800-207 §2 e §3",
+      "tags": [
+        "zero-trust",
+        "pdp",
+        "pep",
+        "arquitetura",
+        "nist-800-207"
+      ]
+    },
+    {
+      "id": "2.6.q31",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "trecho": "ATA DE REUNIÃO — PROJETO ZERO TRUST\n1. Contratamos a solução Zero Trust do fornecedor X; com a implantação, a arquitetura estará concluída.\n2. O produto substitui a VPN, então a rede interna deixa de precisar de segmentação.\n3. Como o lema é \"nunca confie, sempre verifique\", as regras de autorização por recurso podem ser simplificadas.\n4. O perímetro será desativado ao fim da migração.",
+      "enunciado": "Qual dessas afirmações, se aceita, esvazia o próprio modelo do NIST SP 800-207?",
+      "alternativas": [
+        "A 3, porque autorização por recurso e por requisição é o núcleo do modelo",
+        "A 1, porque o documento não trata de contratação de fornecedor",
+        "A 2, porque a segmentação é exigida em uma seção própria",
+        "A 4, porque o documento fixa prazo para desativar o perímetro"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As quatro afirmações contrariam o documento; a pergunta é qual delas derruba o mecanismo, e não só o discurso.",
+        "O documento diz que zero trust se aplica a duas áreas: autenticação e autorização.",
+        "Para cada item, pergunte o que ainda seria verificado a cada requisição se ele virasse política."
+      ],
+      "pergunta_socratica": "Antes de conferir: quais dessas afirmações mudam só o discurso, e qual delas mexe no mecanismo?",
+      "explicacao": "As quatro contrariam o documento: zero trust não é produto nem arquitetura única, a maioria das empresas opera em modo híbrido com perímetro, e a zona de confiança implícita encolhe em vez de desaparecer. Mas só a 3 esvazia o modelo: o documento afirma que zero trust se aplica a duas áreas, autenticação e autorização, então enfraquecer a autorização por recurso deixa a arquitetura sem o que verificar a cada requisição. O lema só vale quando vira mecanismo.",
+      "por_que_erradas": {
+        "1": "A 1 contraria o documento — zero trust não é produto —, mas o documento realmente não trata de contratação.",
+        "2": "A 2 contraria o documento, e a segmentação é tratada nele; ainda assim não é o núcleo do modelo.",
+        "3": "A 4 contraria o documento, que descreve operação híbrida indefinida — e ele não fixa prazo nenhum."
+      },
+      "fonte": "NIST SP 800-207 §1, §2, §2.2 e §7.2",
+      "tags": [
+        "zero-trust",
+        "caca-erro",
+        "nist-800-207",
+        "marketing",
+        "perimetro"
+      ]
+    },
+    {
+      "id": "2.6.q32",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um cliente autenticado troca o número em GET /api/pedidos/1234 e recebe o pedido de outro cliente. Qual é a falha?",
+      "alternativas": [
+        "Referência direta insegura a objeto (IDOR): o servidor busca pelo id e não confere a propriedade",
+        "Falha de autenticação: o token da sessão não está sendo validado antes de a consulta rodar",
+        "Exposição de dado sensível: o conteúdo do pedido deveria estar cifrado no banco de dados",
+        "Injeção de parâmetro: o número recebido na URL precisa ser tratado antes de virar consulta"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O usuário está autenticado; a pergunta é se ele deveria ver aquele registro.",
+        "Qual pergunta o servidor deixou de fazer antes de responder?",
+        "Cifrar o campo muda o que a resposta entrega a quem já passou pela consulta?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o servidor sabe quem está pedindo. Ele chegou a checar se o pedido é dessa pessoa?",
+      "explicacao": "É IDOR, uma das subcategorias de quebra de controle de acesso do OWASP A01 — a categoria número um do Top 10:2021, com 34 CWEs mapeadas. A sessão está autenticada; o que falta é a verificação de propriedade do registro. Autenticação responde quem é o usuário, e não se ele pode ver aquele objeto. Cifrar o campo não ajuda, porque a aplicação decifra para responder, e o parâmetro nem é malformado: 1235 é um número perfeitamente válido.",
+      "por_que_erradas": {
+        "1": "O usuário está autenticado; o que falha é a autorização por registro.",
+        "2": "Cifrar no banco não impede a aplicação de entregar o registro errado.",
+        "3": "O valor é um identificador válido; não há injeção envolvida."
+      },
+      "fonte": "OWASP Top 10:2021 A01, seção Description",
+      "tags": [
+        "idor",
+        "owasp-a01",
+        "autorizacao",
+        "api",
+        "cenario"
+      ]
+    },
+    {
+      "id": "2.6.q33",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Qual correção realmente fecha o IDOR do endpoint de pedidos?",
+      "alternativas": [
+        "Consultar o pedido pelo id e pelo dono da sessão, negando por padrão quando não houver vínculo",
+        "Trocar os identificadores sequenciais por valores aleatórios de 128 bits, difíceis de adivinhar",
+        "Remover do painel os links para pedidos alheios e desativar a listagem de diretórios do servidor",
+        "Aplicar limite de requisições por minuto no endpoint, bloqueando quem varrer a sequência de ids"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte qual verificação passa a existir em cada uma das opções.",
+        "Um identificador difícil de adivinhar continua funcionando quando alguém o obtém.",
+        "Limitar a taxa reduz o volume do vazamento — ele deixa de existir?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o cliente descobre o id de outro pedido em um e-mail encaminhado. Qual das opções ainda o detém?",
+      "explicacao": "A única correção é impor propriedade do registro no servidor: a consulta filtra pelo dono da sessão, e o que não casar é negado por padrão. Identificador aleatório é ofuscação — quem obtiver o valor por qualquer caminho continua sendo atendido. Esconder link é controle no cliente, e o atacante não usa o seu painel. Limite de requisições reduz a varredura em massa, mas não o acesso pontual. A verificação deve morar em um lugar reutilizável, e não repetida em cada handler.",
+      "por_que_erradas": {
+        "1": "Identificador imprevisível é ofuscação: nenhuma verificação foi acrescentada.",
+        "2": "Esconder o link não impede a requisição direta ao endpoint.",
+        "3": "Limite de taxa reduz a varredura, e não o acesso indevido a um registro."
+      },
+      "fonte": "OWASP Top 10:2021 A01, seção How to Prevent, itens 1, 2 e 3",
+      "tags": [
+        "idor",
+        "owasp-a01",
+        "defesa",
+        "negar-por-padrao",
+        "api"
+      ]
+    },
+    {
+      "id": "2.6.q34",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Ao centralizar a decisão de acesso em um PDP, que risco novo a equipe precisa tratar?",
+      "alternativas": [
+        "O PDP vira o alvo de maior valor, e derrubá-lo ou comprometê-lo afeta todos os recursos",
+        "Nenhum: centralizar a decisão elimina os riscos de acesso da arquitetura anterior",
+        "A perda do registro das decisões, já que o PDP não participa do plano de dados",
+        "A impossibilidade de aplicar menor privilégio, porque a decisão deixa de ver o recurso"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Concentrar a decisão concentra o quê, além da coerência?",
+        "O que acontece com todos os acessos se o componente central ficar indisponível?",
+        "O próprio documento tem uma seção sobre ameaças à arquitetura que ele propõe."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem comprometer o componente que decide ainda precisa comprometer mais alguma coisa?",
+      "explicacao": "O SP 800-207 dedica uma seção às ameaças da própria arquitetura, e essa é a primeira: o motor e o administrador de política concentram a decisão, então comprometê-los ou derrubá-los afeta tudo que depende deles. O tratamento é o de qualquer componente crítico — acesso administrativo restrito e auditado, redundância, monitoração e registro das decisões. Centralizar melhora a coerência e a auditoria; não elimina risco, apenas o desloca.",
+      "por_que_erradas": {
+        "1": "Centralizar desloca o risco; não o elimina.",
+        "2": "O PDP registra as decisões, e isso é uma das funções descritas no documento.",
+        "3": "A decisão continua avaliando o recurso pedido; menor privilégio é princípio do modelo."
+      },
+      "fonte": "NIST SP 800-207 §3 e §5",
+      "tags": [
+        "zero-trust",
+        "pdp",
+        "risco",
+        "nist-800-207",
+        "ataque-defesa"
+      ]
+    },
+    {
+      "id": "2.6.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        1,
+        3
+      ],
+      "enunciado": "Uma equipe herdou um sistema com IDOR nos endpoints, sem revisão de acesso e com permissão por usuário. Por onde começar?",
+      "alternativas": [
+        "Pela verificação de propriedade no servidor, porque a falha é explorável hoje por qualquer conta",
+        "Pela migração de permissões por usuário para papéis, que reduz muito o que há para manter",
+        "Pela contratação de uma plataforma Zero Trust, que cobre os três problemas de uma só vez",
+        "Pela primeira campanha de revisão de acesso, que documenta o estado antes de qualquer mudança"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare quem consegue explorar cada problema, e com que esforço.",
+        "Qual dos três já está sendo explorado por qualquer usuário comum?",
+        "Zero Trust é produto que se compra?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses problemas um cliente curioso explora hoje, sem ferramenta nenhuma?",
+      "explicacao": "A ordem sai da explorabilidade. O IDOR é acessível a qualquer usuário autenticado, com o navegador, e vaza dado de terceiros agora — é a categoria número um do OWASP por bom motivo. Permissão por usuário é dívida de manutenção que dói na auditoria, e não uma porta aberta. A revisão de acesso é importante e vem em seguida, junto com a modelagem por papéis. E Zero Trust não é produto: é princípio de arquitetura que se implementa.",
+      "por_que_erradas": {
+        "1": "Migrar para papéis melhora a manutenção, mas não fecha a falha explorável.",
+        "2": "Zero Trust é conjunto de princípios, e não um produto que se compra pronto.",
+        "3": "A revisão documenta o estado; ela não interrompe o vazamento em curso."
+      },
+      "fonte": "OWASP Top 10:2021 A01; NIST SP 800-207 §1",
+      "tags": [
+        "priorizacao",
+        "owasp-a01",
+        "zero-trust",
+        "rbac",
+        "carreira"
+      ]
+    }
+  ]
+}
