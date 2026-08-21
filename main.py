@@ -1,5 +1,7 @@
 """Ponto de entrada do app de estudo de cibersegurança."""
 
+from pathlib import Path
+
 import customtkinter as ctk
 
 from app import content, db, theme
@@ -37,6 +39,12 @@ class App:
 
         self.root = ctk.CTk()
         self.root.title("Cyber — Estudo de Cibersegurança")
+        icone = Path(__file__).resolve().parent / "app.ico"
+        if icone.exists():
+            try:
+                self.root.iconbitmap(icone)
+            except Exception:
+                pass  # .ico é coisa de Windows; em outro sistema fica o ícone padrão
         self.root.geometry("1180x760")
         self.root.minsize(*theme.JANELA_MIN)
         self.root.configure(fg_color=theme.BG_PRIMARY)
