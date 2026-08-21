@@ -3,7 +3,9 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-19 · commit `e9c72a5` · 938 testes passando
+Última atualização: 2026-08-20 · commit `f2a9336` · 938 testes passando
+
+Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 ---
 
@@ -30,7 +32,9 @@ ataque→defesa 44, pareamento 34, comando 32, ordenação 24, artefato 22.
 
 ```
 C:\Dev\cybersecurity-app\
+├── README.md                como rodar, esquema JSON e como escrever um módulo
 ├── main.py                  ponto de entrada: janela, sidebar, roteamento
+├── app.ico                  ícone da janela e do atalho
 ├── conftest.py              faz o pytest achar o pacote `app`
 ├── run.bat                  usa .venv se existir, senão o Python do sistema
 ├── requirements.txt         customtkinter (única dependência de runtime)
@@ -47,6 +51,11 @@ C:\Dev\cybersecurity-app\
 ├── data/
 │   ├── niveis.json          6 níveis e regras de desbloqueio
 │   └── modulos/*.json       18 módulos (00-01 … 02-07)
+├── exemplo/
+│   └── modulo-minimo.json   modelo comentado, um exemplo de cada tipo de questão
+├── ferramentas/
+│   ├── validar_modulo.py    valida um módulo antes de ele entrar em data/modulos/
+│   └── gerar_icone.py       redesenha o app.ico (precisa de pillow)
 ├── tests/                   6 arquivos de teste
 ├── docs/                    PDFs de referência (fora do Git)
 └── progress.db              criado no primeiro uso (fora do Git)
@@ -177,7 +186,7 @@ C:\Dev\cybersecurity-app\
 | 6 | Nível 2 + glossário + ferramentas | parcial: nível 2 completo; glossário e ferramentas pendentes |
 | 7 | Níveis 3 e 4 + desafios práticos | pendente |
 | 8 | Nível 5 + simulado + trilha de 90 dias | pendente |
-| 9 | Ícone, atalho, README, publicação | pendente |
+| 9 | Ícone, atalho, README, publicação | pronta |
 
 ### Conteúdo escrito
 
@@ -231,7 +240,6 @@ real de requisição.
 - Modo reforço como entrada própria
 - Retomar sessão interrompida (spec 6.5) — precisa persistir a posição da fila
 - Navegação por teclado na sessão: 1-4, Enter, D, Esc
-- Ícone `.ico`, atalho na área de trabalho, README, publicação no GitHub
 
 ### Dívidas conhecidas
 
@@ -246,10 +254,122 @@ real de requisição.
   SPF, DKIM e DMARC).
 - **Streak recalcula dias passados com a meta atual.** Guardar a meta de cada dia
   exigiria outra tabela.
+- **Bloco 3.1–3.3 escrito e não revisado.** Os três primeiros módulos do nível 3
+  (metodologia de pentest, OSINT, varredura e enumeração) foram escritos e passam
+  na validação estrutural, mas a revisão adversarial foi interrompida no meio e
+  eles **não** estão em `data/modulos/`. Os arquivos, os relatórios de procedência
+  e os laboratórios estão em `C:\Dev\cybersecurity-app-pendente\`. Antes de
+  publicá-los, revisar à mão: exatidão de sintaxe de ferramenta, versão do OWASP
+  Top 10 (a vigente é a **2025**, não a 2021), equilíbrio ataque/defesa e nenhum
+  alvo fora de `localhost`/RFC 1918/RFC 5737.
+- **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
+  existir `.venv` na pasta, o atalho continuará usando o Python global; o
+  `run.bat` é quem prefere a `.venv`.
 
 ---
 
-## 6. Regras invioláveis do projeto
+## 6. Como continuar sem o Claude Code
+
+Esta seção existe para o caso de o app precisar crescer sem assistente nenhum.
+Nada aqui depende de ferramenta paga: é Python, um editor de texto e o `git`.
+
+### O ciclo, em uma frase
+
+Copiar o exemplo → escrever o JSON → validar o arquivo → rodar os testes →
+abrir o app → commitar.
+
+### Passo a passo para escrever um módulo à mão
+
+1. **Escolha o módulo** na lista da seção 5 e veja o escopo dele no
+   `cybersecurity-app-spec.docx` (seção 3, "Trilha de conteúdo"). Cada módulo tem
+   uma linha dizendo o que precisa cobrir.
+
+2. **Copie o modelo:**
+
+   ```bash
+   cp exemplo/modulo-minimo.json data/modulos/03-01-metodologia-de-pentest.json
+   ```
+
+   O modelo traz uma questão de cada tipo utilizável e comentários em chaves que
+   começam com `_`, que o app ignora. Apague os comentários quando terminar.
+
+3. **Preencha o cabeçalho**: `id` (`"3.1"`), `nivel` (3), `titulo`, quatro
+   `objetivos` e `pre_requisitos`. O `id` é o prefixo de todos os ids internos.
+
+4. **Escreva 6 blocos de teoria**, `3.1.t1` a `3.1.t6`, cada um com `texto` de 500
+   a 900 caracteres em 2 ou 3 parágrafos, mais `analogia`, `erro_comum` e `fonte`.
+
+5. **Escreva 35 questões**, `3.1.q1` a `3.1.q35`. Para cada uma:
+   - `objetivos` com o índice do objetivo que ela testa — e, no conjunto, os
+     quatro objetivos precisam aparecer;
+   - 4 alternativas, `correta` como índice, e `por_que_erradas` com uma
+     justificativa para **cada** índice diferente do correto;
+   - 3 dicas progressivas que não entregam a resposta;
+   - `pergunta_socratica` começando com "Antes de conferir:";
+   - `explicacao` de 3 a 6 frases e `fonte` real.
+
+   Use pelo menos 4 tipos diferentes (o padrão dos módulos escritos é de 6 a 8).
+
+6. **Valide só o seu arquivo** — o erro sai com o campo exato:
+
+   ```bash
+   python ferramentas/validar_modulo.py data/modulos/03-01-metodologia-de-pentest.json
+   ```
+
+7. **Rode a suíte inteira.** O teste de qualidade é parametrizado por módulo, e o
+   arquivo novo entra sozinho:
+
+   ```bash
+   python -m pytest -q
+   ```
+
+8. **Abra o app** pelo atalho e confira o módulo na Trilha.
+
+9. **Commite e publique:**
+
+   ```bash
+   git add data/modulos/03-01-metodologia-de-pentest.json
+   git commit -m "feat: modulo 3.1 — metodologia de pentest"
+   git push
+   ```
+
+### O que segura a qualidade quando não há revisor
+
+Quatro hábitos, em ordem de retorno:
+
+1. **Verifique o fato antes de escrever a questão.** Se dá para executar, execute
+   e use a saída real como artefato. Se é norma, abra a norma e cite a seção.
+2. **Recomendação técnica envelhece.** Confira a versão vigente antes de ensinar
+   uma lista ou um parâmetro — foi assim que o OWASP Top 10:2025 entrou no lugar
+   da versão de 2021 e o mínimo de senha do NIST virou 15 caracteres.
+3. **Leia cada questão perguntando "há duas respostas defensáveis aqui?"**. É o
+   defeito mais comum e o mais fácil de não enxergar sozinho. Se houver, o
+   problema é do distrator, não do aluno.
+4. **Nunca deixe a alternativa correta ser a mais longa.** O validador avisa.
+
+### Retomar o bloco 3.1–3.3 que ficou pela metade
+
+Os três arquivos estão em `C:\Dev\cybersecurity-app-pendente\staging3\`, com os
+relatórios de procedência em `relatorios3\` e os laboratórios executados em
+`lab3\`. Eles passam na validação estrutural, mas **não** passaram pela revisão.
+Para aproveitá-los: leia questão por questão com os quatro hábitos acima, corrija
+o que estiver errado, copie para `data/modulos/`, valide, rode os testes e commite.
+
+### Manutenção do app
+
+- **Zerar o progresso:** feche o app e apague `progress.db`. Ele é recriado vazio.
+- **Redesenhar o ícone:** `pip install pillow` e
+  `python ferramentas/gerar_icone.py`.
+- **Recriar o atalho:** aponte um atalho novo para
+  `pythonw.exe main.py`, com pasta de trabalho em `C:\Dev\cybersecurity-app` e
+  ícone `app.ico`.
+- **Material de referência:** os PDFs em `docs/` ficam fora do Git de propósito.
+  Se você clonar o repositório em outra máquina, essa pasta não vem junto — e o
+  app funciona sem ela.
+
+---
+
+## 7. Regras invioláveis do projeto
 
 1. A resposta correta nunca aparece antes da confirmação de uma tentativa.
 2. Só a primeira tentativa conta na estatística de domínio.
@@ -260,7 +380,7 @@ real de requisição.
 
 ---
 
-## 7. Como rodar
+## 8. Como rodar
 
 O comando abre o app usando a `.venv` da pasta, se existir, ou o Python do
 sistema:
