@@ -1,0 +1,327 @@
+{
+  "_comentario": "MODELO DE MÓDULO. Copie este arquivo para data/modulos/ com o nome NN-MM-titulo.json e substitua o conteúdo. Qualquer campo que comece com _ é ignorado pelo app: use-os como bilhete para você mesmo, ou apague. Este exemplo traz uma questão de cada tipo utilizável, para servir de gabarito de forma. Um módulo de verdade tem 4 objetivos, de 4 a 8 blocos de teoria e de 35 a 60 questões — por isso o exemplo só passa no validador com a opção --esqueleto.",
+  "id": "9.9",
+  "_id": "Prefixo de todos os ids internos. Precisa ser único entre os módulos.",
+  "nivel": 0,
+  "_nivel": "Inteiro de 0 a 5, precisa existir em data/niveis.json.",
+  "titulo": "Módulo de exemplo — como um arquivo de conteúdo é feito",
+  "objetivos": [
+    "Reconhecer os campos obrigatórios de um módulo",
+    "Escolher o tipo de questão adequado ao que se quer testar"
+  ],
+  "_objetivos": "O padrão do projeto é 4. Todo objetivo declarado precisa de pelo menos uma questão apontando para o índice dele, senão o módulo não carrega.",
+  "pre_requisitos": [],
+  "_pre_requisitos": "Ordem sugerida, não trava nada. Cada id precisa existir em data/modulos/. Ex.: [\"2.4\"].",
+  "teoria": [
+    {
+      "id": "9.9.t1",
+      "titulo": "O arquivo é a fonte da verdade",
+      "texto": "Todo texto de estudo do app mora em data/, nunca dentro de um arquivo .py. O módulo é lido e validado quando o app abre: se faltar campo, o app mostra qual arquivo e qual campo estão errados e segue funcionando com os outros módulos.\n\nEscreva o texto em 2 ou 3 parágrafos, separados por uma linha em branco (\\n\\n no JSON), somando de 500 a 900 caracteres. Bloco maior que isso cansa e é sinal de que ele deveria virar dois.",
+      "analogia": "A ficha de um arquivo de papel: quem lê não precisa conhecer o móvel onde ela estava guardada.",
+      "erro_comum": "Escrever teoria dentro do código da tela, achando que é 'só um texto curto'.",
+      "fonte": "README do projeto, seção de esquema JSON"
+    },
+    {
+      "id": "9.9.t2",
+      "titulo": "Cada tipo de questão testa uma coisa diferente",
+      "texto": "Questão conceitual cobra definição e distinção. Cenário cobra decisão dentro de uma situação de trabalho. Comando cobra ler ou escolher a linha certa. Artefato entrega uma saída real — log, cabeçalho, resposta de ferramenta — e cobra leitura.\n\nOs outros quatro cobram raciocínio de estrutura: pareamento liga duas colunas, ordenação exige a sequência certa, ataque e defesa pede a mitigação que de fato funciona, e caça ao erro entrega um trecho com uma falha para ser apontada.",
+      "analogia": "Uma caixa de ferramentas: o martelo não fica melhor por ser usado em parafuso.",
+      "erro_comum": "Escrever 35 questões conceituais e chamar isso de módulo. Use pelo menos 4 tipos.",
+      "fonte": "Especificação do projeto, seção 5"
+    }
+  ],
+  "questoes": [
+    {
+      "_comentario": "CONCEITUAL — definição ou distinção. É o tipo mais comum, mas não pode ser o único.",
+      "id": "9.9.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Onde mora o texto de teoria de um módulo?",
+      "alternativas": [
+        "Em um arquivo JSON dentro de data/modulos/",
+        "Em uma constante de texto dentro da tela que o exibe",
+        "Em uma tabela do progress.db, criada no primeiro uso",
+        "Em um arquivo .md ao lado do módulo, lido em tempo de execução"
+      ],
+      "correta": 0,
+      "_correta": "Índice dentro de alternativas, começando em 0.",
+      "por_que_erradas": {
+        "1": "Conteúdo de estudo dentro de .py é proibido pelo projeto.",
+        "2": "O banco guarda progresso do aluno, não conteúdo.",
+        "3": "O app lê JSON; não existe carga de Markdown."
+      },
+      "_por_que_erradas": "Uma chave em texto para CADA índice diferente do correto. Faltando uma, o módulo não carrega.",
+      "dicas": [
+        "Pense em qual pasta o app varre quando abre.",
+        "Duas alternativas guardam coisas do aluno, não do curso.",
+        "A regra do projeto diz onde conteúdo nunca pode estar."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o texto estivesse no código, o que seria preciso fazer para corrigir uma vírgula?",
+      "explicacao": "Todo conteúdo de estudo vive em data/, e o app valida cada arquivo na carga. Isso permite corrigir texto sem tocar em código e faz um módulo malformado avisar em vez de derrubar o app.",
+      "fonte": "README do projeto, seção de estrutura de pastas",
+      "tags": [
+        "projeto",
+        "conteudo",
+        "estrutura"
+      ]
+    },
+    {
+      "_comentario": "CENÁRIO — situação de trabalho, escolher a ação.",
+      "id": "9.9.q2",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Você acrescentou um módulo e o app abriu com uma faixa vermelha citando o arquivo. Qual é a primeira ação?",
+      "alternativas": [
+        "Ler o campo citado na mensagem e corrigir o JSON",
+        "Apagar o progress.db para forçar uma recarga limpa",
+        "Reinstalar as dependências do requirements.txt",
+        "Renomear o arquivo para que ele entre em outra ordem de carga"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O banco guarda progresso; o erro está no conteúdo.",
+        "2": "A carga de conteúdo não depende de biblioteca externa.",
+        "3": "A ordem de carga não muda a validação de esquema."
+      },
+      "dicas": [
+        "A mensagem de erro diz arquivo e campo.",
+        "O erro é de validação, não de execução.",
+        "Três das ações mexem em coisas que não estão quebradas."
+      ],
+      "pergunta_socratica": "Antes de conferir: o app conseguiu abrir e listar o problema. O que isso já diz sobre a causa?",
+      "explicacao": "A validação de conteúdo aponta arquivo e campo exatos justamente para tornar a correção direta. Nenhuma das outras ações toca no que está errado.",
+      "fonte": "app/content.py, ErroDeConteudo",
+      "tags": [
+        "projeto",
+        "validacao",
+        "erro"
+      ]
+    },
+    {
+      "_comentario": "COMANDO — ler ou escolher a linha de comando certa.",
+      "id": "9.9.q3",
+      "tipo": "comando",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Qual comando roda a suíte de testes do projeto?",
+      "alternativas": [
+        "python -m pytest -q",
+        "python main.py --test",
+        "python -m unittest discover tests",
+        "pytest --run app/"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O app não tem modo de teste por argumento.",
+        "2": "Os testes usam pytest, não unittest.",
+        "3": "A opção --run não existe no pytest."
+      },
+      "dicas": [
+        "O requirements-dev.txt diz qual é o executor de testes.",
+        "O conftest.py na raiz existe para um desses comandos funcionar.",
+        "Um dos quatro é o que está escrito no README."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses comandos depende do conftest.py da raiz para achar o pacote app?",
+      "explicacao": "O projeto usa pytest, e o conftest.py da raiz coloca a pasta no caminho de importação para que 'from app import ...' funcione nos testes.",
+      "fonte": "README do projeto, seção de testes",
+      "tags": [
+        "projeto",
+        "testes",
+        "pytest"
+      ]
+    },
+    {
+      "_comentario": "ARTEFATO — entrega uma saída real e cobra leitura. O campo artefato guarda o texto exibido em fonte monoespaçada.",
+      "id": "9.9.q4",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "artefato": "$ python ferramentas/validar_modulo.py data/modulos/09-09-exemplo.json\n--- 09-09-exemplo.json (id 9.9)\n    questões=8 teoria=2 objetivos=2\n    FALHA: 8 questões; o esperado é de 35 a 60\n    RESULTADO: 1 falha(s)",
+      "enunciado": "O que esta saída indica sobre o arquivo?",
+      "alternativas": [
+        "O esquema está correto, e o que falta é quantidade de questões",
+        "O JSON está malformado e não chegou a ser interpretado",
+        "Um objetivo declarado ficou sem nenhuma questão que o teste",
+        "O id do módulo não bate com o nome do arquivo, e por isso reprovou"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "JSON inválido pararia antes, com erro de linha.",
+        "2": "Objetivo descoberto apareceria como falha de esquema.",
+        "3": "O nome do arquivo é livre; o que vale é o campo id."
+      },
+      "dicas": [
+        "A saída conseguiu contar questões, teoria e objetivos.",
+        "A linha de falha diz exatamente qual regra foi violada.",
+        "Uma das alternativas descreve um erro que teria interrompido antes."
+      ],
+      "pergunta_socratica": "Antes de conferir: para imprimir a contagem, o validador precisou passar por qual etapa?",
+      "explicacao": "O validador só chega a contar depois de o esquema passar. A única falha listada é de quantidade, o que significa que a forma do arquivo está correta.",
+      "fonte": "Saída do ferramentas/validar_modulo.py",
+      "tags": [
+        "projeto",
+        "validacao",
+        "artefato"
+      ]
+    },
+    {
+      "_comentario": "PAREAMENTO — ligar duas colunas. Guarde os pares certos; o app embaralha na exibição. Nenhum lado direito pode se repetir.",
+      "id": "9.9.q5",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Ligue cada tipo de questão ao que ele testa melhor.",
+      "pares": [
+        [
+          "conceitual",
+          "Definição e distinção entre dois termos próximos"
+        ],
+        [
+          "cenario",
+          "Decisão dentro de uma situação concreta de trabalho"
+        ],
+        [
+          "ordenacao",
+          "Sequência correta de etapas de um processo"
+        ],
+        [
+          "caca_erro",
+          "Localizar a falha em um trecho de código ou configuração"
+        ]
+      ],
+      "dicas": [
+        "Dois dos tipos cobram texto pronto para leitura.",
+        "Um deles só faz sentido quando a ordem muda o resultado.",
+        "Pense no que cada tipo exige do aluno: lembrar, decidir, ordenar ou inspecionar."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses tipos você usaria para cobrar as fases de um processo?",
+      "explicacao": "Cada tipo existe porque cobra uma operação mental diferente. Usar o tipo certo é o que impede o módulo de virar 35 perguntas de definição.",
+      "fonte": "Especificação do projeto, seção 5",
+      "tags": [
+        "projeto",
+        "tipos",
+        "pareamento"
+      ]
+    },
+    {
+      "_comentario": "ORDENAÇÃO — ordem_correta é uma permutação de 0 a n-1, referente à ordem em que os itens aparecem em itens.",
+      "id": "9.9.q6",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Coloque em ordem as etapas de acrescentar um módulo novo ao app.",
+      "itens": [
+        "Copiar exemplo/modulo-minimo.json para data/modulos/ com o nome definitivo",
+        "Preencher cabeçalho, objetivos, teoria e questões",
+        "Rodar ferramentas/validar_modulo.py sobre o arquivo",
+        "Rodar python -m pytest -q",
+        "Abrir o app e conferir o módulo na Trilha"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dicas": [
+        "A validação de um arquivo vem antes da suíte inteira.",
+        "Abrir o app é conferência final, não etapa de escrita.",
+        "Duas etapas de verificação fecham a sequência, da mais estreita para a mais ampla."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que validar o arquivo sozinho antes de rodar todos os testes?",
+      "explicacao": "O validador aponta o campo exato de um arquivo; a suíte confirma que o módulo novo não quebrou nenhuma regra geral. Verificar do estreito para o amplo economiza tempo.",
+      "fonte": "README do projeto, seção de como acrescentar um módulo",
+      "tags": [
+        "projeto",
+        "processo",
+        "ordenacao"
+      ]
+    },
+    {
+      "_comentario": "ATAQUE E DEFESA — dado um problema, escolher a mitigação que funciona de verdade.",
+      "id": "9.9.q7",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Um módulo entregou duas alternativas defensáveis na mesma questão. O que corrige o problema na raiz?",
+      "alternativas": [
+        "Reescrever o distrator para que ele seja plausível e inequivocamente errado",
+        "Marcar as duas alternativas como corretas no campo correta",
+        "Aumentar a dificuldade da questão para 3, já que ela exige análise",
+        "Acrescentar uma dica avisando qual das duas o autor considera certa"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O campo correta guarda um índice; não existe gabarito duplo.",
+        "2": "Dificuldade não resolve ambiguidade, só a disfarça.",
+        "3": "Dica que entrega o gabarito anula a questão."
+      },
+      "dicas": [
+        "O defeito está na alternativa, não na configuração da questão.",
+        "Três das opções escondem o problema em vez de removê-lo.",
+        "Pense no que o aluno responderia se não conhecesse o autor."
+      ],
+      "pergunta_socratica": "Antes de conferir: se duas respostas se sustentam, de quem é o erro — de quem responde ou de quem escreveu?",
+      "explicacao": "Ambiguidade é defeito de redação do distrator. A regra do projeto é dura de propósito: distrator plausível, mas inequivocamente errado.",
+      "fonte": "Especificação do projeto, seção 4.3",
+      "tags": [
+        "projeto",
+        "qualidade",
+        "distrator"
+      ]
+    },
+    {
+      "_comentario": "CAÇA AO ERRO — o campo trecho guarda o código ou a configuração com a falha.",
+      "id": "9.9.q8",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "trecho": "{\n  \"id\": \"9.9.q9\",\n  \"tipo\": \"conceitual\",\n  \"dificuldade\": 2,\n  \"objetivos\": [0],\n  \"enunciado\": \"...\",\n  \"alternativas\": [\"certa\", \"errada A\", \"errada B\", \"errada C\"],\n  \"correta\": 0,\n  \"por_que_erradas\": { \"1\": \"...\", \"2\": \"...\" },\n  \"dicas\": [\"...\", \"...\", \"...\"],\n  \"pergunta_socratica\": \"Antes de conferir: ...\",\n  \"explicacao\": \"...\",\n  \"fonte\": \"...\",\n  \"tags\": [\"exemplo\"]\n}",
+      "enunciado": "Por que esta questão faz o módulo inteiro deixar de carregar?",
+      "alternativas": [
+        "Falta a justificativa do distrator de índice 3 em por_que_erradas",
+        "O campo dificuldade deveria ser texto, e não número",
+        "O campo objetivos precisa listar todos os objetivos do módulo",
+        "As tags precisam ser no mínimo três, e só existe uma"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Dificuldade é inteiro de 1 a 3, como está.",
+        "2": "A questão declara os objetivos que ela testa, não todos.",
+        "3": "Três a cinco tags é convenção; o esquema aceita uma."
+      },
+      "dicas": [
+        "Conte as alternativas e conte as justificativas.",
+        "A regra exige uma justificativa para cada índice diferente do correto.",
+        "Um dos campos tem exatamente um item a menos do que deveria."
+      ],
+      "pergunta_socratica": "Antes de conferir: com quatro alternativas e a correta no índice 0, quantas justificativas o esquema espera?",
+      "explicacao": "Com quatro alternativas e a correta no índice 0, por_que_erradas precisa das chaves \"1\", \"2\" e \"3\". A validação recusa o módulo inteiro quando falta uma, porque distrator sem justificativa costuma ser distrator ruim.",
+      "fonte": "app/content.py, _validar_alternativas",
+      "tags": [
+        "projeto",
+        "esquema",
+        "caca-erro"
+      ]
+    }
+  ]
+}
