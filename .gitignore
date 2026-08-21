@@ -8,3 +8,6 @@ progress.db
 __pycache__/
 *.pyc
 .venv/
+
+# cache do pytest
+.pytest_cache/
