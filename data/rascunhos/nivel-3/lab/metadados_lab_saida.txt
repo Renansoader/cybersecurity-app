@@ -1,0 +1,27 @@
+=== metadados embutidos em PDF publicado ===
+--- Crypto101.pdf
+  /Title         Crypto 101
+  /Author        lvh
+  /Creator       LaTeX with hyperref
+  /Producer      xdvipdfmx (20190225)
+  /CreationDate  D:20200925030306-00'00'
+--- SEv3.pdf
+  /Title         Security Engineering: A Guide to Building Dependable Distributed Syste
+  /Author        Ross Anderson
+  /Creator       LaTeX with hyperref
+  /Producer      GPL Ghostscript 10.05.0
+  /CreationDate  D:20250324192024Z00'00'
+  /ModDate       D:20250324192024Z00'00'
+--- cyber security.pdf
+  /Title         cyber security
+  /Author        Nome Sobrenome (anonimizado)
+  /Creator       Canva
+  /Producer      Canva
+  /CreationDate  D:20200830123220+00'00'
+  /ModDate       D:20200830123220+00'00'
+
+Cada campo desses viaja com o arquivo publicado no site da empresa.
+Ferramenta de escritorio grava nome de usuario, caminho e versao sem avisar.
+
+NOTA: o campo /Author de um dos arquivos trazia o nome real de uma pessoa e foi
+substituido aqui. O restante e a saida real da execucao.

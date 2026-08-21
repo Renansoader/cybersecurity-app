@@ -1,0 +1,32 @@
+=== 1. varredura por conexao em 127.0.0.1 (alvo proprio) ===
+     22/tcp  fechada/filtrada    301.9 ms
+     80/tcp  fechada/filtrada    313.2 ms
+    443/tcp  fechada/filtrada    301.5 ms
+   2525/tcp  aberta                0.7 ms  <-- aberta
+   3306/tcp  fechada/filtrada    301.4 ms
+   8080/tcp  aberta               16.4 ms  <-- aberta
+   8443/tcp  fechada/filtrada    308.7 ms
+   9000/tcp  fechada/filtrada    300.0 ms
+
+=== 2. banner do servico em 127.0.0.1:2525 ===
+  220 mail.interno.local ESMTP PortalMTA 3.8.1 pronto
+  porta 8080 (HTTP nao fala primeiro): (sem banner: TimeoutError)
+
+=== 3. cabecalho da resposta HTTP em 127.0.0.1:8080 ===
+  status: 200
+  Server: PortalInterno/1.4.2 
+  X-Powered-By: PortalInterno
+  Content-Type: text/html; charset=utf-8
+  Content-Length: 65
+
+=== 4. enumeracao de caminhos com lista pequena ===
+  /              200  65 bytes
+  /admin         401  38 bytes
+  /backup        403  35 bytes
+  /api/status    200  37 bytes
+  /.git/config   200  36 bytes
+  /naoexiste     404  35 bytes
+  /painel        404  35 bytes
+
+  Observacao: 401 e 403 tambem revelam que o caminho existe.
+  Filtrar so por 200 perde metade do mapa.

@@ -1,0 +1,36 @@
+=== 1. consulta DNS por tipo (example.com, dominio reservado RFC 2606) ===
+--- A
+Nome:    example.com
+Addresses:  104.20.23.154
+	  172.66.147.243
+
+--- MX
+example.com	MX preference = 0, mail exchanger = (root)
+--- TXT
+example.com	text =
+
+	"v=spf1 -all"
+example.com	text =
+
+	"_k2n1y4vw3qtb4skdx9e7dxt97qrmmq9"
+--- NS
+example.com	nameserver = hera.ns.cloudflare.com
+example.com	nameserver = elliott.ns.cloudflare.com
+
+=== 2. nome que nao existe (.invalid, reservado RFC 2606) ===
+
+
+=== 3. whois do dominio reservado ===
+=== 2b. nome inexistente (.invalid, RFC 2606) ===
+*** dns.google n∆o encontrou intranet.nao-existe.invalid: Non-existent domain
+Servidor:  dns.google
+Address:  8.8.8.8
+
+
+=== 3b. whois example.com (bruto, primeiras linhas uteis) ===
+[Querying whois.iana.org:43 'example.com']
+[whois.iana.org]
+domain:       EXAMPLE.COM
+organisation: Internet Assigned Numbers Authority
+created:      1992-01-01
+source:       IANA
