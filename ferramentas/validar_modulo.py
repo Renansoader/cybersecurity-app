@@ -10,6 +10,12 @@ cobrem: bloco de teoria com analogia e erro comum, tag fora do padrão, enunciad
 repetido, dado pessoal em artefato, endereço de terceiro em módulo ofensivo e
 payload pronto para copiar e colar.
 
+Roda também as quatro regras de gabarito entregue de graça — dica que reescreve a
+alternativa correta, artefato que carrega a resposta, enunciado que afirma a
+resposta e distrator que é o gabarito de outra questão. Elas saíram de defeitos
+reais achados à mão na revisão do nível 3; a seção correspondente do README
+explica o cálculo e os limites.
+
 `--esqueleto` dispensa as regras de quantidade (35 a 60 questões, 4 a 8 blocos de
 teoria). Serve para conferir a forma de um arquivo de exemplo ou de um módulo
 ainda pela metade.
@@ -54,6 +60,175 @@ IP_PERMITIDO = re.compile(
 PAYLOAD = re.compile(
     r"' *OR *'1' *= *'1|<script>alert|; *DROP +TABLE|UNION +SELECT +.*FROM|"
     r"nc +-e +/bin|/bin/sh +-i|powershell +-enc|msfvenom|sqlmap +-u +http", re.I)
+
+# --------------------------------------------------------------------------
+# Gabarito entregue de graça: quatro padrões que a revisão do nível 3 pegou à
+# mão, 23 vezes em três módulos. Todos comparam texto: medem quanto do
+# vocabulário da alternativa correta reaparece onde não devia.
+#
+# LIMITE CONHECIDO: isto pega ECO LITERAL, não paráfrase. Uma dica que diz
+# "o nome do meio indica mistura" para uma correta que diz "a combinação das
+# duas abordagens" não compartilha palavra nenhuma e passa batido. A leitura
+# humana continua sendo a rede que pega esses casos.
+# --------------------------------------------------------------------------
+
+VAZIO = frozenset()
+
+# Palavra curta e palavra de ligação não contam como evidência de eco.
+IRRELEVANTES = frozenset("""
+    para pelo pela pelos pelas como quando onde porque porem entao ainda apenas
+    tambem sobre entre cada todo toda todos todas outro outra outros outras
+    mesmo mesma mesmos mesmas isso isto aquilo esse essa esses essas este esta
+    estes estas seja sejam sendo esta estao tem tinha havia haver pode podem
+    poderia deve devem precisa precisam faz fazem fazer feito feita sao nao sim
+    que qual quais quanto quantos com sem por dos das dum duma numa num nos nas
+    uma uns umas ele ela eles elas voce quem qualquer alguma algum alguns algumas
+    nenhum nenhuma depois antes durante enquanto porem contudo assim logo entao
+    caso vez vezes parte partes forma formas modo modos coisa coisas ponto pontos
+    dado dados valor valores usar usa usam usado usada tipo tipos item itens
+""".split())
+
+
+def _tokens(texto):
+    """Palavras significativas de um texto: sem acento, com 4 letras ou mais."""
+    if not texto:
+        return VAZIO
+    texto = texto.lower()
+    for de, para in (("á", "a"), ("à", "a"), ("â", "a"), ("ã", "a"), ("é", "e"),
+                     ("ê", "e"), ("í", "i"), ("ó", "o"), ("ô", "o"), ("õ", "o"),
+                     ("ú", "u"), ("ç", "c")):
+        texto = texto.replace(de, para)
+    palavras = re.findall(r"[a-z0-9][a-z0-9-]{3,}", texto)
+    return frozenset(p for p in palavras if p not in IRRELEVANTES)
+
+
+def _cobertura(fonte, alvo):
+    """Fração do vocabulário de `alvo` que reaparece em `fonte`."""
+    alvo = _tokens(alvo)
+    if not alvo:
+        return 0.0
+    return len(_tokens(fonte) & alvo) / len(alvo)
+
+
+def _distintivos(questao, descontar_enunciado=True):
+    """As palavras que SÓ a alternativa correta tem.
+
+    É aqui que mora o gabarito. Palavra que também aparece num distrator é
+    vocabulário do assunto e não distingue nada. Para dica e artefato descontamos
+    também o enunciado, porque palavra que já está na pergunta não foi entregue
+    por ninguém; para avaliar o próprio enunciado, não.
+    """
+    alternativas = questao.get("alternativas")
+    if not alternativas:
+        return VAZIO
+    correta = _tokens(alternativas[questao["correta"]])
+    for i, alternativa in enumerate(alternativas):
+        if i != questao["correta"]:
+            correta = correta - _tokens(alternativa)
+    if descontar_enunciado:
+        correta = correta - _tokens(questao["enunciado"])
+    return correta
+
+
+def _eco(fonte, questao, minimo, palavras_minimas, descontar_enunciado=True):
+    """Mede quanto do vocabulário EXCLUSIVO da alternativa correta está em `fonte`.
+
+    Devolve (fração, palavras) quando passa dos dois limites, senão None. A
+    fração sozinha dispara com uma coincidência em alternativa curta, e a
+    contagem sozinha dispara em alternativa longa — por isso os dois.
+    """
+    distintivos = _distintivos(questao, descontar_enunciado)
+    if not distintivos:
+        return None
+    achadas = _tokens(fonte) & distintivos
+    fracao = len(achadas) / len(distintivos)
+    if fracao >= minimo and len(achadas) >= palavras_minimas:
+        return fracao, sorted(achadas)
+    return None
+
+
+# Calibrados contra os três módulos do nível 3 antes da revisão, onde os casos
+# que a leitura humana pegou estão marcados, e depois conferidos à mão nos 21
+# módulos publicados: dos disparos amostrados ali, a maioria era vazamento real
+# que nunca tinha sido auditado. Abaixar mais inunda de coincidência; subir mais
+# deixa passar eco óbvio.
+LIMIAR_DICA, PALAVRAS_DICA = 0.30, 2
+LIMIAR_ENUNCIADO, PALAVRAS_ENUNCIADO = 0.35, 3
+LIMIAR_ARTEFATO, PALAVRAS_ARTEFATO = 0.35, 3
+LIMIAR_TRECHO = 0.70  # caça ao erro: o gabarito cita o trecho por construção
+LIMIAR_DISTRATOR = 0.60
+LIMIAR_ENUNCIADO_IGUAL = 0.40  # só acusa quando as duas questões perguntam o mesmo
+
+
+def achar_gabarito_entregue(dados, avisos):
+    """As quatro regras de gabarito entregue. Só produz aviso, nunca falha."""
+    questoes = dados["questoes"]
+
+    for questao in questoes:
+        ctx = questao["id"]
+        alternativas = questao.get("alternativas")
+        if not alternativas:
+            continue
+        correta = alternativas[questao["correta"]]
+
+        # 1. dica que reescreve a alternativa correta
+        for n, dica in enumerate(questao["dicas"], start=1):
+            medida = _eco(dica, questao, LIMIAR_DICA, PALAVRAS_DICA)
+            if medida:
+                avisos.append(
+                    f"{ctx}: a dica {n} traz {medida[0]:.0%} das palavras que só a alternativa "
+                    f"correta tem ({', '.join(medida[1])}) — a dica deve estreitar o "
+                    f"raciocínio, não reescrever o gabarito")
+
+        # 2. artefato ou trecho que carrega a resposta.
+        # Em caça ao erro o gabarito aponta para um item do próprio trecho, então
+        # alguma sobreposição é da natureza do tipo: ali a régua sobe.
+        for campo in ("artefato", "trecho"):
+            texto = questao.get(campo)
+            if not texto:
+                continue
+            limiar = LIMIAR_TRECHO if questao["tipo"] == "caca_erro" else LIMIAR_ARTEFATO
+            medida = _eco(texto, questao, limiar, PALAVRAS_ARTEFATO)
+            if medida:
+                avisos.append(
+                    f"{ctx}: o campo '{campo}' traz {medida[0]:.0%} das palavras que só a "
+                    f"alternativa correta tem ({', '.join(medida[1])}) — o aluno lê a "
+                    f"resposta antes de responder")
+
+        # 3. enunciado que afirma a própria resposta
+        medida = _eco(questao["enunciado"], questao, LIMIAR_ENUNCIADO,
+                      PALAVRAS_ENUNCIADO, descontar_enunciado=False)
+        if medida:
+            avisos.append(
+                f"{ctx}: o enunciado traz {medida[0]:.0%} das palavras que só a alternativa "
+                f"correta tem ({', '.join(medida[1])}) — confira se ele não afirma a "
+                f"resposta antes de perguntar")
+
+    # 4. distrator que é o gabarito de outra questão
+    corretas = {q["id"]: q for q in questoes if q.get("alternativas")}
+    for questao in questoes:
+        alternativas = questao.get("alternativas")
+        if not alternativas:
+            continue
+        for i, distrator in enumerate(alternativas):
+            if i == questao["correta"]:
+                continue
+            for outro_id, proximo in corretas.items():
+                if outro_id == questao["id"]:
+                    continue
+                outra_correta = proximo["alternativas"][proximo["correta"]]
+                mutua = min(_cobertura(distrator, outra_correta),
+                            _cobertura(outra_correta, distrator))
+                if mutua >= LIMIAR_DISTRATOR:
+                    # questões que definem termos vizinhos usam as definições umas
+                    # das outras como distrator de propósito; o sinal só interessa
+                    # quando as duas perguntam a mesma coisa
+                    if _cobertura(questao["enunciado"], proximo["enunciado"]) < LIMIAR_ENUNCIADO_IGUAL:
+                        continue
+                    avisos.append(
+                        f"{questao['id']}: a alternativa {i + 1} divide {mutua:.0%} do "
+                        f"vocabulário com a resposta certa de {outro_id} — distrator não "
+                        f"pode ser o gabarito de outra questão")
 
 
 def ids_publicados():
@@ -132,6 +307,8 @@ def validar(caminho, ids_conhecidos, esqueleto=False):
         for tag in q["tags"]:
             if tag != tag.lower() or " " in tag:
                 falhas.append(f"{ctx}: tag fora do padrão minúsculo-com-hífen: {tag}")
+
+    achar_gabarito_entregue(dados, avisos)
 
     bruto = json.dumps(dados, ensure_ascii=False)
     achado = PESSOAL.search(bruto)

@@ -236,6 +236,37 @@ duplicado e dado pessoal em artefato. Ele também **avisa** quando a alternativa
 correta é bem mais longa que as outras — sinal clássico de gabarito entregue de
 graça.
 
+### As quatro regras de gabarito entregue
+
+Estas quatro saíram de defeitos reais, encontrados à mão na revisão do nível 3 e
+depois automatizados. Todas produzem **aviso**, nunca falha: são heurísticas, e
+quem decide é quem lê.
+
+| Regra | O que procura | Caso que a originou |
+|---|---|---|
+| 1. Dica que reescreve o gabarito | Dica que traz ≥30% das palavras que **só** a alternativa correta tem (≥2 palavras) | 23 casos em 3.1, 3.2 e 3.3 — a dica parafraseava a resposta em vez de estreitar o raciocínio |
+| 2. Artefato que carrega a resposta | `artefato` (≥35%) ou `trecho` (≥70%) com as palavras exclusivas da correta | `3.3.q14`: o laboratório imprimia `porta 8080 (HTTP nao fala primeiro)`, que era a resposta |
+| 3. Enunciado que afirma a resposta | Enunciado com ≥35% das palavras exclusivas da correta (≥3 palavras) | `3.1.q17`: "por que X e Y **são independentes**?" afirmava o que a correta dizia |
+| 4. Distrator que é gabarito de outra | Distrator com ≥60% de vocabulário em comum com a resposta certa de outra questão que **pergunta o mesmo** | `3.1.q24` usava como distrator a resposta certa de `3.1.q32` |
+
+O cálculo é sempre o mesmo: tomam-se as palavras da alternativa correta,
+descontam-se as que aparecem em qualquer distrator (essas são vocabulário do
+assunto, não gabarito) e mede-se quanto desse resto reaparece onde não devia.
+
+**O que estas regras não pegam.** Elas veem eco literal, não paráfrase. Uma dica
+que diz "o nome do meio indica mistura" para uma correta que diz "a combinação
+das duas abordagens" não divide palavra nenhuma e passa batido — e metade dos
+casos reais era desse tipo. Calibrando contra os três módulos antes da revisão, a
+regra 1 reencontra cerca de um terço do que a leitura humana pegou. Serve como
+rede, não como substituto.
+
+**Dois falsos positivos previsíveis**, que valem ser reconhecidos em vez de
+silenciados: um conjunto de questões que define termos vizinhos (as três letras
+da tríade CIA, por exemplo) usa a definição de uma como distrator da outra de
+propósito — por isso a regra 4 só acusa quando as duas questões perguntam a mesma
+coisa; e em `caça ao erro` o gabarito cita o item defeituoso do próprio trecho,
+por construção — por isso ali a régua da regra 2 sobe para 70%.
+
 7. **Rode os testes:**
 
 ```bash
