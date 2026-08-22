@@ -80,7 +80,7 @@
       "dicas": [
         "Compare o que cada técnica pede ao sistema operacional: uma usa a interface de sockets, a outra não.",
         "O privilégio tem a ver com quem escreve o cabeçalho do pacote, e não com quantidade de pacotes.",
-        "Se o privilégio falta, o nmap não desiste da varredura: ele troca de técnica."
+        "A resposta precisa dar conta de duas coisas: por que o privilégio é exigido e o que a ferramenta faz quando ele falta."
       ],
       "pergunta_socratica": "Antes de conferir: na varredura SYN, quem monta o cabeçalho TCP — o sistema operacional ou o nmap?",
       "explicacao": "A varredura SYN monta e lê pacote cru, o que exige privilégio de root no Unix ou driver de captura no Windows. A documentação registra o efeito de não tê-lo: o nmap substitui a técnica pela varredura por conexão, que pede a conexão ao sistema pela chamada connect. O que muda não é velocidade nem escrita em disco, e sim quem monta o pacote. A troca é silenciosa, então quem não confere a técnica usada interpreta a saída como se fosse outra.",
@@ -179,25 +179,25 @@
       "objetivos": [
         1
       ],
-      "enunciado": "Qual é a diferença entre uma porta relatada como fechada (closed) e outra como filtrada (filtered)?",
+      "enunciado": "Numa varredura autorizada, a porta 22 saiu fechada e a 8080 saiu filtrada. O que cada uma dessas linhas permite escrever no relatório?",
       "alternativas": [
-        "Fechada é resposta do host sem serviço escutando; filtrada é a sonda não ter chegado ou não ter voltado",
-        "Fechada é resposta do host sem serviço escutando; filtrada é o serviço ter recusado a autenticação",
-        "As duas indicam ausência de serviço, e a diferença é só o nome que a ferramenta escolhe imprimir",
-        "Fechada indica firewall no caminho, e filtrada indica que o host estava desligado na hora da varredura"
+        "Que o host respondeu e não tem serviço em 22; sobre a 8080, apenas que existe filtragem entre o ponto de teste e a porta",
+        "Que o host respondeu nas duas, e que em 8080 há serviço escutando por trás de um filtro",
+        "Que não há serviço em nenhuma das duas, e que a diferença está apenas em qual equipamento respondeu",
+        "Que a 8080 é o achado mais seguro dos dois, porque filtragem só é aplicada a porta com serviço ativo"
       ],
       "correta": 0,
       "dicas": [
-        "Uma das duas prova que o host está vivo.",
-        "A outra diz mais sobre o caminho do que sobre a porta.",
-        "Pergunte o que cada linha permite afirmar em um relatório."
+        "Uma das duas linhas nasceu de uma resposta que chegou de volta.",
+        "Pergunte, para cada linha, sobre o que ela fala: sobre a porta ou sobre o caminho até ela.",
+        "Escreva a frase mais forte que cada linha sustenta, e apague a parte que você não conseguiria provar."
       ],
-      "pergunta_socratica": "Antes de conferir: qual das duas permite escrever no relatório que o host respondeu?",
-      "explicacao": "Fechada, na definição do nmap, é porta acessível que recebeu e respondeu à sonda, sem aplicação escutando — ou seja, o host está vivo. Filtrada é o nmap não conseguir determinar o estado porque a filtragem impediu a sonda de alcançar a porta. As conclusões são diferentes: uma fala do alvo, a outra fala do caminho. Por isso filtrada não é linha para descartar; ela mostra onde existe controle de rede, e isso é achado de arquitetura.",
+      "pergunta_socratica": "Antes de conferir: qual das duas linhas prova que existe uma máquina naquele endereço?",
+      "explicacao": "Fechada é porta acessível que recebeu e respondeu à sonda, sem aplicação escutando: prova que o host está vivo e que ali não há serviço. Filtrada é o nmap não ter conseguido determinar o estado, porque a filtragem impediu a sonda de chegar — a linha fala do caminho, e não da porta. No relatório isso separa uma afirmação de uma lacuna: a primeira sustenta \"não há serviço em 22\"; a segunda sustenta apenas que existe filtragem no caminho até a 8080, que é achado de arquitetura e pede nova medição de outro ponto da rede.",
       "por_que_erradas": {
-        "1": "Recusa de autenticação acontece dentro de um serviço que aceitou a conexão, e não é estado de porta.",
-        "2": "Só uma delas indica ausência de serviço; a outra indica ausência de informação.",
-        "3": "A descrição está trocada, e host desligado costuma aparecer como host fora do ar, não como estado de porta."
+        "1": "Filtrada não afirma que existe serviço: ela afirma que a sonda não chegou e que nada pôde ser determinado.",
+        "2": "Só a linha fechada afirma ausência de serviço; a filtrada não afirma presença nem ausência.",
+        "3": "Filtro costuma cobrir faixas inteiras, com e sem serviço; a linha filtrada não sustenta achado nenhum sobre aquela porta."
       },
       "fonte": "Nmap Reference Guide, Port Scanning Basics — definições dos estados conforme a documentação da ferramenta",
       "tags": [
@@ -231,7 +231,7 @@
         ],
         [
           "aberta ou filtrada (open|filtered)",
-          "Não foi possível separar as duas hipóteses; é o caso comum em UDP sem resposta"
+          "O nmap não conseguiu separar aberta de filtrada: nada voltou, nem resposta nem recusa"
         ],
         [
           "não filtrada (unfiltered)",
@@ -241,7 +241,7 @@
       "dicas": [
         "Comece pelos dois estados em que o alvo respondeu alguma coisa.",
         "Um dos estados fala do caminho, e não da porta.",
-        "Dois deles são a ferramenta admitindo, por escrito, que não deu para decidir."
+        "Nos estados de dúvida, pergunte o que a ferramenta ainda conseguiu confirmar antes de desistir."
       ],
       "pergunta_socratica": "Antes de conferir: quantos desses estados afirmam que alguma resposta chegou do alvo?",
       "explicacao": "São seis estados no vocabulário do nmap, e cada um afirma coisa diferente. Aberta e fechada dependem de resposta do alvo; filtrada informa que algo no caminho interferiu; não filtrada diz que a porta é acessível sem permitir decidir entre aberta e fechada; aberta ou filtrada e fechada ou filtrada são dúvidas declaradas. Ler a saída é respeitar essa diferença: reduzir tudo a aberta e fechada joga fora a informação sobre o caminho.",
@@ -270,7 +270,7 @@
       "correta": 0,
       "dicas": [
         "Pergunte se o nmap chegou a trocar alguma palavra com o serviço.",
-        "A ferramenta carrega um arquivo de dados com nomes e números de porta.",
+        "A coluna é preenchida mesmo quando nenhum byte foi trocado com a porta.",
         "A documentação chama esse passo de heurística frágil."
       ],
       "pergunta_socratica": "Antes de conferir: se alguém colocar um serviço qualquer na porta 22, o que essa coluna vai dizer?",
@@ -304,7 +304,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "A ferramenta carrega uma base de sondas e de expressões de comparação.",
+        "Pergunte se o nmap se limita a olhar a porta aberta ou se manda alguma coisa para ela.",
         "Compatível com uma assinatura é o mesmo que instalado na máquina?",
         "Pergunte quem escreve o texto que o serviço responde."
       ],
@@ -339,7 +339,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "O método tem nome próprio: impressão digital de pilha.",
+        "Duas máquinas com sistemas diferentes montam a mesma resposta de jeitos ligeiramente diferentes. O que dá para fazer com isso?",
         "A documentação diz que ele funciona bem melhor com uma porta aberta e uma fechada.",
         "Quando não há correspondência exata, o que o nmap imprime junto do palpite?"
       ],
@@ -375,7 +375,7 @@
       "correta": 0,
       "dicas": [
         "\"Mais comuns\" e \"primeiras\" não são a mesma coisa.",
-        "O ranking sai de um arquivo de dados que acompanha a ferramenta.",
+        "Uma varredura padrão e uma varredura de 1 a 1000 não devolvem o mesmo conjunto de portas.",
         "Há portas altas nesse conjunto, como as de proxy e de banco de dados."
       ],
       "pergunta_socratica": "Antes de conferir: a porta 8080 está entre as mil primeiras ou entre as mil mais comuns?",
@@ -447,7 +447,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Sem privilégio não há pacote cru; o que sobra é a interface de sockets do sistema.",
+        "Pergunte que caminho sobra quando a ferramenta não pode montar o pacote por conta própria.",
         "Duas portas específicas aparecem nesse caminho.",
         "Quem escuta nessas portas registra o quê?"
       ],
@@ -492,7 +492,7 @@
       "por_que_erradas": {
         "1": "As sondas de descoberta são poucas; o que cresce é a varredura contra endereço sem host.",
         "2": "O volume muda, e para mais; a varredura também tende a demorar bem mais.",
-        "3": "Contra host vivo o volume é o mesmo, então não há compensação a fazer."
+        "3": "Contra host vivo a economia é de umas poucas sondas; contra endereço vazio, a varredura inteira é enviada — não há compensação que empate o total."
       },
       "fonte": "Nmap Reference Guide, Host Discovery Controls — conforme a documentação da ferramenta",
       "tags": [
@@ -511,7 +511,7 @@
       ],
       "enunciado": "O que a opção -A liga, e por que o manual pede cautela com ela?",
       "alternativas": [
-        "Liga -O, -sV, -sC e traceroute; e a categoria padrão de scripts inclui itens considerados intrusivos",
+        "Liga -O, -sV, -sC e traceroute; e o manual considera intrusiva a varredura de scripts com o conjunto padrão",
         "Liga apenas -O e -sV, que observam o alvo sem interagir com o serviço em nenhum momento",
         "Liga a varredura de todas as portas e o modelo de tempo mais agressivo, multiplicando o tráfego",
         "Liga a exploração automática das falhas encontradas, e por isso exige autorização específica"
@@ -519,11 +519,11 @@
       "correta": 0,
       "dicas": [
         "A letra sugere agressividade, e o manual lista exatamente quatro coisas.",
-        "Uma delas executa scripts — e o nome da categoria padrão não é sinônimo de inofensiva.",
+        "Uma das coisas ligadas pelo -A não se limita a observar o alvo.",
         "O manual avisa que scripts não rodam em ambiente isolado."
       ],
       "pergunta_socratica": "Antes de conferir: quando você digita -A, quantas atividades diferentes o alvo passa a receber?",
-      "explicacao": "O -A liga detecção de sistema operacional, detecção de versão, a varredura de scripts padrão e o traceroute. O detalhe que pega gente é o terceiro: -sC equivale à categoria padrão de scripts, e o manual afirma que alguns dela são considerados intrusivos e não devem rodar contra rede alheia sem permissão. O mesmo manual lembra que scripts não rodam isolados do sistema. Em termos de escopo, isso quer dizer que uma letra a mais na linha de comando muda o que você está fazendo no alvo — e precisa caber no que foi autorizado por escrito.",
+      "explicacao": "O -A liga detecção de sistema operacional, detecção de versão, a varredura de scripts padrão e o traceroute. O detalhe que pega gente é o terceiro: -sC equivale à categoria padrão de scripts, e o manual diz que a varredura de scripts com esse conjunto é considerada intrusiva, e que por isso o -A não deve rodar contra rede alheia sem permissão. O mesmo manual lembra que scripts não rodam isolados do sistema. Em termos de escopo, isso quer dizer que uma letra a mais na linha de comando muda o que você está fazendo no alvo — e precisa caber no que foi autorizado por escrito.",
       "por_que_erradas": {
         "1": "São quatro atividades, e uma delas executa scripts que interagem com o serviço.",
         "2": "O -A não altera a lista de portas nem o modelo de tempo da varredura.",
@@ -545,7 +545,7 @@
       "objetivos": [
         2
       ],
-      "artefato": "=== 2. banner do servico em 127.0.0.1:2525 ===\n  220 mail.interno.local ESMTP PortalMTA 3.8.1 pronto\n  porta 8080 (HTTP nao fala primeiro): (sem banner: TimeoutError)",
+      "artefato": "=== 2. banner do servico em 127.0.0.1:2525 ===\n  220 mail.interno.local ESMTP PortalMTA 3.8.1 pronto\n  porta 8080 (espera de 0,6 s): (sem banner: TimeoutError)",
       "enunciado": "As duas portas estavam abertas na varredura. O que explica a diferença entre as duas linhas?",
       "alternativas": [
         "O serviço em 2525 se anuncia ao conectar; o HTTP só responde depois de um pedido, e a espera estourou",
@@ -667,7 +667,7 @@
       "correta": 0,
       "dicas": [
         "O 401 vem obrigatoriamente acompanhado de um cabeçalho que propõe um desafio.",
-        "A norma permite que o servidor esconda o motivo da recusa.",
+        "Pergunte se a norma obriga o servidor a ser sincero sobre a razão de ter recusado.",
         "Se ele pode esconder o motivo, o que o 404 deixa de provar?"
       ],
       "pergunta_socratica": "Antes de conferir: um servidor que não quer revelar por que recusou pode responder o quê?",
@@ -809,7 +809,7 @@
       "dicas": [
         "Se o código de status é igual para tudo, ele deixou de servir como critério.",
         "Compare o corpo das respostas, e não a linha de status.",
-        "As duas ferramentas têm opções para isso, e uma delas calibra o filtro sozinha."
+        "Duas das opções apenas produzem mais respostas, sem criar critério nenhum para separá-las."
       ],
       "pergunta_socratica": "Antes de conferir: se tudo responde 200, o que ainda difere entre a página real e a página de erro?",
       "explicacao": "É o caso do 404 disfarçado (soft-404), comum em aplicação de página única e em servidor com curinga. O código de status parou de discriminar, então o discriminador passa a ser o corpo: tamanho, linhas e palavras. Gobuster e ffuf oferecem filtros por esses três critérios, e a autocalibração do ffuf mede a resposta de um caminho inexistente para montar o filtro sozinha. Aumentar a lista só multiplica o ruído, e mais linhas de execução aceleram a produção do mesmo lixo.",
@@ -843,7 +843,7 @@
       "correta": 0,
       "dicas": [
         "Pergunte se a recusa é defeito de configuração ou recomendação da norma.",
-        "A norma fala em chave compartilhada e em faixa de endereço autorizada.",
+        "A norma trata de quem pode pedir a transferência, e não de a transferência ainda existir.",
         "A transferência precisa de transporte confiável — e isso já responde uma das alternativas."
       ],
       "pergunta_socratica": "Antes de conferir: quando o AXFR é recusado, quem errou — você ou quem configurou o servidor?",
@@ -914,7 +914,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "A norma descreve o curinga como instrução para sintetizar registros.",
+        "O curinga não é mais um registro na zona; ele é uma regra sobre nomes que ninguém cadastrou.",
         "Se o servidor responde para qualquer nome, o que a resposta deixa de provar?",
         "A ferramenta detecta a situação e exige uma opção explícita para continuar mesmo assim."
       ],
@@ -935,37 +935,39 @@
     },
     {
       "id": "3.3.q25",
-      "tipo": "conceitual",
-      "dificuldade": 2,
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
       "objetivos": [
-        2
+        2,
+        3
       ],
-      "enunciado": "Que vantagem e que limite a transparência de certificado tem em relação à força bruta de nome?",
+      "enunciado": "A enumeração devolveu app-antigo.cliente.example com CNAME para um serviço de hospedagem que responde \"projeto não encontrado\". Por que isso é achado, e qual é a correção?",
       "alternativas": [
-        "Não envia pacote ao alvo e traz nomes reais; em troca, só mostra nome que recebeu certificado público",
-        "Não envia pacote ao alvo e lista todos os subdomínios existentes, o que dispensa a força bruta",
-        "Envia menos consultas ao alvo e encontra nomes sem certificado, desde que o servidor use TLS",
-        "Cobre apenas nomes internos, e por isso serve só a teste conduzido de dentro da rede do cliente"
+        "Quem registrar aquele projeto no provedor passa a responder pelo nome do cliente; a correção é remover o CNAME pendurado",
+        "É registro obsoleto sem risco: enquanto o projeto não existir, o nome não resolve para endereço nenhum",
+        "O risco é de indisponibilidade, e a correção é recriar o projeto no provedor para o nome voltar a responder",
+        "O risco é revelar o provedor contratado, e a correção é trocar o CNAME por um registro A para o mesmo destino"
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte para quem cada método faz a pergunta: para o alvo ou para um terceiro.",
-        "Um deles imagina nomes; o outro lê um registro público de emissões.",
-        "O que acontece com um host que nunca recebeu certificado publicamente confiável?"
+        "Pergunte quem decide o conteúdo servido quando o nome do cliente aponta para a infraestrutura de outra empresa.",
+        "O que impede uma pessoa qualquer de ocupar aquele espaço no provedor amanhã?",
+        "Compare a correção que apaga o problema com a que apenas o mantém de pé."
       ],
-      "pergunta_socratica": "Antes de conferir: um host interno sem TLS público apareceria em um registro de certificados emitidos?",
-      "explicacao": "Os registros de transparência de certificado são públicos e apenas de acréscimo, e a consulta é feita a um terceiro: nenhum pacote vai para o alvo, e os nomes que voltam são reais, inclusive históricos. O limite é a origem do dado: só aparece o que recebeu certificado publicamente confiável, então host sem TLS público, com certificado interno próprio ou coberto por um curinga não aparece nominalmente. Por isso os dois métodos são complementares. Vale lembrar que a RFC 6962 foi obsoletada pela RFC 9162, e que serviços de consulta na web são camadas de terceiros sobre esses registros.",
+      "pergunta_socratica": "Antes de conferir: se um estranho criar hoje um projeto com aquele identificador no provedor, que nome o navegador do usuário vai exibir?",
+      "explicacao": "O CNAME entrega o nome canônico de um apelido, e é por isso que ele aparece no mapeamento de DNS. Quando o destino é um serviço de hospedagem em que o recurso foi desativado, a delegação continua de pé: quem conseguir registrar aquele identificador no provedor passa a servir conteúdo sob o nome do cliente. É o subdomínio órfão. A correção é remover o registro pendurado, e a prevenção é dar baixa no DNS junto com a baixa do serviço — ordem quase nunca seguida, porque o registro é criado por um time e o serviço é desligado por outro.",
       "por_que_erradas": {
-        "1": "Ela não lista tudo: nome sem certificado público simplesmente não está lá.",
-        "2": "Nenhuma consulta vai ao alvo, e nome sem certificado não aparece nem com TLS interno.",
-        "3": "Os registros são públicos e consultáveis de fora, sem nenhum acesso à rede do cliente."
+        "1": "O nome resolve: ele aponta para o provedor, que atende a requisição e decide o que responder para o nome pedido.",
+        "2": "Recriar o projeto mantém de pé um serviço que ninguém usa; o problema é a delegação pendurada, não a indisponibilidade.",
+        "3": "Trocar o tipo de registro não retira a delegação, e o achado é o domínio do cliente responder por conta de terceiro."
       },
-      "fonte": "RFC 6962 (Certificate Transparency), obsoletada pela RFC 9162",
+      "fonte": "RFC 1035 §3.2.2 (CNAME e nome canônico); OWASP Web Security Testing Guide v4.2, WSTG-CONF-10 — Test for Subdomain Takeover",
       "tags": [
-        "certificate-transparency",
-        "enumeracao-de-subdominio",
-        "osint",
-        "limites"
+        "dns",
+        "cname",
+        "subdominio-orfao",
+        "defesa",
+        "ataque-defesa"
       ]
     },
     {
@@ -1018,34 +1020,35 @@
       "tipo": "ataque_defesa",
       "dificuldade": 2,
       "objetivos": [
+        0,
         3
       ],
-      "enunciado": "Um serviço interno aparece aberto na varredura feita de fora. Qual medida reduz superfície de verdade?",
+      "enunciado": "A equipe de segurança quer saber o que a própria borda expõe hoje. Como a varredura entra nesse trabalho, e qual é a condição para o resultado valer?",
       "alternativas": [
-        "Desligar o serviço se ninguém precisa dele; se for necessário, bloquear no firewall e segmentar a rede",
-        "Mudar o serviço para uma porta alta e fora do padrão, o que o retira do resultado da varredura mais comum",
-        "Substituir o banner por um texto genérico, para que a versão não seja identificada de fora",
-        "Aumentar o nível de registro do serviço, para saber quem tentou se conectar a ele de fora"
+        "Varrendo o próprio perímetro em intervalo fixo e comparando com o inventário: o achado é o que aparece e não está na lista",
+        "Com uma varredura completa por ano, já que a superfície só muda quando alguém publica um serviço novo de propósito",
+        "Lendo a configuração do firewall, que descreve exatamente o que está exposto e dispensa mandar sonda",
+        "Varrendo de dentro da rede, porque o que responde lá dentro é o mesmo conjunto que responde para fora"
       ],
       "correta": 0,
       "dicas": [
-        "Ordene as opções por quanto cada uma muda o alcance real de quem varre.",
-        "Uma delas não retira nada do que está alcançável.",
-        "Registrar responde depois; a pergunta é sobre reduzir a superfície agora."
+        "O resultado da varredura só vira achado quando comparado com alguma coisa. Com o quê?",
+        "Pergunte de que ponto da rede a sonda precisa partir para responder à pergunta que foi feita.",
+        "Um documento de configuração diz o que era para acontecer; a sonda diz o que acontece."
       ],
-      "pergunta_socratica": "Antes de conferir: depois de cada uma dessas mudanças, o que uma varredura de todas as portas ainda encontra?",
-      "explicacao": "A escala está no capítulo de defesas do próprio nmap: porta fechada é risco bem menor que porta aberta, e serviço desnecessário deve ser desligado. Quando o serviço precisa existir, o passo seguinte é bloquear no firewall e segmentar, o que faz a sonda nem alcançar a porta. Trocar de porta e limpar banner mudam o custo do atacante, não o alcance dele: uma varredura completa com detecção de versão identifica o serviço pelo comportamento da resposta. Registro é detecção, importante e complementar, mas não reduz superfície.",
+      "pergunta_socratica": "Antes de conferir: se a varredura mostrar uma porta aberta que ninguém reconhece, o problema está na varredura ou no inventário?",
+      "explicacao": "O capítulo de defesas do próprio nmap trata a varredura como trabalho de quem defende: conhecer o que a rede expõe antes que outra pessoa conheça. O valor está na comparação — saída da varredura contra o inventário de serviços autorizados —, e o achado é a diferença entre os dois. Duas condições decidem o resultado: o ponto de partida da sonda, porque de dentro do segmento se alcança o que a borda barra, e a periodicidade, porque a superfície muda sem que ninguém publique nada de propósito. Configuração lida no papel não substitui a medição: a regra descreve a intenção, e a sonda mede o efeito.",
       "por_que_erradas": {
-        "1": "A porta continua alcançável; varrer a faixa inteira encontra o serviço do mesmo jeito.",
-        "2": "Banner genérico dificulta o atalho, e a detecção de versão identifica o serviço mesmo assim.",
-        "3": "Log ajuda a perceber, e não altera o que está exposto para quem varre."
+        "1": "Serviço sobe por engano, host novo entra na faixa e regra é alterada sem aviso; a superfície muda sem publicação nenhuma.",
+        "2": "A regra escrita é intenção; é na medição que aparecem regra sombreada, NAT e serviço em porta inesperada.",
+        "3": "De dentro do segmento a sonda alcança o que a borda barra: o resultado interno é maior e não descreve a exposição externa."
       },
       "fonte": "Nmap Reference Guide, Defenses — Proactive Scanning and Auditing; conforme a documentação da ferramenta",
       "tags": [
         "defesa",
+        "inventario",
         "superficie-de-ataque",
-        "firewall",
-        "segmentacao",
+        "auditoria",
         "ataque-defesa"
       ]
     },
@@ -1070,9 +1073,9 @@
         3
       ],
       "dicas": [
-        "Comece pela medida depois da qual não sobra nada para alcançar.",
-        "Uma delas impede a sonda de chegar; a seguinte deixa chegar e exige credencial.",
-        "A última não retira nada do alcance de quem varre a faixa inteira."
+        "O critério é um só: quanto cada medida retira do alcance de quem varre — não quanto ela incomoda o atacante.",
+        "Duas das medidas deixam o serviço alcançável; pergunte o que ainda protege depois que a sonda chega.",
+        "Uma das medidas não muda o que uma varredura da faixa inteira encontra."
       ],
       "pergunta_socratica": "Antes de conferir: qual dessas medidas alguém contorna apenas varrendo todas as portas?",
       "explicacao": "A ordem sai do que cada medida retira do alcance do atacante. Serviço removido não tem porta. Serviço filtrado e segmentado tem porta, mas a sonda não chega até ela — é o que produz o estado filtrada na saída. Serviço autenticado é alcançável e responde, e passa a depender da força da credencial. Mudar a porta não retira nada: com a varredura da faixa inteira e detecção de versão, o serviço é identificado pela resposta. As três primeiras são redução de superfície; a última é obscuridade, e piora o inventário de quem defende.",
@@ -1096,12 +1099,12 @@
       "alternativas": [
         "Uma origem para mil portas em segundos; horário e endereço de origem, sozinhos, não caracterizam nada",
         "O endereço de origem estar fora da rede interna, que é o critério usado para classificar a atividade",
-        "As três portas que aceitaram a conexão, já que serviço aberto só é registrado durante varredura",
+        "As três portas que aceitaram a conexão, porque conexão bem-sucedida é o que a regra de varredura conta",
         "O horário de madrugada, que é o sinal em que a regra de detecção se apoia para gerar o alerta"
       ],
       "correta": 0,
       "dicas": [
-        "Some quantos destinos diferentes uma única origem tocou, e em quanto tempo.",
+        "Leia primeiro linha a linha, depois leia o resumo, e veja em qual dos dois a conclusão aparece.",
         "Pergunte se alguma linha, isolada, teria algo de anormal.",
         "O que um usuário legítimo faria com mil portas do mesmo servidor?"
       ],
@@ -1173,7 +1176,7 @@
       "correta": 0,
       "dicas": [
         "A regra olha taxa e dispersão, e não o conteúdo do pacote.",
-        "Um dos modelos de tempo espera cinco minutos entre uma sonda e a seguinte.",
+        "Uma das opções aumenta o número de pacotes enviados, e outra acrescenta interações ao alvo.",
         "O que o defensor ganha mesmo quando o atacante consegue ficar abaixo do limiar?"
       ],
       "pergunta_socratica": "Antes de conferir: se cada sonda espera cinco minutos, quanto tempo leva varrer mil portas?",
@@ -1203,7 +1206,7 @@
       "trecho": "RELATÓRIO DE VARREDURA — AMBIENTE AUTORIZADO (trecho)\n1. As portas marcadas como filtradas estão fechadas e não precisam de análise.\n2. A coluna de serviço aponta ssh na porta 22, então o inventário confirma essa aplicação na máquina.\n3. A varredura SYN não deixa rastro, então o cliente não vai perceber o teste.\n4. Recomendamos mover os serviços para portas altas, o que reduz a superfície de ataque.",
       "enunciado": "Os quatro itens têm defeito. Qual deles promete ao cliente um resultado que o testador não tem como garantir?",
       "alternativas": [
-        "O item 3: IDS e firewall pessoal reconhecem varredura SYN, e o testador não controla o que o cliente percebe",
+        "O item 3, que promete que o cliente não vai perceber o teste, embora IDS e firewall pessoal reconheçam a varredura SYN",
         "O item 1, que trata porta filtrada como se fosse fechada e descarta justamente a linha mais informativa da saída",
         "O item 2, que transforma a tradução de um número de porta em afirmação de inventário de software",
         "O item 4, que recomenda obscuridade e a apresenta como redução de superfície de ataque"
@@ -1240,7 +1243,7 @@
       "trecho": "PLANO DE ENDURECIMENTO — SERVIDOR DE APLICAÇÃO (trecho)\n1. O acesso remoto por SSH foi movido da porta 22 para a 52222.\n2. O serviço de correio passou a anunciar uma versão genérica no banner.\n3. O banco de dados continua escutando em todas as interfaces, agora com senha longa.\n4. O serviço de administração remota, que ninguém usava, foi removido da máquina.",
       "enunciado": "Qual desses itens é o único que reduz a superfície de ataque de fato?",
       "alternativas": [
-        "O item 4: o serviço deixou de existir, e não há porta para alcançar nem versão para identificar",
+        "O item 4, porque o serviço deixou de existir e não há porta para alcançar nem versão para identificar",
         "O item 1, porque a porta 52222 fica fora do conjunto padrão que a varredura examina",
         "O item 2, porque sem a versão anunciada o atacante não consegue escolher a falha a explorar",
         "O item 3, porque uma senha longa torna o serviço inalcançável para quem varre a rede"
@@ -1273,7 +1276,7 @@
       "objetivos": [
         3
       ],
-      "enunciado": "Depois da segmentação, a mesma varredura externa passou a relatar portas filtradas. O que mudou de fato?",
+      "enunciado": "Depois da segmentação, a mesma varredura externa passou a relatar portas filtradas. O que mudou no alvo, e o que mudou apenas na saída da ferramenta?",
       "alternativas": [
         "As sondas deixaram de alcançar as portas, então o alcance de quem varre diminuiu, e não apenas a informação",
         "Nada além da informação: as portas continuam alcançáveis, e só mudou o rótulo impresso na saída",
@@ -1284,7 +1287,7 @@
       "dicas": [
         "Pergunte quem impediu a sonda: o alvo ou algo no caminho.",
         "Compare com o efeito de mudar de porta, em que a sonda continua chegando.",
-        "Filtrada quer dizer que a sonda não chegou — inclusive para quem estava atacando."
+        "Pergunte se o filtro barra só a ferramenta de varredura ou qualquer pacote que venha de fora."
       ],
       "pergunta_socratica": "Antes de conferir: o serviço parou de funcionar para quem está do lado certo do segmento?",
       "explicacao": "Filtrada, na definição do nmap, é o estado em que a filtragem impediu a sonda de alcançar a porta. Isso é diferente de esconder: o serviço pode continuar de pé e funcional para quem está dentro do segmento autorizado, enquanto de fora ele deixou de ser alcançável. Mudar a porta não produz esse efeito, porque a sonda continua chegando ao destino. Vale a contrapartida honesta: o resultado filtrado ainda informa onde existe filtro, o que é achado de arquitetura e ajuda quem mapeia a rede.",

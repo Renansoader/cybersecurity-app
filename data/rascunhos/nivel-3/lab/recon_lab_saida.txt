@@ -10,7 +10,7 @@
 
 === 2. banner do servico em 127.0.0.1:2525 ===
   220 mail.interno.local ESMTP PortalMTA 3.8.1 pronto
-  porta 8080 (HTTP nao fala primeiro): (sem banner: TimeoutError)
+  porta 8080 (espera de 0,6 s): (sem banner: TimeoutError)
 
 === 3. cabecalho da resposta HTTP em 127.0.0.1:8080 ===
   status: 200

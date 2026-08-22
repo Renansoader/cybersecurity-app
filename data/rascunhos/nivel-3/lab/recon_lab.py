@@ -78,7 +78,7 @@ if __name__ == "__main__":
     print()
     print("=== 2. banner do servico em 127.0.0.1:2525 ===")
     print("  " + banner("127.0.0.1", 2525))
-    print("  porta 8080 (HTTP nao fala primeiro):", banner("127.0.0.1", 8080, 0.6))
+    print("  porta 8080 (espera de 0,6 s):", banner("127.0.0.1", 8080, 0.6))
 
     print()
     print("=== 3. cabecalho da resposta HTTP em 127.0.0.1:8080 ===")
