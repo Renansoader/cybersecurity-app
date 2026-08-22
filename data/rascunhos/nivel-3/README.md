@@ -1,8 +1,9 @@
 # Rascunhos do nível 3 — bloco 3.1 a 3.3
 
-Conteúdo **escrito e ainda não revisado**. Nada daqui é carregado pelo app: o
-`content.carregar_modulos()` só lê `data/modulos/`. Um módulo só sai desta pasta
-depois de passar pela revisão e pelo validador.
+Bloco **concluído**: 3.1, 3.2 e 3.3 passaram pelas duas lentes e estão em
+`data/modulos/`. O que fica aqui é o rastro — laboratórios, relatórios de
+procedência e notas de pesquisa —, que é o que permite reconferir uma questão
+sem refazer a investigação. Nada desta pasta é carregado pelo app.
 
 Esta pasta existe porque este material já se perdeu uma vez, quando morava fora
 do repositório.
@@ -11,7 +12,7 @@ do repositório.
 
 | Pasta | Conteúdo |
 |---|---|
-| `modulos/` | O módulo ainda não promovido: 3.3 varredura e enumeração, com 35 questões |
+| `modulos/` | Vazia: os três módulos do bloco foram revisados e promovidos para `data/modulos/` |
 | `relatorios/` | Relatório de procedência de cada módulo (`3.1.md`, `3.2.md`) e as notas de pesquisa das fontes (`metodologia.md`, `osint.md`, `varredura.md`, `owasp-attack.md`, `owasp-versao-VERIFICADA.md`) |
 | `lab/` | Os laboratórios executados e a saída real que virou artefato de questão |
 
@@ -21,7 +22,7 @@ do repositório.
 |---|---|---|---|---|
 | 3.1 | sim | passa | **feita** | **sim** — promovido em `3ec2e5c` |
 | 3.2 | sim | passa | **feita** | **sim** — promovido em `cc2aad9` |
-| 3.3 | sim | passa | pendente | não |
+| 3.3 | sim | passa | **feita** | **sim** — promovido em `48f9dd7` |
 
 O relatório de procedência do 3.3 nunca foi escrito — o processo foi interrompido
 antes disso.
