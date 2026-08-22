@@ -3,7 +3,7 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-20 · commit `3ec2e5c` · 2.196 testes passando
+Última atualização: 2026-08-21 · commit `cc2aad9` · 2.308 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -13,18 +13,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 19 de 41 |
-| Questões | 666 |
-| Blocos de teoria | 116 |
-| Tags distintas | 589 |
-| Testes automatizados | 2.196 |
+| Módulos de conteúdo escritos | 20 de 41 |
+| Questões | 701 |
+| Blocos de teoria | 122 |
+| Tags distintas | 620 |
+| Testes automatizados | 2.308 |
 | Linhas de código Python | ~3.260 |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 35 (1 de 9 módulos).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 70 (2 de 9 módulos).
 
-Tipos de questão em uso: conceitual 312, cenário 138, caça ao erro 50,
-ataque→defesa 46, pareamento 36, comando 34, ordenação 26, artefato 24.
+Tipos de questão em uso: conceitual 324, cenário 145, caça ao erro 52,
+ataque→defesa 50, pareamento 38, comando 38, ordenação 27, artefato 27.
 
 ---
 
@@ -50,8 +50,8 @@ C:\Dev\cybersecurity-app\
 │                            desafio, glossario, ferramentas (stubs)
 ├── data/
 │   ├── niveis.json          6 níveis e regras de desbloqueio
-│   ├── modulos/*.json       19 módulos (00-01 … 03-01)
-│   └── rascunhos/nivel-3/   3.2 e 3.3 escritos, ainda sem revisão
+│   ├── modulos/*.json       20 módulos (00-01 … 03-02)
+│   └── rascunhos/nivel-3/   3.3 escrito, ainda sem revisão
 ├── exemplo/
 │   └── modulo-minimo.json   modelo comentado, um exemplo de cada tipo de questão
 ├── ferramentas/
@@ -198,7 +198,7 @@ C:\Dev\cybersecurity-app\
 | 4 | Conteúdo dos níveis 0 e 1 (11 módulos) | pronta |
 | 5 | Telas de sessão, trilha, home, módulo e progresso | pronta (antecipada) |
 | 6 | Nível 2 + glossário + ferramentas | parcial: nível 2 completo; glossário e ferramentas pendentes |
-| 7 | Níveis 3 e 4 + desafios práticos | em andamento: 3.1 pronto |
+| 7 | Níveis 3 e 4 + desafios práticos | em andamento: 3.1 e 3.2 prontos |
 | 8 | Nível 5 + simulado + trilha de 90 dias | pendente |
 | 9 | Ícone, atalho, README, publicação | pronta |
 
@@ -213,8 +213,8 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
-**Nível 3 — Ofensivo** (35 questões, 1 de 9)
-3.1 Metodologia de pentest
+**Nível 3 — Ofensivo** (70 questões, 2 de 9)
+3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento
 
 **Nível 2 — Núcleo de segurança** (245 questões, completo)
 2.1 Criptografia I · 2.2 Criptografia II · 2.3 Criptografia III ·
@@ -234,7 +234,7 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 22 módulos
+### Conteúdo — 21 módulos
 
 - **Nível 3 — Ofensivo** (9): metodologia de pentest, OSINT, varredura,
   Web I/II/III, OWASP Top 10, quebra de senhas, engenharia social e redes sem fio
@@ -271,14 +271,13 @@ real de requisição.
   SPF, DKIM e DMARC).
 - **Streak recalcula dias passados com a meta atual.** Guardar a meta de cada dia
   exigiria outra tabela.
-- **3.2 e 3.3 escritos e não revisados.** Estão em
-  `data/rascunhos/nivel-3/`, com os relatórios de procedência e os laboratórios.
-  Passam na validação estrutural, mas não passaram pelas duas lentes. Antes de
-  promover: sintaxe de ferramenta conferida na documentação (nmap, Gobuster e
-  dig não estão instalados aqui), versão do OWASP Top 10 quando ela aparecer (a
-  vigente é a **2025**), separação clara entre coleta passiva e interação com o
-  alvo no 3.2, equilíbrio ataque/defesa e nenhum alvo fora de `localhost`/RFC
-  1918/RFC 5737.
+- **3.3 escrito e não revisado.** Está em `data/rascunhos/nivel-3/`, com os
+  laboratórios. Passa na validação estrutural, mas não passou pelas duas lentes.
+  Antes de promover: sintaxe de ferramenta conferida na documentação (nmap,
+  Gobuster e dig não estão instalados aqui — o módulo declara versões, `Gobuster
+  v3.8.2` e `ffuf v2.2.1`, que precisam ser confirmadas), toda passagem entre
+  aspas conferida verbatim, equilíbrio ataque/defesa e nenhum alvo fora de
+  `localhost`/RFC 1918/RFC 5737.
 - **O relatório de procedência do 3.3 nunca foi escrito** — o processo foi
   interrompido antes disso.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
