@@ -14,6 +14,13 @@ grava os itens já na sequência certa, então exibi-los como estão permitiria
 acertar apenas confirmando sem mexer em nada. Os dois tipos são embaralhados
 aqui, com semente derivada do id da questão — determinístico, testável, e
 nunca igual à ordem correta.
+
+O mesmo vale para múltipla escolha, e por um motivo descoberto tarde: o
+conteúdo grava a alternativa correta no índice 0 em todas as questões escritas
+até hoje. Sem embaralho, a resposta certa seria sempre a primeira linha da
+tela, e o curso inteiro poderia ser respondido sem ler o enunciado. As
+alternativas são permutadas aqui, e `conferir()` e `feedback()` recebem o
+índice EXIBIDO e o traduzem de volta — a tela não sabe da tradução.
 """
 
 import random
@@ -48,7 +55,8 @@ def mapa_de_exibicao(questao):
 
     Ordenação: posição exibida -> índice do item original.
     Pareamento: posição exibida na coluna direita -> índice do par original.
-    Outros tipos: None.
+    Múltipla escolha: posição exibida -> índice da alternativa original.
+    Questão sem nenhum desses campos: None.
     """
     tipo = questao["tipo"]
     if tipo == "ordenacao":
@@ -59,7 +67,20 @@ def mapa_de_exibicao(questao):
         # aqui a proibida é a identidade: direita alinhada com a esquerda
         total = len(questao["pares"])
         return _permutar(questao["id"], total, proibida=range(total))
+    if "alternativas" in questao:
+        # a identidade é proibida porque o conteúdo grava a correta no índice 0:
+        # exibir na ordem do arquivo entregaria a resposta na primeira linha
+        total = len(questao["alternativas"])
+        return _permutar(questao["id"], total, proibida=range(total))
     return None
+
+
+def _indice_original(questao, escolha):
+    """Traduz o índice que o usuário clicou na tela para o índice do arquivo."""
+    mapa = mapa_de_exibicao(questao)
+    if mapa is None or not isinstance(escolha, int) or not 0 <= escolha < len(mapa):
+        return escolha
+    return mapa[escolha]
 
 
 def questao_para_exibir(questao):
@@ -88,6 +109,11 @@ def questao_para_exibir(questao):
         visivel["coluna_esquerda"] = [par[0] for par in questao["pares"]]
         visivel["coluna_direita"] = [questao["pares"][i][1] for i in mapa]
         visivel["indices_direita"] = mapa
+
+    if "alternativas" in questao:
+        mapa = mapa_de_exibicao(questao)
+        visivel["alternativas"] = [questao["alternativas"][i] for i in mapa]
+        visivel["indices_originais"] = mapa
     return visivel
 
 
@@ -116,13 +142,17 @@ def conferir_pareamento(questao, resposta):
 
 
 def conferir(questao, resposta):
-    """Corrige qualquer tipo de questão. Devolve True se acertou."""
+    """Corrige qualquer tipo de questão. Devolve True se acertou.
+
+    `resposta` é sempre o que a tela viu: em múltipla escolha, o índice da linha
+    clicada na ordem EXIBIDA. A tradução para o índice do arquivo acontece aqui.
+    """
     tipo = questao["tipo"]
     if tipo == "ordenacao":
         return conferir_ordenacao(questao, resposta)
     if tipo == "pareamento":
         return conferir_pareamento(questao, resposta)
-    return resposta == questao["correta"]
+    return _indice_original(questao, resposta) == questao["correta"]
 
 
 def dica_liberada(segundos_na_questao, dicas_pedidas, questao):
@@ -157,7 +187,9 @@ def feedback(questao, escolha, acertou):
     justificativas = questao.get("por_que_erradas", {})
 
     if not acertou:
-        justificativa = justificativas.get(str(escolha))
+        # `escolha` vem da tela, na ordem exibida; a justificativa está indexada
+        # pelo índice do arquivo
+        justificativa = justificativas.get(str(_indice_original(questao, escolha)))
         if justificativa:
             blocos.append(("sua_escolha", justificativa))
         blocos.append(("explicacao", questao["explicacao"]))
