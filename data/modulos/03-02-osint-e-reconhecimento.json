@@ -6,7 +6,7 @@
     "Separar reconhecimento passivo de ativo pelo destino do pacote, e dizer, para cada ação, se ela toca o alvo",
     "Montar o mapa de superfície a partir de fonte pública: DNS, registro de domínio, certificado, metadado e código publicado",
     "Escolher a ferramenta pelo dado que ela coleta e pela fonte de onde tira, sabendo o que ela não entrega",
-    "Reduzir a pegada da organização: o que remover, o que segregar, o que monitorar — e o que não adianta fazer"
+    "Reduzir a pegada da organização: o que remover, o que segregar, o que monitorar, o que não adianta fazer — e o limite legal e contratual dentro do qual a coleta é feita"
   ],
   "pre_requisitos": [
     "3.1"
@@ -18,12 +18,12 @@
       "texto": "Reconhecimento passivo (passive recon) e ativo (active recon) não se separam pela ferramenta usada, e sim por uma pergunta: saiu pacote seu, ou por ordem sua, na direção da infraestrutura do alvo? O MITRE ATT&CK define varredura ativa como aquela em que o adversário sonda a infraestrutura da vítima por tráfego de rede, em oposição ao reconhecimento sem interação direta.\n\nConsultar quem já publicou o dado — log de certificado, índice de busca, base de banners, repositório público — é passivo: quem tocou o alvo foi o terceiro, antes e por conta própria. Resolver um nome, abrir conexão para ler um certificado ou baixar um arquivo do site do alvo é ativo.\n\nExiste um terceiro caso que engana: mandar um terceiro tocar o alvo por você. Varredura sob demanda contratada em serviço comercial dispara pacote no alvo por ordem sua — a interface é de consulta, o efeito é de varredura.",
       "analogia": "Ler a matrícula do imóvel no cartório não é o mesmo que tocar a campainha para ver quem atende.",
       "erro_comum": "Classificar pela aba do programa em que se clicou. A mesma ferramenta costuma ter módulo que não toca e módulo que toca: a classificação é pelo destino do pacote.",
-      "fonte": "MITRE ATT&CK T1595 (Active Scanning) e T1596.003 (Digital Certificates); NIST SP 800-115 §5.2.1 (fase de Discovery)"
+      "fonte": "MITRE ATT&CK T1595 (Active Scanning) e T1596.003 (Digital Certificates); NIST SP 800-115 §5.2.1 (Penetration Testing Phases), onde a fase de Discovery é descrita"
     },
     {
       "id": "3.2.t2",
       "titulo": "Nome e registro: o que DNS e whois ainda entregam",
-      "texto": "O DNS é o primeiro mapa. A RFC 1035 define A como endereço de host, NS como servidor de nomes autoritativo, MX como troca de correio e TXT como cadeias de texto. Em reconhecimento, A dá a superfície de rede, NS revela quem hospeda a zona, MX expõe o provedor de correio e TXT costuma carregar SPF, DKIM e códigos de verificação de serviços contratados — a lista de fornecedores.\n\nO registro de domínio mudou de lugar. A obrigação contratual de oferecer whois em domínio genérico terminou em 28 de janeiro de 2025, e o RDAP passou a ser a fonte de referência, com boa parte do dado de registrante redigida por privacidade. O que sobra é data de criação, registrador, estado do domínio e servidores de nomes.\n\nEsconder o registrante não remove nada da superfície: o mesmo nome continua aparecendo em log de certificado, em arquivo de página e na própria zona.",
+      "texto": "O DNS é o primeiro mapa. A RFC 1035 define A como endereço de host, NS como servidor de nomes autoritativo, MX como troca de correio e TXT como cadeias de texto. Em reconhecimento, A dá a superfície de rede, NS revela quem hospeda a zona, MX expõe o provedor de correio e TXT costuma carregar SPF, DKIM e códigos de verificação de serviços contratados — a lista de fornecedores.\n\nO registro de domínio mudou de lugar. A obrigação contratual de oferecer whois terminou em 28 de janeiro de 2025 para todos os registradores de domínio genérico e para a maior parte dos registros — .com, .name e .post seguem obrigados —, e o RDAP passou a ser a fonte de referência, com boa parte do dado de registrante redigida por privacidade. O que sobra é data de criação, registrador, estado do domínio e servidores de nomes.\n\nEsconder o registrante não remove nada da superfície: o mesmo nome continua aparecendo em log de certificado, em arquivo de página e na própria zona.",
       "analogia": "O registro do domínio é a placa do carro: diz pouco sobre o motorista e nada sobre o caminho que ele faz todo dia.",
       "erro_comum": "Tratar o whois como fonte primária de reconhecimento em 2026. Boa parte do dado de contato já vem redigida, e a consulta canônica hoje é RDAP.",
       "fonte": "RFC 1035 §3.2.2 (tipos de registro); anúncio da ICANN sobre a adoção do RDAP e o fim da obrigação de WHOIS (27/01/2025); consulta DNS verificada em execução"
@@ -50,7 +50,7 @@
       "texto": "Ferramenta de OSINT se escolhe por três perguntas: que dado ela coleta, de que fonte tira e se toca o alvo. O theHarvester agrega dezenas de fontes públicas — logs de certificado, motores de busca, arquivos web — e classifica os próprios módulos: os passivos são P0; resolução de nome, força bruta e reverso são P1; ações de HTTP, TLS, captura de tela e varredura de porta são P2.\n\nO Amass é o oposto do que a fama diz: o projeto se descreve como mapeamento de superfície com técnicas de reconhecimento ativo, e o exemplo canônico da documentação usa o modo ativo. Shodan e Censys varrem a internet por conta própria; consultar o índice não toca em ninguém, mas a varredura sob demanda toca.\n\nO Maltego não coleta nada sozinho: é grafo, e quem busca é o transform. SpiderFoot e recon-ng seguem disponíveis, sem versão nova há anos — servem pelo método, não como linha de frente.",
       "analogia": "Duas ferramentas prometem \"achar subdomínio\": uma lê o cartório, a outra bate na porta de cada casa da rua. O resultado se parece; o rastro, não.",
       "erro_comum": "Chamar o Amass de ferramenta passiva. O próprio README fala em técnicas de reconhecimento ativo, e o modo ativo tenta transferência de zona e abre conexão nos hosts descobertos.",
-      "fonte": "Documentação dos projetos: theHarvester (classificação P0/P1/P2 no README), Amass (owasp-amass, README e documentação), Shodan (book.shodan.io), Maltego (documentação da Community Edition); estado dos repositórios verificado na pesquisa de fontes (19/08/2026)"
+      "fonte": "Documentação dos projetos: theHarvester (classificação P0/P1/P2 no README), Amass (owasp-amass, README e documentação), Shodan (book.shodan.io), Maltego (documentação do plano gratuito Maltego Basic, sucessor da Community Edition); estado dos repositórios verificado na pesquisa de fontes (19/08/2026)"
     },
     {
       "id": "3.2.t6",
@@ -78,8 +78,8 @@
       ],
       "correta": 0,
       "dicas": [
-        "A classificação não olha para a ferramenta, e sim para o tráfego que ela gera.",
-        "Pergunte quem enviou o pacote e para onde ele foi.",
+        "As quatro alternativas descrevem coisas reais; três delas importam por outros motivos que não a classificação.",
+        "Duas ações podem trazer exatamente o mesmo dado e deixar rastros opostos. O que muda entre elas?",
         "Consultar um terceiro que já tinha o dado faz o alvo receber alguma coisa?"
       ],
       "pergunta_socratica": "Antes de conferir: quando você lê um índice montado por outra empresa, o servidor do alvo registra algo?",
@@ -182,7 +182,7 @@
     {
       "id": "3.2.q4",
       "tipo": "conceitual",
-      "dificuldade": 3,
+      "dificuldade": 2,
       "objetivos": [
         0,
         3
@@ -190,8 +190,8 @@
       "enunciado": "Por que o reconhecimento passivo contra uma empresa não aparece no monitoramento dela?",
       "alternativas": [
         "Porque a coleta ocorre em bases de terceiros, e os sistemas da empresa não registram nada",
-        "Porque as ferramentas de OSINT cifram o tráfego, e o monitoramento não consegue inspecioná-lo",
-        "Porque o volume dessas consultas fica sempre abaixo do limiar configurado nos sensores de rede",
+        "Porque o tráfego chega à empresa, mas com origem em endereços de nuvem que ela não tem motivo para bloquear",
+        "Porque a coleta se espalha por várias fontes, e cada fatia chega à empresa em volume que ela não consegue correlacionar",
         "Porque o registro dessas consultas fica com o provedor e só é entregue por ordem judicial"
       ],
       "correta": 0,
@@ -203,8 +203,8 @@
       "pergunta_socratica": "Antes de conferir: se a defesa não consegue ver a coleta acontecer, o que ainda está sob controle dela?",
       "explicacao": "O que a empresa não recebe, ela não registra: a consulta foi atendida pelo operador do log, pelo buscador ou pelo serviço de índice. O MITRE afirma que reconhecimento não se mitiga com controle preventivo, porque acontece fora do alcance das defesas da organização, e indica como contramedida minimizar a quantidade e a sensibilidade do dado disponível a terceiros. A consequência defensiva é direta: detecção não é a estratégia, e sim o levantamento periódico da própria pegada. A empresa faz contra si mesma o que o atacante faria, e corrige o que encontrar.",
       "por_que_erradas": {
-        "1": "Cifrar o tráfego não muda nada: o tráfego nem passa pela rede da empresa.",
-        "2": "Não existe limiar a cruzar quando nenhuma requisição chega aos sensores dela.",
+        "1": "Não há tráfego para a empresa nessa coleta: a origem seria irrelevante mesmo se houvesse.",
+        "2": "Não existe volume a correlacionar quando nenhuma requisição chega aos sensores dela.",
         "3": "O provedor da empresa não intermedia a consulta que um terceiro atende em outro lugar."
       },
       "fonte": "MITRE ATT&CK M1056 (Pre-compromise) e T1596.003",
@@ -223,7 +223,7 @@
         0,
         2
       ],
-      "trecho": "PROPOSTA TÉCNICA — FASE 1 (trecho)\n1. Levantamento 100% passivo, sem qualquer contato com a infraestrutura do cliente.\n2. Fontes: logs de transparência de certificado e bases públicas de banners já coletados.\n3. Enumeração de subdomínios com Amass em modo ativo, incluindo tentativa de transferência de zona.\n4. Metadados extraídos das cópias já indexadas por buscadores, sem baixar nada do site do cliente.",
+      "trecho": "PROPOSTA TÉCNICA — FASE 1 (trecho)\n1. Levantamento 100% passivo, sem qualquer contato com a infraestrutura do cliente.\n2. Fontes: logs de transparência de certificado e bases públicas de banners já coletados.\n3. Enumeração de subdomínios com Amass em modo ativo, incluindo tentativa de transferência de zona.\n4. Metadados extraídos das cópias guardadas em arquivo público de páginas web, sem baixar nada do site do cliente.",
       "enunciado": "Qual item contradiz a promessa feita no item 1?",
       "alternativas": [
         "O item 3, porque o modo ativo resolve nomes e tenta transferência de zona contra o alvo",
@@ -235,13 +235,13 @@
       "dicas": [
         "Um dos itens declara, no próprio texto, que vai falar com o alvo.",
         "Base de banners é resultado de varredura de quem? E feita quando?",
-        "Cópia indexada por buscador é servida por qual servidor?"
+        "Cópia guardada em arquivo público de páginas é servida por qual servidor?"
       ],
       "pergunta_socratica": "Antes de conferir: qual item faria o servidor do cliente registrar tráfego vindo da equipe?",
-      "explicacao": "O item 3 se contradiz sozinho: o modo ativo do Amass resolve nomes, tenta transferência de zona e abre conexão com os hosts descobertos para ler nomes de certificado. O item 2 é passivo de verdade, porque o serviço de índice varreu por conta própria, antes e para todo mundo. O item 4, como está escrito, também é passivo: a cópia vem do buscador, e não do site do cliente — se a equipe baixasse do site, aí sim atravessaria a linha. E o item 1 é uma promessa cumprível: existe levantamento inteiramente passivo, só não é este.",
+      "explicacao": "O item 3 se contradiz sozinho: o modo ativo do Amass resolve nomes, tenta transferência de zona e abre conexão com os hosts descobertos para ler nomes de certificado. O item 2 é passivo de verdade, porque o serviço de índice varreu por conta própria, antes e para todo mundo. O item 4, como está escrito, também é passivo: a cópia vem do arquivo público de páginas, e não do site do cliente — se a equipe baixasse do site, aí sim atravessaria a linha. E o item 1 é uma promessa cumprível: existe levantamento inteiramente passivo, só não é este.",
       "por_que_erradas": {
         "1": "Consultar índice já coletado não gera tráfego para o cliente; a varredura foi do serviço, antes.",
-        "2": "Cópia indexada é servida pelo buscador; o metadado viaja no arquivo, venha ele de onde vier.",
+        "2": "Cópia de arquivo é servida por terceiro; o metadado viaja no arquivo, venha ele de onde vier.",
         "3": "Levantamento inteiramente passivo é possível: o problema está em um item específico da proposta."
       },
       "fonte": "README e documentação do projeto Amass (owasp-amass), que descreve técnicas de reconhecimento ativo; MITRE ATT&CK T1595",
@@ -263,8 +263,8 @@
       "artefato": "$ ./osint_lab.sh    # alvo: example.com (domínio reservado, RFC 2606)\n# endereços substituídos pela faixa de documentação (RFC 5737)\n\n=== consulta DNS por tipo ===\n--- A\nNome:    example.com\nAddresses:  192.0.2.10\n            198.51.100.24\n--- MX\nexample.com    MX preference = 0, mail exchanger = (root)\n--- TXT\nexample.com    text = \"v=spf1 -all\"\nexample.com    text = \"_k2n1y4vw3qtb4skdx9e7dxt97qrmmq9\"\n--- NS\nexample.com    nameserver = ns1.provedor-cdn.invalid\nexample.com    nameserver = ns2.provedor-cdn.invalid",
       "enunciado": "Que conclusão de reconhecimento os registros MX e TXT sustentam, lidos juntos?",
       "alternativas": [
-        "O domínio declara que não envia e-mail: o MX aponta para a raiz e o SPF recusa todo remetente",
-        "O domínio envia e-mail por servidor próprio, porque o MX aponta para o endereço do próprio domínio",
+        "O domínio declara que não recebe nem envia correio: o MX nulo fecha a entrada e o SPF recusa todo remetente",
+        "O domínio recebe e-mail em servidor próprio, porque o MX aponta para um host do próprio domínio",
         "O domínio terceiriza o e-mail, e o segundo registro TXT identifica o provedor contratado para isso",
         "O domínio bloqueia consulta de MX por terceiros, e o registro de SPF responde no lugar dela"
       ],
@@ -272,10 +272,10 @@
       "dicas": [
         "Repare para onde o MX aponta: um nome de host, ou a raiz da árvore de nomes?",
         "No registro de SPF, o que o sinal antes de \"all\" determina para os remetentes?",
-        "Os dois registros dizem a mesma coisa por caminhos diferentes."
+        "Um dos dois registros fala da entrada de correio; o outro, da saída."
       ],
       "pergunta_socratica": "Antes de conferir: se ninguém pode enviar em nome do domínio e não há servidor para receber, que serviço este domínio presta?",
-      "explicacao": "MX com preferência 0 apontando para a raiz é o MX nulo da RFC 7505: a declaração explícita de que o domínio não recebe correio. O registro \"v=spf1 -all\" fecha o outro lado — o mecanismo \"all\" casa com qualquer remetente e o qualificador de falha o recusa, ou seja, nenhum host está autorizado a enviar em nome do domínio. Para o reconhecimento, isso elimina uma via de abuso e desloca a atenção: o segundo TXT tem a forma de código de verificação de serviço, e códigos assim revelam fornecedores. Do lado defensivo, é exatamente a configuração recomendada para domínio que não envia nem recebe correio.",
+      "explicacao": "MX com preferência 0 apontando para a raiz é o MX nulo da RFC 7505: a declaração explícita de que o domínio não recebe correio. O registro \"v=spf1 -all\" fecha o outro lado — o mecanismo \"all\" casa com qualquer remetente e o qualificador de falha o recusa, ou seja, nenhum host está autorizado a enviar em nome do domínio. Para o reconhecimento, isso elimina uma via de abuso e desloca a atenção: o segundo TXT tem a forma de código de verificação de serviço, e códigos assim revelam fornecedores.",
       "por_que_erradas": {
         "1": "O MX aponta para a raiz, e não para um host do domínio; não há servidor de correio declarado.",
         "2": "Terceirização apareceria como MX para o provedor; o token TXT não identifica quem entrega correio.",
@@ -318,7 +318,7 @@
         "2": "Sem registro publicado, o destinatário não tem política para recusar: a ausência facilita a fraude.",
         "3": "Redirecionar tráfego web não interfere em nada no caminho do correio eletrônico."
       },
-      "fonte": "RFC 7505 (MX nulo, domínios que não aceitam correio); RFC 7208 (SPF); RFC 7489 (DMARC, política de rejeição)",
+      "fonte": "RFC 7505 (MX nulo, domínios que não aceitam correio); RFC 7208 (SPF); RFC 9989 (DMARC, política de rejeição — obsoleta a RFC 7489), com RFC 9990 e RFC 9991 para os relatórios",
       "tags": [
         "defesa",
         "dns",
@@ -348,7 +348,7 @@
         "Pergunte o que o registro nunca guardou: histórico de titulares está lá?"
       ],
       "pergunta_socratica": "Antes de conferir: esconder quem registrou o domínio esconde os nomes de host que ele publica?",
-      "explicacao": "A parte operacional continua visível porque precisa estar: datas, registrador, estado do domínio e servidores de nomes. O que foi redigido é o contato do registrante — e desde que a obrigação contratual de oferecer whois em domínio genérico terminou, em 28 de janeiro de 2025, o RDAP virou a consulta de referência, já com boa parte do dado de registrante ocultada. O ponto que importa em reconhecimento é outro: esconder o registrante não retira nome nenhum da superfície. Os hosts continuam em log de transparência de certificado, em arquivo de página e na própria zona, e é de lá que sai o mapa.",
+      "explicacao": "A parte operacional continua visível porque precisa estar: datas, registrador, estado do domínio e servidores de nomes. O que foi redigido é o contato do registrante — e desde que a obrigação contratual de oferecer whois caiu, em 28 de janeiro de 2025, para todos os registradores de domínio genérico e para a maior parte dos registros — .com, .name e .post continuam obrigados —, o RDAP virou a consulta de referência, já com boa parte do dado de registrante ocultada. O ponto que importa em reconhecimento é outro: esconder o registrante não retira nome nenhum da superfície. Os hosts continuam em log de transparência de certificado, em arquivo de página e na própria zona, e é de lá que sai o mapa.",
       "por_que_erradas": {
         "1": "A publicação obrigatória do contato do registrante deixou de existir; hoje o dado costuma vir redigido.",
         "2": "A parte operacional do registro continua pública, e é ela que sustenta o funcionamento do domínio.",
@@ -370,7 +370,7 @@
       "objetivos": [
         1
       ],
-      "artefato": "$ whois example.com    # domínio reservado para documentação (RFC 2606)\n[Querying whois.iana.org:43 'example.com']\n[whois.iana.org]\ndomain:        EXAMPLE.COM\norganisation:  Internet Assigned Numbers Authority\ncreated:       1992-01-01\nsource:        IANA",
+      "artefato": "$ whois example.com    # domínio reservado para documentação (RFC 2606); o servidor consultado é o whois público da IANA, não é alvo de varredura\n[Querying whois.iana.org:43 'example.com']\n[whois.iana.org]\ndomain:        EXAMPLE.COM\norganisation:  Internet Assigned Numbers Authority\ncreated:       1992-01-01\nsource:        IANA",
       "enunciado": "O que esta resposta permite afirmar, e o que ela não traz?",
       "alternativas": [
         "Confirma organização, data de criação e fonte do registro; não traz contato nem endereço de rede",
@@ -478,7 +478,7 @@
       "objetivos": [
         1
       ],
-      "enunciado": "A equipe quer a lista mais completa possível de subdomínios do cliente. Como se comparam log de certificado e força bruta de nomes?",
+      "enunciado": "A equipe quer a lista mais completa possível de subdomínios do cliente. Que afirmação sobre o log de transparência de certificado, como fonte, está correta?",
       "alternativas": [
         "O log devolve nomes reais sem tocar no alvo, mas só os que receberam certificado público",
         "A força bruta é a fonte confiável, porque o log de certificado só guarda certificados já expirados",
@@ -525,8 +525,8 @@
       ],
       "correta": 0,
       "dicas": [
-        "Compare os dois campos de autor: um parece nome de pessoa, o outro parece outra coisa.",
-        "O campo de produtor traz um número; número de quê?",
+        "Os dois campos de autor não têm o mesmo formato. O que cada formato costuma ser, dentro de uma empresa?",
+        "Um dos campos traz um número que não é data. Número de quê, e por que ele interessa?",
         "Só se pode afirmar o que os campos exibidos mostram."
       ],
       "pergunta_socratica": "Antes de conferir: com o campo de produtor na mão, o que você procuraria em uma base de vulnerabilidades?",
@@ -552,7 +552,7 @@
       "objetivos": [
         1
       ],
-      "enunciado": "Por que um anúncio de vaga de emprego é fonte de reconhecimento?",
+      "enunciado": "Que informação de reconhecimento técnico um anúncio de vaga costuma entregar sobre a empresa?",
       "alternativas": [
         "Porque descreve produto, versão e tamanho do parque para atrair candidato qualificado",
         "Porque o formulário de candidatura costuma expor a base de dados de recursos humanos",
@@ -569,7 +569,7 @@
       "explicacao": "A vaga é o documento de arquitetura que a empresa publica de graça. Para atrair quem sabe operar o parque, ela lista produto, versão, nuvem, ferramenta de integração contínua e tamanho de time — e cada item desses é superfície descrita pelo próprio dono. O MITRE registra anúncios de vaga, mapas de rede, relatórios e currículos como fontes de informação sobre o software instalado. O valor está no texto do anúncio; o sistema que o hospeda é outro assunto.",
       "por_que_erradas": {
         "1": "O formulário é sistema de terceiro, e não a fonte do dado que interessa aqui.",
-        "2": "Estratégia comercial pode até vazar, mas não é o que torna a vaga útil ao reconhecimento.",
+        "2": "Estratégia comercial não nomeia produto nem versão: não descreve superfície técnica nenhuma.",
         "3": "Endereço de recrutador dá padrão de e-mail, não dá senha; deduzir senha daí é fantasia."
       },
       "fonte": "MITRE ATT&CK T1592.002 (Software) e T1591 (Gather Victim Org Information)",
@@ -601,7 +601,7 @@
         "Arquivo removido some da versão atual; some do histórico?"
       ],
       "pergunta_socratica": "Antes de conferir: o commit que apagou o arquivo de configuração apagou o conteúdo dele de onde?",
-      "explicacao": "O código diz a pilha em uso: linguagem, bibliotecas, padrões de nome. O histórico diz as pessoas: cada commit carrega autor e e-mail, e e-mail corporativo em projeto pessoal liga funcionário a empresa. E o histórico guarda o que a versão atual não mostra — arquivo de configuração removido depois, com credencial dentro, continua acessível por quem sabe olhar. O MITRE descreve exatamente isso: repositórios públicos expõem linguagens, bibliotecas e nomes de empregados, e às vezes credenciais vazadas por acidente.",
+      "explicacao": "O código diz a pilha em uso: linguagem, bibliotecas, padrões de nome. O histórico diz as pessoas: cada commit carrega autor e e-mail, e o e-mail corporativo no histórico entrega o padrão de conta da organização e quem publica em nome dela. E o histórico guarda o que a versão atual não mostra — arquivo de configuração removido depois, com credencial dentro, continua acessível a qualquer um que leia o histórico. O MITRE descreve exatamente isso: repositórios públicos expõem linguagens, bibliotecas e nomes de empregados, e às vezes credenciais vazadas por acidente.",
       "por_que_erradas": {
         "1": "Endereço de produção às vezes aparece por descuido, mas topologia completa não vem do código.",
         "2": "O serviço hospeda repositório; ele não mantém inventário de servidores de ninguém.",
@@ -634,11 +634,11 @@
         ],
         [
           "Shodan",
-          "Índice de banners de dispositivos, montado pela varredura semanal que o próprio serviço executa"
+          "Índice consultável de serviços expostos, filtrável por produto, versão, porta e país, com o banner guardado"
         ],
         [
           "Maltego",
-          "Grafo de ligação: não busca nada sozinho, quem coleta é o transform escolhido para cada entidade"
+          "Área de trabalho de investigação: entidades, relações e o grafo montado pelo analista a cada expansão"
         ],
         [
           "SpiderFoot",
@@ -646,7 +646,7 @@
         ]
       ],
       "dicas": [
-        "Duas dessas ferramentas não coletam nada por conta própria: uma agrega, outra desenha.",
+        "Duas dessas ferramentas entregam resultado sem manter base própria de coleta.",
         "Uma delas se descreve, no próprio texto do projeto, como reconhecimento ativo.",
         "Uma vive de varredura própria da internet, feita antes de qualquer consulta sua."
       ],
@@ -678,12 +678,12 @@
       ],
       "correta": 0,
       "dicas": [
-        "A resposta está na primeira linha da descrição do projeto.",
-        "Pergunte o que o modo ativo faz com os nomes que descobre.",
-        "Duas alternativas afirmam fatos que a documentação do projeto contradiz."
+        "Pergunte o que o modo ativo faz com cada nome que descobre.",
+        "Transferência de zona é um pedido feito a qual servidor?",
+        "Duas alternativas afirmam coisas sobre fontes pagas e sobre o estado do projeto que dá para conferir no repositório."
       ],
       "pergunta_socratica": "Antes de conferir: para ler o nome dentro de um certificado, é preciso abrir conexão com quem?",
-      "explicacao": "O projeto se apresenta como mapeamento de superfície de ataque e descoberta de ativos externos usando informação aberta e técnicas de reconhecimento ativo — está no próprio texto. Na prática, o modo ativo resolve nomes, tenta transferência de zona e abre conexão com os hosts descobertos para ler nomes de certificado, o que gera tráfego visível. Rodar isso contra terceiro sem autorização é reconhecimento ativo com nome de OSINT, e é o erro mais comum de quem monta metodologia por fama de ferramenta. O projeto segue mantido, agora em organização própria.",
+      "explicacao": "O projeto se apresenta como mapeamento de superfície de ataque e descoberta de ativos externos usando informação aberta e técnicas de reconhecimento ativo — está no próprio texto. Na prática, o modo ativo resolve nomes, tenta transferência de zona e abre conexão com os hosts descobertos para ler nomes de certificado, o que gera tráfego visível. Rodar isso contra terceiro sem autorização é reconhecimento ativo com nome de OSINT, e é o erro mais comum de quem monta metodologia por fama de ferramenta. O projeto segue mantido e continua sendo projeto carro-chefe (flagship) da OWASP; o que mudou foi o endereço do repositório, hoje na organização owasp-amass.",
       "por_que_erradas": {
         "1": "Ele usa fontes abertas e não depende de base paga para funcionar.",
         "2": "Subdomínio é justamente um dos ativos que ele coleta, junto com blocos e sistemas autônomos.",
@@ -707,9 +707,9 @@
       "enunciado": "De onde vem o dado que um serviço de índice de banners entrega, e quando a consulta passa a tocar o alvo?",
       "alternativas": [
         "De varredura própria do serviço; consultar o índice não toca, pedir varredura sob demanda toca",
-        "De relatórios enviados pelos provedores de hospedagem; nenhuma forma de uso alcança o alvo",
-        "Da varredura que o próprio usuário executa e envia ao serviço, que apenas armazena e indexa",
-        "De registros de domínio e logs de certificado, agregados sem nenhuma varredura de rede"
+        "De relatórios que os provedores de hospedagem enviam ao serviço; nem a consulta nem o pedido de varredura alcançam o alvo",
+        "Da varredura que o próprio usuário executa e envia ao serviço; a consulta devolve só o que você mesmo mandou",
+        "De registros de domínio e logs de certificado agregados; sem varredura própria, nenhum uso do serviço toca o alvo"
       ],
       "correta": 0,
       "dicas": [
@@ -741,7 +741,7 @@
         2,
         0
       ],
-      "enunciado": "Uma coleta roda como `theharvester -d empresa.example -b crtsh`. Ligar as opções de resolução de nomes e de força bruta de DNS muda o quê?",
+      "enunciado": "Uma coleta roda como `theHarvester -d empresa.example -b crtsh`. Ligar as opções de resolução de nomes e de força bruta de DNS muda o quê?",
       "alternativas": [
         "A coleta deixa de ser passiva: as consultas passam a chegar ao servidor de nomes do alvo",
         "A coleta continua passiva, porque quem responde é um resolvedor recursivo público, e não o alvo",
@@ -797,7 +797,7 @@
         "2": "Importação manual existe, mas a coleta corrente vem dos transforms, e não só de registro.",
         "3": "A licença dá acesso a conectores e créditos; ela não entrega uma base pronta e atualizada."
       },
-      "fonte": "Documentação do Maltego (transforms e limites da Community Edition), conforme a pesquisa de fontes",
+      "fonte": "Documentação do Maltego (transforms e limites do plano gratuito — hoje Maltego Basic, que substituiu a Community Edition: até 24 resultados por transform e 10.000 entidades por grafo)",
       "tags": [
         "ferramentas",
         "maltego",
@@ -812,27 +812,27 @@
       "objetivos": [
         2
       ],
-      "enunciado": "O escopo assinado permite apenas coleta que não toque no cliente. Qual conjunto de escolhas cabe nesse limite?",
+      "enunciado": "O escopo assinado proíbe qualquer contato com a infraestrutura do cliente, e a equipe precisa de subdomínios. Que combinação de ferramenta e módulo cabe nesse limite?",
       "alternativas": [
-        "Log de certificado, índice de busca e base de banners já coletada, sem resolver nome nenhum",
-        "Mapeamento de superfície em modo ativo, que é a forma mais completa de listar subdomínios",
-        "Varredura sob demanda das faixas do cliente, contratada no serviço comercial de índice",
-        "Coleta com resolução de nomes ligada, já que consulta de DNS não deixa registro em log"
+        "theHarvester restrito aos módulos de nível zero, somando log de certificado, busca e arquivos de página",
+        "theHarvester com resolução de nomes e força bruta ligadas, para completar o que as fontes públicas não trouxerem",
+        "Amass em modo ativo, que é a forma mais completa de listar os nomes de um domínio",
+        "Serviço de índice de banners com varredura sob demanda das faixas que o cliente indicou no escopo"
       ],
       "correta": 0,
       "dicas": [
-        "Para cada opção, siga o caminho do pacote até o fim.",
-        "Completude não é critério aqui: o critério é o limite do escopo.",
-        "Uma das opções afirma algo falso sobre registro de consultas de DNS."
+        "Cada módulo de um agregador tem um nível de intensidade próprio; o nome da ferramenta não decide nada.",
+        "Completude não é o critério aqui: o critério é o limite escrito no escopo.",
+        "Para cada opção, siga o caminho do pacote até o fim."
       ],
-      "pergunta_socratica": "Antes de conferir: qual dessas escolhas você conseguiria defender numa reunião de fechamento do teste?",
-      "explicacao": "Dentro de um escopo que proíbe contato, sobra a consulta a terceiros que já publicaram o dado: log de certificado, índice de busca, arquivos de página e base de banners coletada antes. O mapeamento em modo ativo é mais completo e por isso mesmo está fora — completude não altera o limite acordado. A varredura sob demanda é varredura por procuração. E consulta de DNS aparece, sim, em registro: servidor autoritativo e resolvedor registram consulta, e volume anormal vira alerta. O escopo não é sugestão; é o contrato técnico do teste.",
+      "pergunta_socratica": "Antes de conferir: dentro da mesma ferramenta, dois módulos podem cair em lados opostos da linha?",
+      "explicacao": "A classificação é por módulo, não por ferramenta. O README do theHarvester separa os módulos por intensidade: os passivos são de nível zero, e resolução de nome, força bruta, consulta recursiva e reverso sobem um nível porque a consulta termina no servidor autoritativo do alvo. Por isso a mesma ferramenta cabe ou não cabe no escopo, dependendo das opções ligadas. O modo ativo do Amass fica de fora pelo mesmo critério, e completude não altera limite acordado. Varredura sob demanda é varredura por procuração: quem escolheu o alvo e pediu o pacote foi você.",
       "por_que_erradas": {
-        "1": "O modo ativo resolve nomes e abre conexão com os hosts: contato explícito com o cliente.",
-        "2": "Contratar a varredura não muda quem escolheu o alvo nem quem pediu o pacote.",
-        "3": "Consulta de DNS é registrada, e força bruta de nomes produz padrão facilmente visível."
+        "1": "Resolução e força bruta sobem de nível justamente porque a consulta termina no servidor autoritativo do cliente.",
+        "2": "O modo ativo resolve nomes e abre conexão com os hosts descobertos: contato explícito, por mais completo que seja.",
+        "3": "Contratar a varredura não muda quem escolheu o alvo nem quem pediu o pacote."
       },
-      "fonte": "MITRE ATT&CK T1595 e T1596.003; NIST SP 800-115, Apêndice B (limites e lista de exclusão)",
+      "fonte": "README do theHarvester (classificação de módulos por intensidade); MITRE ATT&CK T1595 e T1596.003; NIST SP 800-115, Apêndice B (limites e lista de exclusão)",
       "tags": [
         "ferramentas",
         "escopo",
@@ -884,27 +884,27 @@
         2,
         3
       ],
-      "enunciado": "A equipe de segurança quer achar o que o próprio domínio publicou sem querer. Qual consulta serve de ponto de partida?",
+      "enunciado": "A equipe de segurança vai revisar periodicamente o que o próprio domínio publicou sem querer. O que caracteriza uma revisão que serve?",
       "alternativas": [
-        "`site:empresa.example filetype:xlsx`, repetida para cada tipo de arquivo que a empresa publica",
-        "`inurl:empresa.example intext:senha`, que localiza qualquer credencial exposta em qualquer domínio",
-        "`allintitle:empresa.example`, que devolve todas as páginas do domínio, inclusive as não indexadas",
-        "`noindex:empresa.example`, que devolve as páginas marcadas para não serem indexadas pelo buscador"
+        "Varrer por tipo de arquivo em mais de um buscador e repetir em intervalo fixo, porque os índices divergem e mudam",
+        "Rodar a varredura uma vez, no fechamento do projeto, e guardar o resultado como linha de base do domínio",
+        "Delegar a busca ao provedor de hospedagem, que enxerga o conteúdo publicado antes de qualquer buscador",
+        "Pedir ao buscador a lista completa de páginas do domínio, inclusive as que ele não chegou a indexar"
       ],
       "correta": 0,
       "dicas": [
-        "O ponto de partida é delimitar o domínio e varrer por tipo de arquivo.",
-        "Um dos operadores citados não existe.",
-        "Nenhum buscador devolve o que não foi indexado."
+        "Índice de buscador não é único nem estável; o que isso exige da rotina?",
+        "O que foi publicado depois da última revisão é justamente o que ninguém olhou.",
+        "Pergunte o que um buscador consegue devolver sobre página que ele nunca indexou."
       ],
-      "pergunta_socratica": "Antes de conferir: qual planilha publicada no seu domínio você não sabe que está lá?",
+      "pergunta_socratica": "Antes de conferir: o que muda entre olhar o domínio uma vez e olhar todo mês?",
       "explicacao": "O par que delimita domínio e tipo de arquivo é o começo do trabalho, repetido para planilha, apresentação, documento de texto, configuração e cópia de segurança. O guia de teste da OWASP recomenda essa família de operadores e insiste em usar mais de um buscador, porque os índices divergem. Vale como rotina, e não como evento isolado: o que foi publicado depois da última revisão é justamente o que ninguém olhou. O operador que restringe a URL não delimita domínio, o de título busca palavras no título, e o quarto simplesmente não existe — nenhum buscador devolve o que não indexou.",
       "por_que_erradas": {
-        "1": "Esse operador filtra a URL, não delimita o domínio, e não varre credencial em domínio nenhum.",
-        "2": "O operador de título busca palavras no título das páginas indexadas, e não a lista do domínio.",
-        "3": "Esse operador não existe; e página não indexada, por definição, não está no índice."
+        "1": "Revisão única envelhece no dia seguinte: o que entra depois dela não é olhado por ninguém.",
+        "2": "O provedor entrega bytes; ele não sabe qual arquivo publicado não deveria estar lá.",
+        "3": "Página não indexada, por definição, não está no índice — nenhum buscador a devolve."
       },
-      "fonte": "OWASP WSTG, teste de reconhecimento por motor de busca (WSTG-INFO-01), operadores recomendados e revisão periódica do que está publicado",
+      "fonte": "OWASP WSTG v4.2 (versão estável; a v5.0 segue em desenvolvimento), teste de reconhecimento por motor de busca (WSTG-INFO-01), operadores recomendados e revisão periódica do que está publicado",
       "tags": [
         "dorks",
         "defesa",
@@ -920,11 +920,11 @@
       "objetivos": [
         2
       ],
-      "enunciado": "O que significa, na prática, escolher hoje uma ferramenta de OSINT parada há anos, como SpiderFoot ou recon-ng?",
+      "enunciado": "O que significa, na prática, escolher hoje SpiderFoot ou recon-ng como ferramenta de linha de frente da coleta?",
       "alternativas": [
         "Continuam utilizáveis, mas sem versão nova há anos: valem pelo método, não como linha de frente",
         "São os projetos mais ativos da área, e a atualização semanal acompanha as fontes novas",
-        "Foram removidos dos repositórios públicos e não podem mais ser instalados nem estudados",
+        "Deixaram de aceitar módulos de terceiros, e só as fontes embutidas na última versão continuam funcionando",
         "Passaram a exigir licença comercial, e a versão aberta perdeu todos os módulos de coleta"
       ],
       "correta": 0,
@@ -937,7 +937,7 @@
       "explicacao": "Os dois continuam disponíveis e instaláveis, e o método que ensinam — espaço de trabalho, módulos, guarda de chaves, correlação de achados — segue valendo. O problema é de manutenção: um está sem versão marcada desde 2022, e passou ao controle de uma empresa que priorizou o produto pago; o outro está sem alteração desde o fim de 2024 e nunca publicou versão no repositório. Em agregador de fontes, o que quebra primeiro não é o código, e sim a fonte que mudou de formato. Use pelo padrão de trabalho, e confira a data da última alteração antes de apostar a metodologia numa ferramenta.",
       "por_que_erradas": {
         "1": "Um está sem versão marcada desde 2022; o outro, sem alteração desde o fim de 2024.",
-        "2": "Os repositórios continuam públicos e acessíveis; nada foi removido.",
+        "2": "Os dois seguem aceitando módulo de terceiro; o que envelhece é a fonte que mudou de formato, não a arquitetura.",
         "3": "As versões abertas continuam com os módulos; o que existe é produto pago em paralelo."
       },
       "fonte": "Estado dos repositórios verificado na pesquisa de fontes (19/08/2026): última versão marcada e data da última alteração de cada projeto",
@@ -975,7 +975,7 @@
         "2": "A lacuna inclui ativos externos, e não só serviços internos: exposto e invisível coexistem.",
         "3": "Nenhuma das três é atualizada em tempo real; a varredura tem janela e o índice tem atraso."
       },
-      "fonte": "RFC 9162 (limite do que entra em log de certificado); documentação do Shodan sobre periodicidade da varredura; OWASP WSTG-INFO-01 (usar mais de um motor de busca)",
+      "fonte": "RFC 9162 (limite do que entra em log de certificado); documentação do Shodan sobre periodicidade da varredura; OWASP WSTG v4.2, WSTG-INFO-01 (usar mais de um motor de busca)",
       "tags": [
         "osint",
         "cobertura",
@@ -1001,8 +1001,8 @@
       "correta": 0,
       "dicas": [
         "A pergunta é sobre o arquivo publicado, e não sobre cópias que estejam fora dele.",
-        "A documentação da ferramenta avisa que toda edição de metadado é reversível.",
-        "Se a edição é reversível, o que exatamente ela fez com o valor antigo?"
+        "Pergunte como o formato registra uma alteração: por cima do valor antigo, ou depois dele?",
+        "Se o valor antigo tivesse sido sobrescrito, a alteração ainda poderia ser desfeita?"
       ],
       "pergunta_socratica": "Antes de conferir: se a alteração pode ser desfeita, o valor antigo foi apagado ou foi acrescentado por cima?",
       "explicacao": "O formato permite atualização incremental: a alteração é acrescentada ao fim, e a versão anterior continua guardada dentro do arquivo. A documentação da ferramenta mais usada diz isso com todas as letras — as edições de metadado são reversíveis, o que normalmente seria vantagem e aqui é problema de segurança, porque a informação antiga nunca é de fato apagada. A correção é reescrever o arquivo por inteiro depois da remoção, com uma ferramenta que linearize o documento, e conferir relendo todos os campos. A cópia guardada pelo buscador é problema real, mas de outra natureza: ela não explica o que sobrou dentro do arquivo.",
@@ -1110,8 +1110,8 @@
       ],
       "correta": 0,
       "dicas": [
-        "O candidato certo reconhece a família de tecnologia sem precisar do número da versão.",
-        "Pergunte o que a versão exata acrescenta à triagem de candidato.",
+        "A vaga precisa comunicar alguma coisa; pergunte o mínimo que ela precisa dizer para atrair quem interessa.",
+        "Pergunte o que o número da versão acrescenta à triagem de candidato.",
         "Duas opções tentam esconder o texto em vez de mudar o texto."
       ],
       "pergunta_socratica": "Antes de conferir: qual candidato você perderia ao escrever a categoria do produto em vez da versão dele?",
@@ -1154,7 +1154,7 @@
       "explicacao": "Os quatro itens falham, e é por isso que o exercício é útil. A privacidade no registro esconde um contato que já vinha redigido, sem tirar nome nenhum da superfície. Bloquear a sub-rede do varredor impede indexação futura e não remove o histórico já coletado, que continua consultável. Revogar certificado não apaga registro em log somente de acréscimo. Mas só o item 2 piora: a documentação do buscador é explícita em dizer que aquele arquivo não é mecanismo para manter uma página fora do índice, e o arquivo é público — vira o índice do que a empresa considera sensível. Para não indexar, a marcação correta é no documento, ou senha.",
       "por_que_erradas": {
         "1": "É verdade que não resolve, mas ativar a privacidade não publica nada de novo ao atacante.",
-        "2": "Também é verdade que não resolve, e ainda assim nenhuma lista nova é entregue por isso.",
+        "2": "Bloquear a sub-rede do varredor impede coleta futura e não remove o histórico já publicado; nenhuma lista nova é entregue por isso.",
         "3": "A permanência do certificado antigo no log é fato, e não uma lista publicada pela empresa."
       },
       "fonte": "Documentação do Google sobre robots.txt (não é mecanismo para manter página fora do índice); documentação da Censys sobre bloqueio de sub-redes e permanência do dado histórico; RFC 9162 (log somente de acréscimo)",
@@ -1256,7 +1256,7 @@
       "dicas": [
         "O nome que já foi publicado é irrecuperável; a pergunta é sobre os próximos.",
         "O log é somente de acréscimo, e não prevê remoção nem ocultação de nome.",
-        "Existe uma forma de proteger o host com TLS sem escrever o nome dele no certificado público."
+        "Quais nomes um certificado precisa conter para proteger um host — e quais ele não precisa conter?"
       ],
       "pergunta_socratica": "Antes de conferir: o que precisaria ter sido diferente no pedido do certificado para o nome nunca ter ido a público?",
       "explicacao": "O que já foi publicado não sai: o log é somente de acréscimo, revogação não apaga entrada e não existe mecanismo de redação de nome. O que dá para mudar é o próximo pedido. Certificado curinga protege o host sem escrever o nome específico, e autoridade certificadora interna atende o que nunca sai da rede, sem passar por log público. Junto disso vem a higiene do nome: padrão previsível de ambiente convida força bruta, e ambiente de homologação em domínio separado reduz o que um nome entrega. Renomear o host não altera o registro antigo, que continua lá com o nome velho.",
@@ -1315,36 +1315,35 @@
       "tipo": "cenario",
       "dificuldade": 3,
       "objetivos": [
-        0,
         3
       ],
-      "enunciado": "Antes de começar o levantamento de um cliente, o que a autorização por escrito resolve — e o que ela não resolve?",
+      "enunciado": "Entre as ações de um levantamento de reconhecimento, qual conduta a lei brasileira tipifica como crime?",
       "alternativas": [
-        "Delimita escopo, janela e parada, e serve de prova; não estende autorização a terceiros",
-        "Torna lícito qualquer teste contra qualquer ativo que atenda pelo domínio do cliente",
-        "Substitui a análise da LGPD, porque o cliente assume por contrato todo o tratamento de dados",
-        "É exigida em lei específica de teste de segurança, sem a qual até a coleta pública é ilícita"
+        "Invadir dispositivo informático alheio para obter, adulterar ou destruir dados; ler fonte pública, não",
+        "Qualquer varredura de portas contra máquina de terceiro, com ou sem autorização do titular",
+        "Coletar endereços de e-mail publicados em site aberto, por falta de consentimento do titular",
+        "Consultar log de transparência de certificado de domínio que não pertence a quem consulta"
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem é o dono do dispositivo que hospeda cada nome do escopo.",
-        "Nenhuma lei brasileira exige forma escrita para autorizar teste; então para que serve o escrito?",
-        "Uma das opções confunde contrato entre partes com obrigação legal perante terceiros."
+        "Leia o verbo do tipo penal: o que exatamente ele proíbe?",
+        "Uma das opções transforma prática lícita e corriqueira em crime que não existe.",
+        "Obrigação da lei de dados pessoais e conduta criminal são coisas diferentes; qual delas a pergunta pede?"
       ],
-      "pergunta_socratica": "Antes de conferir: se um dos nomes do escopo estiver hospedado em serviço de terceiro, quem autorizou o teste ali?",
+      "pergunta_socratica": "Antes de conferir: entre ler um registro público e entrar num dispositivo alheio, onde a lei desenha a linha?",
       "explicacao": "O escrito serve para três coisas: delimitar alvos, janela, técnicas vedadas e critério de parada; provar a autorização meses depois, quando quem assinou já saiu; e definir papéis e limites de tratamento de dados pessoais. O que ele não faz é alcançar quem não assinou — provedor de nuvem, rede de entrega de conteúdo e serviço contratado são dispositivos de terceiros, com política própria, e esse é o furo mais comum em escopo montado por domínio. Na parte penal, convém a precisão: a Lei 12.737/2012 tipifica invadir dispositivo informático de uso alheio com finalidade específica, e não consulta a DNS, leitura de log público ou uso de operador de busca. Não existe crime de varredura no Brasil; o que a prática profissional exige é autorização e escopo por escrito.",
       "por_que_erradas": {
-        "1": "Nome no escopo não implica dispositivo do cliente: quem hospeda pode ser terceiro que não assinou.",
-        "2": "Contrato distribui responsabilidade entre as partes; ele não afasta as obrigações da lei.",
-        "3": "Não há lei brasileira que exija forma escrita para autorizar teste; o escrito é prova e limite."
+        "1": "Não existe tipo penal de varredura no Brasil; o que a lei tipifica é a invasão do dispositivo.",
+        "2": "Dado manifestamente público dispensa o consentimento; o que continua valendo são os princípios da LGPD.",
+        "3": "O log é publicado justamente para ser consultado por qualquer um; consultá-lo não é conduta típica."
       },
       "fonte": "Lei 12.737/2012 (art. 154-A do Código Penal, com a redação dada pela Lei 14.155/2021); LGPD (Lei 13.709/2018), arts. 5º, VI e VII, e 39; NIST SP 800-115, Apêndice B (regras de engajamento e critério de parada)",
       "tags": [
         "etica",
-        "autorizacao",
-        "escopo",
         "lei-12737",
-        "cenario"
+        "lgpd",
+        "autorizacao",
+        "limites"
       ]
     }
   ]
