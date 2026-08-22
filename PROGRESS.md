@@ -3,7 +3,7 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-20 · commit `f2a9336` · 938 testes passando
+Última atualização: 2026-08-20 · commit `3ec2e5c` · 2.196 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -13,18 +13,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 18 de 41 |
-| Questões | 631 |
-| Blocos de teoria | 110 |
-| Tags distintas | 548 |
-| Testes automatizados | 938 |
+| Módulos de conteúdo escritos | 19 de 41 |
+| Questões | 666 |
+| Blocos de teoria | 116 |
+| Tags distintas | 589 |
+| Testes automatizados | 2.196 |
 | Linhas de código Python | ~3.260 |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 35 (1 de 9 módulos).
 
-Tipos de questão em uso: conceitual 296, cenário 131, caça ao erro 48,
-ataque→defesa 44, pareamento 34, comando 32, ordenação 24, artefato 22.
+Tipos de questão em uso: conceitual 312, cenário 138, caça ao erro 50,
+ataque→defesa 46, pareamento 36, comando 34, ordenação 26, artefato 24.
 
 ---
 
@@ -50,7 +50,8 @@ C:\Dev\cybersecurity-app\
 │                            desafio, glossario, ferramentas (stubs)
 ├── data/
 │   ├── niveis.json          6 níveis e regras de desbloqueio
-│   └── modulos/*.json       18 módulos (00-01 … 02-07)
+│   ├── modulos/*.json       19 módulos (00-01 … 03-01)
+│   └── rascunhos/nivel-3/   3.2 e 3.3 escritos, ainda sem revisão
 ├── exemplo/
 │   └── modulo-minimo.json   modelo comentado, um exemplo de cada tipo de questão
 ├── ferramentas/
@@ -122,6 +123,19 @@ C:\Dev\cybersecurity-app\
 - **Cadeado é por nível, não por módulo.** `pre_requisitos` do conteúdo é ordem
   sugerida — travar módulo por módulo prendia o nível 0 inteiro no primeiro.
 
+### Embaralho das alternativas
+
+- **A alternativa correta está no índice 0 em todas as questões escritas**, e a
+  permutação acontece na exibição, não no arquivo. Foi assim que o defeito
+  passou despercebido por 18 módulos: `mapa_de_exibicao()` só embaralhava
+  ordenação e pareamento, e a resposta certa saía sempre na primeira linha da
+  tela. Corrigido em `7908e99`.
+- **`conferir()` e `feedback()` recebem o índice exibido** e traduzem para o
+  índice do arquivo. A tela não conhece a tradução — mesma divisão de
+  responsabilidade que já valia para ordenação e pareamento.
+- Um teste trava a distribuição: a correta precisa cair nas quatro posições, e
+  nenhuma pode concentrar mais de 40%. Hoje está em 20/26/28/26.
+
 ### Validação de conteúdo
 
 - **Campos pedagógicos são esquema, não regra de qualidade.** Questão sem
@@ -184,7 +198,7 @@ C:\Dev\cybersecurity-app\
 | 4 | Conteúdo dos níveis 0 e 1 (11 módulos) | pronta |
 | 5 | Telas de sessão, trilha, home, módulo e progresso | pronta (antecipada) |
 | 6 | Nível 2 + glossário + ferramentas | parcial: nível 2 completo; glossário e ferramentas pendentes |
-| 7 | Níveis 3 e 4 + desafios práticos | pendente |
+| 7 | Níveis 3 e 4 + desafios práticos | em andamento: 3.1 pronto |
 | 8 | Nível 5 + simulado + trilha de 90 dias | pendente |
 | 9 | Ícone, atalho, README, publicação | pronta |
 
@@ -198,6 +212,9 @@ C:\Dev\cybersecurity-app\
 1.1 Linux essencial · 1.2 Linha de comando e shell · 1.3 Windows e Active
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
+
+**Nível 3 — Ofensivo** (35 questões, 1 de 9)
+3.1 Metodologia de pentest
 
 **Nível 2 — Núcleo de segurança** (245 questões, completo)
 2.1 Criptografia I · 2.2 Criptografia II · 2.3 Criptografia III ·
@@ -217,7 +234,7 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 23 módulos
+### Conteúdo — 22 módulos
 
 - **Nível 3 — Ofensivo** (9): metodologia de pentest, OSINT, varredura,
   Web I/II/III, OWASP Top 10, quebra de senhas, engenharia social e redes sem fio
@@ -254,14 +271,16 @@ real de requisição.
   SPF, DKIM e DMARC).
 - **Streak recalcula dias passados com a meta atual.** Guardar a meta de cada dia
   exigiria outra tabela.
-- **Bloco 3.1–3.3 escrito e não revisado.** Os três primeiros módulos do nível 3
-  (metodologia de pentest, OSINT, varredura e enumeração) foram escritos e passam
-  na validação estrutural, mas a revisão adversarial foi interrompida no meio e
-  eles **não** estão em `data/modulos/`. Os arquivos, os relatórios de procedência
-  e os laboratórios estão em `C:\Dev\cybersecurity-app-pendente\`. Antes de
-  publicá-los, revisar à mão: exatidão de sintaxe de ferramenta, versão do OWASP
-  Top 10 (a vigente é a **2025**, não a 2021), equilíbrio ataque/defesa e nenhum
-  alvo fora de `localhost`/RFC 1918/RFC 5737.
+- **3.2 e 3.3 escritos e não revisados.** Estão em
+  `data/rascunhos/nivel-3/`, com os relatórios de procedência e os laboratórios.
+  Passam na validação estrutural, mas não passaram pelas duas lentes. Antes de
+  promover: sintaxe de ferramenta conferida na documentação (nmap, Gobuster e
+  dig não estão instalados aqui), versão do OWASP Top 10 quando ela aparecer (a
+  vigente é a **2025**), separação clara entre coleta passiva e interação com o
+  alvo no 3.2, equilíbrio ataque/defesa e nenhum alvo fora de `localhost`/RFC
+  1918/RFC 5737.
+- **O relatório de procedência do 3.3 nunca foi escrito** — o processo foi
+  interrompido antes disso.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
   existir `.venv` na pasta, o atalho continuará usando o Python global; o
   `run.bat` é quem prefere a `.venv`.

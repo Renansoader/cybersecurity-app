@@ -11,7 +11,7 @@ do repositório.
 
 | Pasta | Conteúdo |
 |---|---|
-| `modulos/` | Os três módulos em JSON: 3.1 metodologia de pentest, 3.2 OSINT e reconhecimento, 3.3 varredura e enumeração. 35 questões cada |
+| `modulos/` | Os módulos ainda não promovidos: 3.2 OSINT e reconhecimento, 3.3 varredura e enumeração. 35 questões cada |
 | `relatorios/` | Relatório de procedência de cada módulo (`3.1.md`, `3.2.md`) e as notas de pesquisa das fontes (`metodologia.md`, `osint.md`, `varredura.md`, `owasp-attack.md`, `owasp-versao-VERIFICADA.md`) |
 | `lab/` | Os laboratórios executados e a saída real que virou artefato de questão |
 
@@ -19,7 +19,7 @@ do repositório.
 
 | Módulo | Escrito | Validação estrutural | Revisão adversarial | Em `data/modulos/` |
 |---|---|---|---|---|
-| 3.1 | sim | passa | pendente | não |
+| 3.1 | sim | passa | **feita** | **sim** — promovido em `3ec2e5c` |
 | 3.2 | sim | passa | pendente | não |
 | 3.3 | sim | passa | pendente | não |
 
