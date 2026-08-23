@@ -1,0 +1,1340 @@
+{
+  "id": "4.1",
+  "nivel": 4,
+  "titulo": "Hardening — linha de base, superfície mínima e correção por risco",
+  "objetivos": [
+    "Definir uma linha de base de configuração e medir o desvio em relação a ela — e saber o que conformidade não mede",
+    "Reduzir superfície: serviço, porta, conta, recurso e funcionalidade que não precisam existir",
+    "Priorizar correção por risco real — exposição, exploração conhecida e automatizabilidade — e não por nota isolada",
+    "Aplicar benchmark com exceção documentada, sem quebrar produção, e reconhecer o limite do checklist"
+  ],
+  "pre_requisitos": [
+    "3.3"
+  ],
+  "teoria": [
+    {
+      "id": "4.1.t1",
+      "titulo": "Linha de base: o estado declarado e o desvio como medida",
+      "texto": "Endurecer um sistema começa por escrever o que ele deve ser: que serviços rodam, que portas escutam, que contas existem, com que configuração. Isso é a linha de base. Ela não é documento de intenção — é o padrão contra o qual o estado real é medido, item a item.\n\nA medição devolve três resultados, e não dois. Conforme é o item que existe e está declarado. Desvio é o que está em execução e não consta da linha de base: investigar ou fechar. E existe o caso oposto, o item declarado que não está lá — esse não é falha de segurança, é a linha de base envelhecendo em relação à máquina.\n\nNo laboratório deste módulo, comparar as portas em escuta desta máquina com uma linha de base declarada devolveu 2 conformes, 9 desvios e 1 declarado-e-ausente. Nenhum desses números diz se a máquina é segura. Eles dizem a distância entre o que foi decidido e o que está rodando.",
+      "analogia": "É o inventário do almoxarifado: ele não diz se as ferramentas são boas, diz se o que está na prateleira bate com o que está na lista.",
+      "erro_comum": "Tratar o item declarado e ausente como incidente. Serviço que sumiu porque ninguém usa mais é a lista que precisa ser corrigida, não o serviço que precisa voltar.",
+      "fonte": "Verificado em execução no laboratório local (desvio_de_linha_base.py, somente leitura); NIST SP 800-123, Guide to General Server Security, julho de 2008"
+    },
+    {
+      "id": "4.1.t2",
+      "titulo": "Superfície mínima: o que não existe não é alcançado",
+      "texto": "Superfície é tudo que aceita entrada de alguém: serviço em escuta, porta aberta, conta ativa, recurso instalado, funcionalidade habilitada, interpretador presente. A regra de menor funcionalidade manda deixar ligado só o que uma necessidade nomeada justifica — e essa necessidade tem dono.\n\nAs medidas não são equivalentes. Remover o recurso da máquina apaga o componente: não há porta, não há versão para envelhecer, não há correção para aplicar. Desabilitar o serviço mantém o código instalado, e alguém religa. Filtrar no firewall deixa o serviço de pé e depende de a regra continuar onde está. Mudar de porta não retira nada.\n\nSuperfície também é conta e dado. Conta de serviço sem uso, chave de acesso antiga, compartilhamento aberto \"por enquanto\" e recurso de compatibilidade legado contam tanto quanto porta aberta — e aparecem menos nos relatórios, porque ninguém varre por conta esquecida.",
+      "analogia": "Trancar a porta é filtrar; tirar a porta e fechar a parede é remover. Só uma das duas continua valendo depois que alguém perde a chave.",
+      "erro_comum": "Contar só porta. Conta de serviço esquecida, recurso legado habilitado e chave antiga são superfície igual, e não aparecem numa varredura de portas.",
+      "fonte": "NIST SP 800-123, Guide to General Server Security, julho de 2008 (configuração mínima de servidor); menor funcionalidade como controle CM-7 do NIST SP 800-53 — identificador declarado como conhecimento consolidado"
+    },
+    {
+      "id": "4.1.t3",
+      "titulo": "Ligado não é configurado: o que esta máquina mostrou",
+      "texto": "A leitura desta máquina devolveu doze portas TCP em escuta, entre elas 135, 139 e 445, e um punhado de portas altas de aplicações. Uma delas, 49664, está na faixa efêmera, atribuída dinamicamente pelo sistema: não é serviço publicado, e cobrar justificativa dela é ruído.\n\nO achado mais instrutivo foi o firewall. Os três perfis — Domain, Private e Public — aparecem com Enabled=True e, ao mesmo tempo, com DefaultInbound e DefaultOutbound em NotConfigured. O mecanismo está ligado; a ação padrão que ele aplica não foi definida por política, e o comportamento vem do padrão herdado do sistema.\n\nUm checklist que pergunta \"o firewall está ativo?\" marca conforme e vai embora. A pergunta útil é outra: qual decisão está registrada ali? O que ninguém decidiu não pode ser auditado, e muda de valor quando alguém aplica uma política nova.",
+      "analogia": "É o alarme instalado e energizado, com a sensibilidade ainda no ajuste que veio de fábrica. Ligado, sim; configurado por você, não.",
+      "erro_comum": "Ler NotConfigured como \"bloqueia tudo\" ou como \"libera tudo\". Ele diz apenas que nenhuma política definiu o valor — a interpretação do efeito exige olhar o padrão do sistema.",
+      "fonte": "Verificado em execução no laboratório local (superficie_windows.txt, somente leitura); leitura do significado de NotConfigured declarada como conhecimento consolidado"
+    },
+    {
+      "id": "4.1.t4",
+      "titulo": "Correção: do prazo fixo à prioridade por risco",
+      "texto": "Quase todo material ainda ensina os prazos da BOD 22-01 da CISA, de 03/11/2021: duas semanas para CVE recente do catálogo KEV e seis meses para CVE anterior a 2021. Esses números deixaram de ser regra: a BOD 26-04, Prioritizing Security Updates Based on Risk, de 10/06/2026, revoga a BOD 22-01 e a BOD 19-02.\n\nO modelo novo não começa pelo calendário. Ele pergunta: o ativo está exposto publicamente? a vulnerabilidade tem exploração confirmada em uso? o adversário consegue automatizar todos os passos da exploração? qual é o impacto técnico? Da combinação sai a urgência, com janelas que vão de três dias no pior caso até corrigir na próxima atualização programada.\n\nO KEV não sumiu: mudou de papel, de gatilho de prazo para um dos fatores da decisão. E o NIST SP 800-40 Rev. 4, de abril de 2022, dá o enquadramento: correção é manutenção preventiva, planejada como estratégia corporativa.",
+      "analogia": "Prazo fixo é multar todo mundo pela mesma tabela. Prioridade por risco é olhar quem está dirigindo, onde, e a que velocidade.",
+      "erro_comum": "Repetir \"KEV são 15 dias\". Era a BOD 22-01, revogada em 2026; hoje o prazo sai do modelo de risco, e o piso é de três dias no pior caso.",
+      "fonte": "CISA BOD 26-04, Prioritizing Security Updates Based on Risk, 10/06/2026 (revoga a BOD 22-01, de 03/11/2021); NIST SP 800-40 Rev. 4, Guide to Enterprise Patch Management Planning, abril de 2022"
+    },
+    {
+      "id": "4.1.t5",
+      "titulo": "Benchmark, perfil e exceção documentada",
+      "texto": "Benchmark é a receita pronta: item a item, com valor recomendado e justificativa. Os CIS Benchmarks vêm em perfis justamente porque aplicar tudo quebra sistema — o Level 1 reúne o que se espera aplicável sem derrubar a operação, e o Level 2 é defesa em profundidade para quem tolera mais restrição e mais custo. Os CIS Critical Security Controls, hoje na v8.1, são outra coisa: dizem o que fazer como programa, não como configurar cada tecnologia.\n\nNenhum parque aplica cem por cento. Por isso existe exceção documentada: o desvio autorizado, com dono, justificativa, prazo de revisão e controle compensatório. Isso é parte do processo, não falha dele — a falha é o desvio que ninguém registrou, e a exceção sem prazo, que vira permanente.\n\nFerramenta ajuda a medir: o Security Compliance Toolkit traz as linhas de base da Microsoft para Windows, e o OpenSCAP avalia perfis de conformidade em Linux.",
+      "analogia": "O benchmark é a bula. A exceção documentada é a anotação do médico dizendo por que este paciente não toma aquele comprimido, e quando isso será revisto.",
+      "erro_comum": "Tratar exceção como fracasso e escondê-la. Exceção registrada é gerenciável e tem data para voltar; exceção informal é o mesmo desvio, só que invisível.",
+      "fonte": "CIS Critical Security Controls v8.1 (cisecurity.org/controls) — versão vigente; perfis Level 1 e Level 2 dos CIS Benchmarks e grupos de implementação declarados como conhecimento consolidado"
+    },
+    {
+      "id": "4.1.t6",
+      "titulo": "O limite do checklist: conformidade não é segurança",
+      "texto": "Conformidade mede uma coisa só, e mede bem: a distância entre o declarado e o real. Ela não mede eficácia. Uma linha de base cem por cento aplicada pode estar mirando a ameaça errada — protege contra o adversário que o autor do benchmark imaginou, não contra o que quer o seu dado.\n\nO checklist também é retrospectivo por construção: ele cobre o que alguém já previu e escreveu. Nada nele pergunta quem quer o quê, por onde entraria e o que aconteceria depois. Essa pergunta é do modelo de ameaça, e nenhuma pontuação de conformidade a substitui.\n\nA própria BOD 26-04 é o exemplo institucional dessa mudança: ela troca o prazo uniforme, que tratava todo ativo igual, por uma decisão que olha exposição e explorabilidade do caso concreto. Endurecer bem é usar o checklist como piso, e o modelo de ameaça como direção.",
+      "analogia": "É a inspeção veicular: ela prova que o carro tem freio e farol. Não prova que quem dirige sabe o caminho nem que a estrada é segura.",
+      "erro_comum": "Apresentar a pontuação de conformidade como indicador de risco. Ela é indicador de aderência: sobe quando o parque se parece com o documento, e não quando o adversário fica mais longe.",
+      "fonte": "CISA BOD 26-04, 10/06/2026 (prioridade por risco no lugar de prazo uniforme); limite do checklist declarado como conhecimento consolidado"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "4.1.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Em endurecimento de sistemas, o que uma linha de base declara?",
+      "alternativas": [
+        "O estado aprovado de cada item de configuração, com dono e justificativa, contra o qual o real é medido",
+        "O consumo médio de processador, memória e rede da máquina em operação normal, para comparar com picos",
+        "A lista das vulnerabilidades já conhecidas naquele sistema, com a nota de gravidade de cada uma",
+        "O conjunto de correções que o fornecedor publicou no período, na ordem em que devem ser instaladas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O termo mora em dois vocabulários diferentes: um é de desempenho, o outro é de configuração. Qual deles a auditoria usa?",
+        "Pergunte o que uma ferramenta de conformidade precisa receber antes de rodar pela primeira vez.",
+        "Duas máquinas idênticas, uma aprovada e outra não. O que existe em uma e não existe na outra?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quando alguém diz que a máquina está \"fora da linha de base\", fora do quê ela está?",
+      "explicacao": "Linha de base de configuração é a descrição do estado aprovado: que serviços rodam, que portas escutam, que contas existem, com que valores. Cada item traz dono e justificativa, e é isso que permite decidir depois se uma diferença é problema ou é a lista que envelheceu. A medição de conformidade compara o real com essa declaração. Linha de base de desempenho existe e é outra coisa, com outro uso — misturar as duas faz o relatório responder à pergunta errada.",
+      "por_que_erradas": {
+        "1": "Isso é linha de base de desempenho: serve para detectar anomalia de carga, não para decidir o que deve estar configurado.",
+        "2": "Inventário de vulnerabilidade é resultado de varredura; a linha de base descreve o estado desejado, e não as falhas encontradas.",
+        "3": "Calendário de correção é parte da gestão de patches; a linha de base descreve configuração, não cronograma do fornecedor."
+      },
+      "fonte": "NIST SP 800-123, Guide to General Server Security, julho de 2008 — configuração segura de servidor; verificado em execução no laboratório local (desvio_de_linha_base.py)",
+      "tags": [
+        "linha-de-base",
+        "configuracao",
+        "conformidade",
+        "hardening"
+      ]
+    },
+    {
+      "id": "4.1.q2",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "artefato": "=== conforme a linha de base ===\n    135  RPC endpoint mapper\n    445  SMB\n\n=== em escuta, fora da linha de base ===\n    139   3215   3216   3217   5040\n  27036  27060  37777  42050\n\n=== declarado na linha de base, sem processo em escuta ===\n   3389  RDP\n\nresumo: 2 conformes, 9 desvios, 1 ausente",
+      "enunciado": "Esta saída comparou as portas em escuta da máquina com uma linha de base declarada. Qual leitura ela sustenta?",
+      "alternativas": [
+        "Que nove pontos de escuta não têm justificativa registrada; nada sobre o risco de cada um deles",
+        "Que a máquina está comprometida, porque só dois itens em execução constavam do documento aprovado e o resto é atividade de adversário",
+        "Que o nível de proteção é de dois em doze, razão que pode ir para o painel de risco como indicador de exposição",
+        "Que os nove itens sem registro devem ser encerrados hoje, e o documento atualizado depois com o que sobrar de pé"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A comparação teve dois lados: um documento e uma máquina. O que exatamente ela contou?",
+        "Uma porta sem registro pode ser de um agente legítimo que ninguém documentou. Isso muda o que a saída prova?",
+        "Separe o que a ferramenta contou do que só uma pessoa, olhando o processo, conseguiria dizer."
+      ],
+      "pergunta_socratica": "Antes de conferir: se todas as nove portas forem de software legítimo e necessário, a saída teria sido diferente?",
+      "explicacao": "A comparação é aritmética sobre dois conjuntos: o que está declarado e o que está em execução. Ela devolve nove itens em escuta sem justificativa registrada, e isso é uma fila de investigação, não um veredito. Cada um dos nove pode terminar em três lugares diferentes: fechado, documentado como legítimo ou registrado como exceção com prazo. A saída não sabe qual porta expõe um serviço de administração e qual expõe um recurso local, porque ela mede aderência ao documento, não exposição.",
+      "por_que_erradas": {
+        "1": "Desvio de documentação é comum em parque real e não é indício de invasão; a saída não observou nenhum comportamento de adversário.",
+        "2": "Aderência ao documento não é escala de proteção; um parque totalmente aderente pode estar mirando a ameaça errada.",
+        "3": "Fechar sem consultar o dono derruba serviço legítimo e ensina o parque a parar de reportar; a ordem é investigar antes de agir."
+      },
+      "fonte": "Verificado em execução no laboratório local (desvio_de_linha_base.py, somente leitura; a linha de conclusão da saída foi retirada do artefato)",
+      "tags": [
+        "linha-de-base",
+        "desvio",
+        "conformidade",
+        "artefato",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.1.q3",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Na mesma comparação, a porta 3389 consta da linha de base e não tem processo em escuta. Qual é a leitura correta desse resultado?",
+      "alternativas": [
+        "O documento envelheceu em relação à máquina; o que se corrige é a declaração, e não o estado do serviço",
+        "É indisponibilidade de um recurso obrigatório, e a resposta é reativá-lo para restaurar a conformidade",
+        "É desvio da mesma natureza dos outros nove e entra na mesma fila de investigar ou fechar",
+        "É evidência de que a comparação foi mal executada, já que um item declarado sempre deveria aparecer"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare as duas direções da diferença: sobra na máquina e falta na máquina não pedem a mesma ação.",
+        "Pergunte o que precisaria ser verdade para que reativar aquele serviço fosse a resposta certa.",
+        "Das duas diferenças possíveis, qual delas aumenta o que a máquina expõe se você agir para resolvê-la?"
+      ],
+      "pergunta_socratica": "Antes de conferir: um serviço que ninguém usa mais e por isso foi desligado deixou a máquina pior ou melhor?",
+      "explicacao": "A comparação produz três categorias, e as duas de diferença apontam para lados opostos. O que está em execução e não foi declarado é superfície não justificada. O que foi declarado e não está em execução é a lista descrevendo uma máquina que não existe mais — nesse caso, um acesso remoto que deixou de escutar. Religar um serviço só para satisfazer o documento aumenta a superfície em nome da conformidade, que é exatamente a inversão que o módulo quer evitar. A ação correta é revisar o item com quem o declarou e dar baixa nele.",
+      "por_que_erradas": {
+        "1": "Restaurar escuta de acesso remoto para fechar um item de auditoria acrescenta alcance sem que ninguém tenha pedido o serviço.",
+        "2": "Sobrar na máquina e faltar na máquina pedem ações opostas: uma fecha superfície, a outra corrige a declaração.",
+        "3": "A comparação leu o estado real corretamente; a divergência está no documento, que descreve um estado anterior."
+      },
+      "fonte": "Verificado em execução no laboratório local (desvio_de_linha_base.py, somente leitura); classificação em conforme, desvio e ausente conforme o próprio laboratório",
+      "tags": [
+        "linha-de-base",
+        "desvio",
+        "manutencao",
+        "conformidade"
+      ]
+    },
+    {
+      "id": "4.1.q4",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0,
+        3
+      ],
+      "enunciado": "Uma organização fecha o trimestre com aderência total à linha de base aprovada e, semanas depois, sofre um comprometimento. Que medida, apresentada ao lado da aderência, teria mostrado a lacuna antes?",
+      "alternativas": [
+        "O resultado de um exercício que tenta os caminhos que o documento não previu, porque só ele fala do adversário",
+        "A evolução da própria aderência trimestre a trimestre, que mostra se o parque está melhorando",
+        "A contagem de itens do benchmark já aplicados, que cresce conforme o programa amadurece",
+        "A contagem de exceções abertas, que mede o quanto o parque ainda difere do documento"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A medida saiu de uma comparação entre duas coisas. Alguma delas é o adversário?",
+        "Três das opções são recortes do mesmo número que já estava em cem por cento.",
+        "Pergunte o que precisaria mudar para que a nota continuasse alta e o comprometimento não acontecesse."
+      ],
+      "pergunta_socratica": "Antes de conferir: cem por cento de aderência responde a pergunta \"estamos iguais ao documento\" ou \"estamos protegidos\"?",
+      "explicacao": "Aderência mede distância entre o parque e o documento. Se o documento não previu o caminho que o adversário usou, a aderência pode estar em cem por cento e a lacuna continuar aberta — e as três medidas erradas são recortes desse mesmo número. A única que acrescenta informação é a que tenta o que o documento não previu: exercício ofensivo autorizado, simulação de adversário, revisão contra modelo de ameaça. Ela fala da outra ponta da relação. Por isso conformidade e eficácia aparecem lado a lado no relatório, e não uma no lugar da outra.",
+      "por_que_erradas": {
+        "1": "Aderência subindo mede aproximação do documento; se o documento não cobre o caminho usado, a curva sobe e a lacuna continua.",
+        "2": "Contar itens aplicados mede execução do programa, e mede contra a mesma lista que já falhou.",
+        "3": "Exceções abertas medem distância declarada até o documento — de novo o documento, e não o adversário."
+      },
+      "fonte": "CISA BOD 26-04, 10/06/2026 — troca de prazo uniforme por decisão baseada em risco do caso concreto; limite da conformidade declarado como conhecimento consolidado",
+      "tags": [
+        "conformidade",
+        "eficacia",
+        "medicao",
+        "modelo-de-ameaca"
+      ]
+    },
+    {
+      "id": "4.1.q5",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        0,
+        3
+      ],
+      "enunciado": "Ligue cada termo do vocabulário de endurecimento ao que ele nomeia.",
+      "pares": [
+        [
+          "linha de base",
+          "O estado de configuração aprovado, com dono e justificativa por item"
+        ],
+        [
+          "desvio",
+          "Diferença medida entre o que está em execução e o que foi declarado"
+        ],
+        [
+          "exceção documentada",
+          "O desvio que alguém autorizou e assinou, e que por isso pode ser cobrado de volta depois"
+        ],
+        [
+          "deriva de configuração",
+          "Afastamento acumulado ao longo do tempo, por mudanças que ninguém aprovou nem registrou"
+        ],
+        [
+          "benchmark",
+          "Conjunto público de recomendações item a item para configurar uma tecnologia específica"
+        ]
+      ],
+      "dicas": [
+        "Três dos cinco termos falam de diferença; separe o que foi autorizado, o que apenas foi medido e o que se acumulou sozinho.",
+        "Um dos termos descreve um processo lento, sem evento único que o explique.",
+        "Só um dos cinco vem de fora da organização, escrito por terceiros."
+      ],
+      "pergunta_socratica": "Antes de conferir: dos termos que descrevem diferença, quais deles alguém assinou embaixo?",
+      "explicacao": "O vocabulário separa coisas que a conversa costuma juntar. A linha de base é a declaração; o desvio é a diferença medida contra ela; a exceção documentada é o desvio que alguém autorizou, com dono e prazo, e por isso é gerenciável. A deriva é o acúmulo silencioso de mudanças pequenas, sem evento que a explique, e é o motivo de a medição precisar ser periódica. O benchmark é insumo externo: a receita pronta que a organização adapta para escrever a própria linha de base.",
+      "fonte": "CIS Critical Security Controls v8.1 e CIS Benchmarks (cisecurity.org/controls); NIST SP 800-123, julho de 2008; vocabulário operacional declarado como conhecimento consolidado",
+      "tags": [
+        "vocabulario",
+        "linha-de-base",
+        "excecao",
+        "deriva",
+        "pareamento"
+      ]
+    },
+    {
+      "id": "4.1.q6",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "O que conta como superfície de ataque de uma máquina, além das portas em escuta?",
+      "alternativas": [
+        "Conta ativa, credencial antiga, recurso instalado, funcionalidade habilitada e interpretador presente",
+        "Somente o que responde na rede, já que sem alcance remoto não existe entrada aproveitável",
+        "Nada além do software com vulnerabilidade publicada, porque componente sem falha conhecida não acrescenta risco",
+        "O que o inventário registra, já que aquilo que ninguém documentou não pode ser explorado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense em como alguém que já tem um pé dentro amplia o alcance dele. Isso precisa de porta nova?",
+        "Uma varredura de portas enxerga tudo que aceita entrada? O que ela não enxerga?",
+        "Componente sem falha publicada hoje continua sem falha publicada em dois anos?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que você usaria para encontrar aquilo que uma varredura de portas não enxerga?",
+      "explicacao": "Superfície é tudo que aceita entrada ou amplia alcance: serviço em escuta, mas também conta ativa sem uso, chave e credencial antigas, recurso instalado, funcionalidade habilitada e interpretador disponível. Boa parte disso não aparece em varredura de porta, e é justamente por onde alguém que já entrou se move. A regra de menor funcionalidade cobre esse conjunto inteiro: fica ligado o que uma necessidade nomeada, com dono, justifica. Componente sem vulnerabilidade publicada hoje é apenas componente cuja vulnerabilidade ainda não foi publicada.",
+      "por_que_erradas": {
+        "1": "Movimentação lateral e escalada usam recurso local; boa parte da superfície nunca respondeu na rede.",
+        "2": "Ausência de falha publicada é estado temporário, e o componente instalado continua sendo alvo quando ela sair.",
+        "3": "O que ninguém documentou é exatamente o que costuma ser explorado, porque ninguém o revisa nem o corrige."
+      },
+      "fonte": "NIST SP 800-123, Guide to General Server Security, julho de 2008 (configuração mínima); menor funcionalidade como controle CM-7 do NIST SP 800-53 — identificador declarado como conhecimento consolidado",
+      "tags": [
+        "superficie-de-ataque",
+        "menor-funcionalidade",
+        "contas",
+        "hardening"
+      ]
+    },
+    {
+      "id": "4.1.q7",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "artefato": "=== superficie: portas TCP em escuta (leitura desta maquina) ===\n  porta 135    processos: 2\n  porta 139    processos: 1\n  porta 445    processos: 1\n  porta 3215   processos: 1\n  porta 3216   processos: 1\n  porta 3217   processos: 1\n  porta 5040   processos: 1\n  porta 27036  processos: 1\n  porta 27060  processos: 1\n  porta 37777  processos: 1\n  porta 42050  processos: 1\n  porta 49664  processos: 2",
+      "enunciado": "Esta é a leitura das portas TCP em escuta de uma estação. Qual é o próximo passo de quem vai reduzir superfície a partir daqui?",
+      "alternativas": [
+        "Amarrar cada linha ao processo e ao dono que a justifica, porque a decisão de manter ou tirar depende disso",
+        "Bloquear as doze no firewall, o que retira a superfície sem precisar identificar nenhum dos processos",
+        "Tratar as portas acima de dez mil como suspeitas e as abaixo de mil como legítimas, pela faixa de registro",
+        "Concluir que a estação está comprometida, já que nove das doze portas não correspondem a serviço documentado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Você vai tomar uma decisão por linha. Que decisões existem, e o que cada uma exige saber antes?",
+        "Duas linhas dessa lista podem ser do mesmo software legítimo de trabalho. Como você saberia?",
+        "Pergunte o que acontece com o serviço quando você age antes de saber quem depende dele."
+      ],
+      "pergunta_socratica": "Antes de conferir: olhando só para o número 37777, você consegue dizer se ele deve ficar?",
+      "explicacao": "A leitura devolve pontos de escuta e quantos processos sustentam cada um, e é só isso. Número de porta não identifica software, e faixa de numeração não separa legítimo de indesejado: 135, 139 e 445 são serviços do próprio sistema, e portas altas costumam ser de aplicações instaladas pelo usuário. Reduzir superfície começa por cruzar cada linha com o processo dono e com a necessidade que o justifica, para então decidir entre remover, desabilitar, filtrar ou registrar como exceção. Agir antes disso derruba serviço legítimo e faz o programa de endurecimento perder apoio na primeira semana.",
+      "por_que_erradas": {
+        "1": "Bloqueio cego derruba serviço do próprio sistema e do usuário, e mantém o componente instalado por trás da regra.",
+        "2": "Faixa de numeração não indica legitimidade: há serviço essencial em porta baixa e aplicação comum em porta alta.",
+        "3": "Estação de trabalho escuta por padrão para compartilhamento, chamada de procedimento remoto e software instalado."
+      },
+      "fonte": "Verificado em execução no laboratório local (superficie_windows.txt, somente leitura; nome da máquina não coletado)",
+      "tags": [
+        "superficie-de-ataque",
+        "portas",
+        "artefato",
+        "inventario",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.1.q8",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "artefato": "=== superficie: portas TCP em escuta (leitura desta maquina) ===\n  porta 135    processos: 2\n  porta 139    processos: 1\n  porta 445    processos: 1\n  porta 3215   processos: 1\n  porta 3216   processos: 1\n  porta 3217   processos: 1\n  porta 5040   processos: 1\n  porta 27036  processos: 1\n  porta 27060  processos: 1\n  porta 37777  processos: 1\n  porta 42050  processos: 1\n  porta 49664  processos: 2",
+      "enunciado": "Na triagem dessa lista, a porta 49664 recebeu tratamento diferente da 3215. Que critério separa as duas?",
+      "alternativas": [
+        "A primeira cai na faixa efêmera, atribuída dinamicamente pelo sistema, e não corresponde a serviço publicado",
+        "A primeira tem dois processos associados, e ponto de escuta compartilhado costuma indicar componente do próprio sistema",
+        "A primeira está acima do limite de registro da IANA, e por isso nenhum tráfego externo consegue alcançá-la",
+        "A primeira pertence ao sistema operacional, e item de sistema fica fora do escopo desta triagem"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Nem todo ponto de escuta foi publicado por alguém. Que segunda leitura distinguiria os dois casos?",
+        "Pergunte se aquele mesmo número estaria em escuta depois de reiniciar a máquina.",
+        "Cobrar justificativa de um número que muda a cada reinício produz o quê, na fila de investigação?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas duas portas você esperaria encontrar com outro número amanhã?",
+      "explicacao": "O laboratório descarta da fila de desvios tudo a partir de 49152, que é a faixa efêmera: são números que o sistema atribui dinamicamente a conexões e a serviços que não publicam porta fixa. Cobrar justificativa registrada para um número que muda a cada reinício enche o relatório de ruído e afoga o achado que importa. A 3215 está fora dessa faixa e se comporta como serviço publicado, que espera em um número estável — é dela que se cobra dono e justificativa. Repare que o critério é de comportamento, não de perigo: porta efêmera não é segura por ser alta, ela apenas não é item de linha de base.",
+      "por_que_erradas": {
+        "1": "Contagem de processos não diz nada sobre legitimidade; ela só informa quantos mantêm aquele ponto aberto.",
+        "2": "Faixa alta não impede alcance remoto; o que decide alcance é filtro de rede, não numeração.",
+        "3": "Serviço do sistema entra no escopo como qualquer outro: parte do endurecimento é justamente desligar o que não se usa."
+      },
+      "fonte": "Verificado em execução no laboratório local (desvio_de_linha_base.py, corte da faixa efêmera em 49152); faixa dinâmica declarada como conhecimento consolidado",
+      "tags": [
+        "portas",
+        "faixa-efemera",
+        "triagem",
+        "artefato",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.1.q9",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        0,
+        1
+      ],
+      "artefato": "=== perfis de firewall ===\n  Domain   Enabled=True  DefaultInbound=NotConfigured  DefaultOutbound=NotConfigured\n  Private  Enabled=True  DefaultInbound=NotConfigured  DefaultOutbound=NotConfigured\n  Public   Enabled=True  DefaultInbound=NotConfigured  DefaultOutbound=NotConfigured",
+      "enunciado": "Os três perfis desta máquina saíram assim. O que essa combinação de valores informa a quem audita?",
+      "alternativas": [
+        "Que o mecanismo está ativo, mas nenhuma política definiu a ação padrão: o comportamento vem do que o sistema traz de fábrica",
+        "Que o firewall está desativado nos três perfis, e o campo de habilitação foi preenchido por engano",
+        "Que todo tráfego de entrada está sendo bloqueado, porque a ausência de valor equivale à ação mais restritiva",
+        "Que todo tráfego de entrada está sendo permitido, porque sem ação definida o filtro deixa o pacote seguir"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Há dois campos diferentes na mesma linha. Um responde \"existe?\" e o outro responde outra pergunta — qual?",
+        "Pergunte a quem você iria cobrar explicação por cada um dos dois campos.",
+        "Se amanhã alguém aplicar uma política nova nessa máquina, qual dos dois campos muda de sentido?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o item de auditoria \"o firewall está ativo?\" teria detectado alguma coisa aqui?",
+      "explicacao": "Habilitação e ação padrão são campos independentes. Os três perfis mostram o mecanismo ativo e, ao mesmo tempo, a ação padrão de entrada e de saída sem valor definido por política — o que roda é o comportamento herdado do sistema, e não uma escolha registrada por alguém. A diferença importa em auditoria por dois motivos: o que ninguém decidiu não tem dono nem justificativa, e muda de efeito quando uma política nova é aplicada à máquina.",
+      "por_que_erradas": {
+        "1": "A habilitação está marcada como verdadeira nos três perfis; o campo sem valor é outro.",
+        "2": "Sem valor definido não significa ação restritiva escolhida; significa que a política não fixou nada ali.",
+        "3": "Também não significa liberação escolhida; qualquer das duas leituras inventa uma decisão que não foi registrada."
+      },
+      "fonte": "Verificado em execução no laboratório local (superficie_windows.txt, somente leitura); interpretação do valor não configurado declarada como conhecimento consolidado",
+      "tags": [
+        "firewall",
+        "perfis",
+        "artefato",
+        "auditoria",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.1.q10",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0,
+        3
+      ],
+      "enunciado": "O item de auditoria \"firewall de host ativo: sim ou não\" foi marcado como conforme em todas as estações. Qual reformulação produz evidência que alguém pode conferir e cobrar?",
+      "alternativas": [
+        "\"Ação padrão de entrada definida por política e igual a bloquear, nos três perfis\", que nomeia o valor esperado e onde lê-lo",
+        "\"Firewall de host ativo em todas as estações, conforme o relatório mensal do inventário\", que mantém o sim ou não e acrescenta a fonte",
+        "\"Firewall de host configurado adequadamente, a critério do administrador de cada máquina\", que deixa o valor com quem conhece o ambiente",
+        "\"Firewall de host com pelo menos vinte regras cadastradas\", que troca a presença por uma contagem verificável"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um item de auditoria precisa dizer o que conferir e onde. Quantos dos quatro dizem as duas coisas?",
+        "Pergunte o que aconteceria se duas pessoas auditassem a mesma estação com cada um desses textos.",
+        "Uma das opções transfere a decisão para quem está sendo auditado."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que um auditor precisaria ver na tela para marcar o item como conforme sem depender da palavra de alguém?",
+      "explicacao": "Item de linha de base bom nomeia o valor esperado e o lugar onde ele é lido — quem confere não precisa interpretar. \"Ativo: sim\" mede presença do mecanismo, e presença não é postura: nesta máquina o firewall está ativo nos três perfis e a ação padrão não tem valor definido por política. Acrescentar a fonte do dado não resolve, porque o problema é o que está sendo medido. Delegar ao administrador dissolve a linha de base, e contar regras troca a decisão por um número que não distingue regra restritiva de permissiva. Quem ataca procura exatamente o controle instalado e nunca ajustado: ele passa em auditoria e não atrapalha.",
+      "por_que_erradas": {
+        "1": "Acrescentar a fonte diz de onde veio o sim; continua sem dizer que valor a política exige.",
+        "2": "Critério do administrador é o oposto de linha de base: cada máquina passa a ter a sua, e nenhuma é cobrável.",
+        "3": "Contagem de regras não é postura: vinte regras permissivas passam, e uma regra correta reprova."
+      },
+      "fonte": "Verificado em execução no laboratório local (superficie_windows.txt); crítica ao item binário de checklist declarada como conhecimento consolidado",
+      "tags": [
+        "linha-de-base",
+        "auditoria",
+        "evidencia",
+        "firewall"
+      ]
+    },
+    {
+      "id": "4.1.q11",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        0,
+        3
+      ],
+      "artefato": "=== SMBv1 (protocolo legado) ===\n  SMB1Protocol: nao consultado\n  (Get-WindowsOptionalFeature exige elevacao; o laboratorio roda somente leitura)",
+      "enunciado": "Este item saiu assim do levantamento. O que o relatório de endurecimento pode escrever sobre o protocolo legado nesta máquina?",
+      "alternativas": [
+        "Que o item ficou sem verificação, registrando o motivo e o que seria preciso para verificá-lo depois",
+        "Que ele está desativado, porque instalações recentes desse sistema já vêm assim de fábrica há anos",
+        "Que ele está ativo, porque a consulta teria devolvido resposta caso o componente tivesse sido removido",
+        "Que o item pode ser marcado como conforme, já que nenhuma evidência em contrário foi encontrada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Separe o que a saída mediu do que ela explica sobre si mesma.",
+        "O padrão de fábrica descreve a máquina que saiu da linha de montagem. Esta máquina é essa?",
+        "Pergunte qual das opções continua verdadeira se, depois, alguém consultar com privilégio e achar o contrário."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas frases você teria de apagar do relatório se a consulta com privilégio contradissesse o palpite?",
+      "explicacao": "A consulta não foi executada: ela exige elevação, e o levantamento rodou somente leitura. Ausência de medição não é medição de ausência, e nenhum dos dois palpites — ativo ou desativado — tem lastro na saída. O que o relatório registra é \"não verificado\", com o motivo e o caminho para verificar depois. Instalações recentes desse sistema já removem ou desabilitam o protocolo legado por padrão, mas isso é afirmação sobre o padrão do produto, não sobre esta máquina. Marcar como conforme por falta de evidência é o defeito mais silencioso de auditoria, porque some do relatório junto com o item.",
+      "por_que_erradas": {
+        "1": "O padrão do produto descreve o que vem de fábrica; máquina real acumula atualização, migração e instalação herdada.",
+        "2": "A consulta parou por falta de privilégio, e não por resposta do componente; ela não distingue estado nenhum.",
+        "3": "Conforme por ausência de evidência transforma uma lacuna em aprovação e apaga o item da fila de trabalho."
+      },
+      "fonte": "Verificado em execução no laboratório local (superficie_windows.txt: consulta não realizada por exigir elevação); padrão de fábrica do protocolo legado declarado como conhecimento consolidado",
+      "tags": [
+        "evidencia",
+        "auditoria",
+        "protocolo-legado",
+        "artefato",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.1.q12",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [
+        0,
+        1
+      ],
+      "enunciado": "Você quer responder, sem alterar nada na máquina Windows: que pontos de escuta existem e que processo sustenta cada um?",
+      "alternativas": [
+        "`Get-NetTCPConnection -State Listen` e, pelo identificador de processo devolvido, `Get-Process`",
+        "`Get-NetFirewallRule`, que devolve as regras cadastradas e, com elas, o que está de fato escutando",
+        "`Get-Service`, que devolve os serviços registrados e o ponto de rede que cada um mantém aberto",
+        "`Test-NetConnection` porta a porta e, para o que responder, `Resolve-DnsName` do próprio host"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Antes de escolher, escreva o que você aceitaria como prova de que a porta 5040 pertence ao programa X.",
+        "Regra cadastrada descreve intenção. Você precisa de intenção ou de estado atual?",
+        "Serviço registrado e serviço em escuta são o mesmo conjunto? Onde entra o aplicativo que não é serviço?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que amarra o número da porta ao nome do software é qual dado intermediário?",
+      "explicacao": "O estado de escuta é lido do próprio sistema, e o vínculo com o software vem do identificador de processo devolvido junto — é ele que amarra o número da porta ao nome do executável. Regra de firewall descreve o que se pretendeu permitir, e não o que está em execução; lista de serviços não cobre aplicativo que escuta sem estar registrado como serviço; e sondar a própria máquina de fora mede alcance, não propriedade do ponto de escuta. Todos os três comandos aqui são de leitura: diagnóstico não precisa alterar o alvo, e num levantamento é regra não alterar.",
+      "por_que_erradas": {
+        "1": "Regra cadastrada é intenção declarada; ela existe para porta que ninguém abriu e falta para porta que alguém abriu.",
+        "2": "Nem todo ponto de escuta pertence a um serviço registrado, e nem todo serviço registrado abre ponto de rede.",
+        "3": "Sondagem mede o que responde de onde a sonda parte; ela não devolve o processo dono do ponto de escuta."
+      },
+      "fonte": "Cmdlets do módulo NetTCPIP e do Windows PowerShell — sintaxe conforme a documentação; leitura equivalente executada no laboratório local (superficie_windows.txt)",
+      "tags": [
+        "comando",
+        "powershell",
+        "portas",
+        "diagnostico"
+      ]
+    },
+    {
+      "id": "4.1.q13",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Numa conferência de linha de base no Windows, qual leitura devolve, por perfil de firewall, o estado de habilitação e a ação padrão de entrada?",
+      "alternativas": [
+        "`Get-NetFirewallProfile`, que traz uma linha por perfil com os dois campos lado a lado",
+        "`Get-NetConnectionProfile`, que traz a rede à qual a máquina está ligada e a categoria dela",
+        "`Get-NetFirewallRule`, que traz o cadastro completo e permite deduzir dali o valor de fábrica",
+        "`Get-NetIPConfiguration`, que traz endereço, rota e resolvedor de cada adaptador da máquina"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Dois nomes muito parecidos existem: um fala do filtro, o outro fala da rede em que você está.",
+        "Pergunte se a leitura escolhida distingue os três contextos de rede ou devolve um valor só para a máquina.",
+        "Cadastro de regra tem quantas linhas? É isso que responde a pergunta feita?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a categoria da rede em que a máquina está ligada é a mesma coisa que a política do filtro?",
+      "explicacao": "A leitura por perfil devolve uma linha para cada um dos três — domínio, privado e público — com habilitação e ações padrão de entrada e de saída na mesma linha, que é exatamente o formato do artefato deste módulo. Os nomes vizinhos confundem: um deles descreve a rede à qual a máquina está conectada e a categoria atribuída a ela, o que é informação de contexto, não de política de filtro. Cadastro de regras responde outra pergunta e não expõe a ação padrão. Todas essas leituras são não destrutivas, e é assim que se levanta linha de base: medir sem mexer.",
+      "por_que_erradas": {
+        "1": "Ele descreve a rede conectada e a categoria dela, e não a política aplicada pelo filtro de host.",
+        "2": "Cadastro de regra lista exceções individuais; a ação padrão não é deduzível a partir delas.",
+        "3": "Endereçamento e rota são configuração de rede da interface, sem relação com a política do filtro."
+      },
+      "fonte": "Cmdlets do módulo NetSecurity — sintaxe conforme a documentação; leitura equivalente executada no laboratório local (superficie_windows.txt)",
+      "tags": [
+        "comando",
+        "powershell",
+        "firewall",
+        "linha-de-base"
+      ]
+    },
+    {
+      "id": "4.1.q14",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Você precisa provar, sem alterar a máquina Windows, que uma correção específica chegou a ela e em que data. Qual leitura sustenta essa afirmação?",
+      "alternativas": [
+        "`Get-HotFix`, que devolve identificador, classificação e data de instalação de cada correção presente",
+        "`Get-Package`, que lista pacotes de software instalados e não cobre correção do sistema",
+        "`Get-WindowsUpdateLog`, que reconstrói o registro do serviço de atualização e descreve tentativa, não estado final",
+        "`Test-NetConnection` contra o servidor de atualização, que só verifica se a máquina alcança o serviço"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A afirmação tem duas partes: que chegou, e quando. Quantas das leituras entregam as duas?",
+        "Uma das opções descreve o caminho até o serviço, e não o estado da máquina.",
+        "Separe o que registra tentativa do que registra resultado."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a atualização tivesse falhado três vezes e funcionado na quarta, qual leitura mostraria só o que ficou instalado?",
+      "explicacao": "A pergunta é de evidência: provar estado, sem tocar na máquina. A leitura de correções instaladas devolve identificador, classificação e data — as duas partes da afirmação, em uma linha por correção. O inventário de pacotes cobre software instalado, que é outro conjunto. O registro do serviço de atualização é histórico de tentativa, útil para diagnosticar falha e ruim para afirmar estado. E testar alcance de rede responde a outra pergunta: se a máquina consegue falar com o serviço, não o que ela recebeu dele.",
+      "por_que_erradas": {
+        "1": "Pacote de software e correção do sistema são inventários diferentes; a correção não aparece ali.",
+        "2": "O registro do serviço conta o que foi tentado e quando; tentativa registrada não é correção presente.",
+        "3": "Alcançar o servidor de atualização não diz nada sobre o que foi instalado na máquina."
+      },
+      "fonte": "Leitura de correções instaladas executada no laboratório local (superficie_windows.txt); NIST SP 800-40 Rev. 4, Guide to Enterprise Patch Management Planning, abril de 2022",
+      "tags": [
+        "gestao-de-patches",
+        "evidencia",
+        "windows",
+        "comando"
+      ]
+    },
+    {
+      "id": "4.1.q15",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "artefato": "=== correcoes instaladas (ultimas 5 entradas) ===\n  KB5121003    Security Update   2026-08-13\n  KB5120708    Update            2026-08-13\n  KB5123304    Security Update   2026-08-12\n  KB5054156    Update            2026-02-19\n  KB5059093    Update            2025-05-27",
+      "enunciado": "Esta leitura foi feita em 22/08/2026. O que ela sustenta a respeito do estado de correção da máquina?",
+      "alternativas": [
+        "Que essas cinco entradas foram instaladas nas datas mostradas, e nada sobre o que está pendente hoje",
+        "Que a máquina está em dia, já que a entrada mais recente é de nove dias antes da leitura",
+        "Que há atraso acumulado, porque duas das entradas são de meses anteriores ao mês da leitura",
+        "Que as entradas classificadas como atualização comum podem ser removidas, por não serem de segurança"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Repare no cabeçalho: ele diz quantas linhas foram impressas. Isso é a lista inteira?",
+        "Duas linhas velhas convivem com três recentes. Isso é sinal de atraso ou de outra coisa?",
+        "Para afirmar que está em dia, você precisaria comparar com qual outro conjunto?"
+      ],
+      "pergunta_socratica": "Antes de conferir: com esta saída na mão, você conseguiria nomear uma única correção que está faltando?",
+      "explicacao": "A saída traz cinco entradas, com classificação e data de instalação, e o cabeçalho já avisa que são as cinco últimas. Ela prova que essas correções chegaram à máquina, e é boa evidência para essa afirmação específica. Não prova o inverso: pendência é ausência, e ausência não aparece em lista de instalados. Datas antigas convivendo com recentes também não indicam atraso — pacote de manutenção instalado uma vez continua listado com a data em que entrou. Para falar de pendência é preciso o catálogo do que foi publicado e se aplica a esta versão.",
+      "por_que_erradas": {
+        "1": "Recência da última entrada não cobre o conjunto; pode faltar correção publicada no mesmo dia e não aplicada.",
+        "2": "Data de instalação antiga é normal: o pacote entrou naquele momento e continua registrado com aquela data.",
+        "3": "Classificação indica a natureza do pacote, não que ele seja dispensável; remover pacote de manutenção reabre correção já aplicada."
+      },
+      "fonte": "Verificado em execução no laboratório local (superficie_windows.txt, leitura de 22/08/2026, somente leitura)",
+      "tags": [
+        "correcao",
+        "artefato",
+        "evidencia",
+        "gestao-de-patches",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.1.q16",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Que documento rege hoje a correção de vulnerabilidades nas agências federais civis dos Estados Unidos, e com que lógica?",
+      "alternativas": [
+        "A BOD 26-04, de 10 de junho de 2026, que ordena a fila por risco do caso concreto no lugar de janela uniforme",
+        "A BOD 22-01, de 3 de novembro de 2021, que dá duas semanas para entrada recente e seis meses para CVE anterior a 2021",
+        "O CVSS, cuja nota base define diretamente quantos dias a agência tem para aplicar a correção",
+        "O NIST SP 800-40 Rev. 4, de abril de 2022, que fixa os prazos obrigatórios e os torna exigíveis por lei"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Confira a data de cada documento contra a data de hoje, e pergunte qual deles substituiu qual.",
+        "Separe quem publica orientação técnica de quem emite ordem obrigatória para as agências.",
+        "Pergunte se uma escala de gravidade tem autoridade para fixar prazo administrativo."
+      ],
+      "pergunta_socratica": "Antes de conferir: os prazos que praticamente todo curso repete são de qual documento, e ele ainda está em vigor?",
+      "explicacao": "A diretiva vigente é a BOD 26-04, Prioritizing Security Updates Based on Risk, emitida em 10/06/2026, que revoga a BOD 22-01 e a BOD 19-02. A lógica mudou de natureza: em vez de janela igual para todo mundo, a urgência sai da combinação entre exposição do ativo, existência de exploração em uso, automatizabilidade e impacto técnico, com prazos que vão de três dias no pior caso até a próxima atualização programada. Os números de duas semanas e seis meses vinham da diretiva de 2021 e continuam sendo repetidos em material desatualizado. O guia do NIST orienta o planejamento e não emite ordem, e escala de gravidade não fixa prazo administrativo.",
+      "por_que_erradas": {
+        "1": "Ela foi revogada em 2026 e aparece marcada assim na listagem de diretivas da própria agência.",
+        "2": "Gravidade técnica é insumo de prioridade; ela não carrega autoridade administrativa nem define janela.",
+        "3": "Publicação especial do NIST é guia de planejamento, e diretiva obrigatória para agências vem da CISA."
+      },
+      "fonte": "CISA BOD 26-04, Prioritizing Security Updates Based on Risk, 10/06/2026 — revoga a BOD 19-02 e a BOD 22-01 (03/11/2021); NIST SP 800-40 Rev. 4, abril de 2022",
+      "tags": [
+        "bod-26-04",
+        "cisa",
+        "gestao-de-patches",
+        "atualidade"
+      ]
+    },
+    {
+      "id": "4.1.q17",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ordene os quatro casos, do que exige ação mais imediata para o que pode esperar a manutenção programada.",
+      "itens": [
+        "Serviço publicado na internet, exploração já observada em uso e cadeia de exploração inteiramente automatizável",
+        "Serviço publicado na internet, com código de exploração público que ainda depende de condição específica do alvo",
+        "Componente alcançável apenas de dentro da rede, por conta já autenticada, sem exploração pública conhecida",
+        "Biblioteca instalada em máquina sem alcance de rede, que só seria acionada por quem já tem acesso local"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "dicas": [
+        "Dois eixos ordenam a fila: de onde o adversário alcança o alvo e quanto trabalho ele ainda precisa ter.",
+        "Dois dos casos estão publicados na internet e têm o mesmo alcance; o que os separa é o esforço que ainda resta ao adversário.",
+        "Em dois dos casos o adversário precisa ter conquistado alguma coisa antes de tentar. Quanto vale cada um desses degraus?"
+      ],
+      "pergunta_socratica": "Antes de conferir: entre alcance e esforço, qual dos dois muda mais rápido quando alguém publica uma ferramenta pronta?",
+      "explicacao": "A lógica da BOD 26-04 combina exposição, exploração conhecida, automatizabilidade e impacto técnico. Exposto à internet com exploração em uso e cadeia automatizável é o pior caso, porque a varredura em massa transforma exposição em comprometimento em poucos dias. Exposto com exploração que ainda depende de condição do alvo vem em seguida: o alcance é o mesmo, e o esforço restante é maior. Alcançável só de dentro e por conta autenticada exige que o adversário já tenha um pé lá. Sem alcance de rede, a correção entra na manutenção programada. Repare que nenhuma dessas linhas foi ordenada por nota de gravidade.",
+      "fonte": "CISA BOD 26-04, Prioritizing Security Updates Based on Risk, 10/06/2026 — fatores de prioridade; faixas exatas de prazo declaradas como conhecimento consolidado",
+      "tags": [
+        "priorizacao",
+        "exposicao",
+        "bod-26-04",
+        "ordenacao"
+      ]
+    },
+    {
+      "id": "4.1.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "O que a nota do EPSS estima a respeito de um CVE publicado?",
+      "alternativas": [
+        "A probabilidade de que ele venha a ser explorado na natureza dentro dos próximos trinta dias",
+        "A gravidade do impacto técnico caso ele venha a ser explorado, numa escala fechada de zero a dez",
+        "O esforço de escrever uma exploração funcional, atribuído por revisão manual de um comitê de especialistas",
+        "A quantidade de sistemas afetados no parque instalado mundial no último trimestre, estimada por telemetria dos fornecedores"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O nome da iniciativa traz uma palavra que indica antecipação, e ela não é a primeira.",
+        "Duas notas conhecidas convivem no mesmo relatório e respondem perguntas diferentes: uma é sobre o quanto dói.",
+        "Pergunte se o número muda quando ninguém mexe na falha, só porque o mundo lá fora mudou."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma falha devastadora que ninguém nunca vai tentar explorar receberia nota alta em qual das escalas?",
+      "explicacao": "O EPSS é um modelo de aprendizado de máquina, orientado a dados, que estima a probabilidade de um CVE publicado ser explorado na natureza nos próximos trinta dias. A saída é um número entre zero e um, acompanhado de percentil, e é mantido pelo grupo de interesse específico do FIRST. Ele responde \"vai acontecer?\", enquanto a escala de gravidade responde \"quanto dói se acontecer\" e o catálogo de exploração confirmada responde \"já aconteceu\". As três convivem: a nota de gravidade sozinha não ordena fila, e o EPSS sozinho não mede consequência.",
+      "por_que_erradas": {
+        "1": "Isso descreve a escala de gravidade, que mede consequência técnica e não previsão de uso.",
+        "2": "A pontuação não é atribuída por revisão manual: ela sai de um modelo alimentado por dados observados.",
+        "3": "Alcance no parque instalado é outra métrica; ela não estima comportamento de adversário no tempo."
+      },
+      "fonte": "FIRST — Exploit Prediction Scoring System (first.org/epss): modelo que estima a probabilidade de exploração na natureza em trinta dias, com nota de 0 a 1 e percentil",
+      "tags": [
+        "epss",
+        "priorizacao",
+        "probabilidade",
+        "gestao-de-patches"
+      ]
+    },
+    {
+      "id": "4.1.q19",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ligue cada insumo de priorização ao erro que ele produz quando usado sozinho.",
+      "pares": [
+        [
+          "CVSS",
+          "Fila ordenada pela dor possível, com o alvo desligado na frente do exposto"
+        ],
+        [
+          "EPSS",
+          "Fila que aposta no que provavelmente será usado e ignora o que já está em uso aqui"
+        ],
+        [
+          "Catálogo KEV, da CISA",
+          "Fila que só enxerga o que já foi visto em uso, e por isso chega tarde para o resto"
+        ],
+        [
+          "Contexto do ativo",
+          "Fila que ordena bem dentro de casa e não sabe nada sobre a falha em si"
+        ]
+      ],
+      "dicas": [
+        "Cada insumo enxerga um pedaço do problema. Pergunte, para cada um, qual pedaço fica fora do campo de visão.",
+        "Três olham para a falha; um olha para o lugar onde ela está.",
+        "Dois erram por chegar cedo demais ou tarde demais no tempo. Quais?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se você tivesse que ordenar a fila com um único desses insumos, qual erro estaria assumindo?",
+      "explicacao": "Nenhum dos quatro ordena a fila sozinho, e cada um falha de um jeito próprio. A escala de gravidade ordena pela consequência técnica e é cega para exposição: põe o servidor desligado na frente do portal publicado. A estimativa probabilística aposta no futuro provável e não sabe o que já está sendo usado contra você. O catálogo de exploração confirmada é retrospectivo por construção — excelente sinal, sempre atrasado para o que ainda não foi observado. E o contexto do ativo conhece a casa e ignora a falha. A BOD 26-04 combina esses eixos justamente porque nenhum deles basta.",
+      "fonte": "FIRST — EPSS (first.org/epss); catálogo KEV da CISA; CISA BOD 26-04, 10/06/2026; papel do contexto do ativo declarado como conhecimento consolidado",
+      "tags": [
+        "priorizacao",
+        "epss",
+        "kev",
+        "cvss",
+        "pareamento"
+      ]
+    },
+    {
+      "id": "4.1.q20",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um portal publicado, com falha de nota 6.5 e uso confirmado, entrou na frente de um servidor interno com falha de nota 9.8 sem exploração conhecida. Duas semanas depois, o servidor interno segue sem correção e sem prazo. O que está errado nesse desfecho?",
+      "alternativas": [
+        "Priorizar reordena a fila e não a esvazia: o item adiado precisa de prazo próprio, ou some junto com a decisão que o adiou",
+        "Nada está errado: pendência que perdeu a disputa sai da fila até que a exposição do ativo mude",
+        "O erro foi a ordem: a nota mais alta é o critério comparável entre pendências e deveria ter decidido a fila",
+        "O erro foi comparar notas de versões diferentes da escala sem recalcular as duas na mesma versão"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A decisão de duas semanas atrás foi sobre ordem. O que ela nunca decidiu?",
+        "Pergunte o que precisaria estar escrito para alguém ser cobrado pelo item que ficou para trás.",
+        "Duas opções culpam o critério de ordenação; o desfecho descrito aconteceu depois da ordenação."
+      ],
+      "pergunta_socratica": "Antes de conferir: passados seis meses, o que ainda existe da decisão de adiar aquele item — o registro, ou só o atraso?",
+      "explicacao": "Priorizar é ordenar, não descartar. O portal exposto e sob uso entra na frente com razão: exposição e exploração observada mudam a urgência, e é isso que o modelo por risco da BOD 26-04 formaliza. O defeito está no que aconteceu com o segundo item — ele saiu da frente e saiu também do controle, sem prazo próprio e sem dono. Priorização sem prazo para o adiado vira triagem permanente, e o resíduo é justamente o que o adversário encontra depois, quando a exposição daquele ativo muda e ninguém reavalia.",
+      "por_que_erradas": {
+        "1": "Sair da fila é decisão de aceitar risco, e aceitar risco tem dono, prazo e registro — não acontece por esquecimento.",
+        "2": "A nota mede consequência técnica; ela não sabe se o alvo está publicado nem se alguém já está usando a falha.",
+        "3": "Recalcular na mesma versão melhora a comparação e não muda o problema: o item adiado continuaria sem prazo."
+      },
+      "fonte": "CISA BOD 26-04, Prioritizing Security Updates Based on Risk, 10/06/2026; FIRST — EPSS (first.org/epss); catálogo KEV da CISA",
+      "tags": [
+        "priorizacao",
+        "risco",
+        "processo",
+        "prazo"
+      ]
+    },
+    {
+      "id": "4.1.q21",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "trecho": "POLITICA DE CORRECAO — VERSAO 2021.3 (trecho)\n1. Item do catalogo KEV: corrigir em ate 15 dias corridos.\n2. CVE com identificador anterior a 2021: corrigir em ate 6 meses.\n3. Vulnerabilidade com nota base abaixo de 7.0 nao entra na fila de correcao.\n4. O prazo dos 15 dias comeca a contar na data em que a CVE foi acrescentada ao catalogo KEV.",
+      "enunciado": "Os quatro itens têm problema. Qual deles já era ruim em 2021 e continua ruim hoje, independentemente de qualquer mudança de diretiva?",
+      "alternativas": [
+        "O item 3, porque descartar pela pontuação isolada apaga a falha média que está exposta e sendo usada",
+        "O item 1, cujo número saiu de uma diretiva que foi revogada e substituída por decisão baseada em risco",
+        "O item 2, cujo corte por ano do identificador veio da mesma diretiva revogada e não existe mais",
+        "O item 4, que amarra o início da contagem à entrada no catálogo, mecanismo da mesma diretiva revogada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Três dos itens erram por estarem presos a um documento de 2021. Um erra por outro motivo.",
+        "Pergunte qual item continuaria errado mesmo que a diretiva de 2021 nunca tivesse sido revogada.",
+        "Um dos itens joga fora casos inteiros antes de olhar onde a máquina está ligada."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você apagasse desse trecho tudo que veio da diretiva antiga, sobraria algum defeito?",
+      "explicacao": "Os itens 1 e 2 reproduzem os prazos da BOD 22-01, de 03/11/2021, revogada pela BOD 26-04 em 10/06/2026 — estão desatualizados, mas eram a regra válida quando a política foi escrita. O item 4 reproduz o gatilho da mesma diretiva revogada: contar da entrada no catálogo era o mecanismo de 2021, e hoje o catálogo entra como fator de prioridade, não como início de contagem. O item 3 é de outra categoria: ele descarta casos inteiros antes de olhar exposição e uso observado, e é assim que uma falha de nota média num serviço publicado, com exploração em circulação, nunca chega à fila. Esse defeito não dependia de diretiva nenhuma para ser defeito.",
+      "por_que_erradas": {
+        "1": "Ele está desatualizado desde 2026, mas correspondia à diretiva em vigor quando o documento foi escrito.",
+        "2": "Mesmo caso: o corte por ano vinha da diretiva de 2021 e caiu junto com ela.",
+        "3": "Mesmo caso dos dois primeiros: contar a partir da entrada no catálogo era o mecanismo da diretiva de 2021, e hoje o catálogo é um dos fatores da decisão, não um relógio."
+      },
+      "fonte": "CISA BOD 22-01, 03/11/2021 (revogada) e BOD 26-04, 10/06/2026; NIST SP 800-40 Rev. 4, abril de 2022",
+      "tags": [
+        "caca-erro",
+        "politica-de-correcao",
+        "priorizacao",
+        "atualidade"
+      ]
+    },
+    {
+      "id": "4.1.q22",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Como o NIST SP 800-40 Rev. 4, de abril de 2022, enquadra a atividade de aplicar correções?",
+      "alternativas": [
+        "Como manutenção preventiva e custo corrente de operar, planejada em estratégia da organização inteira",
+        "Como resposta a incidente, acionada quando o monitoramento observa tentativa de exploração no ambiente",
+        "Como decisão de cada equipe de aplicação, tomada caso a caso conforme a disponibilidade de cada time",
+        "Como controle compensatório, cabível apenas enquanto o fornecedor não publica uma versão corrigida"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte se o custo dessa atividade entra no orçamento anual ou no fundo de emergência.",
+        "Pergunte se a atividade é excepcional ou rotineira — e o que muda no orçamento em cada caso.",
+        "Se cada equipe decidir sozinha quando parar o serviço para atualizar, o que acontece com a janela?"
+      ],
+      "pergunta_socratica": "Antes de conferir: trocar o óleo do carro é resposta a incidente ou rotina planejada?",
+      "explicacao": "A Rev. 4, de abril de 2022, tem por subtítulo Preventive Maintenance for Technology e substitui a Rev. 3, de julho de 2013. O enquadramento é deliberado: correção não é evento excepcional nem tarefa negociada caso a caso, e sim manutenção preventiva contínua, com custo previsto no orçamento como qualquer outra manutenção. A recomendação é de estratégia corporativa, e não de esforço por equipe, porque a decisão de janela, teste, implantação e reversão só funciona quando é a mesma para o parque. Tratar correção como emergência garante que ela sempre perca a disputa por janela.",
+      "por_que_erradas": {
+        "1": "Correção acionada só por observação de ataque chega sempre depois; a publicação recomenda o contrário.",
+        "2": "Decisão caso a caso é exatamente o que a estratégia corporativa recomendada substitui.",
+        "3": "Controle compensatório é o que se usa quando não há correção; a publicação trata de aplicar as que existem."
+      },
+      "fonte": "NIST SP 800-40 Rev. 4, Guide to Enterprise Patch Management Planning: Preventive Maintenance for Technology, abril de 2022 — supersede a Rev. 3, de julho de 2013",
+      "tags": [
+        "nist-800-40",
+        "gestao-de-patches",
+        "manutencao-preventiva",
+        "estrategia"
+      ]
+    },
+    {
+      "id": "4.1.q23",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        2,
+        3
+      ],
+      "enunciado": "Uma correção urgente derrubou o sistema de faturamento no ambiente de homologação, e o prazo de aplicação em produção vence em três dias. Como conduzir?",
+      "alternativas": [
+        "Implantar em anéis a partir de um piloto, com plano de retorno, e registrar exceção para o que ficar de fora",
+        "Aplicar em todo o parque na data prevista, com plano de retorno pronto: prazo de correção não admite tratamento por sistema",
+        "Suspender a correção até o fornecedor do faturamento resolver a incompatibilidade, mantendo o chamado aberto e monitorado",
+        "Aplicar nas máquinas que não rodam o faturamento, registrar o resultado obtido e encerrar o chamado como concluído"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Escreva o que precisa ser verdade daqui a seis meses e trabalhe de trás para frente.",
+        "Pergunte o que acontece com o restante do parque enquanto um sistema específico bloqueia a fila.",
+        "Se a correção não couber em tudo, o que impede que a parte que ficou de fora seja esquecida?"
+      ],
+      "pergunta_socratica": "Antes de conferir: daqui a seis meses, o que faria alguém voltar a olhar para a máquina que ficou de fora?",
+      "explicacao": "Correção urgente e produção de pé não são objetivos opostos quando existe processo. Implantação em anéis, começando por um grupo piloto, expõe a incompatibilidade em escala pequena; plano de retorno pronto limita o estrago; e a parte que comprovadamente não pode receber a correção agora vira exceção registrada, com dono, justificativa, prazo de revisão e controle compensatório enquanto durar. Isso preserva as duas coisas: o parque avança e o resíduo continua visível. Aplicar em bloco sem piloto e adiar sem registro são os dois extremos que derrubam serviço ou apagam o item da memória da organização.",
+      "por_que_erradas": {
+        "1": "Aplicar em bloco depois de uma falha observada em homologação escolhe derrubar o serviço, e é o tipo de evento que faz o programa perder patrocínio.",
+        "2": "Suspensão sem prazo nem registro transforma pendência conhecida em risco invisível por tempo indeterminado.",
+        "3": "Encerrar o chamado com parte do parque descoberta apaga o resíduo: sem exceção registrada, ninguém volta àquela máquina."
+      },
+      "fonte": "NIST SP 800-40 Rev. 4, abril de 2022 (planejamento, teste e implantação); prática de anéis de implantação e exceção com prazo declarada como conhecimento consolidado",
+      "tags": [
+        "implantacao",
+        "excecao",
+        "producao",
+        "gestao-de-patches",
+        "cenario"
+      ]
+    },
+    {
+      "id": "4.1.q24",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Qual é a diferença entre os CIS Critical Security Controls e os CIS Benchmarks?",
+      "alternativas": [
+        "Os primeiros descrevem o que a organização precisa manter como programa; os segundos dizem que valor colocar em cada ajuste de uma tecnologia",
+        "Os primeiros valem para infraestrutura de nuvem e os segundos, para equipamento instalado nas dependências da organização",
+        "Os primeiros são obrigatórios por norma internacional e os segundos são recomendações voluntárias do setor privado",
+        "Os primeiros descrevem ataques conhecidos e os segundos, as ferramentas indicadas para detectar cada um deles"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quantas versões diferentes de cada um dos dois existem hoje.",
+        "Pergunte qual dos dois muda quando a organização troca de fornecedor de sistema operacional.",
+        "Se você fosse aplicar cada um deles amanhã, que ferramenta abriria em cada caso?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dos dois documentos existe em uma versão diferente para cada produto e para cada versão dele?",
+      "explicacao": "Os Controls, hoje na versão 8.1, são um conjunto de práticas em nível de programa: inventário, gestão de vulnerabilidade, registro, resposta. Eles não dizem que valor colocar em qual campo. Os Benchmarks são o oposto em granularidade: existe um por produto e por versão, com centenas de itens, cada um com valor recomendado, justificativa e procedimento de verificação. Os dois se encaixam — o programa define o que precisa existir e o benchmark fornece a receita para escrever a linha de base de cada tecnologia. Os Controls ainda se organizam em grupos de implementação, com o primeiro deles reunindo a higiene essencial.",
+      "por_que_erradas": {
+        "1": "Ambos cobrem ambientes locais e de nuvem; a separação entre eles é de nível de abstração, não de local.",
+        "2": "Nenhum dos dois é obrigatório por si: viram exigência quando um contrato ou uma norma os adota.",
+        "3": "Catálogo de ataque e de técnica é outro tipo de material, com propósito diferente dos dois."
+      },
+      "fonte": "CIS Critical Security Controls v8.1 (cisecurity.org/controls) — versão vigente; grupos de implementação e estrutura dos CIS Benchmarks declarados como conhecimento consolidado",
+      "tags": [
+        "cis-controls",
+        "cis-benchmarks",
+        "linha-de-base",
+        "programa"
+      ]
+    },
+    {
+      "id": "4.1.q25",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Por que os CIS Benchmarks são publicados em dois perfis, e como escolher entre eles?",
+      "alternativas": [
+        "Porque o segundo perfil restringe mais e cobra mais da operação; o primeiro reúne o que se espera aplicável sem derrubar o uso comum",
+        "Porque o primeiro perfil cobre estação de trabalho e o segundo cobre servidor, cada um com o público que lhe corresponde",
+        "Porque o primeiro perfil é gratuito e o segundo é distribuído apenas a organizações associadas, mediante contrato",
+        "Porque o primeiro perfil trata de configuração e o segundo trata exclusivamente de correção de vulnerabilidades"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A divisão existe por causa de um risco concreto do endurecimento. Qual risco?",
+        "Pergunte o que a organização perde, e não o que ela ganha, ao subir de perfil.",
+        "Se um único conjunto servisse a todo mundo, quantos perfis existiriam?"
+      ],
+      "pergunta_socratica": "Antes de conferir: por que um catálogo de recomendações se daria ao trabalho de separar suas próprias recomendações em dois grupos?",
+      "explicacao": "A separação em perfis é reconhecimento de que endurecer tem custo operacional e pode quebrar uso legítimo. O primeiro perfil reúne itens de efeito amplo e baixo atrito, pensados para não derrubar a operação comum. O segundo é defesa em profundidade para ambiente que aceita mais restrição e mais trabalho de exceção — costuma exigir equipe para lidar com o que ele impede. Escolher é decisão de contexto, e não de ambição: aplicar o perfil duro num parque que não o sustenta gera um rastro de exceções informais, que é pior do que ter aplicado o perfil leve inteiro.",
+      "por_que_erradas": {
+        "1": "A distinção por tipo de máquina existe em outra dimensão do catálogo: há benchmark próprio para cada produto e papel.",
+        "2": "A separação não é comercial; ela descreve intensidade de restrição e custo operacional.",
+        "3": "Ambos os perfis tratam de configuração; correção de vulnerabilidade é assunto de outro processo."
+      },
+      "fonte": "CIS Benchmarks — perfis Level 1 e Level 2; descrição declarada como conhecimento consolidado (não reaberta na rodada de fontes de 22/08/2026)",
+      "tags": [
+        "cis-benchmarks",
+        "perfis",
+        "custo-operacional",
+        "hardening"
+      ]
+    },
+    {
+      "id": "4.1.q26",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um item do benchmark bloqueia o funcionamento de um sistema legado que a operação ainda depende. Qual é o encaminhamento previsto pelo processo?",
+      "alternativas": [
+        "Registrar um desvio autorizado, com responsável, motivo, data de nova revisão e medida compensatória enquanto durar",
+        "Aplicar o item assim mesmo, porque um benchmark aplicado pela metade não oferece proteção nenhuma",
+        "Deixar o item de lado sem registro e seguir para o próximo, já que a operação tem precedência sobre a auditoria",
+        "Interromper o programa de endurecimento nessa máquina até que o fornecedor do sistema legado publique uma versão compatível"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O problema tem duas partes: a operação precisa continuar de pé, e alguém precisa poder achar isso depois.",
+        "Pergunte o que diferencia uma decisão consciente de um esquecimento, seis meses depois.",
+        "Se nada for anotado, como o próximo analista saberá que isso foi discutido?"
+      ],
+      "pergunta_socratica": "Antes de conferir: daqui a um ano, quem vai lembrar por que este item específico está diferente do resto do parque?",
+      "explicacao": "Exceção documentada é parte do processo, e não falha dele. O registro tem quatro elementos que fazem a diferença: responsável, para que exista alguém a quem perguntar; justificativa, para que a decisão possa ser reavaliada; prazo de revisão, para que ela não vire permanente por inércia; e medida compensatória, para reduzir o risco enquanto o desvio existir. Aplicar o item derruba a operação e queima o programa; deixar de lado sem registrar produz exatamente o mesmo estado técnico da exceção, só que invisível — e é isso que o adversário aproveita, porque ninguém revisa o que ninguém anotou.",
+      "por_que_erradas": {
+        "1": "Todo parque aplica benchmark parcialmente; a aplicação parcial e registrada é a prática normal, não a exceção.",
+        "2": "Sem registro, o estado técnico é o mesmo e a organização perde a chance de revisar a decisão depois.",
+        "3": "Parar o endurecimento inteiro por um item entrega todo o resto da máquina sem proteção nenhuma."
+      },
+      "fonte": "CIS Benchmarks — perfis e aplicação parcial; prática de exceção com dono, prazo e controle compensatório declarada como conhecimento consolidado",
+      "tags": [
+        "excecao",
+        "cis-benchmarks",
+        "processo",
+        "legado",
+        "cenario"
+      ]
+    },
+    {
+      "id": "4.1.q27",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Uma organização registra exceções com dono e justificativa, mas sem data de revisão. Como um adversário se beneficia disso, e o que corrige?",
+      "alternativas": [
+        "O registro sem validade some da fila de trabalho e o item fica diferente do parque para sempre; a correção é prazo obrigatório, com reavaliação ao vencer",
+        "O adversário não se beneficia: qualquer registro escrito já cumpre a exigência de auditoria e mantém o item sob controle",
+        "O risco é de vazamento do próprio registro, que descreve fraquezas; a correção é parar de anotar justificativas detalhadas",
+        "O risco é de excesso de registros, que polui o relatório; a correção é reduzir o número de exceções aceitas por trimestre"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense no que acontece com uma lista que só cresce e nunca é revisada.",
+        "Pergunte que evento, no processo, faria alguém voltar a olhar aquele item.",
+        "O adversário procura o que está diferente do padrão e não é observado. Onde isso se acumula?"
+      ],
+      "pergunta_socratica": "Antes de conferir: sem data marcada, quantas vezes por ano alguém reabre aquele item?",
+      "explicacao": "Exceção é dívida assumida, e dívida sem vencimento nunca é paga. Sem data de reavaliação, o item sai da fila de trabalho no dia em que foi aprovado e permanece diferente do parque enquanto o motivo original — um sistema legado, uma integração antiga — muitas vezes já deixou de existir. É um alvo confortável: está fora do padrão, ninguém o observa e ele passa em auditoria, porque tem registro. A correção é tratar prazo como campo obrigatório, com reavaliação automática no vencimento, e medir o estoque de exceções vencidas como indicador do programa.",
+      "por_que_erradas": {
+        "1": "O registro documenta a decisão, mas não a revisa; sem vencimento, ele preserva o desvio em vez de encerrá-lo.",
+        "2": "Registro de exceção é informação sensível e se protege como tal; deixar de anotar o motivo apaga a única base para revisar depois.",
+        "3": "Volume de exceções é sintoma, e limitar a quantidade por cota empurra o desvio para fora do registro, onde ninguém o vê."
+      },
+      "fonte": "Prática de exceção com dono, prazo de revisão e controle compensatório declarada como conhecimento consolidado; CIS Benchmarks — aplicação por perfil",
+      "tags": [
+        "excecao",
+        "prazo",
+        "ataque-defesa",
+        "auditoria",
+        "risco"
+      ]
+    },
+    {
+      "id": "4.1.q28",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Uma equipe mantém um serviço antigo em execução \"por precaução, caso alguém ainda use\". Como isso é aproveitado por quem ataca?",
+      "alternativas": [
+        "O componente continua respondendo e envelhecendo sem que ninguém acompanhe suas correções, e é justamente o que uma varredura encontra",
+        "Não há proveito: enquanto ninguém usar o serviço, ele fica ocioso e não representa entrada aproveitável",
+        "O proveito está em consumir a memória da máquina até que os serviços legítimos passem a falhar por escassez",
+        "O proveito é indireto e depende de o serviço ter uma vulnerabilidade divulgada, o que só vale para versões ainda mantidas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "\"Ninguém usa\" e \"ninguém alcança\" são a mesma coisa? Quem decide qual das duas vale?",
+        "Pergunte quem acompanha as atualizações de um componente que a equipe considera dispensável.",
+        "Quem faz o inventário do adversário: a organização ou ele mesmo?"
+      ],
+      "pergunta_socratica": "Antes de conferir: entre um serviço que a equipe usa todo dia e um que ela esqueceu, qual recebe correção mais rápido?",
+      "explicacao": "Serviço mantido por precaução acumula as duas piores propriedades ao mesmo tempo: continua alcançável e deixa de ser acompanhado. Ninguém testa suas atualizações, ninguém confere sua configuração e ninguém repara quando o comportamento muda. Do lado ofensivo isso é ideal, porque o inventário do adversário é feito pelo que responde na rede, e não pelo que a organização considera relevante. Software antigo tende a ter mais falhas divulgadas, não menos, porque teve mais tempo de exposição. A saída é a mesma de sempre: achar o dono, confirmar a necessidade e, na ausência dela, remover o componente em vez de apenas desligar.",
+      "por_que_erradas": {
+        "1": "Ocioso e inalcançável são coisas diferentes; o serviço continua aceitando conexão de quem chegar até ele.",
+        "2": "Consumo de recurso é problema de capacidade, e não é por aí que o componente esquecido vira entrada.",
+        "3": "Componente antigo costuma ter mais falhas publicadas, e o tempo de exposição joga a favor de quem procura."
+      },
+      "fonte": "NIST SP 800-123, Guide to General Server Security, julho de 2008 (desabilitar e remover serviço desnecessário); leitura de superfície executada no laboratório local",
+      "tags": [
+        "superficie-de-ataque",
+        "servico-legado",
+        "ataque-defesa",
+        "inventario"
+      ]
+    },
+    {
+      "id": "4.1.q29",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        0,
+        1
+      ],
+      "enunciado": "Durante um incidente, uma regra de acesso foi aberta às pressas e nunca voltou ao estado anterior. O que faz esse resíduo reaparecer?",
+      "alternativas": [
+        "Porque ela reencontra a diferença que a memória das pessoas não guarda, e transforma o rastro esquecido em item de fila",
+        "Porque ela impede tecnicamente qualquer alteração fora da janela de mudança aprovada pela organização",
+        "Porque a abertura feita durante incidente expira sozinha quando o chamado é encerrado pelo time responsável",
+        "Porque o registro de eventos guarda a alteração, e consultar esse registro substitui a comparação com a linha de base"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Uma medição feita uma vez por ano encontra o quê, se a alteração aconteceu em fevereiro?",
+        "Pergunte que evento, no calendário da organização, obriga alguém a olhar aquela regra de novo.",
+        "Compare duas fontes: uma diz o que aconteceu naquele dia, a outra diz como a máquina está agora."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas semanas depois de um incidente resolvido alguém ainda pensa na regra que abriu no meio da noite?",
+      "explicacao": "Alteração de emergência é legítima e necessária — o problema é o retorno que não acontece. Como ninguém registra a intenção de reverter, o estado alterado passa a ser o estado normal, e a máquina se afasta da linha de base sem que nenhum evento sinalize isso. A comparação periódica é o mecanismo que reencontra a diferença: ela não depende de memória, de disciplina nem de o autor ainda trabalhar ali. Para quem ataca, esse resíduo é ouro, porque é acesso concedido sem dono, sem justificativa e sem revisão. Registro de eventos ajuda a explicar quando e por quem, mas ele responde sobre o passado; a comparação responde sobre o estado de agora.",
+      "por_que_erradas": {
+        "1": "Medir não impede alteração; ela detecta depois, e é por isso que a periodicidade é o que decide o tamanho da janela cega.",
+        "2": "Regra aberta à mão não tem validade automática, e é exatamente essa ausência que cria o resíduo.",
+        "3": "Registro conta o evento, se ainda estiver retido; ele não afirma o estado atual da configuração."
+      },
+      "fonte": "Verificado em execução no laboratório local (desvio_de_linha_base.py — comparação entre declarado e real); deriva de configuração declarada como conhecimento consolidado",
+      "tags": [
+        "deriva",
+        "linha-de-base",
+        "ataque-defesa",
+        "mudanca",
+        "medicao"
+      ]
+    },
+    {
+      "id": "4.1.q30",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Por que a automatizabilidade da exploração encurta o prazo útil de correção, mesmo quando o impacto técnico não é o mais alto?",
+      "alternativas": [
+        "Porque cadeia sem passo manual permite varrer a internet inteira e agir em massa poucos dias depois da divulgação",
+        "Porque exploração automatizada costuma causar mais dano por máquina do que a conduzida à mão por um operador",
+        "Porque ferramentas automáticas contornam autenticação por natureza, o que dispensa o adversário de obter credencial",
+        "Porque a existência de ferramenta pronta faz o fornecedor retirar a correção anterior e publicar outra em seguida"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare dois adversários: um precisa de uma hora por alvo, o outro não precisa de nenhuma.",
+        "Pergunte quantos alvos cada um deles alcança em uma semana.",
+        "O que muda para o defensor quando o número de tentativas deixa de depender de gente?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que decide se você está na lista de alvos — ser interessante, ou apenas estar respondendo?",
+      "explicacao": "Automatizabilidade é fator de escala, e não de dano por alvo. Quando cada passo da cadeia roda sem intervenção humana, o custo marginal de tentar mais um alvo cai a quase zero, e a seleção deixa de ser por interesse: quem responde entra na lista. É por isso que a BOD 26-04 coloca esse fator ao lado de exposição e de exploração já observada. Para o defensor, a consequência é de calendário — a janela entre a divulgação e a varredura em massa passa a se medir em dias, e o prazo útil encolhe junto, mesmo em falha de impacto médio.",
+      "por_que_erradas": {
+        "1": "O dano por máquina é dado pela falha, e não pelo grau de automação de quem a explora.",
+        "2": "Automação não dispensa credencial; ela apenas repete os passos que existirem, incluindo os de autenticação.",
+        "3": "Publicação de ferramenta não altera as correções já lançadas pelo fornecedor."
+      },
+      "fonte": "CISA BOD 26-04, Prioritizing Security Updates Based on Risk, 10/06/2026 — automatizabilidade como fator de prioridade",
+      "tags": [
+        "automatizabilidade",
+        "bod-26-04",
+        "priorizacao",
+        "ataque-defesa"
+      ]
+    },
+    {
+      "id": "4.1.q31",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        1,
+        3
+      ],
+      "trecho": "PLANO DE ENDURECIMENTO — ESTACAO DE TRABALHO (trecho)\n1. O compartilhamento de arquivos foi desativado e o recurso, removido da maquina.\n2. A conta de administrador local foi renomeada para adm-suporte.\n3. O tamanho maximo do registro de eventos de seguranca foi reduzido a 1 MB, para poupar disco.\n4. As contas de servico sem uso ha 180 dias foram desativadas apos revisao com os donos.\n",
+      "enunciado": "Qual desses itens piora a capacidade de investigar um incidente depois que ele acontece?",
+      "alternativas": [
+        "O item 3, porque o histórico passa a ser sobrescrito em pouco tempo e a janela investigável encurta",
+        "O item 1, porque remover o recurso impede que a equipe de resposta consulte a máquina remotamente",
+        "O item 2, porque o nome trocado atrapalha a correlação entre as ações e a conta que as executou",
+        "O item 4, porque contas desativadas deixam de aparecer nos eventos e criam lacuna no histórico"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia cada item perguntando duas coisas: o que ele tira da máquina, e o que ele tira de quem for investigar depois.",
+        "Pergunte quantos dias de histórico cabem no limite que o item impôs, numa estação movimentada.",
+        "Investigação acontece depois. O que precisa ter sobrevivido até lá?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se o incidente for descoberto três semanas depois, qual desses itens decide o que ainda existe para ler?",
+      "explicacao": "Endurecer não é só fechar: é preservar o que permite explicar o que aconteceu. Reduzir o limite do histórico de eventos a um valor pequeno faz o mais antigo ser sobrescrito rapidamente, e numa estação movimentada isso pode significar horas de retenção — quando o incidente é descoberto semanas depois, não há o que ler. Os outros três itens reduzem superfície ou disciplinam contas: remover o recurso apaga o componente, e desativar contas sem uso depois de conversar com os donos é o procedimento correto. Renomear a conta administrativa é obscuridade, com valor limitado, mas não apaga rastro: os eventos referenciam o identificador da conta, não o nome exibido.",
+      "por_que_erradas": {
+        "1": "Remover um recurso de compartilhamento não retira as vias de administração remota, que são outros componentes.",
+        "2": "Os eventos referenciam a conta por identificador, e não pelo nome exibido; o rastro segue correlacionável.",
+        "3": "Conta desativada continua existindo e sendo referenciada nos eventos anteriores; nada é apagado do histórico."
+      },
+      "fonte": "NIST SP 800-123, Guide to General Server Security, julho de 2008 (configuração de registro e de contas); CIS Benchmarks — itens de auditoria e retenção, declarados como conhecimento consolidado",
+      "tags": [
+        "caca-erro",
+        "registro-de-eventos",
+        "retencao",
+        "contas",
+        "hardening"
+      ]
+    },
+    {
+      "id": "4.1.q32",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        0,
+        3
+      ],
+      "trecho": "RELATORIO DE CONFORMIDADE — TRIMESTRE (trecho)\n1. Aderencia de 100% a linha de base aprovada: o parque esta seguro.\n2. Os 9 desvios de porta foram encerrados sem consulta aos donos dos servicos.\n3. O item de protocolo legado ficou como conforme, por ausencia de evidencia em contrario.\n4. As excecoes vencidas em marco seguem abertas, sem nova revisao registrada.\n",
+      "enunciado": "Os quatro itens têm defeito. Qual deles troca a propriedade medida por outra, que a medição não alcança?",
+      "alternativas": [
+        "O item 1, que apresenta aderência ao documento aprovado como se fosse afirmação sobre proteção contra adversário",
+        "O item 2, que executa fechamento sem falar com quem depende de cada um dos serviços atingidos",
+        "O item 3, que converte uma lacuna de verificação em aprovação e retira o item da fila de trabalho",
+        "O item 4, que mantém dívida assumida em aberto depois do vencimento, sem reavaliação registrada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia os quatro itens perguntando, em cada um, se o defeito está no que foi feito ou no que foi concluído a partir do que foi feito.",
+        "Pergunte quais desses itens ainda poderiam ser corrigidos refazendo o trabalho do trimestre.",
+        "Qual das quatro frases uma diretoria repetiria numa reunião sem perceber o problema?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses itens continuaria errado mesmo se todo o resto do trimestre tivesse sido executado com perfeição?",
+      "explicacao": "Os quatro itens são defeituosos, e três deles falham na condução: fechar sem consultar donos derruba serviço e queima o programa, marcar conforme por falta de evidência apaga o item da fila, e exceção vencida sem reavaliação é dívida que ninguém cobra. O item 1 é de outra ordem — ele não erra o que foi feito, erra a conclusão. Aderência mede distância entre o declarado e o real; dizer que o parque está protegido é afirmar sobre a eficácia do documento diante do adversário, coisa que nenhuma pontuação de aderência avalia. É o erro mais perigoso porque soa bem em apresentação e encerra a discussão.",
+      "por_que_erradas": {
+        "1": "É defeito de execução, e grave, mas a leitura do que a medição significa continua correta.",
+        "2": "Também é defeito de execução: a lacuna vira aprovação, e o item some do trabalho pendente.",
+        "3": "Igualmente de execução: o registro existe e apenas não foi reavaliado no vencimento."
+      },
+      "fonte": "Verificado em execução no laboratório local (desvio_de_linha_base.py e superficie_windows.txt); limite da conformidade declarado como conhecimento consolidado",
+      "tags": [
+        "caca-erro",
+        "conformidade",
+        "relatorio",
+        "metrica",
+        "excecao"
+      ]
+    },
+    {
+      "id": "4.1.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O que um checklist de endurecimento, por melhor que seja, estruturalmente não consegue fornecer?",
+      "alternativas": [
+        "A pergunta sobre quem quer o quê nesta organização, por onde entraria e o que conseguiria depois",
+        "A verificação automatizada de cada item, que depende sempre de um analista conferindo à mão",
+        "A cobertura de sistemas operacionais recentes, já que catálogos desse tipo tratam apenas de produtos antigos",
+        "A justificativa técnica de cada recomendação, que os catálogos publicam separadamente e sob demanda"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pense em como um checklist nasce: alguém previu alguma coisa e escreveu. O que fica fora disso?",
+        "Duas organizações idênticas na configuração podem ter adversários diferentes. O documento sabe disso?",
+        "Duas organizações que aplicam o mesmo catálogo obtêm a mesma proteção? O que o catálogo não sabe sobre cada uma?"
+      ],
+      "pergunta_socratica": "Antes de conferir: um checklist perfeito para uma organização é o mesmo para outra do mesmo tamanho?",
+      "explicacao": "Checklist é conhecimento acumulado e escrito por terceiros: ele cobre o que já foi previsto e generalizado para muitos ambientes. Isso é muito, e é por isso que ele é excelente piso. O que ele não faz é olhar para esta organização — que dado ela guarda, quem o quer, por onde alguém entraria, o que conseguiria em seguida e quais controles sobreviveriam. Essa pergunta é do modelo de ameaça, e ela decide, entre outras coisas, quais itens do checklist importam mais aqui. A BOD 26-04 embute o mesmo raciocínio ao trocar prazo uniforme por decisão sobre o caso concreto. Verificação automatizada, cobertura de produtos atuais e justificativa por item são justamente o que os bons catálogos entregam.",
+      "por_que_erradas": {
+        "1": "Verificação automatizada é uma das forças desses catálogos, com procedimento de conferência por item.",
+        "2": "Os catálogos acompanham produtos e versões correntes, e são revisados a cada lançamento relevante.",
+        "3": "A justificativa vem junto de cada item, e é parte do que torna o material aproveitável."
+      },
+      "fonte": "CIS Critical Security Controls v8.1 e CIS Benchmarks (cisecurity.org/controls); CISA BOD 26-04, 10/06/2026; limite do checklist declarado como conhecimento consolidado",
+      "tags": [
+        "checklist",
+        "modelo-de-ameaca",
+        "limites",
+        "hardening"
+      ]
+    },
+    {
+      "id": "4.1.q34",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Um recurso de compatibilidade legado não é usado por ninguém há dois anos. A equipe decidiu desabilitá-lo em vez de removê-lo. O que essa escolha deixa em aberto?",
+      "alternativas": [
+        "O código continua instalado: volta com atualização, script ou administrador com pressa, e segue na fila de correção",
+        "Nada: componente desabilitado não tem porta, não acumula falha e sai do inventário de correções",
+        "Só o consumo de disco, já que o serviço desabilitado não é mais alcançável por nenhum caminho",
+        "A perda do histórico de configuração, porque desabilitar apaga os ajustes anteriores do componente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte o que precisa acontecer, e quantas mãos precisam se mexer, para o recurso voltar em cada um dos dois casos.",
+        "Um dos dois estados ainda aparece no relatório de correções pendentes. Qual?",
+        "Pense em quem religa por engano: atualização de sistema, script antigo, restauração de imagem."
+      ],
+      "pergunta_socratica": "Antes de conferir: daqui a um ano, depois de uma atualização grande, qual dos dois estados você ainda teria certeza de que continua valendo?",
+      "explicacao": "Remover e desabilitar não são o mesmo degrau. Desabilitar tira o recurso de operação e mantém o código instalado: ele continua na fila de correção, continua aparecendo em varredura de vulnerabilidade e volta com uma atualização, um script de configuração antigo ou uma restauração de imagem. Remover encerra as três coisas de uma vez. Por isso a escala começa em remover: é a única medida cujo efeito não depende de ninguém manter uma decisão de pé ao longo do tempo. Desabilitar é aceitável quando remover quebra dependência — e aí vira exceção, com prazo de revisão.",
+      "por_que_erradas": {
+        "1": "Componente desabilitado continua instalado, continua recebendo correção e continua aparecendo em varredura de vulnerabilidade.",
+        "2": "Alcance é só uma das dimensões: o binário no disco volta a ser alcançável assim que alguém religa o recurso.",
+        "3": "Desabilitar preserva a configuração; é justamente por isso que religar é fácil."
+      },
+      "fonte": "NIST SP 800-123, Guide to General Server Security, julho de 2008 (desabilitar e remover serviço desnecessário); ordem de preferência declarada como conhecimento consolidado",
+      "tags": [
+        "superficie-de-ataque",
+        "remover",
+        "desabilitar",
+        "manutencao"
+      ]
+    },
+    {
+      "id": "4.1.q35",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "O que caracteriza uma vulnerabilidade listada no catálogo KEV, mantido pela CISA?",
+      "alternativas": [
+        "Existe confirmação de que ela vem sendo explorada na natureza por adversários reais",
+        "Ela recebeu a classificação mais alta da escala de gravidade adotada pela agência",
+        "Ela afeta um produto presente em pelo menos metade das agências federais do país",
+        "Ela ainda não tem correção publicada pelo fornecedor e por isso exige atenção especial"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O catálogo convive com uma escala de gravidade e com uma estimativa de probabilidade. Se ele repetisse qualquer uma das duas, por que existiria?",
+        "Pergunte se uma falha grave e nunca usada por ninguém entraria nessa lista.",
+        "Pergunte que evidência alguém precisa apresentar para pedir a inclusão de uma falha nessa lista."
+      ],
+      "pergunta_socratica": "Antes de conferir: entre \"pode ser explorada\" e \"foi explorada\", qual delas separa esse catálogo dos demais?",
+      "explicacao": "O catálogo reúne vulnerabilidades com exploração confirmada em uso, e esse é o critério de entrada: não é nota alta, não é previsão, não é ausência de correção. Ele responde uma pergunta factual e retrospectiva — já aconteceu —, que é diferente da estimativa probabilística do EPSS e da medida de impacto do CVSS. Até 2026 ele funcionava como gatilho de prazo fixo para as agências federais americanas, por força da BOD 22-01; com a BOD 26-04, de 10/06/2026, ele passou a ser um dos fatores da decisão de prioridade, ao lado de exposição, automatizabilidade e impacto. O catálogo continua existindo e continua sendo da CISA; o que mudou foi o papel dele.",
+      "por_que_erradas": {
+        "1": "Gravidade é medida por outra escala e não decide a entrada no catálogo.",
+        "2": "Abrangência no parque instalado não é critério; falha em produto de nicho entra se houver exploração observada.",
+        "3": "Muitas entradas já têm correção disponível — e é justamente por isso que elas viram ordem de aplicar."
+      },
+      "fonte": "Catálogo KEV da CISA — critério de exploração confirmada; CISA BOD 26-04, 10/06/2026 (papel do catálogo como fator de prioridade, em substituição ao gatilho de prazo da BOD 22-01, de 03/11/2021)",
+      "tags": [
+        "kev",
+        "cisa",
+        "priorizacao",
+        "gestao-de-patches"
+      ]
+    }
+  ]
+}
