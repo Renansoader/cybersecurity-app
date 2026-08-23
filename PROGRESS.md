@@ -3,7 +3,7 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-21 · commit `48f9dd7` · 2.420 testes passando
+Última atualização: 2026-08-22 · commit `148121b` · 2.532 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -13,18 +13,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 21 de 41 |
-| Questões | 736 |
-| Blocos de teoria | 128 |
-| Tags distintas | 662 |
-| Testes automatizados | 2.420 |
+| Módulos de conteúdo escritos | 22 de 41 |
+| Questões | 771 |
+| Blocos de teoria | 134 |
+| Tags distintas | 696 |
+| Testes automatizados | 2.532 |
 | Linhas de código Python | ~3.260 |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 35 (1 de 8 módulos).
 
-Tipos de questão em uso: conceitual 337, cenário 148, ataque→defesa 54,
-caça ao erro 54, comando 43, pareamento 40, artefato 32, ordenação 28.
+Tipos de questão em uso: conceitual 347, cenário 154, ataque→defesa 58,
+caça ao erro 57, comando 46, pareamento 42, artefato 38, ordenação 29.
 
 ---
 
@@ -50,8 +50,8 @@ C:\Dev\cybersecurity-app\
 │                            desafio, glossario, ferramentas (stubs)
 ├── data/
 │   ├── niveis.json          6 níveis e regras de desbloqueio
-│   ├── modulos/*.json       21 módulos (00-01 … 03-03)
-│   └── rascunhos/nivel-3/   laboratórios e relatórios de procedência do bloco
+│   ├── modulos/*.json       22 módulos (00-01 … 04-01)
+│   └── rascunhos/            laboratórios, fontes e relatórios de procedência
 ├── exemplo/
 │   └── modulo-minimo.json   modelo comentado, um exemplo de cada tipo de questão
 ├── ferramentas/
@@ -198,7 +198,7 @@ C:\Dev\cybersecurity-app\
 | 4 | Conteúdo dos níveis 0 e 1 (11 módulos) | pronta |
 | 5 | Telas de sessão, trilha, home, módulo e progresso | pronta (antecipada) |
 | 6 | Nível 2 + glossário + ferramentas | parcial: nível 2 completo; glossário e ferramentas pendentes |
-| 7 | Níveis 3 e 4 + desafios práticos | em andamento: 3.1, 3.2 e 3.3 prontos |
+| 7 | Níveis 3 e 4 + desafios práticos | em andamento: 3.1–3.3 e 4.1 prontos |
 | 8 | Nível 5 + simulado + trilha de 90 dias | pendente |
 | 9 | Ícone, atalho, README, publicação | pronta |
 
@@ -212,6 +212,9 @@ C:\Dev\cybersecurity-app\
 1.1 Linux essencial · 1.2 Linha de comando e shell · 1.3 Windows e Active
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
+
+**Nível 4 — Defensivo** (35 questões, 1 de 8)
+4.1 Hardening
 
 **Nível 3 — Ofensivo** (105 questões, 3 de 9)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
@@ -235,11 +238,11 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 20 módulos
+### Conteúdo — 19 módulos
 
 - **Nível 3 — Ofensivo** (6 restantes): Web I/II/III, OWASP Top 10, quebra de
   senhas, engenharia social e redes sem fio
-- **Nível 4 — Defensivo** (8): hardening, segurança de rede, defesa em
+- **Nível 4 — Defensivo** (7 restantes): segurança de rede, defesa em
   profundidade, malware, SIEM, MITRE ATT&CK, resposta a incidentes, forense
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
@@ -276,9 +279,15 @@ real de requisição.
   em `data/rascunhos/nivel-3/relatorios/`; o do 3.3 se perdeu quando o processo
   foi interrompido. A verificação em si foi refeita e está registrada na mensagem
   do commit `48f9dd7`.
-- **Dica que reescreve a alternativa correta** é o defeito recorrente do nível 3:
-  4 casos no 3.1, 6 no 3.2 e 13 no 3.3, todos corrigidos na revisão. Vale entrar
-  como critério explícito na escrita dos próximos módulos, e não só na revisão.
+- **Dica que reescreve a alternativa correta** é o defeito recorrente do projeto:
+  4 casos no 3.1, 6 no 3.2, 13 no 3.3 e 17 no 4.1, todos corrigidos na revisão.
+  As quatro regras do validador pegam a versão literal dele; a paráfrase, que é a
+  maioria, continua dependendo de leitura. No 4.1 o defeito apareceu mesmo com a
+  regra escrita no encargo do autor.
+- **46 avisos das quatro regras de gabarito entregue nos módulos publicados**,
+  levantados em 22/08/2026 e ainda não tratados: 39 de dica, 3 de artefato, 3 de
+  enunciado e 1 de distrator. Amostragem manual indicou que a maioria é vazamento
+  real em conteúdo dos níveis 0 a 2, que nunca passou por essa auditoria.
 - **O relatório de procedência do 3.3 nunca foi escrito** — o processo foi
   interrompido antes disso.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
