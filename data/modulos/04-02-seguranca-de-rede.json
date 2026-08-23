@@ -79,7 +79,7 @@
       "correta": 0,
       "dicas": [
         "O nome do mecanismo descreve o que ele não faz. O que seria preciso guardar para fazer diferente?",
-        "Pergunte de quanta memória esse equipamento precisa para atender mil conversas ao mesmo tempo.",
+        "Dois pacotes idênticos chegam com uma hora de diferença. O equipamento tem como tratá-los de forma diferente?",
         "Duas das opções exigem que o equipamento saiba de algo que não está dentro do pacote que acabou de chegar."
       ],
       "pergunta_socratica": "Antes de conferir: se você embaralhasse a ordem dos pacotes de uma mesma conversa, alguma decisão desse filtro mudaria?",
@@ -115,7 +115,7 @@
       "correta": 0,
       "dicas": [
         "Quatro linhas saem iguais nas duas colunas. Comece pela única que sai diferente.",
-        "Pergunte que regra precisou existir para que a segunda linha fosse permitida, e o que mais essa mesma regra aceita.",
+        "A última linha do artefato — \"conexões na tabela de estado ao final: 1\" — não é enfeite. O que ela conta, e o que a outra política teria escrito ali?",
         "Compare a porta de destino da última linha com a porta de destino das linhas anteriores."
       ],
       "pergunta_socratica": "Antes de conferir: se a última linha fosse apagada, as duas colunas ficariam idênticas — isso tornaria as duas políticas equivalentes?",
@@ -151,7 +151,7 @@
       "correta": 0,
       "dicas": [
         "Desenhe os dois sentidos da mesma conversa e classifique cada pacote como entrada ou saída.",
-        "Pergunte que informação o equipamento precisaria ter guardado para reconhecer uma resposta como resposta.",
+        "Compare a linha de saída com a de entrada: o que muda no sentido, e o que o equipamento teria de guardar para ligar uma à outra?",
         "Elimine as opções que atribuem a causa ao comportamento do cliente em vez de atribuí-la ao filtro."
       ],
       "pergunta_socratica": "Antes de conferir: em cabeçalho, o pacote de resposta é diferente de um pacote não solicitado que chegasse da mesma porta?",
@@ -186,7 +186,7 @@
       "correta": 0,
       "dicas": [
         "Compare os quatro campos desse pacote com os quatro campos das linhas anteriores, um a um.",
-        "Pergunte o que o equipamento escreveu quando o primeiro pacote saiu, e o que ele procura quando um pacote entra.",
+        "Releia as quatro primeiras linhas e depois a quinta: o que existe nas primeiras que não existe na última?",
         "Uma das opções culpa a faixa da porta de destino; teste essa hipótese contra a segunda linha, que foi permitida."
       ],
       "pergunta_socratica": "Antes de conferir: se a estação tivesse aberto uma conexão para 198.51.100.77 na porta 443, esse pacote chegaria ao mesmo destino?",
@@ -221,7 +221,7 @@
       "correta": 0,
       "dicas": [
         "Escreva os campos que ficaram na anotação de saída e compare essa lista, campo a campo, com as quatro opções.",
-        "Pergunte de que lado do filtro fica a decisão de abrir a conexão.",
+        "O filtro observa o pacote na rede. Liste o que fica do lado de dentro da máquina, fora do alcance dele.",
         "Três das opções descrevem coisas que a própria anotação já contém ou já consegue contar."
       ],
       "pergunta_socratica": "Antes de conferir: para o filtro, a conexão que um programa indesejado abre parece diferente da que o navegador abre?",
@@ -246,32 +246,32 @@
       "objetivos": [
         0
       ],
-      "enunciado": "Ligue cada forma de filtragem ao critério que ela usa para decidir.",
+      "enunciado": "Ligue cada forma de filtragem ao preço que ela cobra.",
       "pares": [
         [
           "filtro de pacote sem estado",
-          "Cabeçalho do pacote isolado: endereço, porta e sentido, sem nenhum registro do que passou antes"
+          "Custa quase nada por pacote e não cresce com o número de conversas simultâneas"
         ],
         [
           "filtro com estado",
-          "A mesma leitura de cabeçalho, mais a conferência contra a tabela de conexões já iniciadas"
+          "Custa memória proporcional ao número de conversas abertas ao mesmo tempo"
         ],
         [
           "proxy de aplicação",
-          "Termina a conexão do cliente, interpreta o protocolo em nome dele e abre outra conexão até o destino"
+          "Custa desempenho e compatibilidade, porque precisa falar o protocolo de cada serviço tratado"
         ],
         [
           "firewall de próxima geração",
-          "Reúne num produto só o reconhecimento da aplicação independente da porta, a identidade de quem usa e a inspeção do que trafega"
+          "Custa dependência de fabricante, porque o conjunto de recursos varia com o produto e não com uma norma"
         ]
       ],
       "dicas": [
-        "Ordene os quatro pela quantidade de informação que cada um precisa guardar para decidir.",
-        "Dois deles nunca chegam a interpretar o protocolo do serviço; dois interpretam.",
-        "Um dos quatro é categoria de mercado, e não um mecanismo único — procure o que reúne várias leituras."
+        "Três dos quatro cobram em recurso do próprio equipamento. O quarto cobra em outra moeda.",
+        "Pense em mil conversas simultâneas e pergunte qual dos quatro sente esse número primeiro.",
+        "Um deles precisa entender o que está sendo dito, e não só quem fala com quem."
       ],
       "pergunta_socratica": "Antes de conferir: qual deles continuaria funcionando se você apagasse toda a memória do equipamento entre um pacote e o próximo?",
-      "explicacao": "A escada tem degraus de custo e de visão. O filtro sem estado é a leitura mais barata e a mais cega: decide por pacote. O com estado acrescenta memória de conversa, sem passar a entender o protocolo. O proxy de aplicação quebra a conexão em duas e fala a língua do serviço, o que permite decidir por conteúdo do pedido e custa desempenho e compatibilidade. O rótulo de próxima geração não descreve um degrau novo: descreve um produto que empilha vários desses recursos, e o conjunto varia de fabricante para fabricante.",
+      "explicacao": "Cada forma de filtragem cobra num lugar diferente, e é esse preço que decide onde ela cabe. O filtro sem estado é barato por construção: decide por pacote e não guarda nada, então mil conversas custam o mesmo que uma. O filtro com estado troca memória por precisão — a tabela de conexões cresce com o número de conversas abertas. O proxy de aplicação paga em desempenho e em compatibilidade, porque precisa falar o protocolo de cada serviço que trata. E a categoria de próxima geração cobra em dependência de fabricante: sem norma que a defina, o conjunto de recursos é o que aquele produto traz.",
       "fonte": "NIST SP 800-41 Rev. 1, Guidelines on Firewalls and Firewall Policy, setembro de 2009 — tecnologias de firewall; categoria de próxima geração declarada como conhecimento consolidado",
       "tags": [
         "firewall",
@@ -289,14 +289,14 @@
       ],
       "enunciado": "No Windows, sem alterar nada, você quer saber quantas regras de firewall habilitadas existem em cada combinação de sentido e ação. Que leitura responde a isso?",
       "alternativas": [
-        "`Get-NetFirewallRule -Enabled True | Group-Object Direction, Action`",
+        "`Get-NetFirewallRule -Enabled True | Group-Object Direction, Action`, que percorre o cadastro de regras habilitadas e junta as linhas por dois campos",
         "`Get-NetFirewallProfile`, que devolve uma linha por perfil com a habilitação e as ações padrão",
         "`Get-NetTCPConnection -State Listen`, que devolve os pontos de escuta e o processo que sustenta cada um",
         "`Get-NetConnectionProfile`, que devolve a rede à qual a máquina está ligada e a categoria dela"
       ],
       "correta": 0,
       "dicas": [
-        "A pergunta pede uma contagem por categoria, e não uma lista. Que passo a leitura precisa ter além de listar?",
+        "Duas leituras respondem sobre firewall nesta máquina, e uma terceira responde sobre o que está em execução. Comece decidindo qual das três perguntas foi feita.",
         "Duas das opções falam de perfil, e não de regra. Quantas linhas um perfil devolve?",
         "Uma das opções mede o que está escutando agora, e não o que foi cadastrado — são conjuntos diferentes."
       ],
@@ -333,14 +333,14 @@
       "correta": 0,
       "dicas": [
         "Some as duas contagens por sentido e compare com o total impresso na primeira linha. Que categoria ficou de fora?",
-        "Se toda regra cadastrada diz \"permite\", quem responde pelo pacote que não casa com nenhuma delas?",
-        "Pergunte o que mudaria no comportamento da máquina se alguém apagasse as 476 linhas de uma vez."
+        "O artefato tem duas seções. Pergunte por que a segunda existe, se a primeira já lista tudo que está cadastrado.",
+        "Conte quantas das 476 linhas precisariam mudar de ação para que a leitura ingênua do total ficasse verdadeira."
       ],
       "pergunta_socratica": "Antes de conferir: uma regra de permissão deixa a máquina mais fechada ou mais aberta do que ela estava?",
       "explicacao": "As duas contagens somam 476, o que confirma que não existe regra de bloqueio habilitada. Isso inverte a leitura ingênua: nenhuma dessas linhas protege coisa alguma, todas abrem. O que responde pelo pacote que não casa com nenhuma regra é o comportamento aplicado por omissão — e é dali que vem a proteção de entrada, não do cadastro. Apagar as 476 regras deixaria a máquina mais fechada. Do lado da saída, 191 permissões, nenhuma negação e nada declarado por política significam que, na prática, sair é livre.",
       "por_que_erradas": {
         "1": "Regra de permissão não nega nada; ela só acrescenta exceções ao que já valeria sem ela.",
-        "2": "Ausência de regra de negação não implica repasse: o pacote sem correspondência é tratado pelo comportamento aplicado por omissão.",
+        "2": "Não configurado por política não é o mesmo que inexistente: significa que nenhuma diretiva sobrescreveu a ação padrão local, que continua sendo aplicada a todo pacote sem correspondência.",
         "3": "285 contra 191 não descreve simetria de política, e a contagem de exceções não informa postura nenhuma."
       },
       "fonte": "Verificado em execução no laboratório local (rede_windows.txt, somente leitura); NIST SP 800-41 Rev. 1, setembro de 2009 — negar por padrão e permitir por exceção",
@@ -369,7 +369,7 @@
       "correta": 0,
       "dicas": [
         "Pergunte quantos lugares diferentes podem apontar um intermediário para um mesmo computador.",
-        "Um desvio que o cliente não pediu continua sendo um desvio. Como ele apareceria nessa saída?",
+        "Liste os lugares onde um ajuste de intermediário pode estar guardado. Quantos deles essa leitura alcança?",
         "Compare o que a segunda seção diz sobre si mesma com a afirmação que o analista fez sobre \"o tráfego web\"."
       ],
       "pergunta_socratica": "Antes de conferir: se o equipamento em 192.168.100.1 desviasse a porta 80 para outro servidor, essa saída mudaria?",
@@ -395,7 +395,7 @@
       "objetivos": [
         0
       ],
-      "enunciado": "O que caracteriza um firewall de próxima geração diante de um filtro com estado?",
+      "enunciado": "Numa rede em que quase todo serviço passou a falar na porta 443, um filtro com estado deixou de distinguir uma aplicação da outra. Que capacidades resolvem isso, e o que o nome comercial dessa categoria não garante?",
       "alternativas": [
         "Reúne no mesmo ponto de decisão o reconhecimento da aplicação sem depender da porta, a identidade de quem usa e a leitura do que trafega",
         "Substitui a tabela de conexões por uma base de reputação consultada fora da rede a cada pacote que chega",
@@ -405,7 +405,7 @@
       "correta": 0,
       "dicas": [
         "O termo veio do mercado, e não de um comitê. O que isso implica sobre haver uma definição exata?",
-        "Pergunte o que acontece com a filtragem por número de porta quando qualquer serviço decide falar na 443.",
+        "Antes de olhar as opções, escreva o que o filtro com estado já sabe sobre o pacote e o que ele ainda não sabe.",
         "Uma das opções descreve a posição de um equipamento de detecção, e não a de um filtro."
       ],
       "pergunta_socratica": "Antes de conferir: dois produtos vendidos com esse rótulo precisam ter o mesmo conjunto de recursos?",
@@ -439,7 +439,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Desenhe o cabo. Em qual dos dois casos o pacote precisa atravessar o equipamento para chegar ao destino?",
+        "Um dos dois é ligado ao equipamento de rede por um cabo a mais; o outro, por dois. Desenhe as duas montagens.",
         "Pergunte o que acontece com o tráfego se você desligar cada um dos dois da tomada.",
         "Duas das opções falam de método de análise, e não de onde o equipamento está."
       ],
@@ -475,7 +475,7 @@
       "correta": 0,
       "dicas": [
         "O erro de análise é o mesmo nos dois casos. Isole o que muda: o que o equipamento faz depois de decidir.",
-        "Pergunte quem recebe a conta do erro em cada posição — o analista ou quem usa o sistema.",
+        "Escolha um sistema de que a empresa não pode ficar sem por uma hora e siga um pacote dele nas duas montagens, até o fim.",
         "Uma das opções inverte os efeitos; teste-a contra o fato de que só uma das posições está no caminho."
       ],
       "pergunta_socratica": "Antes de conferir: em cada um dos dois casos, quem precisaria ser acordado às três da manhã?",
@@ -509,7 +509,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Liste tudo que deixa de funcionar quando um equipamento no meio do caminho falha.",
+        "O equipamento novo entra em série com o serviço. O que isso acrescenta à lista de coisas capazes de derrubá-lo?",
         "Pergunte qual dessas decisões precisa ser tomada por quem responde pela receita da loja, e não pela segurança.",
         "Três das opções podem ser revistas na semana seguinte sem consequência para o cliente; uma não."
       ],
@@ -538,20 +538,20 @@
       "enunciado": "Detecção por assinatura e detecção por anomalia falham de maneiras diferentes. Quais são?",
       "alternativas": [
         "A primeira não enxerga o que ninguém descreveu ainda; a segunda acusa o que é apenas incomum e depende de uma linha de base fiel",
-        "A primeira depende de uma linha de base fiel; a segunda só encontra aquilo que já foi descrito por alguém antes",
+        "A primeira falha quando o mesmo ataque chega com pequenas variações que a descrição não cobre; a segunda falha por não operar sem base de assinaturas atualizada",
         "As duas falham igual, porque ambas comparam o tráfego observado contra um padrão gravado previamente no equipamento",
         "A primeira erra sempre que o tráfego está cifrado; a segunda funciona igualmente bem dentro e fora do túnel"
       ],
       "correta": 0,
       "dicas": [
         "Para cada método, pergunte de onde vem o \"normal\" contra o qual o tráfego é comparado.",
-        "Um dos dois precisa de um período de aprendizado antes de servir para alguma coisa. Qual, e por quê?",
-        "Uma das opções é a troca exata da outra; confira qual dos dois métodos precisaria ser reeducado se a rotina do ambiente mudasse."
+        "Teste os dois métodos com dois casos: um ataque que ninguém nunca viu, e um backup gigante rodando fora de hora.",
+        "Compare o custo de manutenção de cada um: quem alimenta um, e o que alimenta o outro?"
       ],
       "pergunta_socratica": "Antes de conferir: qual dos dois métodos teria alguma chance contra um ataque publicado ontem à noite?",
       "explicacao": "Assinatura compara o tráfego com descrições prontas: é precisa no que conhece e cega no resto, e por isso envelhece junto com o catálogo. Anomalia compara o tráfego com um perfil aprendido do próprio ambiente: alcança o que nunca foi descrito, e paga com falso positivo sempre que o normal muda — fim de mês, lançamento de sistema, mudança de horário. Se a linha de base foi aprendida durante um período em que já havia atividade indevida, ela incorpora essa atividade como normal. Cifra afeta os dois, e não distingue um do outro.",
       "por_que_erradas": {
-        "1": "É a troca exata das duas descrições: quem precisa de linha de base é a detecção por anomalia.",
+        "1": "A primeira metade está certa; a segunda inverte o mecanismo — detecção por anomalia não consulta base de assinaturas, e sim um perfil aprendido do próprio ambiente.",
         "2": "Só um dos métodos compara contra padrão gravado de fora; o outro compara contra um perfil aprendido ali.",
         "3": "Cifra limita a leitura de conteúdo para os dois métodos igualmente; nenhum atravessa o túnel por mérito próprio."
       },
@@ -573,14 +573,14 @@
       "enunciado": "A maior parte do tráfego da rede passou a ser cifrada e a fila de alertas do sensor esvaziou. Como o adversário se beneficia disso, e o que a defesa faz?",
       "alternativas": [
         "O ataque viaja dentro do túnel e o sensor passa a ver só metadados; a defesa muda o ponto de observação para onde o dado já está claro — servidor, ponta do túnel ou o próprio equipamento do usuário",
-        "A cifra impede qualquer detecção de rede; a defesa é desligar o sensor e concentrar todo o orçamento em antivírus de estação, que enxerga o arquivo depois de aberto",
+        "O ataque viaja dentro do túnel; a defesa é encerrar a cifra num equipamento de borda e inspecionar tudo ali, o que devolve a visão inclusive sobre o tráfego que não atravessa essa borda",
         "O sensor para por falta de licença para protocolos cifrados; a defesa é contratar o módulo que lê qualquer sessão sem participar da negociação de chaves",
-        "O adversário perde alcance, porque a cifra esconde dele a topologia; a defesa é ampliar o uso da cifra e reduzir o número de sensores instalados"
+        "O adversário se beneficia do volume, e não da cifra; a defesa é reduzir a retenção de metadados, que hoje só encarece o armazenamento"
       ],
       "correta": 0,
       "dicas": [
         "Fila vazia tem duas explicações possíveis. Qual delas você testaria primeiro?",
-        "A cifra tem um começo e um fim. Onde ficam essas duas pontas?",
+        "Liste os lugares por onde o mesmo dado passa em claro, do teclado ao banco de dados.",
         "Uma das opções afirma que dá para ler a sessão sem participar dela; teste isso contra o que você sabe de troca de chaves."
       ],
       "pergunta_socratica": "Antes de conferir: menos alerta significa menos ataque ou menos visão?",
@@ -606,7 +606,7 @@
         1
       ],
       "trecho": "POLITICA DE MONITORAMENTO DE REDE - RASCUNHO (trecho)\n1. O sensor sera instalado no caminho do trafego, em modo de bloqueio, com todas as assinaturas ligadas ja no primeiro dia.\n2. Alertas de gravidade baixa serao descartados sem registro, para nao poluir o painel.\n3. O sensor observara uma copia do trafego do enlace de saida e enviara alerta ao plantao.\n4. A base de assinaturas sera atualizada a cada seis meses, junto com a manutencao programada.",
-      "enunciado": "Três itens deste rascunho têm defeito e um descreve prática defensável. Qual dos defeituosos produz indisponibilidade já no primeiro dia?",
+      "enunciado": "Três itens deste rascunho têm defeito e um descreve prática defensável. Qual dos defeituosos age sobre os pacotes, e não apenas sobre o que fica registrado?",
       "alternativas": [
         "O item 1, porque ligar tudo de uma vez em modo de bloqueio derruba conexão legítima antes de qualquer ajuste fino",
         "O item 2, porque jogar fora o que é considerado pouco grave apaga o histórico que serviria para calibrar a triagem",
@@ -616,8 +616,8 @@
       "correta": 0,
       "dicas": [
         "Marque, item por item, quem sente o efeito: o analista, o histórico ou quem usa o serviço.",
-        "Um dos itens descreve uma prática defensável e está ali para ser reconhecida como tal.",
-        "Pergunte qual defeito aparece na primeira hora e qual só cobra a conta meses depois."
+        "Um dos itens descreve o que se faz no primeiro dia; outro, o que se faz no sexto mês. Confira se algum deles inverteu essa ordem.",
+        "Nem todo defeito de política custa a mesma moeda. Liste as moedas em jogo antes de escolher."
       ],
       "pergunta_socratica": "Antes de conferir: entre um defeito que apaga informação e um que derruba serviço, qual dos dois o usuário percebe hoje?",
       "explicacao": "Os itens 1, 2 e 4 têm defeito, e o 3 descreve uma implantação normal, em posição de cópia com encaminhamento de alerta. Entre os três defeituosos, só um age sobre o tráfego: um sensor no caminho, com o conjunto inteiro de assinaturas ativo e sem período de ajuste, descarta tráfego válido desde a primeira hora. O item 2 destrói evidência e cobra a conta na próxima investigação; o item 4 deixa a cobertura envelhecer por meses. Nenhum dos dois interrompe serviço. A prática usual é entrar em modo de alerta, medir o que dispara à toa, ajustar e só então bloquear.",
@@ -652,8 +652,8 @@
       "correta": 0,
       "dicas": [
         "Leia o campo de ação antes de decidir o que aconteceu com os pacotes.",
-        "Pergunte que evidência separaria uma varredura autorizada de uma não autorizada — ela está nessas linhas?",
-        "Um alerta conta o que o sensor viu passar. Ele conta o que o destino respondeu?"
+        "Separe, linha a linha, o que o sensor observou do que ele concluiu.",
+        "O registro traz origem, destino e horário. Que campo teria a resposta do outro lado?"
       ],
       "pergunta_socratica": "Antes de conferir: só com estas duas linhas, você consegue dizer se alguma porta estava aberta?",
       "explicacao": "O registro descreve o que o sensor reconheceu no tráfego que atravessou o enlace: uma sequência típica de sondagem, partindo de um endereço interno para dois destinos internos. O campo de ação diz alerta e diz que o equipamento trabalha sobre cópia, então nada foi interrompido. Resposta do destino não está no registro, e sem ela não se afirma nada sobre porta aberta ou comprometimento. Autorização também não está: janela de manutenção e teste combinado produzem exatamente este padrão, e a única forma de separar os casos é conferir o que estava agendado.",
@@ -687,7 +687,7 @@
       "correta": 0,
       "dicas": [
         "Desenhe os dois pontos no mesmo cabo e marque, em cada um, quantos pacotes por segundo passam.",
-        "Pergunte o que você deixa de saber ao observar apenas o que sobreviveu à filtragem.",
+        "Desenhe as duas posições e marque, em cada uma, o conjunto de pacotes que chega ao sensor.",
         "Uma das opções confunde ponto de espelhamento com posição no caminho; separe as duas ideias."
       ],
       "pergunta_socratica": "Antes de conferir: saber quem tentou e foi barrado tem valor para você, ou é só ruído?",
@@ -722,8 +722,8 @@
       "correta": 0,
       "dicas": [
         "Pergunte o que exatamente a marcação carrega dentro do quadro, e quem lê essa marcação.",
-        "Se dois grupos precisam conversar, algum equipamento faz esse trabalho. Que trabalho é esse, e ele decide alguma coisa?",
-        "Compare o que muda no tráfego de difusão com o que muda no tráfego dirigido a um endereço específico."
+        "Duas máquinas em VLANs diferentes trocam um pacote. Conte quantos equipamentos ele atravessa.",
+        "Compare dois tipos de tráfego: o que vai para todo mundo e o que vai para um endereço só."
       ],
       "pergunta_socratica": "Antes de conferir: separar em VLANs impede a conversa ou apenas muda o caminho que ela percorre?",
       "explicacao": "A marcação diz ao comutador a que grupo o quadro pertence, e o efeito direto é que a difusão de um grupo não chega ao outro. Nada nisso decide quem alcança quem: basta existir um equipamento encaminhando entre os dois grupos, e a conversa acontece inteira, a menos que alguém escreva uma regra nesse ponto. Cifra não entra na história, e a associação com faixa de endereços é convenção de projeto, sem bloqueio embutido. Por isso \"estão em VLANs separadas\" nunca responde, sozinho, à pergunta sobre isolamento.",
@@ -747,32 +747,32 @@
       "objetivos": [
         2
       ],
-      "enunciado": "Depois de mover impressoras e estações para VLANs distintas, uma varredura autorizada partindo de uma estação continua obtendo resposta das impressoras. Onde precisa entrar a regra que interrompe isso?",
+      "enunciado": "Depois de escrever a regra entre as duas VLANs, a mesma varredura autorizada continua obtendo resposta das impressoras. Que verificação separa \"a regra está no lugar errado\" de \"a regra está certa e não está sendo aplicada\"?",
       "alternativas": [
-        "No equipamento que encaminha entre as duas, porque é o único ponto por onde esse tráfego obrigatoriamente passa",
-        "Em cada porta do comutador onde há uma impressora, listando o endereço físico da placa de cada estação",
-        "No firewall de borda, que já filtra tudo que entra e sai da organização e por isso enxerga esse tráfego também",
-        "Na própria estação, cujo filtro de host é o único capaz de reconhecer o destino antes de emitir o pacote"
+        "Conferir, no equipamento, se o tráfego daquela varredura chega a passar pela interface onde a regra está escrita",
+        "Reescrever a regra com endereços de origem e destino mais específicos e repetir a varredura",
+        "Comparar a contagem de pacotes bloqueados antes e depois da varredura, sem olhar por onde o tráfego passou",
+        "Mover as impressoras para uma terceira VLAN e verificar se a resposta continua chegando"
       ],
       "correta": 0,
       "dicas": [
-        "Trace o caminho do pacote da estação até a impressora e marque cada equipamento que ele atravessa.",
-        "Pergunte quais desses equipamentos continuariam vendo o pacote se a estação mudasse de sala.",
-        "Uma das opções coloca a regra num equipamento que esse tráfego nunca visita."
+        "Uma regra só age sobre o tráfego que chega até ela. Como se confirma que chegou?",
+        "Duas hipóteses estão em jogo, e três das opções mudam o ambiente em vez de medir o que já existe.",
+        "Antes de reescrever qualquer coisa, marque o caminho que o pacote percorreu de fato."
       ],
-      "pergunta_socratica": "Antes de conferir: o tráfego entre duas VLANs da mesma empresa passa pela borda da internet?",
-      "explicacao": "Uma regra só vale onde o pacote passa. Tráfego entre duas VLANs da mesma organização sobe até o equipamento que faz o encaminhamento entre elas e volta — não chega perto da borda da internet, e uma regra escrita ali nunca será consultada. Filtro na estação depende de cada estação estar configurada e de ninguém desligá-lo, o que faz dele reforço e não o ponto de controle. Lista por endereço físico em cada porta é trabalhosa, frágil e não sobrevive à troca de equipamento. O ponto de passagem obrigatório é onde a regra rende.",
+      "pergunta_socratica": "Antes de conferir: se o tráfego nunca passa pela interface onde a regra está, o que a regra tem a ver com o resultado?",
+      "explicacao": "As duas hipóteses produzem o mesmo sintoma e exigem medições diferentes. Regra certa que não é aplicada acontece quando o tráfego não atravessa o ponto onde ela está escrita — comutação dentro da mesma VLAN, rota assimétrica, interface errada. Regra no lugar errado é outro caso, e só se distingue depois de confirmar por onde o pacote passou. Por isso a primeira verificação é de caminho, não de sintaxe: contador de bloqueio em regra que ninguém consulta marca zero exatamente como a regra inexistente.",
       "por_que_erradas": {
-        "1": "Lista por endereço físico não escala, quebra a cada troca de placa e é contornável por quem controla o próprio equipamento.",
-        "2": "Esse tráfego é interno e nunca atravessa a borda; a regra existiria e jamais seria avaliada.",
-        "3": "Filtro de host é defesa em profundidade e depende de cada máquina; ele não é o ponto por onde tudo passa."
+        "1": "Especificar mais uma regra que talvez nem seja consultada não distingue as duas hipóteses: continua sem saber se o tráfego passa por ali.",
+        "2": "Contador sem caminho não separa nada: zero bloqueio é o resultado esperado tanto na regra ignorada quanto na regra ausente.",
+        "3": "Mudar o desenho antes de entender o problema troca uma dúvida por outra, e agora com três segmentos."
       },
       "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009 — colocação de política no ponto de passagem entre redes",
       "tags": [
-        "vlan",
         "segmentacao",
-        "ponto-de-passagem",
-        "filtro"
+        "vlan",
+        "diagnostico",
+        "caminho-do-trafego"
       ]
     },
     {
@@ -791,8 +791,8 @@
       ],
       "correta": 0,
       "dicas": [
-        "Suponha que o servidor publicado já foi tomado. Que pergunta o projeto precisava ter respondido antes disso?",
-        "Pergunte em que sentidos o tráfego atravessa essa rede, e quem autoriza cada um deles.",
+        "Conte os sentidos possíveis de tráfego nessa rede: de fora para ela, dela para dentro e dela para fora.",
+        "Compare com uma rede interna comum: o que muda na lista de destinos que ela pode procurar?",
         "Duas das opções falam de endereçamento e de prioridade de correção — isso define um limite de confiança?"
       ],
       "pergunta_socratica": "Antes de conferir: o que a empresa perde se o servidor publicado ficar na mesma rede das estações?",
@@ -820,7 +820,7 @@
       "enunciado": "Ordene as etapas de um projeto de segmentação, da primeira à última.",
       "itens": [
         "Levantar quais sistemas conversam com quais, em que sentido e por qual protocolo",
-        "Agrupar os sistemas em segmentos pela função e pelo nível de confiança que cada grupo exige",
+        "Agrupar os sistemas em segmentos a partir desse levantamento, pela função e pelo nível de confiança que cada grupo exige",
         "Escrever, para cada par de segmentos, o que pode atravessar e em que sentido",
         "Aplicar a regra no ponto de passagem e registrar o que ela nega, para achar o fluxo esquecido",
         "Estreitar, uma a uma, as permissões provisórias que sobraram, conferindo contra o registro acumulado"
@@ -833,9 +833,9 @@
         4
       ],
       "dicas": [
-        "Uma dessas etapas produz a informação sem a qual todas as outras viram chute. Qual?",
-        "Pergunte em que momento você descobre o fluxo que ninguém lembrou de citar.",
-        "Duas etapas falam de escrever regra e duas de mexer no que já está aplicado; separe as duas fases."
+        "Uma das etapas produz o insumo sem o qual as outras viram chute. Procure a que não depende de nenhuma decisão anterior.",
+        "Em que momento aparece o fluxo que ninguém lembrou de citar na reunião?",
+        "Uma etapa escreve a matriz de fluxos, outra a aplica e uma terceira revisita o que ficou provisório. Separe as três antes de ordenar."
       ],
       "pergunta_socratica": "Antes de conferir: dá para decidir o que separar antes de saber quem conversa com quem?",
       "explicacao": "Segmentação é um projeto de descoberta antes de ser um projeto de configuração. Sem o mapa de quem fala com quem, o agrupamento vira palpite e a primeira regra derruba um sistema que ninguém sabia que existia. Com o mapa, o agrupamento por função e confiança fica defensável, e a matriz entre pares de segmentos passa a ser escrita a partir de fatos. A regra entra e o registro do que ela nega revela o fluxo esquecido — é essa etapa que evita a paralisação. O aperto final é contínuo: permissão provisória que ninguém revisita é o modo mais comum de a segmentação virar decoração.",
@@ -863,7 +863,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte o que dois comutadores combinam entre si quando são ligados um ao outro — e se uma tomada de sala deveria participar dessa conversa.",
+        "O adversário quer mudar de grupo, não escutar melhor o próprio. Confira, técnica por técnica, se ela atravessa alguma fronteira de VLAN.",
         "Uma das opções resolve o problema comprando mais memória. Isso encerra a técnica ou apenas adia?",
         "Separe o que é ataque contra o encaminhamento no enlace do que é ataque contra a decisão de roteamento."
       ],
@@ -889,7 +889,7 @@
       "objetivos": [
         2
       ],
-      "trecho": "PLANO DE SEGMENTACAO - RASCUNHO (trecho)\n1. Visitantes ficam na VLAN 1, que ja e a VLAN nativa do tronco e por isso nao precisa ser criada.\n2. Portas das salas de reuniao ficam em negociacao automatica, para o caso de alguem ligar um comutador ali.\n3. VLAN de servidores e VLAN de estacoes com encaminhamento entre elas e lista de controle escrita nos dois sentidos.\n4. Telefonia em VLAN propria, com a porta do telefone marcada e o computador atras dele na VLAN de dados.",
+      "trecho": "PLANO DE SEGMENTACAO - RASCUNHO (trecho)\n1. Visitantes ficam na VLAN 1, que ja e a VLAN nativa do tronco e por isso nao precisa ser criada.\n2. Portas das salas de reuniao ficam em negociacao automatica, para o caso de alguem ligar um comutador ali.\n3. VLAN de servidores e VLAN de estacoes com encaminhamento entre elas e lista de controle escrita nos dois sentidos.\n4. Telefonia em VLAN propria, com a VLAN de voz fixada na configuracao da porta e o telefone se autenticando na entrada.",
       "enunciado": "Dois itens deste plano abrem o mesmo tipo de caminho para quem tem acesso a uma tomada da sala. Quais são?",
       "alternativas": [
         "Os itens 1 e 2: dado de usuário na VLAN nativa e porta que aceita negociar entregam quadros de outros grupos a quem senta ali",
@@ -899,7 +899,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Marque os itens que dependem de o comutador aceitar algo anunciado por um equipamento que alguém plugou.",
+        "Dois itens tratam do que o tronco transporta e do papel que a porta pode assumir; os outros dois, do que atravessa a fronteira entre segmentos. Separe os assuntos.",
         "Dois dos itens descrevem prática defensável; procure primeiro qual deles você manteria sem mudança.",
         "Pergunte, item por item, o que muda se quem senta naquela sala trouxer o próprio equipamento."
       ],
@@ -907,7 +907,7 @@
       "explicacao": "Os itens 1 e 2 falham pelo mesmo motivo: os dois deixam quem se conecta na sala receber tráfego que não é dele. Dado de usuário na VLAN nativa viaja sem marcação no tronco, o que é a base da técnica de dupla marcação; porta em negociação automática pode ser convencida a virar tronco e entregar todos os grupos. O item 3 é o que a segmentação deveria ser: encaminhamento com regra nos dois sentidos. O item 4 descreve o arranjo comum de telefonia, com a porta do telefone marcada e o computador atrás dele na VLAN de dados — a marcação ali é decisão da organização, e não confiança no que o visitante anuncia.",
       "por_que_erradas": {
         "1": "O item 3 é a prática correta, e o arranjo de telefonia do item 4 é o padrão de mercado para esse caso.",
-        "2": "O item 2 realmente falha, mas o 4 não: a marcação do telefone é definida pela organização, não negociada com quem chega.",
+        "2": "O item 2 realmente falha, mas o 4 não: a VLAN de voz está fixada na configuração da porta e o telefone se autentica, então nada ali depende do que o aparelho anuncia ao chegar.",
         "3": "Lista de controle nos dois sentidos é o acerto do plano, e ela não impede registro nenhum."
       },
       "fonte": "Boas práticas de configuração de VLAN nativa e de porta de acesso — declaradas como conhecimento consolidado; NIST SP 800-41 Rev. 1, setembro de 2009",
@@ -934,7 +934,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Onde estava a filtragem, e por onde passou o tráfego que se espalhou?",
+        "Marque no desenho onde está a filtragem e por onde passou o tráfego que se espalhou. Eles se cruzam?",
         "Pergunte se aumentar a quantidade de caixas resolve algo quando o problema aconteceu dentro de uma delas.",
         "Uma das opções melhora a qualidade da decisão num ponto por onde esse tráfego nunca passou."
       ],
@@ -960,7 +960,7 @@
       "objetivos": [
         2
       ],
-      "enunciado": "Numa estação Windows, sem alterar nada, você quer saber que destinos saem pelo salto padrão e quais ficam no enlace local. Que leitura responde a isso?",
+      "enunciado": "Depois de separar estações e servidores em segmentos distintos, você quer confirmar, numa estação e sem alterar nada, quais destinos passam a sair pelo salto padrão e quais continuam no enlace local. Que leitura responde a isso?",
       "alternativas": [
         "`Get-NetRoute`, que lista o prefixo de destino, o próximo salto e a métrica de cada entrada da tabela",
         "`Get-NetAdapter`, que lista as interfaces físicas e virtuais com estado de enlace e velocidade negociada",
@@ -969,7 +969,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "A pergunta é sobre uma decisão que a estação toma sozinha, antes de emitir o pacote. Onde essa decisão está escrita?",
+        "Duas das leituras descrevem interfaces, uma descreve destinos. Qual delas responde à pergunta feita?",
         "Duas das opções descrevem interfaces e vizinhos; isso responde \"por onde sai\" ou \"o que existe\"?",
         "Uma das opções testa um destino de cada vez. Quantos testes seriam necessários para responder à pergunta feita?"
       ],
@@ -995,32 +995,32 @@
       "objetivos": [
         2
       ],
-      "enunciado": "Ligue cada termo de segmentação ao que ele nomeia.",
+      "enunciado": "Ligue cada termo de segmentação ao lugar onde ele aparece na configuração.",
       "pares": [
         [
           "VLAN",
-          "Separação de domínio de difusão obtida por marcação de quadro dentro do comutador"
+          "Aparece como identificador numérico no quadro e como interface virtual na configuração do comutador"
         ],
         [
           "DMZ",
-          "Rede intermediária para serviço publicado, com os sentidos de tráfego nomeados um a um"
+          "Aparece como uma terceira interface no equipamento de borda, com matriz de fluxos própria"
         ],
         [
           "microssegmentação",
-          "Política presa à carga de trabalho, que vale mesmo entre máquinas vizinhas do mesmo segmento"
+          "Aparece como regra atrelada a uma etiqueta da carga de trabalho, e não a uma faixa de endereços"
         ],
         [
           "VLAN nativa",
-          "A que trafega sem marcação dentro do tronco, e por isso não deveria carregar dado de usuário"
+          "Aparece como o único identificador que atravessa o tronco sem receber marcação"
         ]
       ],
       "dicas": [
-        "Um dos termos descreve uma exceção dentro de outro termo da mesma lista.",
-        "Pergunte, para cada item, se ele nomeia um limite entre grupos ou um limite entre máquinas individuais.",
-        "Dois dos termos descrevem o que o comutador faz; dois descrevem uma decisão de projeto acima dele."
+        "Um dos quatro não aparece em lugar nenhum do comutador: procure o que é desenho de rede, e não configuração de porta.",
+        "Dois dos quatro são identificadores numéricos, e um deles se define por uma ausência.",
+        "Se você abrisse a configuração do equipamento de borda, qual dos quatro veria primeiro?"
       ],
       "pergunta_socratica": "Antes de conferir: qual desses termos descreve uma decisão que continua valendo entre duas máquinas ligadas no mesmo comutador?",
-      "explicacao": "Os quatro termos costumam ser usados como se fossem intercambiáveis. Dois deles vivem no enlace: um separa difusão por marcação, e o outro é justamente a exceção que viaja sem marcação dentro do tronco — a razão de nunca colocar dado de usuário ali. Os outros dois são decisões de arquitetura: a rede intermediária limita o que o serviço publicado alcança para dentro, e a política presa à carga de trabalho desce até o par de máquinas, deixando de depender de onde cada uma está ligada.",
+      "explicacao": "Os quatro termos convivem no mesmo assunto e aparecem em lugares diferentes da configuração real. A VLAN é um identificador: número no quadro e interface virtual no comutador. A DMZ é desenho de rede — costuma aparecer como uma terceira interface no equipamento de borda, com matriz de fluxos própria. A microssegmentação desloca a regra do endereço para a etiqueta da carga de trabalho, e por isso não vive na porta do comutador. E a VLAN nativa se define por uma ausência: é a única cujo tráfego atravessa o tronco sem marcação, e é dessa ausência que nascem os ataques de dupla marcação.",
       "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009; NIST SP 800-207, agosto de 2020; comportamento de VLAN nativa declarado como conhecimento consolidado",
       "tags": [
         "vocabulario",
@@ -1046,7 +1046,7 @@
       "correta": 0,
       "dicas": [
         "Separe o que acontece com os pacotes no caminho do que acontece nas duas pontas.",
-        "Pergunte o que uma chave guardada num disco prova sobre o software que está rodando naquele disco.",
+        "Separe o que o túnel transporta do que ele nunca olha. Quem responde pelo segundo conjunto?",
         "Uma das opções descreve um efeito colateral de endereçamento como se fosse a garantia principal."
       ],
       "pergunta_socratica": "Antes de conferir: um computador doméstico com programa malicioso instalado fica limpo ao entrar no túnel?",
@@ -1071,7 +1071,7 @@
       "objetivos": [
         3
       ],
-      "enunciado": "Um prestador conecta o notebook pessoal dele à VPN e passa a alcançar a faixa interna inteira. Que mudança ataca o problema na raiz?",
+      "enunciado": "Um prestador conecta o notebook pessoal dele à VPN e passa a alcançar a faixa interna inteira. Uma semana depois, um programa malicioso nesse notebook varre a faixa e alcança três sistemas de que o prestador nunca precisou. Que mudança ataca o problema na raiz?",
       "alternativas": [
         "Entregar acesso por aplicação e por sessão, decidido a cada pedido conforme quem é o usuário e como o equipamento está naquele momento",
         "Aumentar a força da cifra e o tamanho da chave usada no túnel, para reduzir a chance de interceptação no caminho",
@@ -1081,7 +1081,7 @@
       "correta": 0,
       "dicas": [
         "O problema descrito não é sobre o caminho dos pacotes. Sobre o que ele é?",
-        "Pergunte de quantos sistemas o prestador precisa e a quantos ele chega.",
+        "O acesso foi concedido uma vez, no login. Quantas vezes ele é reavaliado depois disso?",
         "Duas das opções mexem em credencial e em cifra; isso muda o alcance que foi concedido?"
       ],
       "pergunta_socratica": "Antes de conferir: no instante em que o túnel sobe, o que é entregue — um caminho ou um recurso?",
@@ -1109,15 +1109,15 @@
       "enunciado": "Proxy direto, proxy reverso e proxy transparente diferem em quê?",
       "alternativas": [
         "Em nome de quem cada um fala e em quem precisou saber que ele existe: o cliente ajustado, o serviço publicado, ou nenhum dos dois",
-        "Apenas no protocolo tratado: o primeiro atende HTTP, o segundo atende HTTPS e o terceiro atende qualquer protocolo",
-        "Apenas no sentido em que decifram: o primeiro abre a saída, o segundo abre a entrada e o terceiro não abre nada",
-        "Apenas no equipamento em que rodam: o primeiro na máquina do usuário, o segundo no servidor e o terceiro no comutador"
+        "No protocolo tratado: o primeiro atende HTTP, o segundo atende HTTPS e o terceiro atende qualquer protocolo",
+        "No sentido em que decifram: o primeiro abre a saída, o segundo abre a entrada e o terceiro não abre nada",
+        "No equipamento em que rodam: o primeiro na máquina do usuário, o segundo no servidor e o terceiro no comutador"
       ],
       "correta": 0,
       "dicas": [
-        "Desenhe a conexão partida ao meio e pergunte, em cada caso, qual das duas pontas teve de ser configurada para que o intermediário entrasse ali.",
-        "Um deles funciona sem que a máquina do usuário tenha sido tocada. Como o tráfego chega até ele, então?",
-        "Pergunte se a diferença entre os três caberia num único eixo técnico, como protocolo ou porta."
+        "Os três nomes vêm de perspectivas diferentes sobre a mesma conexão partida ao meio. Descubra de qual ponto de vista cada nome foi dado.",
+        "Um dos três chegou até o tráfego sem que ninguém tivesse pedido. Pergunte por onde ele entrou.",
+        "Um dos três é escolhido por quem navega, outro por quem publica o serviço. E o terceiro, quem escolheu?"
       ],
       "pergunta_socratica": "Antes de conferir: quem escolheu usar cada um dos três — o usuário, o dono do serviço, ou quem opera a rede?",
       "explicacao": "Os três são intermediários e a diferença está em de que lado eles ficam e quem sabe disso. O direto fala pelo cliente, que foi configurado para usá-lo, e serve para registrar e restringir a saída. O reverso fala pelo serviço publicado, que fica escondido atrás dele, e serve para distribuir carga, terminar a cifra e filtrar o pedido. O transparente não foi configurado por ninguém: o tráfego é desviado até ele no caminho, o que é ótimo para cobertura e péssimo para diagnóstico, porque o cliente não sabe que existe um intermediário. Protocolo, porta e local de instalação variam nos três casos.",
@@ -1145,7 +1145,7 @@
       "alternativas": [
         "`netsh winhttp show proxy`, que devolve a configuração usada pelos componentes do próprio sistema",
         "`Get-NetIPConfiguration`, que devolve endereço, roteador padrão e resolvedor de nomes de cada adaptador",
-        "`Test-NetConnection -Port 8080` contra a rede, que devolve se algo responde naquela porta por perto",
+        "`netstat -ano | findstr :8080`, que devolve se algo já está conectado ou escutando naquela porta na própria máquina",
         "`Get-NetFirewallRule -Direction Outbound`, que devolve as regras que autorizam saída a partir da estação"
       ],
       "correta": 0,
@@ -1154,11 +1154,11 @@
         "Uma das opções encontraria um intermediário que existe e não está declarado — isso responde à pergunta feita?",
         "Roteador padrão e servidor intermediário ficam guardados no mesmo lugar da configuração?"
       ],
-      "pergunta_socratica": "Antes de conferir: a resposta \"acesso direto\" provaria que nenhum intermediário existe no caminho?",
+      "pergunta_socratica": "Antes de conferir: essa leitura vale para os componentes do sistema ou também para todo programa instalado nele?",
       "explicacao": "A pergunta é de configuração declarada, e a leitura escolhida devolve exatamente esse ajuste, usado por componentes do sistema — foi ela que, neste laboratório, respondeu acesso direto. Configuração de endereçamento e resolvedor de nomes vive noutro lugar e não guarda esse dado. Sondar uma porta encontraria um serviço respondendo, o que é outra afirmação. Regras de saída dizem o que é permitido sair, não por onde o tráfego é intermediado. E vale lembrar o limite: a resposta descreve o que o sistema tem declarado, e não o que acontece com o pacote depois que ele sai da máquina.",
       "por_que_erradas": {
         "1": "Essa leitura cobre endereço, roteador e resolvedor de nomes da interface, e não a configuração de intermediário.",
-        "2": "Encontrar algo que responde numa porta não diz que a estação foi configurada para usá-lo.",
+        "2": "Encontrar conexão ou escuta numa porta não diz que a estação foi configurada para usar um intermediário.",
         "3": "Regra de saída trata de autorização de tráfego, e não de por onde o tráfego é encaminhado."
       },
       "fonte": "Verificado em execução no laboratório local (rede_windows.txt, seção de proxy do sistema, somente leitura)",
@@ -1186,7 +1186,7 @@
       "correta": 0,
       "dicas": [
         "Um dos quatro arranjos deixa a decisão no equipamento fisicamente mais exposto da lista. Isso é aceitável?",
-        "Pergunte onde ficam as credenciais que essa decisão precisa consultar.",
+        "Três participantes entram na conversa. Diga o que cada um faz e o que nenhum deles consegue fazer sozinho.",
         "Duas das opções colocam a decisão em equipamentos que existem para outra finalidade."
       ],
       "pergunta_socratica": "Antes de conferir: o comutador de uma sala deveria guardar a base de credenciais da empresa inteira?",
@@ -1221,7 +1221,7 @@
       "correta": 0,
       "dicas": [
         "Marque numa linha do tempo o momento da decisão e o momento do incidente.",
-        "Pergunte com que frequência a pergunta \"este equipamento continua como estava?\" é refeita.",
+        "A aprovação aconteceu num instante. Marque numa linha do tempo tudo que pode acontecer depois dele.",
         "Uma das opções afirma que a reavaliação já é contínua; isso é compatível com o intervalo descrito?"
       ],
       "pergunta_socratica": "Antes de conferir: uma aprovação sem prazo é uma decisão ou virou um estado permanente?",
@@ -1250,14 +1250,14 @@
       "alternativas": [
         "Aproveitar a exceção que libera o telefone pelo endereço físico dele, copiando esse endereço; reduz-se exigindo que o próprio telefone se autentique e refazendo a decisão a cada novo enlace",
         "Aproveitar que a porta fica sem energia, o que reinicia o comutador inteiro; reduz-se instalando fonte redundante no armário de telecomunicações",
-        "Aproveitar que o endereço físico viaja cifrado no quadro, o que impede o comutador de compará-lo; reduz-se desligando a cifra do enlace",
-        "Aproveitar a faixa reservada à telefonia, que por norma não aceita filtragem; reduz-se movendo a telefonia para a mesma VLAN dos dados"
+        "Aproveitar que o telefone repassa o tráfego do computador ligado atrás dele e escutar o que passa; reduz-se cifrando o tráfego de voz",
+        "Aproveitar que a porta volta ao grupo de convidados quando o enlace cai; reduz-se fixando o grupo na configuração da porta"
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte que exceção costuma existir para equipamentos que não sabem se autenticar sozinhos.",
+        "Compare o que a porta exigiu do telefone com o que ela exigiria de um notebook.",
         "Um endereço físico é difícil de descobrir ou difícil de copiar? Qual das duas coisas importa aqui?",
-        "Duas das opções inventam propriedades do quadro e da norma; teste-as contra o que você já sabe do enlace."
+        "Duas das opções continuariam valendo se o aparelho ali fosse uma impressora. Comece por elas."
       ],
       "pergunta_socratica": "Antes de conferir: o que acontece naquela porta no instante em que o cabo é retirado e outro é encaixado?",
       "explicacao": "Impressora, telefone e catraca costumam não saber se autenticar, e a saída prática é abrir uma exceção pelo endereço físico. Esse endereço está impresso na etiqueta do aparelho, viaja em claro no quadro e é trivial de configurar em outra placa, então a exceção vira a porta de entrada. Reduz-se o proveito exigindo autenticação do próprio aparelho, quando ele suporta, e refazendo a decisão sempre que o enlace cai e volta — o que faz do encaixe do cabo um evento e não uma herança. Perda de energia derruba a porta, não o comutador; o endereço físico não é cifrado; e a telefonia aceita filtragem como qualquer outro segmento.",
@@ -1284,15 +1284,15 @@
       "enunciado": "Um time precisa de três coisas: chegar aos sistemas internos de casa, restringir e registrar o que a rede acessa na web, e impedir que equipamento desconhecido receba endereço numa sala. Que arranjo atende, e por quê?",
       "alternativas": [
         "Túnel para a primeira, intermediário de saída para a segunda e decisão na porta para a terceira — cada necessidade aparece num ponto diferente do caminho",
-        "Um túnel resolve as três, porque todo o tráfego passa a ser transportado e conferido pelo concentrador da empresa",
-        "Um intermediário de saída resolve as três, porque toda conexão precisa atravessá-lo antes de alcançar qualquer destino",
-        "A decisão na porta resolve as três, porque equipamento não autorizado nunca chega a usar os outros dois caminhos"
+        "O túnel cobre as três, porque todo o tráfego passa a ser transportado e conferido pelo concentrador da empresa",
+        "O intermediário de saída cobre as três, porque toda conexão da rede passa por ele antes de sair",
+        "A decisão na porta cobre as três, porque nada entra na rede sem passar por essa aprovação"
       ],
       "correta": 0,
       "dicas": [
-        "Localize cada uma das três necessidades no caminho: em que ponto exatamente ela acontece?",
-        "Pergunte se um mecanismo que age num desses lugares consegue ver o que acontece nos outros dois.",
-        "Três das opções apostam num mecanismo único; teste cada uma contra o problema que ele não enxerga."
+        "São três necessidades e três lugares no caminho. Numere os lugares antes de olhar as opções.",
+        "Um mecanismo que age na saída da rede enxerga o que acontece na entrada dela?",
+        "Uma das três necessidades acontece quando o funcionário ainda não está na rede da empresa. Localize essa primeiro."
       ],
       "pergunta_socratica": "Antes de conferir: o equipamento desconhecido plugado na sala chega a atravessar o túnel de acesso remoto?",
       "explicacao": "As três necessidades acontecem em lugares diferentes, e cada mecanismo só age onde está. O túnel resolve o transporte de quem está fora, e não vê a tomada da sala nem a navegação de quem está dentro. O intermediário de saída registra e restringe a navegação, e nada sabe sobre quem acabou de se conectar na parede. A decisão na porta impede que um equipamento estranho ganhe acesso, e não protege o funcionário que trabalha de casa. Procurar um produto que faça as três é o erro que produz arquitetura ruim e expectativa pior ainda.",

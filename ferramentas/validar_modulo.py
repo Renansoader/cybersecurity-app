@@ -244,6 +244,21 @@ def achar_gabarito_entregue(dados, avisos):
                     f"{questao['id']}: a resposta certa divide {mutua:.0%} do vocabulário com a de "
                     f"{outro_id} — duas questões ensinando a mesma coisa")
 
+    # 5b. lado direito de pareamento que é a resposta certa de outra questão.
+    # A regra 5 lia só `alternativas`, e foi por essa fresta que os dois
+    # pareamentos do módulo 4.2 passaram com oito gabaritos de outras questões.
+    for questao in questoes:
+        if questao["tipo"] != "pareamento":
+            continue
+        for i, par in enumerate(questao["pares"], start=1):
+            for outro_id, outra_certa in [(x["id"], x["alternativas"][x["correta"]])
+                                          for x in questoes if x.get("alternativas")]:
+                mutua = min(_cobertura(par[1], outra_certa), _cobertura(outra_certa, par[1]))
+                if mutua >= LIMIAR_GABARITO_IGUAL and not _aceito(questao["id"], f"par {i}"):
+                    avisos.append(
+                        f"{questao['id']}: o par {i} divide {mutua:.0%} do vocabulário com a resposta "
+                        f"certa de {outro_id} — o pareamento entrega o gabarito de outra questão")
+
     # 4. distrator que é o gabarito de outra questão
     corretas = {q["id"]: q for q in questoes if q.get("alternativas")}
     for questao in questoes:
