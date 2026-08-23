@@ -3,7 +3,7 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-22 · commit `148121b` · 2.532 testes passando
+Última atualização: 2026-08-23 · commit `1958f9e` · 2.644 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -13,18 +13,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 22 de 41 |
-| Questões | 771 |
-| Blocos de teoria | 134 |
-| Tags distintas | 696 |
-| Testes automatizados | 2.532 |
+| Módulos de conteúdo escritos | 23 de 41 |
+| Questões | 806 |
+| Blocos de teoria | 140 |
+| Tags distintas | 735 |
+| Testes automatizados | 2.644 |
 | Linhas de código Python | ~3.260 |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 35 (1 de 8 módulos).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 70 (2 de 8 módulos).
 
-Tipos de questão em uso: conceitual 347, cenário 154, ataque→defesa 58,
-caça ao erro 57, comando 46, pareamento 42, artefato 38, ordenação 29.
+Tipos de questão em uso: conceitual 358, cenário 163, ataque→defesa 61,
+caça ao erro 59, comando 49, pareamento 44, artefato 42, ordenação 30.
 
 ---
 
@@ -50,7 +50,7 @@ C:\Dev\cybersecurity-app\
 │                            desafio, glossario, ferramentas (stubs)
 ├── data/
 │   ├── niveis.json          6 níveis e regras de desbloqueio
-│   ├── modulos/*.json       22 módulos (00-01 … 04-01)
+│   ├── modulos/*.json       23 módulos (00-01 … 04-02)
 │   └── rascunhos/            laboratórios, fontes e relatórios de procedência
 ├── exemplo/
 │   └── modulo-minimo.json   modelo comentado, um exemplo de cada tipo de questão
@@ -198,7 +198,7 @@ C:\Dev\cybersecurity-app\
 | 4 | Conteúdo dos níveis 0 e 1 (11 módulos) | pronta |
 | 5 | Telas de sessão, trilha, home, módulo e progresso | pronta (antecipada) |
 | 6 | Nível 2 + glossário + ferramentas | parcial: nível 2 completo; glossário e ferramentas pendentes |
-| 7 | Níveis 3 e 4 + desafios práticos | em andamento: 3.1–3.3 e 4.1 prontos |
+| 7 | Níveis 3 e 4 + desafios práticos | em andamento: 3.1–3.3, 4.1 e 4.2 prontos |
 | 8 | Nível 5 + simulado + trilha de 90 dias | pendente |
 | 9 | Ícone, atalho, README, publicação | pronta |
 
@@ -213,8 +213,8 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
-**Nível 4 — Defensivo** (35 questões, 1 de 8)
-4.1 Hardening
+**Nível 4 — Defensivo** (70 questões, 2 de 8)
+4.1 Hardening · 4.2 Segurança de rede
 
 **Nível 3 — Ofensivo** (105 questões, 3 de 9)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
@@ -238,12 +238,12 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 19 módulos
+### Conteúdo — 18 módulos
 
 - **Nível 3 — Ofensivo** (6 restantes): Web I/II/III, OWASP Top 10, quebra de
   senhas, engenharia social e redes sem fio
-- **Nível 4 — Defensivo** (7 restantes): segurança de rede, defesa em
-  profundidade, malware, SIEM, MITRE ATT&CK, resposta a incidentes, forense
+- **Nível 4 — Defensivo** (6 restantes): defesa em profundidade, malware, SIEM,
+  MITRE ATT&CK, resposta a incidentes, forense
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
 
@@ -288,6 +288,17 @@ real de requisição.
   22/08/2026 e ainda não tratados. Os mais fortes: `2.3.q31` × `2.4.q14` (90% do
   vocabulário em comum), `2.3.q9` × `2.4.q14` (80%) e `1.2.q6` × `1.6.q6` (77%).
   Decidir, em cada par, qual questão fica e para onde a outra é repontada.
+- **Seis pareamentos que entregam o gabarito de outra questão**, achados em
+  23/08/2026 quando a regra 5 passou a ler o campo `pares`: `1.5.q28` (88% com
+  `1.5.q13`), `0.3.q3` (80% com `0.3.q2`), `2.2.q6` (três pares, com `2.2.q2` e
+  `2.2.q3`), `1.2.q33`, `1.3.q12` e `4.1.q5`. Mesmo tratamento dos sete pares
+  acima: trocar o eixo do pareamento, e não apagar a questão.
+- **A dica que parafraseia o gabarito é o defeito mais teimoso do projeto.** No
+  4.2 foram 41 das 105 dicas, todas seguindo um molde único — "Pergunte ⟨a
+  pergunta cuja única resposta é o gabarito⟩" — mesmo com a regra escrita no
+  encargo do autor e com o teste operacional descrito. Nenhuma delas dispara no
+  validador, porque não repetem vocabulário. Vale considerar, no próximo módulo,
+  proibir explicitamente dica que comece com "Pergunte".
 - **O relatório de procedência do 3.3 nunca foi escrito** — o processo foi
   interrompido antes disso.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
