@@ -1,0 +1,9 @@
+pacote                                               sem estado   com estado
+------------------------------------------------------------------------------
+saida    192.168.100.6:51520 -> 203.0.113.10:443 [SYN] permite      permite
+entrada  203.0.113.10:443 -> 192.168.100.6:51520 [SYN-ACK] permite      permite
+saida    192.168.100.6:51520 -> 203.0.113.10:443 [ACK] permite      permite
+entrada  203.0.113.10:443 -> 192.168.100.6:51520 [dados] permite      permite
+entrada  198.51.100.77:443 -> 192.168.100.6:51521 [SYN-ACK] permite      descarta
+
+conexoes na tabela de estado ao final: 1

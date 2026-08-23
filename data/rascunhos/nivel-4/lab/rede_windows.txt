@@ -1,0 +1,19 @@
+﻿=== 1. regras de firewall por perfil, direcao e acao ===
+  regras habilitadas: 476
+  Inbound, Allow         285
+  Outbound, Allow        191
+
+=== 2. acao padrao por perfil ===
+  Domain   Inbound=NotConfigured  Outbound=NotConfigured
+  Private  Inbound=NotConfigured  Outbound=NotConfigured
+  Public   Inbound=NotConfigured  Outbound=NotConfigured
+
+=== 3. tabela de rotas (rotas padrao e locais) ===
+  192.168.100.255/32   proximo salto 0.0.0.0          metrica 256
+  192.168.100.6/32     proximo salto 0.0.0.0          metrica 256
+  192.168.100.0/24     proximo salto 0.0.0.0          metrica 256
+  0.0.0.0/0            proximo salto 192.168.100.1    metrica 0
+
+=== 4. proxy do sistema (WinHTTP) ===
+  Configurações do proxy WinHTTP atuais:
+      Acesso direto (nenhum servidor proxy).
