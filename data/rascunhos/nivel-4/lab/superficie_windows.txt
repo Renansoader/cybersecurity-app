@@ -1,0 +1,28 @@
+﻿=== 1. superficie: portas em escuta ===
+  porta 135    processos: 2
+  porta 139    processos: 1
+  porta 445    processos: 1
+  porta 3215   processos: 1
+  porta 3216   processos: 1
+  porta 3217   processos: 1
+  porta 5040   processos: 1
+  porta 27036  processos: 1
+  porta 27060  processos: 1
+  porta 37777  processos: 1
+  porta 42050  processos: 1
+  porta 49664  processos: 2
+
+=== 2. perfis de firewall ===
+  Domain   Enabled=True  DefaultInbound=NotConfigured  DefaultOutbound=NotConfigured
+  Private  Enabled=True  DefaultInbound=NotConfigured  DefaultOutbound=NotConfigured
+  Public   Enabled=True  DefaultInbound=NotConfigured  DefaultOutbound=NotConfigured
+
+=== 3. SMBv1 (protocolo legado) ===
+  SMB1Protocol: nao consultado
+
+=== 4. correcoes instaladas (ultimas 5) ===
+  KB5121003    Security Update 2026-08-13
+  KB5120708    Update     2026-08-13
+  KB5123304    Security Update 2026-08-12
+  KB5054156    Update     2026-02-19
+  KB5059093    Update     2025-05-27

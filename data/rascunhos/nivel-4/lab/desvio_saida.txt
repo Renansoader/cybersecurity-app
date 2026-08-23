@@ -1,0 +1,20 @@
+=== conforme a linha de base ===
+    135  RPC endpoint mapper  — declarado, com justificativa registrada
+    445  SMB  — declarado, com justificativa registrada
+
+=== desvio: em escuta e fora da linha de base ===
+    139  sem justificativa registrada — investigar ou fechar
+   3215  sem justificativa registrada — investigar ou fechar
+   3216  sem justificativa registrada — investigar ou fechar
+   3217  sem justificativa registrada — investigar ou fechar
+   5040  sem justificativa registrada — investigar ou fechar
+  27036  sem justificativa registrada — investigar ou fechar
+  27060  sem justificativa registrada — investigar ou fechar
+  37777  sem justificativa registrada — investigar ou fechar
+  42050  sem justificativa registrada — investigar ou fechar
+
+=== declarado e ausente ===
+   3389  RDP — nao esta em escuta; a linha de base envelheceu
+
+resumo: 2 conformes, 9 desvios, 1 ausentes
+A linha de base nao mede seguranca: mede distancia entre o declarado e o real.
