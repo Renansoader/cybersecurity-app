@@ -1,0 +1,1313 @@
+{
+  "id": "4.2",
+  "nivel": 4,
+  "titulo": "Segurança de rede — filtragem, detecção, segmentação e acesso",
+  "objetivos": [
+    "Escolher o tipo de filtragem pelo problema — sem estado, com estado, de aplicação — e saber o que cada um não vê",
+    "Posicionar detecção e prevenção na rede, e assumir o custo do erro de cada posição",
+    "Desenhar segmentação que separa de verdade: VLAN, DMZ, filtro entre segmentos e o caminho do tráfego",
+    "Escolher o controle de acesso à rede — VPN, proxy, NAC — pelo que ele de fato garante, e pelo que não garante"
+  ],
+  "pre_requisitos": [
+    "4.1"
+  ],
+  "teoria": [
+    {
+      "id": "4.2.t1",
+      "titulo": "Sem estado e com estado: o que a tabela de sessão acrescenta",
+      "texto": "Um filtro sem estado decide sobre cada pacote isolado: compara endereço, porta e sentido com uma lista de regras e responde permite ou descarta. Entre um pacote e o seguinte ele não guarda nada.\n\nO preço aparece no tráfego de volta. Como a resposta de uma conexão de saída chega como pacote de entrada, alguém precisa deixar entrar tudo que venha da porta do serviço — e essa regra permanente também recebe quem não foi convidado. O filtro com estado resolve por outro caminho: ao deixar a conexão sair, anota o par de endereços e portas numa tabela e só admite de volta o que casa com uma anotação.\n\nNa simulação deste módulo, os quatro pacotes de uma conexão HTTPS legítima passaram nos dois filtros. O quinto, não solicitado, vindo de outro endereço com porta de origem 443, passou no sem estado e foi descartado pelo com estado.",
+      "analogia": "A regra larga é deixar o portão destrancado porque alguém da casa saiu e vai voltar. A tabela de sessão é a lista de quem saiu, conferida na volta.",
+      "erro_comum": "Tratar o filtro sem estado como \"o mesmo, só que mais simples\". A diferença não é desempenho: é a regra de entrada larga que ele obriga a existir.",
+      "fonte": "Verificado em execução no laboratório local (estado_vs_estatico.py, simulação que não toca na rede); NIST SP 800-41 Rev. 1, Guidelines on Firewalls and Firewall Policy, setembro de 2009"
+    },
+    {
+      "id": "4.2.t2",
+      "titulo": "O que cada filtragem não enxerga",
+      "texto": "Cada forma de filtragem lê uma fatia diferente do mesmo tráfego, e a fatia que fica de fora é justamente o que decide a escolha.\n\nO filtro de pacote lê cabeçalho: endereço, porta, sentido, sinalizador. O filtro com estado acrescenta uma pergunta — isto pertence a uma conversa que já começou? Nenhum dos dois fala o protocolo do serviço. O proxy de aplicação fala: ele termina a conexão do cliente, interpreta o pedido e abre outra conexão até o destino, o que permite decidir por método, caminho e cabeçalho de aplicação, ao custo de desempenho e de compatibilidade.\n\nFirewall de próxima geração não é norma nem camada nova: é categoria de mercado que reúne, num equipamento só, reconhecimento de aplicação sem depender da porta, identidade de quem usa e inspeção do que trafega. Dois produtos com esse rótulo não trazem o mesmo conjunto.",
+      "analogia": "Cabeçalho é o envelope; sessão é saber que você mesmo pediu aquela carta; proxy de aplicação é abrir e ler antes de repassar.",
+      "erro_comum": "Achar que \"próxima geração\" é um degrau normatizado. É nome comercial: dois equipamentos com o rótulo podem ter conjuntos bem diferentes.",
+      "fonte": "NIST SP 800-41 Rev. 1, Guidelines on Firewalls and Firewall Policy, setembro de 2009 (tecnologias de firewall); categoria de próxima geração declarada como conhecimento consolidado"
+    },
+    {
+      "id": "4.2.t3",
+      "titulo": "Regra é exceção: o que esta máquina mostrou",
+      "texto": "A leitura desta máquina devolveu 476 regras de firewall habilitadas: 285 de entrada e 191 de saída, todas de permissão. Nenhuma regra de bloqueio habilitada. Nos três perfis, a ação padrão de entrada e a de saída aparecem como não configuradas por política.\n\nA leitura útil é a inversão que isso obriga: regra de permissão não protege, ela abre. O que segura a entrada é a ação aplicada ao pacote que não casa com regra nenhuma — as 476 linhas são exceções cavadas nesse padrão. Apagar todas elas deixaria a máquina mais fechada, e não mais aberta.\n\nDo lado da saída o quadro é outro: 191 permissões, nenhuma negação, nenhuma ação padrão declarada. Na prática qualquer processo da máquina alcança a rede, e nada disso foi decidido por alguém.",
+      "analogia": "O muro é a ação padrão. Cada regra de permissão é um portão aberto nele — e ninguém fica mais seguro construindo portões.",
+      "erro_comum": "Ler \"476 regras ativas\" como prova de firewall bem configurado. O número conta exceções; a postura está no que acontece fora delas.",
+      "fonte": "Verificado em execução no laboratório local (rede_windows.txt, somente leitura); NIST SP 800-41 Rev. 1, setembro de 2009 — política de negar por padrão"
+    },
+    {
+      "id": "4.2.t4",
+      "titulo": "Detectar e prevenir: a mesma análise em duas posições",
+      "texto": "Detecção e prevenção de intrusão rodam a mesma análise em posições diferentes. O sensor de detecção recebe uma cópia do tráfego e emite alerta; o de prevenção fica no caminho, e por isso pode descartar o pacote antes de ele chegar ao destino.\n\nA pergunta não é qual dos dois é melhor, e sim quem paga pelo erro. Um falso positivo na posição de cópia custa tempo de analista. O mesmo falso positivo em linha derruba tráfego legítimo, e o equipamento vira ponto único de falha do serviço que ele protege — o que exige decidir, antes de ligar o cabo, o que acontece com o tráfego se ele travar.\n\nOs dois métodos de análise erram de formas opostas: assinatura só encontra o que já foi descrito; anomalia depende de uma linha de base fiel e acusa o que é apenas incomum.",
+      "analogia": "Câmera na esquina registra e avisa. Cancela na entrada decide na hora — e quando erra, a fila para.",
+      "erro_comum": "Dizer que o sistema de prevenção é \"a versão evoluída\" do de detecção. São posições distintas no caminho do tráfego, com contas de erro distintas.",
+      "fonte": "NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems, fevereiro de 2007 — publicação final e vigente (o rascunho de Revisão 1, de 2012, foi retirado e nunca virou publicação)"
+    },
+    {
+      "id": "4.2.t5",
+      "titulo": "Segmentar de verdade: rótulo, ponto de passagem e sentido",
+      "texto": "VLAN separa domínio de difusão: a marcação no quadro faz o comutador tratar grupos de portas como enlaces distintos. Isso não decide quem alcança quem. Se existe roteamento entre duas VLANs e nenhuma lista de controle no ponto de passagem, uma alcança a outra inteira — o rótulo mudou, o acesso não.\n\nSegmentar de verdade é escrever, para cada par de segmentos, o que atravessa e em que sentido, e aplicar essa decisão no ponto por onde o tráfego obrigatoriamente passa. A DMZ é um caso desse desenho: a rede do serviço publicado inicia para dentro apenas conexões nomeadas, de modo que tomar o servidor não entregue caminho livre.\n\nO enlace tem ataques próprios: porta que aceita negociar tronco e VLAN nativa carregando dado de usuário. Fecha-se fixando a porta como de acesso e não usando a nativa para dados.",
+      "analogia": "Pintar linhas no chão do galpão cria setores. Nenhuma linha impede ninguém de atravessar — quem impede é a porta com alguém conferindo.",
+      "erro_comum": "Apresentar \"estão em VLANs separadas\" como isolamento de segurança. Sem filtro no ponto de roteamento, o que foi separado é a difusão, não o acesso.",
+      "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009 (arquitetura de rede com sub-rede protegida); ataques de salto entre VLANs declarados como conhecimento consolidado"
+    },
+    {
+      "id": "4.2.t6",
+      "titulo": "VPN, proxy e controle na porta: três perguntas diferentes",
+      "texto": "Os três controles de acesso à rede respondem a perguntas diferentes, e confundi-los é o erro caro.\n\nA VPN protege o transporte: autentica as pontas e cifra o que passa entre elas, sobre uma rede que não merece confiança. Ela não diz nada sobre o estado do equipamento em uma das pontas — notebook pessoal comprometido continua comprometido dentro do túnel, e é por isso que acesso remoto que entrega a faixa interna inteira convive mal com decisão tomada por sessão.\n\nO proxy é intermediário: fala em nome de um dos lados e, com isso, registra, restringe e inspeciona. O direto representa o cliente, o reverso representa o serviço publicado, o transparente não é configurado por ninguém — o tráfego é desviado até ele. Já o controle na porta decide antes de entregar acesso: o equipamento pede, o comutador intermedeia, o servidor de autenticação decide.",
+      "analogia": "O túnel é o carro-forte: protege o dinheiro na estrada e não pergunta de onde ele veio. A portaria é quem decide se o carro entra.",
+      "erro_comum": "Tratar VPN como controle de acesso. Ela responde \"o caminho é seguro?\", não \"este equipamento e este usuário podem chegar a este sistema?\".",
+      "fonte": "NIST SP 800-207, Zero Trust Architecture, agosto de 2020 — perímetro deixa de ser o limite de confiança; papéis do controle de acesso por porta declarados como conhecimento consolidado"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "4.2.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Um filtro de pacote sem estado recebe um pacote. Sobre o que ele decide?",
+      "alternativas": [
+        "Sobre aquele pacote sozinho, comparando endereço, porta e sentido com a lista de regras, sem memória do que veio antes",
+        "Sobre a conexão inteira, porque o equipamento reconstrói a sessão completa antes de aplicar qualquer regra",
+        "Sobre a carga que o pacote transporta, já que a decisão depende do que a aplicação de destino está pedindo",
+        "Sobre a reputação do endereço de origem, consultada numa base externa a cada pacote que chega"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O nome do mecanismo descreve o que ele não faz. O que seria preciso guardar para fazer diferente?",
+        "Pergunte de quanta memória esse equipamento precisa para atender mil conversas ao mesmo tempo.",
+        "Duas das opções exigem que o equipamento saiba de algo que não está dentro do pacote que acabou de chegar."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você embaralhasse a ordem dos pacotes de uma mesma conversa, alguma decisão desse filtro mudaria?",
+      "explicacao": "O filtro sem estado é uma comparação linha a linha: cabeçalho do pacote contra lista de regras, e nada mais. Ele não sabe se aquele pacote é o primeiro de uma conversa, o meio ou uma resposta, porque não guarda registro entre uma decisão e a seguinte. Isso o torna barato e previsível, e é também o que o obriga a depender de regras largas para o tráfego de volta. Reconstruir sessão, ler carga de aplicação e consultar base externa são trabalhos de outros mecanismos, cada um com o seu custo.",
+      "por_que_erradas": {
+        "1": "Reconstruir a conversa é exatamente o que o mecanismo com estado faz; se ele fizesse isso, teria outro nome.",
+        "2": "Ler o que a aplicação pede exige interpretar o protocolo do serviço, trabalho de proxy de aplicação e não de filtro de cabeçalho.",
+        "3": "Consulta a base externa é recurso acrescentado por produtos modernos; não é o que define a filtragem sem estado."
+      },
+      "fonte": "NIST SP 800-41 Rev. 1, Guidelines on Firewalls and Firewall Policy, setembro de 2009 — filtragem de pacote",
+      "tags": [
+        "firewall",
+        "filtro-de-pacote",
+        "sem-estado",
+        "rede"
+      ]
+    },
+    {
+      "id": "4.2.q2",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "artefato": "pacote                                               sem estado   com estado\n------------------------------------------------------------------------------\nsaida    192.168.100.6:51520 -> 203.0.113.10:443 [SYN] permite      permite\nentrada  203.0.113.10:443 -> 192.168.100.6:51520 [SYN-ACK] permite      permite\nsaida    192.168.100.6:51520 -> 203.0.113.10:443 [ACK] permite      permite\nentrada  203.0.113.10:443 -> 192.168.100.6:51520 [dados] permite      permite\nentrada  198.51.100.77:443 -> 192.168.100.6:51521 [SYN-ACK] permite      descarta\n\nconexoes na tabela de estado ao final: 1",
+      "enunciado": "Esta saída comparou duas políticas de filtragem contra a mesma sequência de pacotes. O que ela demonstra?",
+      "alternativas": [
+        "Que a regra larga exigida pelo tráfego de volta também aceita quem ninguém convidou, e é esse flanco que a segunda política fecha",
+        "Que o filtro com estado é mais rápido, porque resolve com uma consulta única em vez de percorrer a lista de regras inteira",
+        "Que o filtro sem estado estava mal escrito, e uma lista de regras mais específica devolveria exatamente o mesmo resultado do filtro com estado",
+        "Que o último pacote é malicioso, e o filtro com estado o reconheceu pela carga que ele transportava"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quatro linhas saem iguais nas duas colunas. Comece pela única que sai diferente.",
+        "Pergunte que regra precisou existir para que a segunda linha fosse permitida, e o que mais essa mesma regra aceita.",
+        "Compare a porta de destino da última linha com a porta de destino das linhas anteriores."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a última linha fosse apagada, as duas colunas ficariam idênticas — isso tornaria as duas políticas equivalentes?",
+      "explicacao": "A conexão legítima passa nas duas colunas, e é por isso que a diferença só aparece na última linha. Para que a resposta da conexão entrasse, a política sem estado precisou de uma regra permanente que aceita entrada vinda da porta 443, venha de onde vier. O último pacote se apresenta com essa mesma cara e chega a uma porta que nenhuma conexão pediu: a lista o aceita, a tabela não encontra registro correspondente e o recusa. O ganho não é velocidade nem leitura de conteúdo; é ter uma anotação de quem saiu para conferir na volta.",
+      "por_que_erradas": {
+        "1": "Desempenho não está medido aqui, e manter tabela de conexões custa memória e processamento em vez de economizá-los.",
+        "2": "Nenhuma lista mais específica reconhece o que foi pedido de dentro; essa informação não está no pacote, está na memória do equipamento.",
+        "3": "Nada nessa comparação olha carga de pacote: a decisão saiu de endereço, porta e existência de registro anterior."
+      },
+      "fonte": "Verificado em execução no laboratório local (estado_vs_estatico.py, simulação que não toca na rede)",
+      "tags": [
+        "firewall",
+        "com-estado",
+        "artefato",
+        "laboratorio",
+        "sessao"
+      ]
+    },
+    {
+      "id": "4.2.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Numa política sem estado, o que obriga o administrador a liberar a entrada vinda de uma porta de serviço inteira?",
+      "alternativas": [
+        "O tráfego de resposta chega como pacote de entrada e nada, no equipamento, registra que ele foi pedido de dentro",
+        "O protocolo exige que o cliente fique escutando numa porta fixa, e essa porta precisa permanecer aberta durante a sessão",
+        "A tradução de endereços obriga a mapear a porta do serviço para dentro, e o mapeamento vale para qualquer origem",
+        "As regras de saída não são avaliadas por esse tipo de filtro, então toda a decisão precisa ser tomada na entrada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Desenhe os dois sentidos da mesma conversa e classifique cada pacote como entrada ou saída.",
+        "Pergunte que informação o equipamento precisaria ter guardado para reconhecer uma resposta como resposta.",
+        "Elimine as opções que atribuem a causa ao comportamento do cliente em vez de atribuí-la ao filtro."
+      ],
+      "pergunta_socratica": "Antes de conferir: em cabeçalho, o pacote de resposta é diferente de um pacote não solicitado que chegasse da mesma porta?",
+      "explicacao": "Toda conversa tem dois sentidos, e o filtro classifica cada pacote pelo sentido em que ele atravessa. A resposta de uma conexão iniciada de dentro chega, para o filtro, como um pacote de entrada qualquer. Sem registro do que saiu, a única forma de deixá-la passar é uma regra permanente que aceite entrada da porta do serviço, e essa regra não distingue resposta de pacote forjado com a mesma cara. O cliente não fica escutando em porta fixa, e a tradução de endereços é outro mecanismo, com outro efeito.",
+      "por_que_erradas": {
+        "1": "O cliente usa porta efêmera escolhida na hora e não fica em escuta; a porta fixa é do lado do servidor.",
+        "2": "Tradução de endereços resolve escassez de endereço e não decide política de filtro; ela existe ou não, independentemente disso.",
+        "3": "Filtro sem estado avalia os dois sentidos; o que ele não faz é ligar um sentido ao outro."
+      },
+      "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009 — inspeção com estado e tráfego de retorno; comportamento observado no laboratório local (estado_vs_estatico.py)",
+      "tags": [
+        "firewall",
+        "sem-estado",
+        "regra-larga",
+        "trafego-de-retorno"
+      ]
+    },
+    {
+      "id": "4.2.q4",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Na simulação, um pacote chega de 198.51.100.77, porta de origem 443, para a porta 51521 da estação, e a política com estado o recusa. Qual é o motivo?",
+      "alternativas": [
+        "Nenhuma saída anotada corresponde àquele par de endereço e porta, então não há registro que autorize a volta",
+        "A porta 443 só é aceita quando o pacote chega do mesmo endereço que aparece na rota padrão da estação",
+        "Pacotes com sinalizador de resposta são sempre recusados quando não vêm acompanhados de um pedido no mesmo segundo",
+        "A porta de destino está na faixa efêmera, e o equipamento nega por padrão qualquer entrada dirigida a essa faixa"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Compare os quatro campos desse pacote com os quatro campos das linhas anteriores, um a um.",
+        "Pergunte o que o equipamento escreveu quando o primeiro pacote saiu, e o que ele procura quando um pacote entra.",
+        "Uma das opções culpa a faixa da porta de destino; teste essa hipótese contra a segunda linha, que foi permitida."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a estação tivesse aberto uma conexão para 198.51.100.77 na porta 443, esse pacote chegaria ao mesmo destino?",
+      "explicacao": "A tabela guarda quatro campos por conexão que saiu: endereço e porta do outro lado, endereço e porta da estação. Na volta, o equipamento procura a linha correspondente. Esse pacote traz outro endereço de origem e outra porta de destino, então não casa com nada — e a recusa é consequência da ausência de registro, não de alguma característica suspeita do pacote. Repare que a porta 51521 está na mesma faixa efêmera da 51520, que foi permitida: não é a faixa que decide.",
+      "por_que_erradas": {
+        "1": "A rota padrão diz por onde o pacote sai; ela não participa da conferência de sessão nem restringe endereços de resposta.",
+        "2": "Não existe janela de tempo tão curta na conferência; o que vale é haver registro da conexão, que pode ser antigo.",
+        "3": "A porta permitida na segunda linha está na mesma faixa efêmera, o que derruba essa explicação."
+      },
+      "fonte": "Verificado em execução no laboratório local (estado_vs_estatico.py, quinto pacote da sequência)",
+      "tags": [
+        "firewall",
+        "com-estado",
+        "tabela-de-sessao",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.2.q5",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Uma estação inicia a conexão e o filtro com estado admite a resposta. O que esse mecanismo não é capaz de avaliar?",
+      "alternativas": [
+        "Se quem abriu a conexão foi o usuário ou um programa que ele nunca escolheu executar",
+        "Se a resposta veio do mesmo endereço e da mesma porta para os quais a conexão foi aberta",
+        "Se a conexão continua aberta ou já foi encerrada pelos dois lados envolvidos",
+        "Se o número de conexões simultâneas daquela estação passou do limite configurado no equipamento"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Escreva os campos que ficaram na anotação de saída e compare essa lista, campo a campo, com as quatro opções.",
+        "Pergunte de que lado do filtro fica a decisão de abrir a conexão.",
+        "Três das opções descrevem coisas que a própria anotação já contém ou já consegue contar."
+      ],
+      "pergunta_socratica": "Antes de conferir: para o filtro, a conexão que um programa indesejado abre parece diferente da que o navegador abre?",
+      "explicacao": "A anotação de sessão guarda endereços, portas e sentido — nada sobre quem, na estação, pediu aquilo. Toda conexão iniciada de dentro é legítima do ponto de vista da tabela, e a resposta correspondente entra sem discussão. É por isso que a saída permissiva importa tanto: nesta máquina, 191 regras de saída, todas de permissão, e nenhuma ação padrão declarada. A pergunta \"que programa abriu isto\" pertence ao filtro de host, ao registro de processos ou a um intermediário que fale o protocolo, e não à tabela de conexões.",
+      "por_que_erradas": {
+        "1": "Esses quatro campos são exatamente o que a anotação guarda; conferi-los é o trabalho principal do mecanismo.",
+        "2": "Acompanhar o encerramento faz parte da gestão da tabela, que precisa saber quando remover a entrada.",
+        "3": "Contagem de conexões simultâneas é derivada direta da tabela e costuma existir como proteção contra exaustão."
+      },
+      "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009 — limites da inspeção com estado; contagem de regras verificada em execução no laboratório local (rede_windows.txt)",
+      "tags": [
+        "firewall",
+        "com-estado",
+        "saida",
+        "limites"
+      ]
+    },
+    {
+      "id": "4.2.q6",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Ligue cada forma de filtragem ao critério que ela usa para decidir.",
+      "pares": [
+        [
+          "filtro de pacote sem estado",
+          "Cabeçalho do pacote isolado: endereço, porta e sentido, sem nenhum registro do que passou antes"
+        ],
+        [
+          "filtro com estado",
+          "A mesma leitura de cabeçalho, mais a conferência contra a tabela de conexões já iniciadas"
+        ],
+        [
+          "proxy de aplicação",
+          "Termina a conexão do cliente, interpreta o protocolo em nome dele e abre outra conexão até o destino"
+        ],
+        [
+          "firewall de próxima geração",
+          "Reúne num produto só o reconhecimento da aplicação independente da porta, a identidade de quem usa e a inspeção do que trafega"
+        ]
+      ],
+      "dicas": [
+        "Ordene os quatro pela quantidade de informação que cada um precisa guardar para decidir.",
+        "Dois deles nunca chegam a interpretar o protocolo do serviço; dois interpretam.",
+        "Um dos quatro é categoria de mercado, e não um mecanismo único — procure o que reúne várias leituras."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual deles continuaria funcionando se você apagasse toda a memória do equipamento entre um pacote e o próximo?",
+      "explicacao": "A escada tem degraus de custo e de visão. O filtro sem estado é a leitura mais barata e a mais cega: decide por pacote. O com estado acrescenta memória de conversa, sem passar a entender o protocolo. O proxy de aplicação quebra a conexão em duas e fala a língua do serviço, o que permite decidir por conteúdo do pedido e custa desempenho e compatibilidade. O rótulo de próxima geração não descreve um degrau novo: descreve um produto que empilha vários desses recursos, e o conjunto varia de fabricante para fabricante.",
+      "fonte": "NIST SP 800-41 Rev. 1, Guidelines on Firewalls and Firewall Policy, setembro de 2009 — tecnologias de firewall; categoria de próxima geração declarada como conhecimento consolidado",
+      "tags": [
+        "firewall",
+        "proxy",
+        "pareamento",
+        "vocabulario"
+      ]
+    },
+    {
+      "id": "4.2.q7",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "No Windows, sem alterar nada, você quer saber quantas regras de firewall habilitadas existem em cada combinação de sentido e ação. Que leitura responde a isso?",
+      "alternativas": [
+        "`Get-NetFirewallRule -Enabled True | Group-Object Direction, Action`",
+        "`Get-NetFirewallProfile`, que devolve uma linha por perfil com a habilitação e as ações padrão",
+        "`Get-NetTCPConnection -State Listen`, que devolve os pontos de escuta e o processo que sustenta cada um",
+        "`Get-NetConnectionProfile`, que devolve a rede à qual a máquina está ligada e a categoria dela"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A pergunta pede uma contagem por categoria, e não uma lista. Que passo a leitura precisa ter além de listar?",
+        "Duas das opções falam de perfil, e não de regra. Quantas linhas um perfil devolve?",
+        "Uma das opções mede o que está escutando agora, e não o que foi cadastrado — são conjuntos diferentes."
+      ],
+      "pergunta_socratica": "Antes de conferir: a resposta que você quer tem quantas linhas, e o que está escrito em cada uma delas?",
+      "explicacao": "A pergunta é de contagem por categoria, então a leitura precisa listar as regras e depois juntá-las por dois campos ao mesmo tempo: sentido e ação. Foi assim que este módulo chegou a 285 de entrada e 191 de saída, todas de permissão. As leituras de perfil devolvem três linhas e falam de política padrão, não de cadastro. A leitura de pontos de escuta descreve o que está em execução, que é outro conjunto: existe regra para porta que ninguém abriu, e porta aberta sem regra nenhuma. Todas as quatro são leituras, mas só uma responde à pergunta feita.",
+      "por_que_erradas": {
+        "1": "Perfil traz a política padrão de cada contexto de rede, em três linhas; ele não conta regras cadastradas.",
+        "2": "Ponto de escuta é estado de execução, não cadastro de regra; os dois conjuntos não coincidem.",
+        "3": "Esse devolve a rede conectada e a categoria atribuída a ela, informação de contexto e não de filtragem."
+      },
+      "fonte": "Cmdlets do módulo NetSecurity — sintaxe conforme a documentação; leitura equivalente executada no laboratório local (rede_windows.txt)",
+      "tags": [
+        "comando",
+        "powershell",
+        "firewall",
+        "diagnostico"
+      ]
+    },
+    {
+      "id": "4.2.q8",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "artefato": "=== regras de firewall por perfil, direcao e acao ===\n  regras habilitadas: 476\n  Inbound, Allow         285\n  Outbound, Allow        191\n\n=== acao padrao por perfil ===\n  Domain   Inbound=NotConfigured  Outbound=NotConfigured\n  Private  Inbound=NotConfigured  Outbound=NotConfigured\n  Public   Inbound=NotConfigured  Outbound=NotConfigured",
+      "enunciado": "Nenhuma regra de bloqueio aparece entre as 476 habilitadas desta máquina. O que sustenta, então, a proteção de entrada dela?",
+      "alternativas": [
+        "O comportamento aplicado ao pacote que não casa com regra alguma; as 476 linhas são exceções cavadas nele, e não a proteção em si",
+        "As próprias 285 regras de entrada, que liberam serviços conhecidos e negam tudo aquilo que não estiver nomeado nelas",
+        "Nada: sem qualquer regra de negação cadastrada, o filtro repassa todo pacote de entrada que chegue à máquina",
+        "A proporção entre os dois sentidos, que mostra uma política simétrica de entrada e de saída aplicada nos três perfis"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Some as duas contagens por sentido e compare com o total impresso na primeira linha. Que categoria ficou de fora?",
+        "Se toda regra cadastrada diz \"permite\", quem responde pelo pacote que não casa com nenhuma delas?",
+        "Pergunte o que mudaria no comportamento da máquina se alguém apagasse as 476 linhas de uma vez."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma regra de permissão deixa a máquina mais fechada ou mais aberta do que ela estava?",
+      "explicacao": "As duas contagens somam 476, o que confirma que não existe regra de bloqueio habilitada. Isso inverte a leitura ingênua: nenhuma dessas linhas protege coisa alguma, todas abrem. O que responde pelo pacote que não casa com nenhuma regra é o comportamento aplicado por omissão — e é dali que vem a proteção de entrada, não do cadastro. Apagar as 476 regras deixaria a máquina mais fechada. Do lado da saída, 191 permissões, nenhuma negação e nada declarado por política significam que, na prática, sair é livre.",
+      "por_que_erradas": {
+        "1": "Regra de permissão não nega nada; ela só acrescenta exceções ao que já valeria sem ela.",
+        "2": "Ausência de regra de negação não implica repasse: o pacote sem correspondência é tratado pelo comportamento aplicado por omissão.",
+        "3": "285 contra 191 não descreve simetria de política, e a contagem de exceções não informa postura nenhuma."
+      },
+      "fonte": "Verificado em execução no laboratório local (rede_windows.txt, somente leitura); NIST SP 800-41 Rev. 1, setembro de 2009 — negar por padrão e permitir por exceção",
+      "tags": [
+        "firewall",
+        "artefato",
+        "laboratorio",
+        "politica-padrao"
+      ]
+    },
+    {
+      "id": "4.2.q9",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "artefato": "=== tabela de rotas (rotas padrao e locais) ===\n  192.168.100.0/24     proximo salto 0.0.0.0          metrica 256\n  0.0.0.0/0            proximo salto 192.168.100.1    metrica 0\n\n=== proxy do sistema (WinHTTP) ===\n  Configuracoes do proxy WinHTTP atuais:\n      Acesso direto (nenhum servidor proxy).",
+      "enunciado": "A partir desta leitura, um analista conclui que o tráfego web da estação não passa por nenhum intermediário. Onde a conclusão vai além do que foi medido?",
+      "alternativas": [
+        "A leitura cobre só a configuração do sistema; navegador com ajuste próprio e desvio feito no caminho não apareceriam aqui",
+        "A leitura não cobre a rota padrão, que é justamente onde um intermediário seria declarado pela estação",
+        "A conclusão vale para HTTP e falha para HTTPS, porque o segundo usa um mecanismo de configuração separado",
+        "A leitura foi feita sem privilégio, e a configuração verdadeira fica num local que exige elevação para ser consultada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte quantos lugares diferentes podem apontar um intermediário para um mesmo computador.",
+        "Um desvio que o cliente não pediu continua sendo um desvio. Como ele apareceria nessa saída?",
+        "Compare o que a segunda seção diz sobre si mesma com a afirmação que o analista fez sobre \"o tráfego web\"."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o equipamento em 192.168.100.1 desviasse a porta 80 para outro servidor, essa saída mudaria?",
+      "explicacao": "A segunda seção descreve uma configuração específica do sistema, usada por componentes que consultam esse ajuste. Navegador com ajuste próprio, política aplicada só ao usuário e desvio feito por um equipamento do caminho não aparecem ali — e o último é justamente o que não depende de configuração no cliente. A tabela de rotas está presente e mostra o salto padrão, então a segunda opção descreve algo que a saída contém. Concluir \"nenhum intermediário existe\" a partir de \"nenhum intermediário foi configurado aqui\" é trocar ausência de declaração por ausência de fato.",
+      "por_que_erradas": {
+        "1": "A rota padrão está na primeira seção, com o salto para 192.168.100.1; a saída não deixou de cobri-la.",
+        "2": "O ajuste do sistema não se divide por protocolo dessa forma, e o problema apontado atinge os dois igualmente.",
+        "3": "Essa consulta devolveu resultado; nada na saída indica falta de privilégio, ao contrário de um item não verificado."
+      },
+      "fonte": "Verificado em execução no laboratório local (rede_windows.txt, somente leitura); tipos de proxy declarados como conhecimento consolidado",
+      "tags": [
+        "proxy",
+        "artefato",
+        "laboratorio",
+        "evidencia",
+        "rotas"
+      ]
+    },
+    {
+      "id": "4.2.q10",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "O que caracteriza um firewall de próxima geração diante de um filtro com estado?",
+      "alternativas": [
+        "Reúne no mesmo ponto de decisão o reconhecimento da aplicação sem depender da porta, a identidade de quem usa e a leitura do que trafega",
+        "Substitui a tabela de conexões por uma base de reputação consultada fora da rede a cada pacote que chega",
+        "É um padrão publicado que define os requisitos mínimos que um equipamento precisa cumprir para receber esse nome",
+        "Opera sobre uma cópia do tráfego, o que elimina de vez o risco de derrubar uma conexão legítima por engano"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O termo veio do mercado, e não de um comitê. O que isso implica sobre haver uma definição exata?",
+        "Pergunte o que acontece com a filtragem por número de porta quando qualquer serviço decide falar na 443.",
+        "Uma das opções descreve a posição de um equipamento de detecção, e não a de um filtro."
+      ],
+      "pergunta_socratica": "Antes de conferir: dois produtos vendidos com esse rótulo precisam ter o mesmo conjunto de recursos?",
+      "explicacao": "O rótulo descreve um empilhamento, não uma camada nova: ao cabeçalho e à sessão o produto acrescenta reconhecer qual aplicação está falando mesmo que ela use uma porta emprestada, amarrar a decisão a um usuário e olhar o que passa. É resposta a um mundo em que quase tudo se disfarça de tráfego web. Como é categoria comercial, o conjunto varia de fabricante para fabricante — e comprar o rótulo não substitui desenhar a arquitetura da rede.",
+      "por_que_erradas": {
+        "1": "Reputação externa é recurso opcional de alguns produtos, e não substitui o acompanhamento de sessão.",
+        "2": "Não existe norma que defina o termo; ele nasceu como diferenciação de mercado e continua sendo isso.",
+        "3": "Trabalhar sobre cópia é a posição de um sensor de detecção; filtro fica no caminho, por definição."
+      },
+      "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009 — tecnologias de firewall; categoria de próxima geração declarada como conhecimento consolidado",
+      "tags": [
+        "firewall",
+        "proxima-geracao",
+        "aplicacao",
+        "identidade"
+      ]
+    },
+    {
+      "id": "4.2.q11",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Qual é a diferença de posição entre um sistema de detecção e um de prevenção de intrusão?",
+      "alternativas": [
+        "O de detecção analisa uma cópia do tráfego e avisa; o de prevenção fica no caminho e pode interromper",
+        "O de detecção lê apenas o cabeçalho dos pacotes; o de prevenção lê também a carga que eles transportam",
+        "O de detecção trabalha por assinatura conhecida; o de prevenção trabalha por desvio da linha de base",
+        "O de detecção é instalado dentro de cada servidor; o de prevenção é instalado no equipamento de borda"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Desenhe o cabo. Em qual dos dois casos o pacote precisa atravessar o equipamento para chegar ao destino?",
+        "Pergunte o que acontece com o tráfego se você desligar cada um dos dois da tomada.",
+        "Duas das opções falam de método de análise, e não de onde o equipamento está."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dos dois consegue causar uma interrupção de serviço ao errar?",
+      "explicacao": "A distinção é geográfica antes de ser técnica: um recebe o tráfego duplicado por um espelhamento e reage escrevendo; o outro está no caminho e reage agindo. A análise pode ser exatamente a mesma nos dois. Método de detecção — assinatura ou anomalia — é um eixo independente, e cada posição pode usar qualquer um deles. Onde o equipamento roda, na borda ou dentro do servidor, é um terceiro eixo, também independente.",
+      "por_que_erradas": {
+        "1": "Profundidade de leitura é escolha de configuração e vale para os dois; não é o que separa as posições.",
+        "2": "Assinatura e anomalia são métodos de análise disponíveis nas duas posições, e não a definição de cada uma.",
+        "3": "Os dois existem em versão de rede e em versão de host; o local de instalação é um eixo separado."
+      },
+      "fonte": "NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems, fevereiro de 2007 — publicação final e vigente",
+      "tags": [
+        "ids",
+        "ips",
+        "posicionamento",
+        "deteccao"
+      ]
+    },
+    {
+      "id": "4.2.q12",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Uma assinatura mal escrita marca como ataque o tráfego legítimo do sistema de folha de pagamento. Qual é a consequência conforme a posição do equipamento?",
+      "alternativas": [
+        "Na posição de cópia, gera alerta que consome o tempo do analista; no caminho do tráfego, a folha de pagamento para de responder",
+        "Nas duas posições o resultado é idêntico, porque a análise que produziu o achado foi exatamente a mesma",
+        "Na posição de cópia o tráfego fica mais lento; no caminho do tráfego ele é apenas registrado para conferência posterior",
+        "Em nenhuma das duas há impacto, porque assinatura com erro de sintaxe não chega a ser carregada pelo equipamento"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O erro de análise é o mesmo nos dois casos. Isole o que muda: o que o equipamento faz depois de decidir.",
+        "Pergunte quem recebe a conta do erro em cada posição — o analista ou quem usa o sistema.",
+        "Uma das opções inverte os efeitos; teste-a contra o fato de que só uma das posições está no caminho."
+      ],
+      "pergunta_socratica": "Antes de conferir: em cada um dos dois casos, quem precisaria ser acordado às três da manhã?",
+      "explicacao": "A análise errada é a mesma; o que muda é o poder que o equipamento tem sobre o pacote. Fora do caminho, o erro vira uma linha de alerta e um custo de triagem. No caminho, o erro vira indisponibilidade de um sistema que a empresa usa para pagar gente. É por isso que a escolha entre as duas posições não é uma questão de maturidade, e sim de tolerância: quanto vale um alerta a mais contra quanto custa uma conexão legítima a menos. Assinatura nova costuma entrar primeiro em modo de alerta, e só depois passar a bloquear.",
+      "por_que_erradas": {
+        "1": "A análise é a mesma, mas a consequência não: só uma das posições consegue impedir o pacote de chegar.",
+        "2": "Está trocado — quem atrasa e interrompe é o equipamento no caminho; a cópia não afeta o tráfego original.",
+        "3": "A assinatura descrita é sintaticamente válida e simplesmente casa com o tráfego errado; nada a impede de carregar."
+      },
+      "fonte": "NIST SP 800-94, fevereiro de 2007 — consequências de falso positivo conforme o modo de operação",
+      "tags": [
+        "ids",
+        "ips",
+        "falso-positivo",
+        "custo-do-erro"
+      ]
+    },
+    {
+      "id": "4.2.q13",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Um equipamento de prevenção vai ser instalado no caminho do tráfego da loja virtual da empresa. Que decisão precisa estar tomada antes de ligar o cabo?",
+      "alternativas": [
+        "O que acontece com o tráfego se o próprio equipamento travar ou perder energia: seguir adiante ou parar tudo",
+        "Se a base de assinaturas virá de contrato pago ou de fonte comunitária mantida por voluntários",
+        "Quantos analistas ficarão de plantão para revisar a fila gerada no primeiro mês de operação",
+        "Se ele será instalado antes ou depois do servidor de nomes usado pelos clientes da loja"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Liste tudo que deixa de funcionar quando um equipamento no meio do caminho falha.",
+        "Pergunte qual dessas decisões precisa ser tomada por quem responde pela receita da loja, e não pela segurança.",
+        "Três das opções podem ser revistas na semana seguinte sem consequência para o cliente; uma não."
+      ],
+      "pergunta_socratica": "Antes de conferir: um equipamento de segurança pode se tornar o ponto único de falha do serviço que ele protege?",
+      "explicacao": "Ao entrar no caminho, o equipamento passa a ser condição de funcionamento do serviço. Se ele travar, existem duas saídas possíveis, e as duas são decisões de negócio: deixar o tráfego passar sem inspeção, mantendo a loja de pé sem proteção, ou interromper, protegendo às custas da receita. Escolher isso depois de o equipamento travar é escolher no pior momento. As demais decisões são reais, mas nenhuma delas muda o que acontece com a loja no minuto seguinte a uma falha de energia no armário.",
+      "por_que_erradas": {
+        "1": "Origem da base afeta cobertura e prazo de atualização, e é ajustável a qualquer momento sem parar a loja.",
+        "2": "Dimensionar plantão importa para a operação de alertas; não define o que ocorre com a loja quando o equipamento falha.",
+        "3": "Ordem em relação ao servidor de nomes é detalhe de topologia e não decide o comportamento diante de falha."
+      },
+      "fonte": "NIST SP 800-94, fevereiro de 2007 — implantação de sensores em linha e considerações de disponibilidade",
+      "tags": [
+        "ips",
+        "disponibilidade",
+        "implantacao",
+        "ponto-unico-de-falha"
+      ]
+    },
+    {
+      "id": "4.2.q14",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Detecção por assinatura e detecção por anomalia falham de maneiras diferentes. Quais são?",
+      "alternativas": [
+        "A primeira não enxerga o que ninguém descreveu ainda; a segunda acusa o que é apenas incomum e depende de uma linha de base fiel",
+        "A primeira depende de uma linha de base fiel; a segunda só encontra aquilo que já foi descrito por alguém antes",
+        "As duas falham igual, porque ambas comparam o tráfego observado contra um padrão gravado previamente no equipamento",
+        "A primeira erra sempre que o tráfego está cifrado; a segunda funciona igualmente bem dentro e fora do túnel"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Para cada método, pergunte de onde vem o \"normal\" contra o qual o tráfego é comparado.",
+        "Um dos dois precisa de um período de aprendizado antes de servir para alguma coisa. Qual, e por quê?",
+        "Uma das opções é a troca exata da outra; confira qual dos dois métodos precisaria ser reeducado se a rotina do ambiente mudasse."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dos dois métodos teria alguma chance contra um ataque publicado ontem à noite?",
+      "explicacao": "Assinatura compara o tráfego com descrições prontas: é precisa no que conhece e cega no resto, e por isso envelhece junto com o catálogo. Anomalia compara o tráfego com um perfil aprendido do próprio ambiente: alcança o que nunca foi descrito, e paga com falso positivo sempre que o normal muda — fim de mês, lançamento de sistema, mudança de horário. Se a linha de base foi aprendida durante um período em que já havia atividade indevida, ela incorpora essa atividade como normal. Cifra afeta os dois, e não distingue um do outro.",
+      "por_que_erradas": {
+        "1": "É a troca exata das duas descrições: quem precisa de linha de base é a detecção por anomalia.",
+        "2": "Só um dos métodos compara contra padrão gravado de fora; o outro compara contra um perfil aprendido ali.",
+        "3": "Cifra limita a leitura de conteúdo para os dois métodos igualmente; nenhum atravessa o túnel por mérito próprio."
+      },
+      "fonte": "NIST SP 800-94, fevereiro de 2007 — metodologias de detecção por assinatura e por anomalia",
+      "tags": [
+        "deteccao",
+        "assinatura",
+        "anomalia",
+        "falso-positivo"
+      ]
+    },
+    {
+      "id": "4.2.q15",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "A maior parte do tráfego da rede passou a ser cifrada e a fila de alertas do sensor esvaziou. Como o adversário se beneficia disso, e o que a defesa faz?",
+      "alternativas": [
+        "O ataque viaja dentro do túnel e o sensor passa a ver só metadados; a defesa muda o ponto de observação para onde o dado já está claro — servidor, ponta do túnel ou o próprio equipamento do usuário",
+        "A cifra impede qualquer detecção de rede; a defesa é desligar o sensor e concentrar todo o orçamento em antivírus de estação, que enxerga o arquivo depois de aberto",
+        "O sensor para por falta de licença para protocolos cifrados; a defesa é contratar o módulo que lê qualquer sessão sem participar da negociação de chaves",
+        "O adversário perde alcance, porque a cifra esconde dele a topologia; a defesa é ampliar o uso da cifra e reduzir o número de sensores instalados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Fila vazia tem duas explicações possíveis. Qual delas você testaria primeiro?",
+        "A cifra tem um começo e um fim. Onde ficam essas duas pontas?",
+        "Uma das opções afirma que dá para ler a sessão sem participar dela; teste isso contra o que você sabe de troca de chaves."
+      ],
+      "pergunta_socratica": "Antes de conferir: menos alerta significa menos ataque ou menos visão?",
+      "explicacao": "O silêncio do sensor não é notícia boa: ele mede o que consegue ler, e a cifra retirou o conteúdo do alcance dele. Sobram metadados úteis — quem falou com quem, quando, quanto, por quanto tempo — e some a inspeção de carga. A resposta é mudar de ponto de observação, não abandonar a rede: quem termina o túnel vê o dado claro, o servidor vê o pedido já decifrado e o agente na estação vê antes de sair. Ler a sessão de fora sem participar da negociação de chaves não é opção; qualquer inspeção passa por ser uma das pontas.",
+      "por_que_erradas": {
+        "1": "Metadados continuam disponíveis e revelam muito; abandonar a visão de rede troca uma cegueira por outra.",
+        "2": "Não é questão de licença: sem participar da negociação de chaves, não há como reconstruir o conteúdo.",
+        "3": "A cifra protege o conteúdo, não a topologia, e quem já está dentro não depende dela para se mover."
+      },
+      "fonte": "NIST SP 800-94, fevereiro de 2007 — limitações de sensores de rede; NIST SP 800-207, agosto de 2020 — decisão baseada em sessão",
+      "tags": [
+        "ids",
+        "cifra",
+        "visibilidade",
+        "ataque-defesa"
+      ]
+    },
+    {
+      "id": "4.2.q16",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "trecho": "POLITICA DE MONITORAMENTO DE REDE - RASCUNHO (trecho)\n1. O sensor sera instalado no caminho do trafego, em modo de bloqueio, com todas as assinaturas ligadas ja no primeiro dia.\n2. Alertas de gravidade baixa serao descartados sem registro, para nao poluir o painel.\n3. O sensor observara uma copia do trafego do enlace de saida e enviara alerta ao plantao.\n4. A base de assinaturas sera atualizada a cada seis meses, junto com a manutencao programada.",
+      "enunciado": "Três itens deste rascunho têm defeito e um descreve prática defensável. Qual dos defeituosos produz indisponibilidade já no primeiro dia?",
+      "alternativas": [
+        "O item 1, porque ligar tudo de uma vez em modo de bloqueio derruba conexão legítima antes de qualquer ajuste fino",
+        "O item 2, porque jogar fora o que é considerado pouco grave apaga o histórico que serviria para calibrar a triagem",
+        "O item 4, porque uma base renovada duas vezes por ano ignora tudo que for descrito no intervalo entre as renovações",
+        "O item 3, porque observar uma cópia impede o equipamento de interromper a conexão quando o achado é verdadeiro"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Marque, item por item, quem sente o efeito: o analista, o histórico ou quem usa o serviço.",
+        "Um dos itens descreve uma prática defensável e está ali para ser reconhecida como tal.",
+        "Pergunte qual defeito aparece na primeira hora e qual só cobra a conta meses depois."
+      ],
+      "pergunta_socratica": "Antes de conferir: entre um defeito que apaga informação e um que derruba serviço, qual dos dois o usuário percebe hoje?",
+      "explicacao": "Os itens 1, 2 e 4 têm defeito, e o 3 descreve uma implantação normal, em posição de cópia com encaminhamento de alerta. Entre os três defeituosos, só um age sobre o tráfego: um sensor no caminho, com o conjunto inteiro de assinaturas ativo e sem período de ajuste, descarta tráfego válido desde a primeira hora. O item 2 destrói evidência e cobra a conta na próxima investigação; o item 4 deixa a cobertura envelhecer por meses. Nenhum dos dois interrompe serviço. A prática usual é entrar em modo de alerta, medir o que dispara à toa, ajustar e só então bloquear.",
+      "por_que_erradas": {
+        "1": "Descartar sem registro é defeito real, mas o custo aparece depois, quando falta histórico para investigar ou calibrar.",
+        "2": "Base semestral é defeito real de cobertura, e o efeito é ficar cego para o que surgiu no intervalo, não derrubar tráfego.",
+        "3": "Esse é o item defensável do rascunho: cópia e alerta são exatamente o que se espera de uma implantação inicial."
+      },
+      "fonte": "NIST SP 800-94, fevereiro de 2007 — ajuste de sensores antes da operação em bloqueio e manutenção da base de assinaturas",
+      "tags": [
+        "caca-erro",
+        "ips",
+        "implantacao",
+        "assinatura"
+      ]
+    },
+    {
+      "id": "4.2.q17",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "artefato": "[sensor-borda] 2026-08-19 03:14:02  prioridade 2  varredura sequencial de portas\n  origem 192.168.100.6:51022  ->  destino 192.168.100.20 portas 1-1024\n  acao: alerta (sensor operando sobre copia do trafego)\n\n[sensor-borda] 2026-08-19 03:14:07  prioridade 2  varredura sequencial de portas\n  origem 192.168.100.6:51044  ->  destino 192.168.100.21 portas 1-1024\n  acao: alerta (sensor operando sobre copia do trafego)",
+      "enunciado": "O plantão recebeu estas duas linhas às 03h15. O que elas permitem afirmar, e o que ainda não?",
+      "alternativas": [
+        "Que um padrão conhecido foi reconhecido saindo de uma máquina interna contra dois destinos; se alguma porta respondeu, e se aquilo tinha autorização, nada aqui responde",
+        "Que os dois destinos foram comprometidos, porque esse padrão só é reconhecido quando alguma porta chega a responder",
+        "Que o tráfego foi interrompido pelo equipamento, já que a prioridade 2 aciona bloqueio automático nesse tipo de sensor",
+        "Que a máquina de origem está infectada, porque atividade nesse horário não tem explicação legítima em rede corporativa"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Leia o campo de ação antes de decidir o que aconteceu com os pacotes.",
+        "Pergunte que evidência separaria uma varredura autorizada de uma não autorizada — ela está nessas linhas?",
+        "Um alerta conta o que o sensor viu passar. Ele conta o que o destino respondeu?"
+      ],
+      "pergunta_socratica": "Antes de conferir: só com estas duas linhas, você consegue dizer se alguma porta estava aberta?",
+      "explicacao": "O registro descreve o que o sensor reconheceu no tráfego que atravessou o enlace: uma sequência típica de sondagem, partindo de um endereço interno para dois destinos internos. O campo de ação diz alerta e diz que o equipamento trabalha sobre cópia, então nada foi interrompido. Resposta do destino não está no registro, e sem ela não se afirma nada sobre porta aberta ou comprometimento. Autorização também não está: janela de manutenção e teste combinado produzem exatamente este padrão, e a única forma de separar os casos é conferir o que estava agendado.",
+      "por_que_erradas": {
+        "1": "O padrão é reconhecido pela sequência de tentativas, independentemente de haver ou não resposta do destino.",
+        "2": "O próprio campo de ação registra alerta e informa que o equipamento não está no caminho do tráfego.",
+        "3": "Horário fora do expediente é justamente quando roda manutenção e teste agendado; sozinho, não classifica nada."
+      },
+      "fonte": "NIST SP 800-94, fevereiro de 2007 — interpretação de alerta e limites do que o registro sustenta; artefato construído para o módulo com endereços da faixa do laboratório",
+      "tags": [
+        "ids",
+        "artefato",
+        "alerta",
+        "evidencia"
+      ]
+    },
+    {
+      "id": "4.2.q18",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Você pode espelhar o tráfego para o sensor antes do filtro de borda ou depois dele. O que muda entre as duas escolhas?",
+      "alternativas": [
+        "Antes, o sensor recebe também o que o filtro teria descartado; depois, recebe só o que entrou, com fila menor e menos informação sobre quem tentou",
+        "Antes, o sensor recebe menos pacotes, porque o filtro ainda não duplicou o tráfego para a segunda interface",
+        "Nada muda, porque o filtro de borda não altera o conjunto de pacotes que circula no enlace monitorado",
+        "Depois, o sensor passa a operar no caminho do tráfego, e com isso ganha a capacidade de interromper a conexão"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Desenhe os dois pontos no mesmo cabo e marque, em cada um, quantos pacotes por segundo passam.",
+        "Pergunte o que você deixa de saber ao observar apenas o que sobreviveu à filtragem.",
+        "Uma das opções confunde ponto de espelhamento com posição no caminho; separe as duas ideias."
+      ],
+      "pergunta_socratica": "Antes de conferir: saber quem tentou e foi barrado tem valor para você, ou é só ruído?",
+      "explicacao": "É uma troca entre volume e contexto. No lado externo, o sensor vê tudo que bate na porta, inclusive o que o filtro já resolveu, o que enche a fila de alertas e ao mesmo tempo mostra quem está tentando e como. No lado interno, o sensor vê o tráfego que passou pela política e cada alerta importa mais, porque descreve algo que já está dentro. Muitas organizações mantêm os dois pontos por esse motivo, e reservam o interno para o plantão. Espelhamento não altera a posição do sensor: em nenhum dos dois casos ele está no caminho do tráfego.",
+      "por_que_erradas": {
+        "1": "O lado externo recebe mais pacotes, não menos; espelhamento não depende de o filtro duplicar coisa alguma.",
+        "2": "O filtro de borda descarta parte dos pacotes, então os dois pontos observam conjuntos diferentes.",
+        "3": "O ponto de espelhamento não muda a posição do sensor; ele continua trabalhando sobre uma cópia."
+      },
+      "fonte": "NIST SP 800-94, fevereiro de 2007 — posicionamento de sensores de rede em relação ao firewall de borda",
+      "tags": [
+        "ids",
+        "posicionamento",
+        "espelhamento",
+        "borda"
+      ]
+    },
+    {
+      "id": "4.2.q19",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Dois grupos de máquinas foram colocados em VLANs diferentes, e nada mais no ambiente mudou. O que essa mudança, sozinha, produz?",
+      "alternativas": [
+        "Cada grupo passa a viver num domínio de difusão próprio; o alcance de um sobre o outro continua sendo decidido por quem encaminha entre eles",
+        "Os dois grupos ficam impedidos de trocar qualquer pacote, porque a marcação do quadro é conferida em toda porta do comutador",
+        "O tráfego entre os grupos passa a ser cifrado pelo comutador, já que a marcação identifica de que grupo o quadro saiu",
+        "Cada grupo recebe uma faixa de endereços própria e um bloqueio implícito entre as faixas, aplicado pelo próprio comutador"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte o que exatamente a marcação carrega dentro do quadro, e quem lê essa marcação.",
+        "Se dois grupos precisam conversar, algum equipamento faz esse trabalho. Que trabalho é esse, e ele decide alguma coisa?",
+        "Compare o que muda no tráfego de difusão com o que muda no tráfego dirigido a um endereço específico."
+      ],
+      "pergunta_socratica": "Antes de conferir: separar em VLANs impede a conversa ou apenas muda o caminho que ela percorre?",
+      "explicacao": "A marcação diz ao comutador a que grupo o quadro pertence, e o efeito direto é que a difusão de um grupo não chega ao outro. Nada nisso decide quem alcança quem: basta existir um equipamento encaminhando entre os dois grupos, e a conversa acontece inteira, a menos que alguém escreva uma regra nesse ponto. Cifra não entra na história, e a associação com faixa de endereços é convenção de projeto, sem bloqueio embutido. Por isso \"estão em VLANs separadas\" nunca responde, sozinho, à pergunta sobre isolamento.",
+      "por_que_erradas": {
+        "1": "A conferência da marcação organiza o encaminhamento no enlace; ela não impede que outro equipamento leve o pacote adiante.",
+        "2": "Marcação de quadro é rótulo de encaminhamento; ela não tem relação nenhuma com cifra.",
+        "3": "Associar uma faixa a cada grupo é convenção de projeto, e nenhum bloqueio nasce dessa associação."
+      },
+      "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009 — arquitetura de rede e separação por sub-rede; comportamento de VLAN declarado como conhecimento consolidado",
+      "tags": [
+        "vlan",
+        "dominio-de-difusao",
+        "segmentacao",
+        "isolamento"
+      ]
+    },
+    {
+      "id": "4.2.q20",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Depois de mover impressoras e estações para VLANs distintas, uma varredura autorizada partindo de uma estação continua obtendo resposta das impressoras. Onde precisa entrar a regra que interrompe isso?",
+      "alternativas": [
+        "No equipamento que encaminha entre as duas, porque é o único ponto por onde esse tráfego obrigatoriamente passa",
+        "Em cada porta do comutador onde há uma impressora, listando o endereço físico da placa de cada estação",
+        "No firewall de borda, que já filtra tudo que entra e sai da organização e por isso enxerga esse tráfego também",
+        "Na própria estação, cujo filtro de host é o único capaz de reconhecer o destino antes de emitir o pacote"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Trace o caminho do pacote da estação até a impressora e marque cada equipamento que ele atravessa.",
+        "Pergunte quais desses equipamentos continuariam vendo o pacote se a estação mudasse de sala.",
+        "Uma das opções coloca a regra num equipamento que esse tráfego nunca visita."
+      ],
+      "pergunta_socratica": "Antes de conferir: o tráfego entre duas VLANs da mesma empresa passa pela borda da internet?",
+      "explicacao": "Uma regra só vale onde o pacote passa. Tráfego entre duas VLANs da mesma organização sobe até o equipamento que faz o encaminhamento entre elas e volta — não chega perto da borda da internet, e uma regra escrita ali nunca será consultada. Filtro na estação depende de cada estação estar configurada e de ninguém desligá-lo, o que faz dele reforço e não o ponto de controle. Lista por endereço físico em cada porta é trabalhosa, frágil e não sobrevive à troca de equipamento. O ponto de passagem obrigatório é onde a regra rende.",
+      "por_que_erradas": {
+        "1": "Lista por endereço físico não escala, quebra a cada troca de placa e é contornável por quem controla o próprio equipamento.",
+        "2": "Esse tráfego é interno e nunca atravessa a borda; a regra existiria e jamais seria avaliada.",
+        "3": "Filtro de host é defesa em profundidade e depende de cada máquina; ele não é o ponto por onde tudo passa."
+      },
+      "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009 — colocação de política no ponto de passagem entre redes",
+      "tags": [
+        "vlan",
+        "segmentacao",
+        "ponto-de-passagem",
+        "filtro"
+      ]
+    },
+    {
+      "id": "4.2.q21",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Uma DMZ hospeda o servidor web publicado da empresa. Que propriedade de projeto define essa rede?",
+      "alternativas": [
+        "As conexões que ela pode iniciar para dentro são poucas e nomeadas uma a uma, de modo que um servidor tomado ali não herde caminho livre",
+        "Ela recebe endereços públicos roteáveis, e é isso que a distingue de qualquer outra sub-rede da organização",
+        "Ela fica fora do alcance do filtro de borda, para que o serviço publicado responda sem o atraso da inspeção",
+        "Ela concentra os servidores mais críticos, que por isso passam a receber correção antes dos demais segmentos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Suponha que o servidor publicado já foi tomado. Que pergunta o projeto precisava ter respondido antes disso?",
+        "Pergunte em que sentidos o tráfego atravessa essa rede, e quem autoriza cada um deles.",
+        "Duas das opções falam de endereçamento e de prioridade de correção — isso define um limite de confiança?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que a empresa perde se o servidor publicado ficar na mesma rede das estações?",
+      "explicacao": "O que define essa rede não é onde ela está desenhada no diagrama, e sim o que sai dela para dentro. O serviço publicado precisa ser alcançado de fora, o que aumenta a chance de ele ser tomado; o desenho aceita esse risco e limita a consequência, permitindo que de lá parta apenas um punhado de conexões nomeadas, para destinos e portas específicos. Endereçamento público é comum mas não obrigatório, o filtro de borda continua governando o tráfego, e prioridade de correção é política de manutenção, não característica de rede.",
+      "por_que_erradas": {
+        "1": "Endereço público é frequente ali, mas tradução de endereços permite publicar serviço sem ele; não é o que define a rede.",
+        "2": "É o contrário: essa rede existe justamente porque há filtragem governando os dois lados dela.",
+        "3": "Prioridade de correção é política de manutenção e pode ser aplicada a qualquer segmento."
+      },
+      "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009 — sub-rede protegida para serviços publicados",
+      "tags": [
+        "dmz",
+        "segmentacao",
+        "servico-publicado",
+        "arquitetura"
+      ]
+    },
+    {
+      "id": "4.2.q22",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ordene as etapas de um projeto de segmentação, da primeira à última.",
+      "itens": [
+        "Levantar quais sistemas conversam com quais, em que sentido e por qual protocolo",
+        "Agrupar os sistemas em segmentos pela função e pelo nível de confiança que cada grupo exige",
+        "Escrever, para cada par de segmentos, o que pode atravessar e em que sentido",
+        "Aplicar a regra no ponto de passagem e registrar o que ela nega, para achar o fluxo esquecido",
+        "Estreitar, uma a uma, as permissões provisórias que sobraram, conferindo contra o registro acumulado"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dicas": [
+        "Uma dessas etapas produz a informação sem a qual todas as outras viram chute. Qual?",
+        "Pergunte em que momento você descobre o fluxo que ninguém lembrou de citar.",
+        "Duas etapas falam de escrever regra e duas de mexer no que já está aplicado; separe as duas fases."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para decidir o que separar antes de saber quem conversa com quem?",
+      "explicacao": "Segmentação é um projeto de descoberta antes de ser um projeto de configuração. Sem o mapa de quem fala com quem, o agrupamento vira palpite e a primeira regra derruba um sistema que ninguém sabia que existia. Com o mapa, o agrupamento por função e confiança fica defensável, e a matriz entre pares de segmentos passa a ser escrita a partir de fatos. A regra entra e o registro do que ela nega revela o fluxo esquecido — é essa etapa que evita a paralisação. O aperto final é contínuo: permissão provisória que ninguém revisita é o modo mais comum de a segmentação virar decoração.",
+      "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009 — construção de política de firewall a partir dos fluxos necessários",
+      "tags": [
+        "segmentacao",
+        "projeto",
+        "ordenacao",
+        "fluxos"
+      ]
+    },
+    {
+      "id": "4.2.q23",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Com acesso físico a uma tomada de rede da sala de visitas, um adversário quer alcançar a VLAN de servidores. Que caminho ele tenta, e o que o fecha?",
+      "alternativas": [
+        "Fazer a porta negociar um enlace de tronco e passar a receber quadros de todas as VLANs; fecha-se desligando a negociação automática e fixando a porta como de acesso",
+        "Trocar o endereço físico da placa pelo de um servidor; fecha-se exigindo que todo endereço seja entregue pelo serviço de configuração automática",
+        "Saturar a tabela de endereços do comutador para que ele passe a inundar os quadros; fecha-se aumentando a memória do equipamento",
+        "Pedir ao roteador uma rota estática até a VLAN de servidores; fecha-se removendo o protocolo de roteamento dinâmico do equipamento"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte o que dois comutadores combinam entre si quando são ligados um ao outro — e se uma tomada de sala deveria participar dessa conversa.",
+        "Uma das opções resolve o problema comprando mais memória. Isso encerra a técnica ou apenas adia?",
+        "Separe o que é ataque contra o encaminhamento no enlace do que é ataque contra a decisão de roteamento."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que uma tomada de parede numa sala de visitas jamais deveria poder virar tronco?",
+      "explicacao": "Numa porta que aceita negociar automaticamente, quem se conecta pode se anunciar como comutador e receber o enlace que carrega todos os grupos de uma vez — de uma tomada de sala de reunião, o adversário passa a ver o que deveria estar separado. A defesa é de configuração e é barata: desligar a negociação e fixar a porta no papel de acesso, com um único grupo. Trocar endereço físico não atravessa fronteira de VLAN, saturar tabela é ataque de escuta no mesmo grupo e não muda de grupo, e o roteador não atende pedido de rota vindo de uma estação.",
+      "por_que_erradas": {
+        "1": "Endereço físico forjado atua dentro do mesmo grupo; ele não faz o quadro cruzar para outra VLAN.",
+        "2": "Aumentar memória apenas adia a saturação, e o efeito da técnica é escuta no mesmo grupo, não salto entre grupos.",
+        "3": "Roteador não aceita pedido de rota de uma estação comum, e a técnica descrita não existe nesses termos."
+      },
+      "fonte": "Ataques de salto entre VLANs por negociação de tronco e por dupla marcação — declarados como conhecimento consolidado; NIST SP 800-41 Rev. 1, setembro de 2009, para o princípio de separação",
+      "tags": [
+        "vlan",
+        "tronco",
+        "ataque-defesa",
+        "enlace"
+      ]
+    },
+    {
+      "id": "4.2.q24",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "trecho": "PLANO DE SEGMENTACAO - RASCUNHO (trecho)\n1. Visitantes ficam na VLAN 1, que ja e a VLAN nativa do tronco e por isso nao precisa ser criada.\n2. Portas das salas de reuniao ficam em negociacao automatica, para o caso de alguem ligar um comutador ali.\n3. VLAN de servidores e VLAN de estacoes com encaminhamento entre elas e lista de controle escrita nos dois sentidos.\n4. Telefonia em VLAN propria, com a porta do telefone marcada e o computador atras dele na VLAN de dados.",
+      "enunciado": "Dois itens deste plano abrem o mesmo tipo de caminho para quem tem acesso a uma tomada da sala. Quais são?",
+      "alternativas": [
+        "Os itens 1 e 2: dado de usuário na VLAN nativa e porta que aceita negociar entregam quadros de outros grupos a quem senta ali",
+        "Os itens 3 e 4, porque encaminhar entre segmentos e marcar a porta do telefone criam ligações entre grupos que não existiriam sem isso",
+        "Os itens 2 e 4, porque tanto a negociação automática quanto a marcação do telefone dependem de o comutador confiar no que o outro lado anuncia",
+        "Os itens 1 e 3, porque a VLAN nativa e a lista escrita nos dois sentidos deixam o tráfego entre segmentos sem registro"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Marque os itens que dependem de o comutador aceitar algo anunciado por um equipamento que alguém plugou.",
+        "Dois dos itens descrevem prática defensável; procure primeiro qual deles você manteria sem mudança.",
+        "Pergunte, item por item, o que muda se quem senta naquela sala trouxer o próprio equipamento."
+      ],
+      "pergunta_socratica": "Antes de conferir: o item que fala em lista de controle nos dois sentidos é problema ou é exatamente o que se espera ver?",
+      "explicacao": "Os itens 1 e 2 falham pelo mesmo motivo: os dois deixam quem se conecta na sala receber tráfego que não é dele. Dado de usuário na VLAN nativa viaja sem marcação no tronco, o que é a base da técnica de dupla marcação; porta em negociação automática pode ser convencida a virar tronco e entregar todos os grupos. O item 3 é o que a segmentação deveria ser: encaminhamento com regra nos dois sentidos. O item 4 descreve o arranjo comum de telefonia, com a porta do telefone marcada e o computador atrás dele na VLAN de dados — a marcação ali é decisão da organização, e não confiança no que o visitante anuncia.",
+      "por_que_erradas": {
+        "1": "O item 3 é a prática correta, e o arranjo de telefonia do item 4 é o padrão de mercado para esse caso.",
+        "2": "O item 2 realmente falha, mas o 4 não: a marcação do telefone é definida pela organização, não negociada com quem chega.",
+        "3": "Lista de controle nos dois sentidos é o acerto do plano, e ela não impede registro nenhum."
+      },
+      "fonte": "Boas práticas de configuração de VLAN nativa e de porta de acesso — declaradas como conhecimento consolidado; NIST SP 800-41 Rev. 1, setembro de 2009",
+      "tags": [
+        "caca-erro",
+        "vlan",
+        "tronco",
+        "segmentacao"
+      ]
+    },
+    {
+      "id": "4.2.q25",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "A rede já está dividida em três segmentos com filtragem entre eles, e mesmo assim um comprometimento se espalhou entre máquinas do mesmo segmento. Que mudança altera esse resultado?",
+      "alternativas": [
+        "Levar a decisão para dentro do segmento, com política por carga de trabalho, de modo que duas máquinas vizinhas deixem de se enxergar por padrão",
+        "Aumentar o número de segmentos, mantendo o mesmo critério de agrupamento por andar do prédio",
+        "Substituir o equipamento que filtra entre os segmentos por outro capaz de reconhecer aplicação e usuário",
+        "Trocar o endereçamento por faixas maiores, para que o filtro entre segmentos tenha menos linhas a avaliar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Onde estava a filtragem, e por onde passou o tráfego que se espalhou?",
+        "Pergunte se aumentar a quantidade de caixas resolve algo quando o problema aconteceu dentro de uma delas.",
+        "Uma das opções melhora a qualidade da decisão num ponto por onde esse tráfego nunca passou."
+      ],
+      "pergunta_socratica": "Antes de conferir: duas máquinas do mesmo segmento precisam do filtro para conversar entre si?",
+      "explicacao": "Filtragem entre segmentos governa o que atravessa a fronteira, e o tráfego descrito nunca chegou a atravessá-la: ele ficou inteiro do lado de dentro. Multiplicar segmentos mantendo o mesmo critério de agrupamento só desloca a fronteira, sem tocar no espaço interno de cada um. Melhorar o equipamento de fronteira melhora decisões que continuam não sendo tomadas para esse tráfego. O que muda o resultado é levar a decisão para o nível da própria carga de trabalho, definindo quem pode falar com quem independentemente de estarem lado a lado.",
+      "por_que_erradas": {
+        "1": "Mais segmentos com o mesmo critério apenas encolhem cada espaço interno, e o espalhamento continua acontecendo dentro dele.",
+        "2": "Reconhecer aplicação e usuário melhora a decisão de fronteira, e essa fronteira não foi atravessada.",
+        "3": "Faixas maiores aumentam o espaço interno e vão na direção contrária do que o caso pede."
+      },
+      "fonte": "NIST SP 800-207, Zero Trust Architecture, agosto de 2020 — decisão por recurso em vez de decisão por localização na rede",
+      "tags": [
+        "microssegmentacao",
+        "movimento-lateral",
+        "segmentacao",
+        "zero-trust"
+      ]
+    },
+    {
+      "id": "4.2.q26",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Numa estação Windows, sem alterar nada, você quer saber que destinos saem pelo salto padrão e quais ficam no enlace local. Que leitura responde a isso?",
+      "alternativas": [
+        "`Get-NetRoute`, que lista o prefixo de destino, o próximo salto e a métrica de cada entrada da tabela",
+        "`Get-NetAdapter`, que lista as interfaces físicas e virtuais com estado de enlace e velocidade negociada",
+        "`Test-NetConnection` contra um destino externo, que informa se o caminho até aquele destino funciona",
+        "`Get-NetNeighbor`, que lista os endereços físicos aprendidos dos vizinhos do mesmo enlace"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A pergunta é sobre uma decisão que a estação toma sozinha, antes de emitir o pacote. Onde essa decisão está escrita?",
+        "Duas das opções descrevem interfaces e vizinhos; isso responde \"por onde sai\" ou \"o que existe\"?",
+        "Uma das opções testa um destino de cada vez. Quantos testes seriam necessários para responder à pergunta feita?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a estação escolhe o próximo salto consultando o quê?",
+      "explicacao": "A escolha do próximo salto é feita pela estação consultando a própria tabela, onde cada linha associa um prefixo de destino a um salto e a uma métrica. Foi essa leitura que devolveu, neste laboratório, a faixa local com salto direto e o prefixo abrangente apontando para 192.168.100.1. Listar interfaces diz que caminhos existem, não qual será escolhido; listar vizinhos descreve quem já foi encontrado no enlace; e testar um destino específico responde sobre aquele destino, não sobre a regra que o selecionou.",
+      "por_que_erradas": {
+        "1": "Interface existente não indica qual delas será usada para um destino: quem decide isso é a tabela consultada.",
+        "2": "Testar destino a destino mede alcance pontual e não revela o critério que a estação aplica a cada pacote.",
+        "3": "Vizinhos aprendidos descrevem quem já respondeu no enlace, o que é consequência da decisão, e não a decisão."
+      },
+      "fonte": "Cmdlets do módulo NetTCPIP — sintaxe conforme a documentação; leitura equivalente executada no laboratório local (rede_windows.txt)",
+      "tags": [
+        "comando",
+        "powershell",
+        "rotas",
+        "diagnostico"
+      ]
+    },
+    {
+      "id": "4.2.q27",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ligue cada termo de segmentação ao que ele nomeia.",
+      "pares": [
+        [
+          "VLAN",
+          "Separação de domínio de difusão obtida por marcação de quadro dentro do comutador"
+        ],
+        [
+          "DMZ",
+          "Rede intermediária para serviço publicado, com os sentidos de tráfego nomeados um a um"
+        ],
+        [
+          "microssegmentação",
+          "Política presa à carga de trabalho, que vale mesmo entre máquinas vizinhas do mesmo segmento"
+        ],
+        [
+          "VLAN nativa",
+          "A que trafega sem marcação dentro do tronco, e por isso não deveria carregar dado de usuário"
+        ]
+      ],
+      "dicas": [
+        "Um dos termos descreve uma exceção dentro de outro termo da mesma lista.",
+        "Pergunte, para cada item, se ele nomeia um limite entre grupos ou um limite entre máquinas individuais.",
+        "Dois dos termos descrevem o que o comutador faz; dois descrevem uma decisão de projeto acima dele."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses termos descreve uma decisão que continua valendo entre duas máquinas ligadas no mesmo comutador?",
+      "explicacao": "Os quatro termos costumam ser usados como se fossem intercambiáveis. Dois deles vivem no enlace: um separa difusão por marcação, e o outro é justamente a exceção que viaja sem marcação dentro do tronco — a razão de nunca colocar dado de usuário ali. Os outros dois são decisões de arquitetura: a rede intermediária limita o que o serviço publicado alcança para dentro, e a política presa à carga de trabalho desce até o par de máquinas, deixando de depender de onde cada uma está ligada.",
+      "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009; NIST SP 800-207, agosto de 2020; comportamento de VLAN nativa declarado como conhecimento consolidado",
+      "tags": [
+        "vocabulario",
+        "vlan",
+        "dmz",
+        "pareamento"
+      ]
+    },
+    {
+      "id": "4.2.q28",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O que uma VPN de acesso remoto garante, e o que ela deixa em aberto?",
+      "alternativas": [
+        "Garante sigilo e autenticidade do que passa pelo túnel; nada diz sobre o estado do equipamento que está em uma das pontas",
+        "Garante que só equipamento corporativo íntegro se conecte, porque o certificado de máquina atesta a integridade do sistema",
+        "Garante que o tráfego do funcionário não escape da rede da empresa, o que dispensa filtragem de saída na borda",
+        "Garante anonimato do funcionário perante a própria empresa, já que o endereço visto passa a ser o do concentrador"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Separe o que acontece com os pacotes no caminho do que acontece nas duas pontas.",
+        "Pergunte o que uma chave guardada num disco prova sobre o software que está rodando naquele disco.",
+        "Uma das opções descreve um efeito colateral de endereçamento como se fosse a garantia principal."
+      ],
+      "pergunta_socratica": "Antes de conferir: um computador doméstico com programa malicioso instalado fica limpo ao entrar no túnel?",
+      "explicacao": "O túnel resolve um problema de transporte: torna o caminho inseguro irrelevante, autenticando as pontas e cifrando o que passa entre elas. Esse é um problema real e ele o resolve bem. O que ele não faz é opinar sobre a máquina da ponta — um certificado prova posse de uma chave, e não que o sistema esteja íntegro ou livre de programa indesejado. Por isso conceder a faixa interna inteira a quem sobe o túnel transforma uma garantia de transporte em uma autorização de acesso, que é outra coisa. Registro de conexão continua existindo, então anonimato perante a empresa não faz parte do pacote.",
+      "por_que_erradas": {
+        "1": "Certificado prova posse de chave e identidade declarada; ele não mede estado nem integridade do sistema.",
+        "2": "Encaminhar tudo pelo concentrador é escolha de configuração, e mesmo assim a filtragem de saída continua sendo necessária.",
+        "3": "A empresa opera o concentrador e registra as conexões; o endereço compartilhado não esconde nada de quem administra."
+      },
+      "fonte": "NIST SP 800-207, Zero Trust Architecture, agosto de 2020 — limite do perímetro como fronteira de confiança; propriedades de túnel declaradas como conhecimento consolidado",
+      "tags": [
+        "vpn",
+        "transporte",
+        "confianca",
+        "acesso-remoto"
+      ]
+    },
+    {
+      "id": "4.2.q29",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um prestador conecta o notebook pessoal dele à VPN e passa a alcançar a faixa interna inteira. Que mudança ataca o problema na raiz?",
+      "alternativas": [
+        "Entregar acesso por aplicação e por sessão, decidido a cada pedido conforme quem é o usuário e como o equipamento está naquele momento",
+        "Aumentar a força da cifra e o tamanho da chave usada no túnel, para reduzir a chance de interceptação no caminho",
+        "Exigir troca de senha do prestador a cada trinta dias e guardar o registro de todas as conexões do concentrador",
+        "Publicar diretamente na internet os sistemas de que ele precisa, o que dispensa o túnel e simplifica a operação"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O problema descrito não é sobre o caminho dos pacotes. Sobre o que ele é?",
+        "Pergunte de quantos sistemas o prestador precisa e a quantos ele chega.",
+        "Duas das opções mexem em credencial e em cifra; isso muda o alcance que foi concedido?"
+      ],
+      "pergunta_socratica": "Antes de conferir: no instante em que o túnel sobe, o que é entregue — um caminho ou um recurso?",
+      "explicacao": "O defeito não está na proteção do caminho, e sim no tamanho do que é concedido quando o caminho fica pronto: subiu o túnel, chegou a rede inteira. Cifra mais forte e senha mais nova continuam entregando o mesmo alcance. A correção é trocar a unidade de concessão, deixando de entregar uma faixa de rede e passando a liberar um sistema por vez, com a decisão refeita a cada pedido, levando em conta quem pede e o estado do equipamento. Publicar os sistemas na internet troca um problema por outro maior, já que expõe cada um deles a todo mundo.",
+      "por_que_erradas": {
+        "1": "Reforçar a cifra melhora o transporte, que não foi o que falhou; o alcance concedido permanece o mesmo.",
+        "2": "Rodízio de senha e registro ajudam a investigar depois, mas não reduzem em nada o que o prestador alcança.",
+        "3": "Expor os sistemas ao mundo aumenta a superfície e remove o controle de quem chega, que era o objetivo."
+      },
+      "fonte": "NIST SP 800-207, Zero Trust Architecture, agosto de 2020 — acesso por recurso, decidido por sessão",
+      "tags": [
+        "vpn",
+        "zero-trust",
+        "acesso-remoto",
+        "terceiros"
+      ]
+    },
+    {
+      "id": "4.2.q30",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Proxy direto, proxy reverso e proxy transparente diferem em quê?",
+      "alternativas": [
+        "Em nome de quem cada um fala e em quem precisou saber que ele existe: o cliente ajustado, o serviço publicado, ou nenhum dos dois",
+        "Apenas no protocolo tratado: o primeiro atende HTTP, o segundo atende HTTPS e o terceiro atende qualquer protocolo",
+        "Apenas no sentido em que decifram: o primeiro abre a saída, o segundo abre a entrada e o terceiro não abre nada",
+        "Apenas no equipamento em que rodam: o primeiro na máquina do usuário, o segundo no servidor e o terceiro no comutador"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Desenhe a conexão partida ao meio e pergunte, em cada caso, qual das duas pontas teve de ser configurada para que o intermediário entrasse ali.",
+        "Um deles funciona sem que a máquina do usuário tenha sido tocada. Como o tráfego chega até ele, então?",
+        "Pergunte se a diferença entre os três caberia num único eixo técnico, como protocolo ou porta."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem escolheu usar cada um dos três — o usuário, o dono do serviço, ou quem opera a rede?",
+      "explicacao": "Os três são intermediários e a diferença está em de que lado eles ficam e quem sabe disso. O direto fala pelo cliente, que foi configurado para usá-lo, e serve para registrar e restringir a saída. O reverso fala pelo serviço publicado, que fica escondido atrás dele, e serve para distribuir carga, terminar a cifra e filtrar o pedido. O transparente não foi configurado por ninguém: o tráfego é desviado até ele no caminho, o que é ótimo para cobertura e péssimo para diagnóstico, porque o cliente não sabe que existe um intermediário. Protocolo, porta e local de instalação variam nos três casos.",
+      "por_que_erradas": {
+        "1": "Os três tratam os mesmos protocolos; a divisão por protocolo simplesmente não corresponde aos nomes.",
+        "2": "Terminar a cifra é possível nos três arranjos, dependendo da configuração, e não é o que os distingue.",
+        "3": "Nenhum dos três precisa rodar no equipamento indicado; o local é escolha de implantação, não definição."
+      },
+      "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009 — proxy de aplicação e servidor intermediário; classificação em direto, reverso e transparente declarada como conhecimento consolidado",
+      "tags": [
+        "proxy",
+        "reverso",
+        "transparente",
+        "intermediario"
+      ]
+    },
+    {
+      "id": "4.2.q31",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Numa estação Windows, sem alterar nada, você quer confirmar se o sistema tem servidor intermediário declarado. Que leitura responde a isso?",
+      "alternativas": [
+        "`netsh winhttp show proxy`, que devolve a configuração usada pelos componentes do próprio sistema",
+        "`Get-NetIPConfiguration`, que devolve endereço, roteador padrão e resolvedor de nomes de cada adaptador",
+        "`Test-NetConnection -Port 8080` contra a rede, que devolve se algo responde naquela porta por perto",
+        "`Get-NetFirewallRule -Direction Outbound`, que devolve as regras que autorizam saída a partir da estação"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A pergunta é sobre o que está declarado, e não sobre o que responde. Qual das leituras fala de declaração?",
+        "Uma das opções encontraria um intermediário que existe e não está declarado — isso responde à pergunta feita?",
+        "Roteador padrão e servidor intermediário ficam guardados no mesmo lugar da configuração?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a resposta \"acesso direto\" provaria que nenhum intermediário existe no caminho?",
+      "explicacao": "A pergunta é de configuração declarada, e a leitura escolhida devolve exatamente esse ajuste, usado por componentes do sistema — foi ela que, neste laboratório, respondeu acesso direto. Configuração de endereçamento e resolvedor de nomes vive noutro lugar e não guarda esse dado. Sondar uma porta encontraria um serviço respondendo, o que é outra afirmação. Regras de saída dizem o que é permitido sair, não por onde o tráfego é intermediado. E vale lembrar o limite: a resposta descreve o que o sistema tem declarado, e não o que acontece com o pacote depois que ele sai da máquina.",
+      "por_que_erradas": {
+        "1": "Essa leitura cobre endereço, roteador e resolvedor de nomes da interface, e não a configuração de intermediário.",
+        "2": "Encontrar algo que responde numa porta não diz que a estação foi configurada para usá-lo.",
+        "3": "Regra de saída trata de autorização de tráfego, e não de por onde o tráfego é encaminhado."
+      },
+      "fonte": "Verificado em execução no laboratório local (rede_windows.txt, seção de proxy do sistema, somente leitura)",
+      "tags": [
+        "comando",
+        "proxy",
+        "windows",
+        "diagnostico"
+      ]
+    },
+    {
+      "id": "4.2.q32",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "No controle de acesso à rede feito na própria porta do comutador, que papéis existem e quem decide?",
+      "alternativas": [
+        "O equipamento que pede entrada, o comutador que intermedeia a conversa e um servidor de autenticação, que é quem decide",
+        "O equipamento que pede entrada e o comutador, que decide sozinho comparando com a lista de endereços físicos autorizados",
+        "O resolvedor de nomes, o serviço de configuração automática e o comutador, que juntos liberam o endereço da máquina",
+        "O firewall de borda, que autentica o equipamento na primeira vez em que ele tenta sair para a internet"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um dos quatro arranjos deixa a decisão no equipamento fisicamente mais exposto da lista. Isso é aceitável?",
+        "Pergunte onde ficam as credenciais que essa decisão precisa consultar.",
+        "Duas das opções colocam a decisão em equipamentos que existem para outra finalidade."
+      ],
+      "pergunta_socratica": "Antes de conferir: o comutador de uma sala deveria guardar a base de credenciais da empresa inteira?",
+      "explicacao": "São três papéis. Quem chega apresenta credencial; o comutador da parede não decide nada, apenas transporta a conversa entre quem chega e quem decide; e o servidor de autenticação, que concentra as credenciais e a política, devolve a resposta e frequentemente também o grupo em que a porta deve ser colocada. Separar assim evita espalhar base de credenciais por cada armário e permite acrescentar condição de estado do equipamento à decisão. Comparar endereço físico numa lista local é o arranjo antigo, frágil porque esse endereço é fácil de copiar.",
+      "por_que_erradas": {
+        "1": "Lista local de endereço físico coloca a decisão no armário e cai diante de um endereço copiado.",
+        "2": "Resolvedor de nomes e configuração automática entregam serviço de rede; nenhum dos dois autentica quem chegou.",
+        "3": "A borda entra tarde demais: quando o equipamento tenta sair, ele já está na rede interna há tempo."
+      },
+      "fonte": "Papéis do controle de acesso por porta — suplicante, autenticador e servidor de autenticação — declarados como conhecimento consolidado; NIST SP 800-207, agosto de 2020",
+      "tags": [
+        "nac",
+        "802-1x",
+        "autenticacao",
+        "porta"
+      ]
+    },
+    {
+      "id": "4.2.q33",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O controle de acesso aprovou um notebook na entrada da rede: antivírus atualizado e disco cifrado. Duas horas depois o mesmo notebook executa um programa malicioso. O que o caso revela sobre esse controle?",
+      "alternativas": [
+        "Que a checagem descreveu um instante; sem repetição periódica e sem reação a mudança de estado, a aprovação vale até alguém desconectar o cabo",
+        "Que a lista de itens conferidos ficou incompleta, porque uma lista bem feita teria previsto esse programa específico",
+        "Que o controle falhou naquilo que promete, já que aprovar um equipamento é o mesmo que responder pelo comportamento dele",
+        "Que o notebook contornou o mecanismo, porque o estado aprovado é reavaliado a cada pacote que a máquina envia"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Marque numa linha do tempo o momento da decisão e o momento do incidente.",
+        "Pergunte com que frequência a pergunta \"este equipamento continua como estava?\" é refeita.",
+        "Uma das opções afirma que a reavaliação já é contínua; isso é compatível com o intervalo descrito?"
+      ],
+      "pergunta_socratica": "Antes de conferir: uma aprovação sem prazo é uma decisão ou virou um estado permanente?",
+      "explicacao": "A checagem de estado é uma fotografia tirada na entrada, e nada garante que a cena continue igual depois. Sem reavaliação periódica, e sem um canal que avise quando o estado muda, a autorização concedida no minuto zero segue valendo por horas ou dias. Isso não significa que o controle seja inútil: ele barra o que já chega errado e é a única oportunidade de decidir antes de entregar acesso. Significa que ele precisa ser combinado com reavaliação e com decisão por sessão, em vez de ser tratado como aprovação definitiva.",
+      "por_que_erradas": {
+        "1": "Nenhuma lista de itens prevê programa específico; a checagem mede condições declaradas, não o futuro da máquina.",
+        "2": "O mecanismo nunca prometeu responder pelo comportamento posterior; ele decide sobre o estado no momento da entrada.",
+        "3": "A descrição é o oposto do que aconteceu: se houvesse reavaliação contínua, a mudança de estado teria sido percebida."
+      },
+      "fonte": "NIST SP 800-207, Zero Trust Architecture, agosto de 2020 — avaliação contínua em vez de decisão única na admissão",
+      "tags": [
+        "nac",
+        "postura",
+        "reavaliacao",
+        "zero-trust"
+      ]
+    },
+    {
+      "id": "4.2.q34",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Numa recepção com controle de acesso na porta, o adversário desconecta o telefone da parede e liga o próprio equipamento no lugar. O que ele tenta, e o que reduz o proveito disso?",
+      "alternativas": [
+        "Aproveitar a exceção que libera o telefone pelo endereço físico dele, copiando esse endereço; reduz-se exigindo que o próprio telefone se autentique e refazendo a decisão a cada novo enlace",
+        "Aproveitar que a porta fica sem energia, o que reinicia o comutador inteiro; reduz-se instalando fonte redundante no armário de telecomunicações",
+        "Aproveitar que o endereço físico viaja cifrado no quadro, o que impede o comutador de compará-lo; reduz-se desligando a cifra do enlace",
+        "Aproveitar a faixa reservada à telefonia, que por norma não aceita filtragem; reduz-se movendo a telefonia para a mesma VLAN dos dados"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Pergunte que exceção costuma existir para equipamentos que não sabem se autenticar sozinhos.",
+        "Um endereço físico é difícil de descobrir ou difícil de copiar? Qual das duas coisas importa aqui?",
+        "Duas das opções inventam propriedades do quadro e da norma; teste-as contra o que você já sabe do enlace."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que acontece naquela porta no instante em que o cabo é retirado e outro é encaixado?",
+      "explicacao": "Impressora, telefone e catraca costumam não saber se autenticar, e a saída prática é abrir uma exceção pelo endereço físico. Esse endereço está impresso na etiqueta do aparelho, viaja em claro no quadro e é trivial de configurar em outra placa, então a exceção vira a porta de entrada. Reduz-se o proveito exigindo autenticação do próprio aparelho, quando ele suporta, e refazendo a decisão sempre que o enlace cai e volta — o que faz do encaixe do cabo um evento e não uma herança. Perda de energia derruba a porta, não o comutador; o endereço físico não é cifrado; e a telefonia aceita filtragem como qualquer outro segmento.",
+      "por_que_erradas": {
+        "1": "Retirar um cabo derruba aquela porta e nada mais; fonte redundante resolve outro problema.",
+        "2": "O endereço físico viaja em claro no quadro, e é justamente por isso que ele é fácil de copiar.",
+        "3": "Não existe norma isentando telefonia de filtragem, e juntá-la à VLAN de dados piora a separação."
+      },
+      "fonte": "Exceção por endereço físico e reautenticação a cada enlace — declaradas como conhecimento consolidado; NIST SP 800-207, agosto de 2020",
+      "tags": [
+        "nac",
+        "ataque-defesa",
+        "endereco-fisico",
+        "excecao"
+      ]
+    },
+    {
+      "id": "4.2.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um time precisa de três coisas: chegar aos sistemas internos de casa, restringir e registrar o que a rede acessa na web, e impedir que equipamento desconhecido receba endereço numa sala. Que arranjo atende, e por quê?",
+      "alternativas": [
+        "Túnel para a primeira, intermediário de saída para a segunda e decisão na porta para a terceira — cada necessidade aparece num ponto diferente do caminho",
+        "Um túnel resolve as três, porque todo o tráfego passa a ser transportado e conferido pelo concentrador da empresa",
+        "Um intermediário de saída resolve as três, porque toda conexão precisa atravessá-lo antes de alcançar qualquer destino",
+        "A decisão na porta resolve as três, porque equipamento não autorizado nunca chega a usar os outros dois caminhos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Localize cada uma das três necessidades no caminho: em que ponto exatamente ela acontece?",
+        "Pergunte se um mecanismo que age num desses lugares consegue ver o que acontece nos outros dois.",
+        "Três das opções apostam num mecanismo único; teste cada uma contra o problema que ele não enxerga."
+      ],
+      "pergunta_socratica": "Antes de conferir: o equipamento desconhecido plugado na sala chega a atravessar o túnel de acesso remoto?",
+      "explicacao": "As três necessidades acontecem em lugares diferentes, e cada mecanismo só age onde está. O túnel resolve o transporte de quem está fora, e não vê a tomada da sala nem a navegação de quem está dentro. O intermediário de saída registra e restringe a navegação, e nada sabe sobre quem acabou de se conectar na parede. A decisão na porta impede que um equipamento estranho ganhe acesso, e não protege o funcionário que trabalha de casa. Procurar um produto que faça as três é o erro que produz arquitetura ruim e expectativa pior ainda.",
+      "por_que_erradas": {
+        "1": "O túnel atende quem está fora; ele não participa da admissão na sala nem substitui a filtragem da navegação.",
+        "2": "O intermediário trata a navegação para a web; ele não dá acesso remoto nem decide quem entra na rede local.",
+        "3": "A decisão na porta trata a admissão local; ela não atende o funcionário em casa nem registra a navegação."
+      },
+      "fonte": "NIST SP 800-41 Rev. 1, setembro de 2009; NIST SP 800-207, agosto de 2020 — escolha de controle conforme o ponto do caminho em que o problema aparece",
+      "tags": [
+        "vpn",
+        "proxy",
+        "nac",
+        "arquitetura"
+      ]
+    }
+  ]
+}
