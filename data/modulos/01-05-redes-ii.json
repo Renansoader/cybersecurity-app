@@ -8,7 +8,9 @@
     "Explicar a diferença entre HTTP e HTTPS e o que o certificado prova — e o que ele não prova",
     "Descrever o handshake do TLS 1.3 e o que mudou em relação ao modelo do TLS 1.2"
   ],
-  "pre_requisitos": ["1.4"],
+  "pre_requisitos": [
+    "1.4"
+  ],
   "teoria": [
     {
       "id": "1.5.t1",
@@ -64,7 +66,9 @@
       "id": "1.5.q1",
       "tipo": "conceitual",
       "dificuldade": 1,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Qual é a diferença fundamental entre TCP e UDP?",
       "alternativas": [
         "TCP estabelece conexão e garante entrega ordenada e confiável; UDP envia sem estabelecer conexão e sem essas garantias",
@@ -86,20 +90,32 @@
         "3": "O tipo de endereço não tem relação com a escolha do protocolo de transporte."
       },
       "fonte": "RFC 9293 (TCP); RFC 768 (UDP)",
-      "tags": ["redes", "tcp", "udp", "transporte", "fundamentos"]
+      "tags": [
+        "redes",
+        "tcp",
+        "udp",
+        "transporte",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.5.q2",
       "tipo": "ordenacao",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Coloque na ordem os três passos do estabelecimento de uma conexão TCP (three-way handshake), conforme a RFC 9293.",
       "itens": [
         "O cliente envia um segmento com o sinalizador SYN e seu número de sequência inicial",
         "O servidor responde com SYN e ACK: confirma o número do cliente e envia o seu",
         "O cliente responde com ACK, confirmando o número do servidor, e a conexão fica estabelecida"
       ],
-      "ordem_correta": [0, 1, 2],
+      "ordem_correta": [
+        0,
+        1,
+        2
+      ],
       "dicas": [
         "Quem inicia a conexão é quem quer falar.",
         "A segunda mensagem faz duas coisas ao mesmo tempo.",
@@ -108,13 +124,21 @@
       "pergunta_socratica": "Antes de conferir: por que são necessários três passos, e não dois?",
       "explicacao": "A sequência é SYN, SYN-ACK e ACK. São três porque cada lado precisa anunciar seu número de sequência inicial e receber confirmação dele — dois passos bastariam para um sentido só. Essa troca também é o que dá ao TCP um estado observável, e é por isso que responder ou não ao terceiro passo distingue tipos de varredura de portas.",
       "fonte": "RFC 9293, que substituiu a RFC 793 (verificado)",
-      "tags": ["redes", "tcp", "handshake", "ciclo", "fundamentos"]
+      "tags": [
+        "redes",
+        "tcp",
+        "handshake",
+        "ciclo",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.5.q3",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Por que ataques de amplificação costumam usar UDP, e não TCP?",
       "alternativas": [
         "Porque UDP não tem estabelecimento de conexão, então o endereço de origem pode ser forjado e a resposta vai para a vítima escolhida",
@@ -136,13 +160,20 @@
         "3": "O TCP não impõe essa proibição; o que ele impõe é o aperto de mão."
       },
       "fonte": "RFC 9293; RFC 768; teoria 1.4.t5",
-      "tags": ["redes", "udp", "amplificacao", "negacao-de-servico"]
+      "tags": [
+        "redes",
+        "udp",
+        "amplificacao",
+        "negacao-de-servico"
+      ]
     },
     {
       "id": "1.5.q4",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Em uma conexão TCP, o que normalmente indica um segmento com o sinalizador RST?",
       "alternativas": [
         "Interrupção abrupta da conexão, como resposta a uma tentativa de acesso a uma porta sem serviço escutando",
@@ -164,13 +195,20 @@
         "3": "Retransmissão é tratada por confirmação e temporização, não por RST."
       },
       "fonte": "RFC 9293",
-      "tags": ["redes", "tcp", "varredura", "diagnostico"]
+      "tags": [
+        "redes",
+        "tcp",
+        "varredura",
+        "diagnostico"
+      ]
     },
     {
       "id": "1.5.q5",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "O que uma porta aberta em um servidor efetivamente indica?",
       "alternativas": [
         "Que há um processo escutando naquela porta — sem dizer se ele está atualizado, se exige autenticação ou se deveria existir ali",
@@ -192,20 +230,42 @@
         "3": "Uma porta aberta pode ser exatamente o que a regra de firewall permite."
       },
       "fonte": "Teoria 1.5.t3; teoria 0.2.t1",
-      "tags": ["redes", "portas", "superficie-de-ataque", "interpretacao"]
+      "tags": [
+        "redes",
+        "portas",
+        "superficie-de-ataque",
+        "interpretacao"
+      ]
     },
     {
       "id": "1.5.q6",
       "tipo": "pareamento",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Ligue cada porta ao serviço que a utiliza por padrão.",
       "pares": [
-        ["22", "SSH — acesso remoto por linha de comando"],
-        ["25", "SMTP — envio de correio eletrônico entre servidores"],
-        ["445", "Compartilhamento de arquivos do Windows"],
-        ["3389", "Área de trabalho remota"],
-        ["443", "HTTPS — web sobre TLS"]
+        [
+          "22",
+          "SSH — acesso remoto por linha de comando"
+        ],
+        [
+          "25",
+          "SMTP — envio de correio eletrônico entre servidores"
+        ],
+        [
+          "445",
+          "Compartilhamento de arquivos do Windows"
+        ],
+        [
+          "3389",
+          "Área de trabalho remota"
+        ],
+        [
+          "443",
+          "HTTPS — web sobre TLS"
+        ]
       ],
       "dicas": [
         "Duas dessas portas aparecem com frequência em incidentes com ransomware.",
@@ -215,13 +275,21 @@
       "pergunta_socratica": "Antes de conferir: quais dessas portas nunca deveriam estar expostas diretamente à internet?",
       "explicacao": "SSH na 22, SMTP na 25, compartilhamento do Windows na 445, área de trabalho remota na 3389 e HTTPS na 443. As portas 445 e 3389 são especialmente relevantes: expostas à internet, estão entre os caminhos de entrada mais explorados em campanhas de ransomware, e quase nunca há motivo legítimo para deixá-las acessíveis de fora.",
       "fonte": "Portas conferidas no arquivo de serviços do sistema, derivado da lista da IANA",
-      "tags": ["redes", "portas", "pareamento", "servicos", "exposicao"]
+      "tags": [
+        "redes",
+        "portas",
+        "pareamento",
+        "servicos",
+        "exposicao"
+      ]
     },
     {
       "id": "1.5.q7",
       "tipo": "conceitual",
       "dificuldade": 1,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "O que HTTPS acrescenta ao HTTP?",
       "alternativas": [
         "Cifra o conteúdo, permite verificar a integridade e apresenta um certificado que prova o controle sobre o domínio",
@@ -243,13 +311,20 @@
         "3": "O site continua podendo coletar dados normalmente."
       },
       "fonte": "RFC 9110; RFC 8446",
-      "tags": ["redes", "https", "tls", "fundamentos"]
+      "tags": [
+        "redes",
+        "https",
+        "tls",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.5.q8",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Um usuário recebe um link, abre a página, vê o cadeado no navegador e conclui que o site é confiável para digitar a senha do banco. Qual é o erro?",
       "alternativas": [
         "O cadeado indica que a conexão é cifrada e que o servidor controla aquele domínio — não que o site seja legítimo; sites de phishing usam HTTPS válido rotineiramente",
@@ -271,13 +346,21 @@
         "3": "O cadeado não tem relação com meios de pagamento aceitos."
       },
       "fonte": "RFC 9110; práticas atuais de emissão automatizada de certificados; teoria 1.5.t5",
-      "tags": ["redes", "https", "phishing", "certificados", "engenharia-social"]
+      "tags": [
+        "redes",
+        "https",
+        "phishing",
+        "certificados",
+        "engenharia-social"
+      ]
     },
     {
       "id": "1.5.q9",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Um certificado de validação de domínio prova exatamente o quê?",
       "alternativas": [
         "Que quem apresenta o certificado controla aquele nome de domínio, e que a conexão com ele é cifrada e íntegra",
@@ -299,13 +382,20 @@
         "3": "Conformidade legal não é objeto de certificação por autoridade certificadora."
       },
       "fonte": "Práticas de emissão de certificados; RFC 9110",
-      "tags": ["redes", "certificados", "https", "phishing"]
+      "tags": [
+        "redes",
+        "certificados",
+        "https",
+        "phishing"
+      ]
     },
     {
       "id": "1.5.q10",
       "tipo": "ordenacao",
       "dificuldade": 3,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Coloque na ordem as mensagens do handshake do TLS 1.3 (RFC 8446), em uma conexão sem retomada de sessão. Atenção: esta é a versão 1.3, não o modelo do TLS 1.2.",
       "itens": [
         "ClientHello, já com a parcela de troca de chaves do cliente",
@@ -316,7 +406,15 @@
         "Finished do servidor, encerrando o lado dele do handshake",
         "Finished do cliente, após o qual os dados de aplicação começam"
       ],
-      "ordem_correta": [0, 1, 2, 3, 4, 5, 6],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "dicas": [
         "No TLS 1.3, a parcela de troca de chaves vai já na primeira mensagem — é isso que permite fechar em um ida e volta.",
         "Tudo o que vem depois do ServerHello já está cifrado.",
@@ -325,13 +423,21 @@
       "pergunta_socratica": "Antes de conferir: por que o cliente já envia sua parcela de chave na primeira mensagem, em vez de esperar o servidor escolher os parâmetros?",
       "explicacao": "A ordem é ClientHello, ServerHello, EncryptedExtensions, Certificate, CertificateVerify, Finished do servidor e Finished do cliente. Enviar a parcela de troca de chaves já no ClientHello é o que permite ao TLS 1.3 completar em um único ida e volta, contra dois do modelo anterior — e tudo após o ServerHello já viaja cifrado. Um pedido de certificado do cliente, quando existe, entra entre o EncryptedExtensions e o Certificate.",
       "fonte": "RFC 8446, seção 2 (verificado)",
-      "tags": ["redes", "tls", "tls13", "handshake", "ciclo"]
+      "tags": [
+        "redes",
+        "tls",
+        "tls13",
+        "handshake",
+        "ciclo"
+      ]
     },
     {
       "id": "1.5.q11",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "O que foi removido no TLS 1.3 em relação ao TLS 1.2?",
       "alternativas": [
         "A troca de chave por RSA, as suítes sem sigilo futuro, a renegociação, a compressão e as cifras que não são autenticadas",
@@ -353,13 +459,21 @@
         "3": "HTTPS continua na porta 443."
       },
       "fonte": "RFC 8446, seção 1.2 (verificado)",
-      "tags": ["redes", "tls", "tls13", "criptografia", "sigilo-futuro"]
+      "tags": [
+        "redes",
+        "tls",
+        "tls13",
+        "criptografia",
+        "sigilo-futuro"
+      ]
     },
     {
       "id": "1.5.q12",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "O que significa sigilo futuro (forward secrecy) em uma conexão TLS?",
       "alternativas": [
         "Que o comprometimento posterior da chave privada do servidor não permite decifrar tráfego gravado anteriormente",
@@ -370,7 +484,7 @@
       "correta": 0,
       "dicas": [
         "A propriedade fala sobre o passado, e não sobre o futuro das cifras.",
-        "Pense em alguém que grava tráfego hoje e obtém a chave privada daqui a dois anos.",
+        "A propriedade diz respeito a que momento: antes ou depois do comprometimento da chave?",
         "É o que se perde quando a chave de sessão é transportada cifrada com RSA."
       ],
       "pergunta_socratica": "Antes de conferir: se alguém gravar sua conexão hoje e roubar a chave do servidor em 2030, o que consegue ler?",
@@ -381,13 +495,20 @@
         "3": "Retomada de sessão é outro recurso, e mal utilizada pode até enfraquecer garantias."
       },
       "fonte": "RFC 8446, seção 1.2 (verificado)",
-      "tags": ["redes", "tls", "sigilo-futuro", "criptografia"]
+      "tags": [
+        "redes",
+        "tls",
+        "sigilo-futuro",
+        "criptografia"
+      ]
     },
     {
       "id": "1.5.q13",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "O que uma faixa de código de status HTTP 4xx indica?",
       "alternativas": [
         "Erro atribuído à requisição do cliente, como recurso inexistente ou falta de autorização",
@@ -409,13 +530,21 @@
         "3": "Sucesso corresponde à faixa 2xx."
       },
       "fonte": "RFC 9110, seção 15 (semântica do HTTP)",
-      "tags": ["redes", "http", "status", "analise-de-log"]
+      "tags": [
+        "redes",
+        "http",
+        "status",
+        "analise-de-log"
+      ]
     },
     {
       "id": "1.5.q14",
       "tipo": "artefato",
       "dificuldade": 3,
-      "objetivos": [2, 1],
+      "objetivos": [
+        2,
+        1
+      ],
       "artefato": "203.0.113.45 - - [12/Mar/2026:03:12:41] \"GET /admin HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:41] \"GET /wp-admin HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:42] \"GET /.git/config HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:42] \"GET /backup.zip HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:43] \"GET /.env HTTP/1.1\" 200 419",
       "enunciado": "Qual é a leitura mais preocupante deste trecho de log de servidor web?",
       "alternativas": [
@@ -438,13 +567,22 @@
         "3": "203.0.113.0/24 é faixa reservada a documentação, e a origem externa não descarta nada."
       },
       "fonte": "RFC 9110; RFC 5737 (faixas para documentação)",
-      "tags": ["redes", "http", "artefato", "varredura", "exposicao", "segredos"]
+      "tags": [
+        "redes",
+        "http",
+        "artefato",
+        "varredura",
+        "exposicao",
+        "segredos"
+      ]
     },
     {
       "id": "1.5.q15",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Mesmo com HTTPS, o que um observador no caminho da conexão ainda consegue perceber?",
       "alternativas": [
         "Com quem você está falando, além do volume e do ritmo do tráfego",
@@ -466,13 +604,21 @@
         "3": "Metadados continuam visíveis; a conexão não é opaca."
       },
       "fonte": "RFC 8446; RFC 9110",
-      "tags": ["redes", "https", "metadados", "privacidade", "deteccao"]
+      "tags": [
+        "redes",
+        "https",
+        "metadados",
+        "privacidade",
+        "deteccao"
+      ]
     },
     {
       "id": "1.5.q16",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Um site interno apresenta aviso de certificado inválido e a equipe orienta os usuários a \"clicar em avançar e continuar\". Qual é o problema dessa orientação?",
       "alternativas": [
         "Treina os usuários a ignorar o único sinal que os avisaria de uma interceptação real, inclusive fora da empresa",
@@ -484,7 +630,7 @@
       "dicas": [
         "O que esse aviso significaria em um site externo?",
         "Hábitos aprendidos no trabalho vão para casa.",
-        "O aviso é o único sinal visível de interceptação para o usuário comum."
+        "Se o usuário aprende a clicar em 'prosseguir' no trabalho, o que ele faz no site do banco?"
       ],
       "pergunta_socratica": "Antes de conferir: depois de clicar em avançar cinquenta vezes no trabalho, o que o usuário faz diante do mesmo aviso no banco?",
       "explicacao": "O aviso de certificado é, para o usuário comum, o único indício visível de que alguém pode estar no meio da conexão. Ensinar a ignorá-lo cria um hábito que ele leva para fora da empresa, exatamente onde o aviso importaria. A correção é técnica e barata: emitir certificados válidos para os sistemas internos, por autoridade própria distribuída às máquinas ou por certificados públicos.",
@@ -494,13 +640,22 @@
         "3": "O aviso não impede formulários; ele alerta sobre a validação do certificado."
       },
       "fonte": "RFC 8446; teoria 1.5.t5",
-      "tags": ["redes", "certificados", "cultura", "interceptacao", "usabilidade"]
+      "tags": [
+        "redes",
+        "certificados",
+        "cultura",
+        "interceptacao",
+        "usabilidade"
+      ]
     },
     {
       "id": "1.5.q17",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [2, 1],
+      "objetivos": [
+        2,
+        1
+      ],
       "enunciado": "Uma aplicação web ainda aceita conexões em HTTP além de HTTPS. Qual medida trata melhor o risco?",
       "alternativas": [
         "Redirecionar todo HTTP para HTTPS e instruir o navegador a usar apenas HTTPS naquele domínio nas próximas visitas",
@@ -522,13 +677,21 @@
         "3": "Trocar a porta não protege o transporte e atrapalha o acesso legítimo."
       },
       "fonte": "RFC 9110; RFC 6797 (política de transporte estrito)",
-      "tags": ["redes", "https", "hardening", "interceptacao"]
+      "tags": [
+        "redes",
+        "https",
+        "hardening",
+        "interceptacao"
+      ]
     },
     {
       "id": "1.5.q18",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0, 1],
+      "objetivos": [
+        0,
+        1
+      ],
       "enunciado": "Por que o DNS usa UDP para consultas comuns e TCP em algumas situações?",
       "alternativas": [
         "UDP é mais leve e basta para consultas e respostas curtas; TCP entra quando a resposta é grande ou em transferência de zona",
@@ -550,13 +713,22 @@
         "3": "Cifra de consultas de DNS é assunto de protocolos específicos, e não do transporte escolhido."
       },
       "fonte": "RFC 1035; RFC 9293",
-      "tags": ["redes", "dns", "tcp", "udp", "transporte"]
+      "tags": [
+        "redes",
+        "dns",
+        "tcp",
+        "udp",
+        "transporte"
+      ]
     },
     {
       "id": "1.5.q19",
       "tipo": "caca_erro",
       "dificuldade": 3,
-      "objetivos": [2, 3],
+      "objetivos": [
+        2,
+        3
+      ],
       "trecho": "GUIA DE SEGURANÇA PARA USUÁRIOS — versão 2\n1. Antes de digitar sua senha, confira se o site tem o cadeado no navegador.\n2. Site com cadeado é site seguro e pode receber seus dados.\n3. Se aparecer aviso de certificado, clique em avançar; costuma ser problema do navegador.\n4. Prefira redes sem fio abertas apenas para navegação, nunca para acessar o banco.",
       "enunciado": "Quais itens deste guia orientam mal o usuário?",
       "alternativas": [
@@ -579,13 +751,21 @@
         "3": "O guia repete a orientação antiga que hoje favorece o phishing."
       },
       "fonte": "RFC 8446; práticas atuais de emissão de certificados; teoria 1.5.t5",
-      "tags": ["redes", "https", "phishing", "caca-erro", "cultura"]
+      "tags": [
+        "redes",
+        "https",
+        "phishing",
+        "caca-erro",
+        "cultura"
+      ]
     },
     {
       "id": "1.5.q20",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "No TLS 1.3, a partir de que ponto do handshake as mensagens já trafegam cifradas?",
       "alternativas": [
         "A partir do ServerHello: tudo o que vem depois dele já é protegido por chaves de handshake",
@@ -607,13 +787,21 @@
         "3": "Não é só o certificado: todas as mensagens após o ServerHello são protegidas."
       },
       "fonte": "RFC 8446, seção 2 (verificado)",
-      "tags": ["redes", "tls", "tls13", "handshake", "criptografia"]
+      "tags": [
+        "redes",
+        "tls",
+        "tls13",
+        "handshake",
+        "criptografia"
+      ]
     },
     {
       "id": "1.5.q21",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Por que estudar o handshake do TLS 1.2 como se fosse o atual pode levar a conclusões erradas?",
       "alternativas": [
         "Porque etapas e mecanismos daquele modelo, como a troca de chave por RSA, foram removidos no 1.3, e o número de idas e voltas mudou",
@@ -635,13 +823,22 @@
         "3": "O TLS 1.3 continua usando certificados."
       },
       "fonte": "RFC 8446, seções 1.2 e 2 (verificado)",
-      "tags": ["redes", "tls", "tls13", "versoes", "atualizacao"]
+      "tags": [
+        "redes",
+        "tls",
+        "tls13",
+        "versoes",
+        "atualizacao"
+      ]
     },
     {
       "id": "1.5.q22",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [1, 0],
+      "objetivos": [
+        1,
+        0
+      ],
       "enunciado": "Uma varredura mostra a porta 3389 aberta em um servidor acessível pela internet. Qual é a avaliação e a ação correta?",
       "alternativas": [
         "Área de trabalho remota exposta é um dos caminhos de entrada mais explorados; a ação é retirar da internet e exigir acesso por rede privada ou canal intermediário controlado",
@@ -663,13 +860,21 @@
         "3": "Varreduras cobrem todas as portas; trocar o número não reduz exposição."
       },
       "fonte": "Porta conferida no arquivo de serviços do sistema; teoria 0.2.t5",
-      "tags": ["redes", "portas", "rdp", "exposicao", "hardening"]
+      "tags": [
+        "redes",
+        "portas",
+        "rdp",
+        "exposicao",
+        "hardening"
+      ]
     },
     {
       "id": "1.5.q23",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Por que equipamentos de rede conseguem acompanhar o estado de conexões TCP, mas não de tráfego UDP da mesma forma?",
       "alternativas": [
         "Porque o TCP tem estabelecimento e encerramento explícitos, o que define começo e fim de uma conexão; o UDP não tem esse conceito",
@@ -691,13 +896,21 @@
         "3": "O volume transmitido não é o critério; o que falta ao UDP é a noção de conexão."
       },
       "fonte": "RFC 9293; RFC 768",
-      "tags": ["redes", "tcp", "udp", "firewall", "estado"]
+      "tags": [
+        "redes",
+        "tcp",
+        "udp",
+        "firewall",
+        "estado"
+      ]
     },
     {
       "id": "1.5.q24",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Qual é a diferença prática entre os métodos GET e POST em HTTP?",
       "alternativas": [
         "GET pede um recurso e seus parâmetros costumam ir na própria URL; POST envia dados no corpo da requisição",
@@ -719,13 +932,22 @@
         "3": "A descrição está invertida."
       },
       "fonte": "RFC 9110, seção 9 (métodos)",
-      "tags": ["redes", "http", "metodos", "segredos", "logs"]
+      "tags": [
+        "redes",
+        "http",
+        "metodos",
+        "segredos",
+        "logs"
+      ]
     },
     {
       "id": "1.5.q25",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [2, 1],
+      "objetivos": [
+        2,
+        1
+      ],
       "enunciado": "Uma equipe quer reduzir o risco de interceptação em redes sem fio compartilhadas usadas por funcionários em viagem. Qual medida é mais eficaz?",
       "alternativas": [
         "Exigir que todo acesso a sistemas corporativos passe por um túnel cifrado, e garantir HTTPS obrigatório nas aplicações",
@@ -747,13 +969,22 @@
         "3": "Sessão curta limita a janela, sem tornar o tráfego ilegível."
       },
       "fonte": "RFC 8446; teoria 1.5.t4",
-      "tags": ["redes", "https", "vpn", "interceptacao", "mobilidade"]
+      "tags": [
+        "redes",
+        "https",
+        "vpn",
+        "interceptacao",
+        "mobilidade"
+      ]
     },
     {
       "id": "1.5.q26",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [3, 2],
+      "objetivos": [
+        3,
+        2
+      ],
       "enunciado": "Qual é o papel da mensagem CertificateVerify no handshake do TLS 1.3?",
       "alternativas": [
         "Provar que quem enviou o certificado possui a chave privada correspondente, assinando os dados do handshake",
@@ -775,13 +1006,22 @@
         "3": "A negociação de parâmetros ocorre no ClientHello e no ServerHello."
       },
       "fonte": "RFC 8446, seção 2 (verificado)",
-      "tags": ["redes", "tls", "tls13", "certificados", "autenticacao"]
+      "tags": [
+        "redes",
+        "tls",
+        "tls13",
+        "certificados",
+        "autenticacao"
+      ]
     },
     {
       "id": "1.5.q27",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [1, 0],
+      "objetivos": [
+        1,
+        0
+      ],
       "enunciado": "Um servidor de banco de dados interno aparece com a porta de administração acessível a partir de toda a rede da empresa. Qual é a leitura correta?",
       "alternativas": [
         "É superfície desnecessária: o acesso deveria ser restrito às máquinas que realmente precisam, mesmo dentro da rede interna",
@@ -803,19 +1043,39 @@
         "3": "Senha configurada não protege contra vulnerabilidade no serviço nem contra credencial vazada."
       },
       "fonte": "NIST Cybersecurity Framework (proteger); teoria 0.2.t5",
-      "tags": ["redes", "portas", "segmentacao", "menor-privilegio", "movimento-lateral"]
+      "tags": [
+        "redes",
+        "portas",
+        "segmentacao",
+        "menor-privilegio",
+        "movimento-lateral"
+      ]
     },
     {
       "id": "1.5.q28",
       "tipo": "pareamento",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Ligue cada faixa de código de status HTTP ao seu significado.",
       "pares": [
-        ["2xx", "Sucesso: a requisição foi recebida, entendida e atendida"],
-        ["3xx", "Redirecionamento: é preciso outra ação para completar a requisição"],
-        ["4xx", "Erro atribuído ao cliente, como recurso inexistente ou falta de autorização"],
-        ["5xx", "Erro do servidor ao processar uma requisição aparentemente válida"]
+        [
+          "2xx",
+          "Sucesso: a requisição foi recebida, entendida e atendida"
+        ],
+        [
+          "3xx",
+          "Redirecionamento: é preciso outra ação para completar a requisição"
+        ],
+        [
+          "4xx",
+          "Erro atribuído ao cliente, como recurso inexistente ou falta de autorização"
+        ],
+        [
+          "5xx",
+          "Erro do servidor ao processar uma requisição aparentemente válida"
+        ]
       ],
       "dicas": [
         "As faixas seguem uma progressão: sucesso, desvio, culpa do cliente, culpa do servidor.",
@@ -825,13 +1085,21 @@
       "pergunta_socratica": "Antes de conferir: muitos códigos da terceira faixa vindos de uma única origem sugerem o quê?",
       "explicacao": "2xx sucesso, 3xx redirecionamento, 4xx erro do cliente e 5xx erro do servidor. Em análise de log a distinção orienta a conclusão: sequência de 4xx de uma mesma origem costuma indicar varredura por caminhos, enquanto muitos 5xx apontam problema na aplicação — e um 200 no meio de uma sequência de 404 é justamente o que merece atenção.",
       "fonte": "RFC 9110, seção 15",
-      "tags": ["redes", "http", "status", "pareamento", "analise-de-log"]
+      "tags": [
+        "redes",
+        "http",
+        "status",
+        "pareamento",
+        "analise-de-log"
+      ]
     },
     {
       "id": "1.5.q29",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "O TLS 1.3 permite retomar sessões anteriores e enviar dados já na primeira mensagem, sem esperar o handshake completo. Qual é o cuidado associado a esse recurso?",
       "alternativas": [
         "Os dados enviados antes da conclusão do handshake podem ser reenviados por um atacante, então não devem disparar operações que causem efeito ao serem repetidas",
@@ -853,13 +1121,21 @@
         "3": "Conexões completas continuam com sigilo futuro."
       },
       "fonte": "RFC 8446 (verificado)",
-      "tags": ["redes", "tls", "tls13", "repeticao", "criptografia"]
+      "tags": [
+        "redes",
+        "tls",
+        "tls13",
+        "repeticao",
+        "criptografia"
+      ]
     },
     {
       "id": "1.5.q30",
       "tipo": "artefato",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "artefato": "Certificado apresentado por: pagamento-banc0-seguro.com\nEmitido para . . . : pagamento-banc0-seguro.com\nEmitido por. . . . : autoridade certificadora automatizada e gratuita\nVálido de . . . . : 12/03/2026\nVálido até . . . . : 10/06/2026\nStatus da conexão. : cifrada, certificado válido",
       "enunciado": "O usuário chegou a esta página por um link recebido por mensagem. O que este certificado permite concluir?",
       "alternativas": [
@@ -882,13 +1158,22 @@
         "3": "Validade do certificado não diz nada sobre a legitimidade do site."
       },
       "fonte": "RFC 8446; práticas atuais de emissão de certificados; teoria 1.5.t5",
-      "tags": ["redes", "certificados", "phishing", "artefato", "https"]
+      "tags": [
+        "redes",
+        "certificados",
+        "phishing",
+        "artefato",
+        "https"
+      ]
     },
     {
       "id": "1.5.q31",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0, 1],
+      "objetivos": [
+        0,
+        1
+      ],
       "enunciado": "Em uma varredura de portas, o que costuma diferenciar uma porta filtrada de uma porta fechada?",
       "alternativas": [
         "A porta fechada responde com RST; a filtrada normalmente não responde nada, porque um equipamento descartou o pacote",
@@ -910,13 +1195,22 @@
         "3": "A diferença é observável e é justamente o que orienta a leitura da varredura."
       },
       "fonte": "RFC 9293",
-      "tags": ["redes", "varredura", "tcp", "firewall", "enumeracao"]
+      "tags": [
+        "redes",
+        "varredura",
+        "tcp",
+        "firewall",
+        "enumeracao"
+      ]
     },
     {
       "id": "1.5.q32",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [2, 3],
+      "objetivos": [
+        2,
+        3
+      ],
       "enunciado": "Uma aplicação interna usa HTTPS com um certificado assinado por uma autoridade própria da empresa, instalada em todas as máquinas corporativas. Isso é aceitável?",
       "alternativas": [
         "Sim: a autoridade própria é confiável para as máquinas que a reconhecem, e o cuidado central passa a ser proteger a chave privada dessa autoridade",
@@ -938,13 +1232,21 @@
         "3": "Autoridades próprias emitem certificados compatíveis com TLS 1.3 normalmente."
       },
       "fonte": "RFC 8446; teoria 1.5.t5",
-      "tags": ["redes", "certificados", "pki", "interceptacao", "hardening"]
+      "tags": [
+        "redes",
+        "certificados",
+        "pki",
+        "interceptacao",
+        "hardening"
+      ]
     },
     {
       "id": "1.5.q33",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Por que serviços de administração devem ficar fora da internet mesmo quando exigem autenticação forte?",
       "alternativas": [
         "Porque a autenticação só protege se o serviço estiver íntegro: uma falha no próprio serviço é explorável antes de qualquer login",
@@ -966,13 +1268,22 @@
         "3": "Autenticação forte funciona em qualquer rede."
       },
       "fonte": "Teoria 0.2.t5; teoria 1.5.t3",
-      "tags": ["redes", "portas", "exposicao", "hardening", "autenticacao"]
+      "tags": [
+        "redes",
+        "portas",
+        "exposicao",
+        "hardening",
+        "autenticacao"
+      ]
     },
     {
       "id": "1.5.q34",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [2, 3],
+      "objetivos": [
+        2,
+        3
+      ],
       "enunciado": "Uma organização quer reduzir o risco de os usuários caírem em páginas de phishing com HTTPS válido. Qual conjunto de medidas ajuda mais?",
       "alternativas": [
         "Múltiplo fator resistente a phishing, filtro de domínios recém-registrados e treinamento que ensine a ler o domínio em vez de procurar o cadeado",
@@ -994,13 +1305,24 @@
         "3": "Rotação frequente é desaconselhada pelo NIST SP 800-63B e não impede o roubo da credencial."
       },
       "fonte": "NIST SP 800-63B; teoria 1.5.t5",
-      "tags": ["redes", "phishing", "mfa", "https", "defesa-em-profundidade"]
+      "tags": [
+        "redes",
+        "phishing",
+        "mfa",
+        "https",
+        "defesa-em-profundidade"
+      ]
     },
     {
       "id": "1.5.q35",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [0, 1, 2, 3],
+      "objetivos": [
+        0,
+        1,
+        2,
+        3
+      ],
       "enunciado": "Você vai revisar a exposição de rede de uma aplicação web corporativa. Quais verificações rendem mais nas primeiras horas?",
       "alternativas": [
         "Quais portas estão realmente acessíveis de fora, se o HTTP redireciona para HTTPS com política de transporte estrito, qual versão de TLS é aceita, e se serviços administrativos estão expostos",
@@ -1022,7 +1344,14 @@
         "3": "Certificado gratuito é tecnicamente equivalente ao pago para validação de domínio."
       },
       "fonte": "RFC 8446; RFC 9110; RFC 6797",
-      "tags": ["redes", "revisao", "https", "tls", "exposicao", "carreira"]
+      "tags": [
+        "redes",
+        "revisao",
+        "https",
+        "tls",
+        "exposicao",
+        "carreira"
+      ]
     }
   ]
 }

@@ -236,7 +236,7 @@ duplicado e dado pessoal em artefato. Ele também **avisa** quando a alternativa
 correta é bem mais longa que as outras — sinal clássico de gabarito entregue de
 graça.
 
-### As quatro regras de gabarito entregue
+### As cinco regras de gabarito entregue
 
 Estas quatro saíram de defeitos reais, encontrados à mão na revisão do nível 3 e
 depois automatizados. Todas produzem **aviso**, nunca falha: são heurísticas, e
@@ -247,7 +247,8 @@ quem decide é quem lê.
 | 1. Dica que reescreve o gabarito | Dica que traz ≥30% das palavras que **só** a alternativa correta tem (≥2 palavras) | 23 casos em 3.1, 3.2 e 3.3 — a dica parafraseava a resposta em vez de estreitar o raciocínio |
 | 2. Artefato que carrega a resposta | `artefato` (≥35%) ou `trecho` (≥70%) com as palavras exclusivas da correta | `3.3.q14`: o laboratório imprimia `porta 8080 (HTTP nao fala primeiro)`, que era a resposta |
 | 3. Enunciado que afirma a resposta | Enunciado com ≥35% das palavras exclusivas da correta (≥3 palavras) | `3.1.q17`: "por que X e Y **são independentes**?" afirmava o que a correta dizia |
-| 4. Distrator que é gabarito de outra | Distrator com ≥60% de vocabulário em comum com a resposta certa de outra questão que **pergunta o mesmo** | `3.1.q24` usava como distrator a resposta certa de `3.1.q32` |
+| 4. Distrator que é gabarito de outra | Distrator com ≥72% de vocabulário em comum com a resposta certa de outra questão que **pergunta o mesmo** | `3.1.q24` usava como distrator a resposta certa de `3.1.q32` |
+| 5. Duas questões ensinando o mesmo | Duas respostas certas com ≥55% de vocabulário em comum, inclusive **entre módulos** | `3.3.q25` repetia `3.2.q12`, e `4.1.q20` repetia `3.1.q35` |
 
 O cálculo é sempre o mesmo: tomam-se as palavras da alternativa correta,
 descontam-se as que aparecem em qualquer distrator (essas são vocabulário do
@@ -266,6 +267,29 @@ da tríade CIA, por exemplo) usa a definição de uma como distrator da outra de
 propósito — por isso a regra 4 só acusa quando as duas questões perguntam a mesma
 coisa; e em `caça ao erro` o gabarito cita o item defeituoso do próprio trecho,
 por construção — por isso ali a régua da regra 2 sobe para 70%.
+
+**A régua da regra 4 subiu de 60% para 72% depois de medida.** Ela não pegou
+nenhum dos dois casos reais que a originaram: `3.1.q24` × `3.1.q32` dividia só
+22% do vocabulário, e a duplicação entre módulos de `3.3.q25` × `3.2.q12`,
+42% — as duas eram paráfrase, não cópia. O único disparo que ela produzia no
+corpus era vocabulário de criptografia compartilhado entre duas questões
+diferentes. A regra 5 nasceu dessa medição: comparar **resposta certa com
+resposta certa**, que é onde a duplicação real aparece.
+
+### Aviso aceito como legítimo
+
+Nem todo disparo é defeito. Um cenário precisa conter os fatos que a resposta
+classifica; um artefato precisa conter as linhas que a resposta lê; uma dica pode
+dirigir a atenção com uma pergunta sem afirmar a conclusão.
+
+Esses casos ficam em [`ferramentas/avisos_aceitos.json`](ferramentas/avisos_aceitos.json),
+com a justificativa de cada um. O validador consulta esse arquivo e não repete o
+aviso — o registro ali é a única prova de que o caso foi lido e decidido. O
+critério usado na revisão de 22/08/2026 está no topo do arquivo:
+
+> **Corrigir** quando a dica **afirma** uma proposição que é a alternativa correta
+> ou parte dela. **Aceitar** quando ela apenas dirige a atenção — pergunta,
+> contraste, ordem de leitura — sem afirmar a resposta.
 
 7. **Rode os testes:**
 

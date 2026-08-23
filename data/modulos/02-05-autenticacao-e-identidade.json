@@ -1238,7 +1238,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "RS256 usa par de chaves; HS256 usa um segredo compartilhado. Que material o servidor tem em mãos?",
+        "Que material de chave o servidor tem guardado, e qual das duas famílias de algoritmo o usaria como segredo?",
         "A chave pública é secreta?",
         "O atacante não precisa quebrar nada; ele precisa que o servidor troque de modo."
       ],

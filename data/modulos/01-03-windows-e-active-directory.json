@@ -8,7 +8,9 @@
     "Ler eventos do log de segurança do Windows e identificar o que merece investigação",
     "Justificar por que o Active Directory é alvo prioritário e quais caminhos de ataque ele oferece"
   ],
-  "pre_requisitos": ["1.1"],
+  "pre_requisitos": [
+    "1.1"
+  ],
   "teoria": [
     {
       "id": "1.3.t1",
@@ -64,7 +66,9 @@
       "id": "1.3.q1",
       "tipo": "conceitual",
       "dificuldade": 1,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Qual é a diferença entre uma conta local e uma conta de domínio no Windows?",
       "alternativas": [
         "A conta local existe e vale apenas naquela máquina; a de domínio é gerenciada centralmente e vale nas máquinas que confiam no domínio",
@@ -86,13 +90,20 @@
         "3": "As duas são permanentes até serem removidas."
       },
       "fonte": "Documentação de segurança do Windows; teoria 1.3.t1",
-      "tags": ["windows", "contas", "dominio", "fundamentos"]
+      "tags": [
+        "windows",
+        "contas",
+        "dominio",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.3.q2",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Por que renomear a conta de administrador local não é uma proteção eficaz?",
       "alternativas": [
         "Porque o Windows identifica a conta pelo SID, que não muda com a renomeação e pode ser consultado",
@@ -114,13 +125,20 @@
         "3": "Contas locais têm privilégios diferentes conforme os grupos a que pertencem."
       },
       "fonte": "Documentação de segurança do Windows; teoria 1.3.t1",
-      "tags": ["windows", "contas", "sid", "obscuridade"]
+      "tags": [
+        "windows",
+        "contas",
+        "sid",
+        "obscuridade"
+      ]
     },
     {
       "id": "1.3.q3",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Qual é a função do Controle de Conta de Usuário (UAC) no Windows?",
       "alternativas": [
         "Fazer com que contas administrativas operem com privilégio reduzido no uso comum, elevando apenas mediante confirmação",
@@ -142,13 +160,20 @@
         "3": "O registro de ações é função do log de segurança."
       },
       "fonte": "Documentação de segurança do Windows; teoria 1.3.t3",
-      "tags": ["windows", "uac", "menor-privilegio", "fundamentos"]
+      "tags": [
+        "windows",
+        "uac",
+        "menor-privilegio",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.3.q4",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Uma equipe desabilita o UAC em todas as estações para \"parar de ser incomodada com confirmações\". Qual é a consequência?",
       "alternativas": [
         "Processos iniciados pela conta administrativa passam a rodar com privilégio total desde o começo, inclusive código malicioso executado por engano",
@@ -170,13 +195,20 @@
         "3": "O UAC altera efetivamente o token de privilégio do processo, não apenas exibe um aviso."
       },
       "fonte": "Documentação de segurança do Windows; teoria 1.3.t3",
-      "tags": ["windows", "uac", "menor-privilegio", "hardening"]
+      "tags": [
+        "windows",
+        "uac",
+        "menor-privilegio",
+        "hardening"
+      ]
     },
     {
       "id": "1.3.q5",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Por que a revisão de segurança em ambientes Windows precisa olhar os privilégios especiais, e não só a pertinência ao grupo de administradores?",
       "alternativas": [
         "Porque alguns privilégios, como depurar processos ou fazer backup de qualquer arquivo, equivalem na prática a controle total da máquina",
@@ -198,13 +230,20 @@
         "3": "Privilégios concedidos permanecem até serem removidos."
       },
       "fonte": "Documentação de segurança do Windows; MITRE ATT&CK (credenciais)",
-      "tags": ["windows", "privilegios", "menor-privilegio", "revisao"]
+      "tags": [
+        "windows",
+        "privilegios",
+        "menor-privilegio",
+        "revisao"
+      ]
     },
     {
       "id": "1.3.q6",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "O que é o registro do Windows?",
       "alternativas": [
         "Uma base hierárquica de configuração do sistema, dos serviços e dos usuários",
@@ -226,13 +265,21 @@
         "3": "Licenciamento é apenas uma pequena parte do que o registro armazena."
       },
       "fonte": "Documentação do Windows; teoria 1.3.t4",
-      "tags": ["windows", "registro", "vocabulario", "fundamentos"]
+      "tags": [
+        "windows",
+        "registro",
+        "vocabulario",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.3.q7",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [1, 2],
+      "objetivos": [
+        1,
+        2
+      ],
       "enunciado": "Após limpar um malware de uma estação Windows, ele volta a cada reinicialização. Onde procurar primeiro?",
       "alternativas": [
         "Nas chaves de execução automática do registro, nas tarefas agendadas e nos serviços configurados para iniciar com o sistema",
@@ -254,13 +301,20 @@
         "3": "Permissões incorretas são outro problema e não explicam o reinício automático."
       },
       "fonte": "MITRE ATT&CK (persistência); teoria 1.3.t4",
-      "tags": ["windows", "registro", "persistencia", "resposta-a-incidentes"]
+      "tags": [
+        "windows",
+        "registro",
+        "persistencia",
+        "resposta-a-incidentes"
+      ]
     },
     {
       "id": "1.3.q8",
       "tipo": "conceitual",
       "dificuldade": 1,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "No log de segurança do Windows, o que registram os eventos 4624 e 4625?",
       "alternativas": [
         "4624 registra logon bem-sucedido e 4625 registra logon malsucedido",
@@ -282,13 +336,20 @@
         "3": "Alteração de senha e bloqueio de conta têm identificadores próprios."
       },
       "fonte": "Referência de eventos do log de segurança do Windows",
-      "tags": ["windows", "eventos", "logs", "fundamentos"]
+      "tags": [
+        "windows",
+        "eventos",
+        "logs",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.3.q9",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "No evento 4624, o que indica um logon do tipo 10?",
       "alternativas": [
         "Logon interativo remoto, típico de conexão por área de trabalho remota",
@@ -310,13 +371,22 @@
         "3": "Logon de serviço é o tipo 5."
       },
       "fonte": "Referência de eventos do log de segurança do Windows (tipos de logon do 4624)",
-      "tags": ["windows", "eventos", "logs", "rdp", "deteccao"]
+      "tags": [
+        "windows",
+        "eventos",
+        "logs",
+        "rdp",
+        "deteccao"
+      ]
     },
     {
       "id": "1.3.q10",
       "tipo": "artefato",
       "dificuldade": 3,
-      "objetivos": [2, 3],
+      "objetivos": [
+        2,
+        3
+      ],
       "artefato": "22:41:03  4625  Conta: j.almeida  Tipo de logon: 3  Origem: 10.20.4.87  Status: senha incorreta\n22:41:05  4625  Conta: m.souza    Tipo de logon: 3  Origem: 10.20.4.87  Status: senha incorreta\n22:41:07  4625  Conta: adm.rede   Tipo de logon: 3  Origem: 10.20.4.87  Status: senha incorreta\n22:43:19  4624  Conta: adm.rede   Tipo de logon: 3  Origem: 10.20.4.87\n22:43:24  4672  Conta: adm.rede   Privilégios especiais atribuídos ao novo logon",
       "enunciado": "Qual é a leitura correta desta sequência do log de segurança?",
       "alternativas": [
@@ -339,13 +409,21 @@
         "3": "Origem interna é frequentemente sinal de movimento lateral, e não de segurança."
       },
       "fonte": "Referência de eventos do log de segurança do Windows; MITRE ATT&CK (força bruta, movimento lateral)",
-      "tags": ["windows", "eventos", "artefato", "deteccao", "movimento-lateral"]
+      "tags": [
+        "windows",
+        "eventos",
+        "artefato",
+        "deteccao",
+        "movimento-lateral"
+      ]
     },
     {
       "id": "1.3.q11",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "O que o evento 4672 registra, e por que ele é relevante para monitoramento?",
       "alternativas": [
         "Privilégios especiais atribuídos a um novo logon, o que sinaliza acesso com poder administrativo",
@@ -367,20 +445,42 @@
         "3": "Expiração de senha tem registro próprio."
       },
       "fonte": "Referência de eventos do log de segurança do Windows",
-      "tags": ["windows", "eventos", "privilegios", "monitoramento"]
+      "tags": [
+        "windows",
+        "eventos",
+        "privilegios",
+        "monitoramento"
+      ]
     },
     {
       "id": "1.3.q12",
       "tipo": "pareamento",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Ligue cada identificador de evento do Windows ao que ele registra.",
       "pares": [
-        ["4624", "Logon bem-sucedido, com o tipo de logon indicando como ocorreu"],
-        ["4625", "Tentativa de logon malsucedida, com código de status da causa"],
-        ["4672", "Privilégios especiais atribuídos a um novo logon"],
-        ["4720", "Criação de uma conta de usuário"],
-        ["4769", "Pedido de tíquete de serviço Kerberos, registrado no controlador de domínio"]
+        [
+          "4624",
+          "Logon bem-sucedido, com o tipo de logon indicando como ocorreu"
+        ],
+        [
+          "4625",
+          "Tentativa de logon malsucedida, com código de status da causa"
+        ],
+        [
+          "4672",
+          "Privilégios especiais atribuídos a um novo logon"
+        ],
+        [
+          "4720",
+          "Criação de uma conta de usuário"
+        ],
+        [
+          "4769",
+          "Pedido de tíquete de serviço Kerberos, registrado no controlador de domínio"
+        ]
       ],
       "dicas": [
         "Dois identificadores vizinhos tratam do sucesso e da falha do mesmo evento.",
@@ -390,13 +490,21 @@
       "pergunta_socratica": "Antes de conferir: quais desses eventos você monitoraria diariamente em um ambiente pequeno?",
       "explicacao": "Esses cinco cobrem a maior parte da triagem em ambientes Windows: entrada bem-sucedida, entrada recusada, entrada com privilégio, criação de conta e pedido de tíquete de serviço no domínio. O último é especialmente relevante porque volume anômalo de pedidos de tíquete por uma única conta é um dos indícios de tentativa de extrair credenciais de serviço para quebra offline.",
       "fonte": "Referência de eventos do log de segurança do Windows",
-      "tags": ["windows", "eventos", "pareamento", "kerberos", "monitoramento"]
+      "tags": [
+        "windows",
+        "eventos",
+        "pareamento",
+        "kerberos",
+        "monitoramento"
+      ]
     },
     {
       "id": "1.3.q13",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "O que é um controlador de domínio no Active Directory?",
       "alternativas": [
         "O servidor que hospeda o diretório e responde às autenticações do domínio",
@@ -418,13 +526,20 @@
         "3": "Servidor de arquivos guarda documentos, e não o diretório."
       },
       "fonte": "Documentação do Active Directory; teoria 1.3.t2",
-      "tags": ["windows", "active-directory", "dominio", "fundamentos"]
+      "tags": [
+        "windows",
+        "active-directory",
+        "dominio",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.3.q14",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Para que servem as políticas de grupo (GPOs) em um domínio?",
       "alternativas": [
         "Distribuir configuração de forma centralizada para máquinas e usuários do domínio",
@@ -434,7 +549,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "É o mecanismo que aplica a mesma configuração em milhares de máquinas.",
+        "Pense no problema que ela resolve: mil máquinas, uma decisão, ninguém visitando cada uma.",
         "O nome fala de política, mas o efeito é de configuração aplicada.",
         "Registro de ações é função do log de eventos."
       ],
@@ -446,13 +561,20 @@
         "3": "O registro de ações é feito pelo log de eventos."
       },
       "fonte": "Documentação do Active Directory; teoria 1.3.t2",
-      "tags": ["windows", "active-directory", "gpo", "configuracao"]
+      "tags": [
+        "windows",
+        "active-directory",
+        "gpo",
+        "configuracao"
+      ]
     },
     {
       "id": "1.3.q15",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Por que o Active Directory costuma ser o objetivo do movimento lateral, e não o ponto de entrada?",
       "alternativas": [
         "Porque o controlador de domínio raramente é acessível de fora, mas concentra o controle de toda a rede — o atacante entra pelo elo fraco e caminha até ele",
@@ -474,13 +596,21 @@
         "3": "O controlador de domínio guarda material de autenticação de todas as contas."
       },
       "fonte": "MITRE ATT&CK (movimento lateral); teoria 0.2.t3 e 1.3.t6",
-      "tags": ["windows", "active-directory", "movimento-lateral", "alvo"]
+      "tags": [
+        "windows",
+        "active-directory",
+        "movimento-lateral",
+        "alvo"
+      ]
     },
     {
       "id": "1.3.q16",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [3, 0],
+      "objetivos": [
+        3,
+        0
+      ],
       "enunciado": "Uma equipe usa a mesma conta de administrador de domínio para fazer login em estações comuns durante o suporte. Qual medida corrige o risco na raiz?",
       "alternativas": [
         "Separar contas: uso diário sem privilégio, conta administrativa distinta e restrição de onde credenciais privilegiadas podem ser usadas",
@@ -502,13 +632,21 @@
         "3": "O protocolo de acesso não muda o fato de a credencial ser usada numa máquina comum."
       },
       "fonte": "MITRE ATT&CK (credenciais); teoria 1.3.t6",
-      "tags": ["windows", "active-directory", "credenciais", "menor-privilegio", "hardening"]
+      "tags": [
+        "windows",
+        "active-directory",
+        "credenciais",
+        "menor-privilegio",
+        "hardening"
+      ]
     },
     {
       "id": "1.3.q17",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Qual protocolo de autenticação é usado por padrão em um domínio Active Directory moderno?",
       "alternativas": [
         "Kerberos, com o controlador de domínio emitindo tíquetes",
@@ -530,13 +668,21 @@
         "3": "FTP é transferência de arquivos, e sem cifra por padrão."
       },
       "fonte": "Documentação do Active Directory; teoria 1.3.t2",
-      "tags": ["windows", "kerberos", "autenticacao", "active-directory"]
+      "tags": [
+        "windows",
+        "kerberos",
+        "autenticacao",
+        "active-directory"
+      ]
     },
     {
       "id": "1.3.q18",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [3, 2],
+      "objetivos": [
+        3,
+        2
+      ],
       "enunciado": "Por que um volume atípico de pedidos de tíquete de serviço Kerberos (evento 4769) por uma única conta merece investigação?",
       "alternativas": [
         "Pode indicar coleta de tíquetes de contas de serviço para tentativa de quebra offline das senhas correspondentes",
@@ -548,7 +694,7 @@
       "dicas": [
         "Um tíquete de serviço é cifrado com material derivado da senha da conta de serviço.",
         "O que alguém faria com muitos tíquetes na mão, longe do servidor?",
-        "Lembre que quebra offline não gera tentativa de login."
+        "Pergunte onde o trabalho do atacante acontece depois que ele já tem os tíquetes em mãos."
       ],
       "pergunta_socratica": "Antes de conferir: por que um atacante preferiria coletar tíquetes a tentar senhas diretamente no servidor?",
       "explicacao": "Tíquetes de serviço são cifrados com material derivado da senha da conta de serviço, então quem os coleta pode tentar quebrá-los na própria máquina, sem gerar tentativas de login, sem bloqueio de conta e sem alarme no servidor. Pedir muitos tíquetes de uma vez é o passo de coleta desse ataque. Sobrecarga de servidor e problema de relógio produzem sintomas diferentes, e perda de tíquete inicial geraria novo 4768.",
@@ -558,13 +704,22 @@
         "3": "Renovação de tíquete inicial geraria eventos 4768, e não uma sequência de 4769."
       },
       "fonte": "MITRE ATT&CK (acesso a credenciais); referência de eventos do Windows",
-      "tags": ["windows", "kerberos", "credenciais", "deteccao", "eventos"]
+      "tags": [
+        "windows",
+        "kerberos",
+        "credenciais",
+        "deteccao",
+        "eventos"
+      ]
     },
     {
       "id": "1.3.q19",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [0, 3],
+      "objetivos": [
+        0,
+        3
+      ],
       "enunciado": "Uma empresa usa a mesma senha de administrador local em todas as 300 estações. Qual é o risco principal?",
       "alternativas": [
         "Comprometer uma estação entrega acesso administrativo às outras 299, facilitando movimento lateral por toda a rede",
@@ -586,13 +741,22 @@
         "3": "É justamente por serem locais e idênticas que o risco de movimento lateral aparece."
       },
       "fonte": "MITRE ATT&CK (movimento lateral, contas válidas); teoria 1.3.t1",
-      "tags": ["windows", "contas", "movimento-lateral", "senhas", "hardening"]
+      "tags": [
+        "windows",
+        "contas",
+        "movimento-lateral",
+        "senhas",
+        "hardening"
+      ]
     },
     {
       "id": "1.3.q20",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1, 3],
+      "objetivos": [
+        1,
+        3
+      ],
       "enunciado": "Por que material de autenticação em memória é uma preocupação em estações Windows?",
       "alternativas": [
         "Porque quem obtém privilégio administrativo na máquina pode extraí-lo e reutilizá-lo para acessar outros sistemas",
@@ -614,13 +778,21 @@
         "3": "O material permanece disponível durante a sessão, e é justamente essa janela que é explorada."
       },
       "fonte": "MITRE ATT&CK (acesso a credenciais); teoria 1.3.t6",
-      "tags": ["windows", "credenciais", "memoria", "movimento-lateral"]
+      "tags": [
+        "windows",
+        "credenciais",
+        "memoria",
+        "movimento-lateral"
+      ]
     },
     {
       "id": "1.3.q21",
       "tipo": "comando",
       "dificuldade": 2,
-      "objetivos": [0, 1],
+      "objetivos": [
+        0,
+        1
+      ],
       "enunciado": "Em PowerShell, o que faz `Get-LocalUser`?",
       "alternativas": [
         "Lista as contas de usuário locais da máquina",
@@ -642,13 +814,22 @@
         "3": "Criar conta usaria New-LocalUser."
       },
       "fonte": "Documentação do PowerShell",
-      "tags": ["windows", "powershell", "comando", "contas", "triagem"]
+      "tags": [
+        "windows",
+        "powershell",
+        "comando",
+        "contas",
+        "triagem"
+      ]
     },
     {
       "id": "1.3.q22",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [1, 2],
+      "objetivos": [
+        1,
+        2
+      ],
       "enunciado": "Uma estação apresenta um processo do PowerShell iniciado por um documento de escritório, com linha de comando longa e codificada. Qual é a avaliação?",
       "alternativas": [
         "Comportamento típico de execução maliciosa a partir de macro em documento; a codificação serve para dificultar a leitura do comando",
@@ -670,13 +851,22 @@
         "3": "A versão do PowerShell não tem relação com o comportamento descrito."
       },
       "fonte": "MITRE ATT&CK (execução, ofuscação); teoria 1.3.t5",
-      "tags": ["windows", "powershell", "macro", "deteccao", "malware"]
+      "tags": [
+        "windows",
+        "powershell",
+        "macro",
+        "deteccao",
+        "malware"
+      ]
     },
     {
       "id": "1.3.q23",
       "tipo": "caca_erro",
       "dificuldade": 3,
-      "objetivos": [1, 3],
+      "objetivos": [
+        1,
+        3
+      ],
       "trecho": "PADRÃO DE CONFIGURAÇÃO — estações de trabalho\n1. Todos os usuários pertencem ao grupo Administradores locais, para agilizar instalações.\n2. UAC desabilitado, para reduzir interrupções.\n3. Senha do administrador local idêntica em todo o parque, documentada na intranet.\n4. Log de segurança mantido apenas na própria estação, com tamanho máximo de 20 MB.",
       "enunciado": "Qual item cria o maior potencial de movimento lateral por toda a rede?",
       "alternativas": [
@@ -699,13 +889,21 @@
         "3": "Log pequeno reduz a janela de retenção, mas não inviabiliza toda investigação."
       },
       "fonte": "MITRE ATT&CK (movimento lateral); CIS Benchmarks",
-      "tags": ["windows", "caca-erro", "movimento-lateral", "hardening", "senhas"]
+      "tags": [
+        "windows",
+        "caca-erro",
+        "movimento-lateral",
+        "hardening",
+        "senhas"
+      ]
     },
     {
       "id": "1.3.q24",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Por que um evento 4625 isolado raramente justifica um alerta?",
       "alternativas": [
         "Porque falhas de logon ocorrem rotineiramente por erro de digitação e senha expirada; o que importa é volume, origem e o que veio depois",
@@ -727,13 +925,21 @@
         "3": "Falhas de logon são relevantes em conjunto; a alternativa nega o que é útil."
       },
       "fonte": "NIST SP 800-61; teoria 1.3.t5",
-      "tags": ["windows", "eventos", "monitoramento", "falso-positivo"]
+      "tags": [
+        "windows",
+        "eventos",
+        "monitoramento",
+        "falso-positivo"
+      ]
     },
     {
       "id": "1.3.q25",
       "tipo": "ordenacao",
       "dificuldade": 3,
-      "objetivos": [3, 2],
+      "objetivos": [
+        3,
+        2
+      ],
       "enunciado": "Coloque as etapas de um comprometimento típico de ambiente Windows na ordem em que acontecem.",
       "itens": [
         "Um usuário abre um anexo malicioso e a estação é comprometida",
@@ -742,7 +948,13 @@
         "A credencial obtida é usada para alcançar outras máquinas da rede",
         "O atacante alcança o controlador de domínio e o controle do diretório"
       ],
-      "ordem_correta": [0, 1, 2, 3, 4],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
       "dicas": [
         "Extrair material da memória exige o quê, antes?",
         "Alcançar outras máquinas pressupõe já ter uma credencial reutilizável.",
@@ -751,13 +963,21 @@
       "pergunta_socratica": "Antes de conferir: em qual dessas etapas a defesa ainda conseguiria interromper a cadeia com menor custo?",
       "explicacao": "A sequência é entrada, escalada local, coleta de credencial, movimento lateral e alcance do domínio. Cada etapa tem uma defesa correspondente: filtro e treinamento na primeira, menor privilégio e UAC na segunda, proteção de credenciais na terceira, segmentação e restrição de uso de contas privilegiadas na quarta, e monitoramento do controlador na quinta. Enxergar a cadeia é o que permite escolher onde cortar — e quanto mais cedo, mais barato.",
       "fonte": "MITRE ATT&CK; teoria 1.3.t6",
-      "tags": ["windows", "cadeia-de-ataque", "movimento-lateral", "mitre", "ciclo"]
+      "tags": [
+        "windows",
+        "cadeia-de-ataque",
+        "movimento-lateral",
+        "mitre",
+        "ciclo"
+      ]
     },
     {
       "id": "1.3.q26",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "O que é um SID no Windows?",
       "alternativas": [
         "Um identificador único usado internamente para representar uma conta ou grupo, e pelo qual as permissões são resolvidas",
@@ -779,13 +999,21 @@
         "3": "O identificador de sessão é outro conceito, com vida curta."
       },
       "fonte": "Documentação de segurança do Windows; teoria 1.3.t1",
-      "tags": ["windows", "sid", "vocabulario", "permissoes"]
+      "tags": [
+        "windows",
+        "sid",
+        "vocabulario",
+        "permissoes"
+      ]
     },
     {
       "id": "1.3.q27",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [2, 3],
+      "objetivos": [
+        2,
+        3
+      ],
       "enunciado": "Uma organização quer detectar comprometimento do Active Directory mais cedo. Qual medida entrega mais valor primeiro?",
       "alternativas": [
         "Centralizar os eventos dos controladores de domínio fora deles e alertar sobre criação de contas, alterações em grupos privilegiados e uso de contas administrativas fora do padrão",
@@ -807,13 +1035,21 @@
         "3": "Antivírus atua na estação, sem cobrir consolidação de poder no domínio."
       },
       "fonte": "NIST SP 800-61; NIST SP 800-63B; MITRE ATT&CK",
-      "tags": ["windows", "active-directory", "deteccao", "logs", "monitoramento"]
+      "tags": [
+        "windows",
+        "active-directory",
+        "deteccao",
+        "logs",
+        "monitoramento"
+      ]
     },
     {
       "id": "1.3.q28",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Qual é a razão de segurança para não usar uma conta administrativa no trabalho cotidiano, mesmo com o UAC ativo?",
       "alternativas": [
         "Porque a elevação está sempre a um clique de distância, e um engano ou código malicioso pode obtê-la em um momento de desatenção",
@@ -835,13 +1071,21 @@
         "3": "Não há limite menor de arquivos abertos para contas administrativas."
       },
       "fonte": "Documentação de segurança do Windows; teoria 1.1.t2",
-      "tags": ["windows", "uac", "menor-privilegio", "boas-praticas"]
+      "tags": [
+        "windows",
+        "uac",
+        "menor-privilegio",
+        "boas-praticas"
+      ]
     },
     {
       "id": "1.3.q29",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [2, 0],
+      "objetivos": [
+        2,
+        0
+      ],
       "enunciado": "Durante uma triagem, você encontra uma conta local recém-criada em um servidor, pertencente ao grupo de administradores, com nome parecido com o de uma conta de serviço legítima. Qual é a interpretação mais provável?",
       "alternativas": [
         "Persistência criada por um invasor, usando nome semelhante ao de contas legítimas para não chamar atenção",
@@ -863,13 +1107,21 @@
         "3": "Contas de fabricante seriam antigas, não recém-criadas."
       },
       "fonte": "MITRE ATT&CK (persistência, contas válidas); teoria 1.3.t5",
-      "tags": ["windows", "contas", "persistencia", "triagem", "deteccao"]
+      "tags": [
+        "windows",
+        "contas",
+        "persistencia",
+        "triagem",
+        "deteccao"
+      ]
     },
     {
       "id": "1.3.q30",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Por que as relações de confiança acumuladas em um Active Directory antigo costumam ser um problema de segurança?",
       "alternativas": [
         "Porque grupos e permissões vão sendo acrescentados ao longo dos anos e raramente removidos, resultando em acessos muito mais amplos do que qualquer um imagina",
@@ -891,19 +1143,39 @@
         "3": "Kerberos é suportado por domínios antigos e recentes."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 6; MITRE ATT&CK",
-      "tags": ["windows", "active-directory", "gestao-de-acessos", "menor-privilegio"]
+      "tags": [
+        "windows",
+        "active-directory",
+        "gestao-de-acessos",
+        "menor-privilegio"
+      ]
     },
     {
       "id": "1.3.q31",
       "tipo": "pareamento",
       "dificuldade": 2,
-      "objetivos": [0, 1],
+      "objetivos": [
+        0,
+        1
+      ],
       "enunciado": "Ligue cada conceito do Windows ao seu equivalente conceitual no Linux.",
       "pares": [
-        ["UAC", "sudo: eleva privilégio pontualmente, em vez de manter sessão privilegiada"],
-        ["SID", "UID e GID: identificadores numéricos usados internamente para resolver permissões"],
-        ["Chaves de execução do registro", "cron e serviços habilitados: mecanismos que iniciam programas automaticamente"],
-        ["Log de segurança do Windows", "/var/log/auth.log: registro de autenticação e uso de privilégio"]
+        [
+          "UAC",
+          "sudo: eleva privilégio pontualmente, em vez de manter sessão privilegiada"
+        ],
+        [
+          "SID",
+          "UID e GID: identificadores numéricos usados internamente para resolver permissões"
+        ],
+        [
+          "Chaves de execução do registro",
+          "cron e serviços habilitados: mecanismos que iniciam programas automaticamente"
+        ],
+        [
+          "Log de segurança do Windows",
+          "/var/log/auth.log: registro de autenticação e uso de privilégio"
+        ]
       ],
       "dicas": [
         "Dois pares tratam de elevação de privilégio e identidade.",
@@ -913,13 +1185,21 @@
       "pergunta_socratica": "Antes de conferir: qual desses quatro você consultaria primeiro ao investigar um acesso suspeito, nos dois sistemas?",
       "explicacao": "Os mecanismos mudam de nome e de forma, mas os problemas são os mesmos nos dois sistemas: separar uso comum de uso privilegiado, identificar contas por um número estável, controlar o que inicia automaticamente e registrar autenticação. Reconhecer essa correspondência acelera muito a transição entre ambientes — e evita tratar Windows como um mundo à parte.",
       "fonte": "Teoria 1.1.t2, 1.1.t6, 1.3.t3 e 1.3.t4",
-      "tags": ["windows", "linux", "pareamento", "comparacao", "fundamentos"]
+      "tags": [
+        "windows",
+        "linux",
+        "pareamento",
+        "comparacao",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.3.q32",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Qual é a diferença entre HKEY_LOCAL_MACHINE e HKEY_CURRENT_USER no registro do Windows?",
       "alternativas": [
         "A primeira guarda configuração que vale para a máquina inteira; a segunda, configuração do usuário conectado no momento",
@@ -941,13 +1221,21 @@
         "3": "A configuração do usuário é acessível a ele; a distinção não é essa."
       },
       "fonte": "Documentação do Windows; teoria 1.3.t4",
-      "tags": ["windows", "registro", "persistencia", "fundamentos"]
+      "tags": [
+        "windows",
+        "registro",
+        "persistencia",
+        "fundamentos"
+      ]
     },
     {
       "id": "1.3.q33",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [2, 1],
+      "objetivos": [
+        2,
+        1
+      ],
       "enunciado": "Uma equipe pequena quer começar a monitorar Windows sem orçamento para ferramenta comercial. Qual escolha inicial rende mais?",
       "alternativas": [
         "Centralizar os eventos de autenticação e de mudanças em contas e grupos privilegiados, e revisar diariamente um pequeno conjunto de identificadores",
@@ -969,13 +1257,22 @@
         "3": "Auditoria de arquivos gera volume muito alto e valor inicial baixo."
       },
       "fonte": "NIST Cybersecurity Framework (detectar); NIST SP 800-61",
-      "tags": ["windows", "monitoramento", "priorizacao", "eventos", "pmes"]
+      "tags": [
+        "windows",
+        "monitoramento",
+        "priorizacao",
+        "eventos",
+        "pmes"
+      ]
     },
     {
       "id": "1.3.q34",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [3, 1],
+      "objetivos": [
+        3,
+        1
+      ],
       "enunciado": "Qual medida reduz mais o risco de que uma estação comprometida leve ao comprometimento do domínio?",
       "alternativas": [
         "Impedir que contas administrativas de domínio autentiquem em estações de trabalho comuns",
@@ -997,13 +1294,24 @@
         "3": "Reduzir validade de tíquete limita a janela, mas a credencial ainda é exposta."
       },
       "fonte": "MITRE ATT&CK (credenciais, movimento lateral); teoria 1.3.t6",
-      "tags": ["windows", "active-directory", "credenciais", "segmentacao", "hardening"]
+      "tags": [
+        "windows",
+        "active-directory",
+        "credenciais",
+        "segmentacao",
+        "hardening"
+      ]
     },
     {
       "id": "1.3.q35",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [0, 1, 2, 3],
+      "objetivos": [
+        0,
+        1,
+        2,
+        3
+      ],
       "enunciado": "Você assumiu a segurança de uma rede Windows com 400 estações, um controlador de domínio e nenhuma prática estabelecida. Quais três medidas iniciais rendem mais?",
       "alternativas": [
         "Separar contas administrativas do uso diário, tornar única a senha de administrador local de cada máquina, e centralizar eventos de autenticação e de mudanças em grupos privilegiados",
@@ -1025,7 +1333,13 @@
         "3": "Reinstalar sem corrigir o padrão de configuração reproduz os mesmos problemas."
       },
       "fonte": "CIS Benchmarks; MITRE ATT&CK; NIST Cybersecurity Framework",
-      "tags": ["windows", "active-directory", "priorizacao", "hardening", "carreira"]
+      "tags": [
+        "windows",
+        "active-directory",
+        "priorizacao",
+        "hardening",
+        "carreira"
+      ]
     }
   ]
 }

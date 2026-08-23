@@ -8,7 +8,9 @@
     "Reconhecer o insider como categoria própria, incluindo o não intencional",
     "Explicar o que é uma ameaça persistente avançada (APT) e por que persistência importa mais que sofisticação"
   ],
-  "pre_requisitos": ["0.1"],
+  "pre_requisitos": [
+    "0.1"
+  ],
   "teoria": [
     {
       "id": "0.3.t1",
@@ -64,7 +66,9 @@
       "id": "0.3.q1",
       "tipo": "conceitual",
       "dificuldade": 1,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "O que caracteriza o perfil conhecido como script kiddie?",
       "alternativas": [
         "Usa ferramentas prontas que não desenvolveu, ataca de forma oportunista e em grande volume",
@@ -86,13 +90,20 @@
         "3": "Acesso legítimo abusado é a definição de insider."
       },
       "fonte": "cyber security.pdf; teoria 0.3.t3",
-      "tags": ["adversarios", "script-kiddie", "vocabulario", "fundamentos"]
+      "tags": [
+        "adversarios",
+        "script-kiddie",
+        "vocabulario",
+        "fundamentos"
+      ]
     },
     {
       "id": "0.3.q2",
       "tipo": "conceitual",
       "dificuldade": 1,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Qual é a motivação predominante do cibercriminoso organizado?",
       "alternativas": [
         "Lucro financeiro, com operação estruturada como negócio",
@@ -114,20 +125,42 @@
         "3": "Vantagem estratégica para governo caracteriza adversário patrocinado por Estado."
       },
       "fonte": "cyber security.pdf; caso Colonial Pipeline (2021)",
-      "tags": ["adversarios", "cibercriminoso", "ransomware", "fundamentos"]
+      "tags": [
+        "adversarios",
+        "cibercriminoso",
+        "ransomware",
+        "fundamentos"
+      ]
     },
     {
       "id": "0.3.q3",
       "tipo": "pareamento",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Ligue cada perfil de adversário à sua motivação predominante.",
       "pares": [
-        ["Script kiddie", "Curiosidade e status, com alvos escolhidos por oportunidade"],
-        ["Cibercriminoso", "Lucro financeiro, com operação organizada como negócio"],
-        ["Hacktivista", "Repercussão pública em favor de uma causa"],
-        ["Insider malicioso", "Ganho pessoal ou retaliação contra a própria organização"],
-        ["Nação-estado", "Vantagem estratégica: espionagem, propriedade intelectual, infraestrutura"]
+        [
+          "Script kiddie",
+          "Curiosidade e status, com alvos escolhidos por oportunidade"
+        ],
+        [
+          "Cibercriminoso",
+          "Lucro financeiro, com operação organizada como negócio"
+        ],
+        [
+          "Hacktivista",
+          "Repercussão pública em favor de uma causa"
+        ],
+        [
+          "Insider malicioso",
+          "Ganho pessoal ou retaliação contra a própria organização"
+        ],
+        [
+          "Nação-estado",
+          "Vantagem estratégica: espionagem, propriedade intelectual, infraestrutura"
+        ]
       ],
       "dicas": [
         "Pergunte de cada perfil: o que ele considera sucesso ao fim do ataque?",
@@ -137,13 +170,20 @@
       "pergunta_socratica": "Antes de conferir: para cada perfil, qual seria o resultado que o faria considerar o ataque bem-sucedido?",
       "explicacao": "Motivação é o eixo que melhor separa os perfis, porque ela determina alvo, método e o que conta como sucesso. O script kiddie quer o que estiver acessível; o cibercriminoso quer pagamento; o hacktivista quer visibilidade; o insider malicioso quer ganho ou retaliação; a nação-estado quer vantagem estratégica e, por isso, prefere não ser notada. Saber o que o adversário considera sucesso ajuda a prever o que ele fará depois de entrar.",
       "fonte": "cyber security.pdf; Security Engineering, 3ª ed., cap. 2",
-      "tags": ["adversarios", "motivacao", "pareamento", "fundamentos"]
+      "tags": [
+        "adversarios",
+        "motivacao",
+        "pareamento",
+        "fundamentos"
+      ]
     },
     {
       "id": "0.3.q4",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Um site institucional amanhece com a página inicial substituída por um manifesto sobre uma pauta ambiental, e o grupo divulga a ação nas redes sociais. Qual perfil de adversário é o mais provável?",
       "alternativas": [
         "Hacktivista: a ação busca visibilidade pública para uma causa",
@@ -165,13 +205,20 @@
         "3": "Alterar página inicial não exige acesso legítimo; explorações em aplicações web são o caminho comum."
       },
       "fonte": "cyber security.pdf; teoria 0.3.t3",
-      "tags": ["adversarios", "hacktivista", "atribuicao"]
+      "tags": [
+        "adversarios",
+        "hacktivista",
+        "atribuicao"
+      ]
     },
     {
       "id": "0.3.q5",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0, 1],
+      "objetivos": [
+        0,
+        1
+      ],
       "enunciado": "Por que é útil descrever adversários pelos eixos motivação e capacidade?",
       "alternativas": [
         "Porque a combinação dos dois indica quais controles fazem diferença contra aquele adversário específico",
@@ -193,13 +240,20 @@
         "3": "Atribuição de autoria é um problema difícil e depende de evidência técnica e de contexto, não de dois eixos."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 2; teoria 0.3.t2",
-      "tags": ["adversarios", "motivacao", "capacidade", "modelo-de-ameaca"]
+      "tags": [
+        "adversarios",
+        "motivacao",
+        "capacidade",
+        "modelo-de-ameaca"
+      ]
     },
     {
       "id": "0.3.q6",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Uma pequena empresa de contabilidade pergunta contra quem ela deveria se defender prioritariamente. Qual resposta é mais defensável?",
       "alternativas": [
         "Contra ataques oportunistas e crime organizado, que atingem qualquer empresa exposta e desatualizada",
@@ -221,13 +275,20 @@
         "3": "Empresas pequenas são alvo justamente por terem menos defesas; o ataque automatizado não seleciona por porte."
       },
       "fonte": "cyber security.pdf; Security Engineering, 3ª ed., cap. 2",
-      "tags": ["adversarios", "modelo-de-ameaca", "priorizacao", "pmes"]
+      "tags": [
+        "adversarios",
+        "modelo-de-ameaca",
+        "priorizacao",
+        "pmes"
+      ]
     },
     {
       "id": "0.3.q7",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "O que caracteriza o modelo de ransomware como serviço (ransomware as a service)?",
       "alternativas": [
         "Um grupo desenvolve e mantém o ransomware, e outros operam os ataques mediante divisão dos ganhos",
@@ -249,13 +310,21 @@
         "3": "Pagamento recorrente por não ser atacado é extorsão continuada, não o modelo descrito."
       },
       "fonte": "cyber security.pdf; caso Colonial Pipeline (2021)",
-      "tags": ["adversarios", "cibercriminoso", "ransomware", "vocabulario"]
+      "tags": [
+        "adversarios",
+        "cibercriminoso",
+        "ransomware",
+        "vocabulario"
+      ]
     },
     {
       "id": "0.3.q8",
       "tipo": "caca_erro",
       "dificuldade": 2,
-      "objetivos": [0, 1],
+      "objetivos": [
+        0,
+        1
+      ],
       "trecho": "ANÁLISE DE AMEAÇAS — rede de farmácias\nAdversário considerado: grupos patrocinados por Estado com capacidade de desenvolver explorações inéditas.\nInvestimento previsto: plataforma de detecção avançada e equipe de caça a ameaças 24 horas.\nControles básicos: atualização de sistemas e múltiplo fator de autenticação previstos para o ano seguinte.",
       "enunciado": "Qual é o erro de priorização nesta análise?",
       "alternativas": [
@@ -278,13 +347,20 @@
         "3": "Cobertura de horário é detalhe operacional diante da inversão de prioridade."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 2; NIST Cybersecurity Framework",
-      "tags": ["adversarios", "priorizacao", "caca-erro", "modelo-de-ameaca"]
+      "tags": [
+        "adversarios",
+        "priorizacao",
+        "caca-erro",
+        "modelo-de-ameaca"
+      ]
     },
     {
       "id": "0.3.q9",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Por que o script kiddie não deve ser desconsiderado, apesar da baixa capacidade técnica?",
       "alternativas": [
         "Porque atua em volume massivo com ferramentas automatizadas, encontrando qualquer sistema exposto e desatualizado",
@@ -306,13 +382,20 @@
         "3": "Vulnerabilidades inéditas compradas caracterizam adversários de alta capacidade e recurso."
       },
       "fonte": "cyber security.pdf; teoria 0.3.t3",
-      "tags": ["adversarios", "script-kiddie", "higiene-basica"]
+      "tags": [
+        "adversarios",
+        "script-kiddie",
+        "higiene-basica"
+      ]
     },
     {
       "id": "0.3.q10",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [0, 3],
+      "objetivos": [
+        0,
+        3
+      ],
       "enunciado": "Qual diferença separa melhor o cibercriminoso do adversário patrocinado por Estado?",
       "alternativas": [
         "O cibercriminoso quer retorno financeiro rápido e aceita ser notado; o adversário estatal quer permanência silenciosa e vantagem de longo prazo",
@@ -334,13 +417,21 @@
         "3": "Crime organizado atua em grupo com divisão de trabalho; agir sozinho não é o critério."
       },
       "fonte": "MITRE ATT&CK; casos SolarWinds (2020) e Colonial Pipeline (2021)",
-      "tags": ["adversarios", "nacao-estado", "cibercriminoso", "atribuicao"]
+      "tags": [
+        "adversarios",
+        "nacao-estado",
+        "cibercriminoso",
+        "atribuicao"
+      ]
     },
     {
       "id": "0.3.q11",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [0, 1],
+      "objetivos": [
+        0,
+        1
+      ],
       "enunciado": "Uma empresa de energia e uma loja virtual pedem, cada uma, um plano de segurança. Por que os planos não devem ser iguais, mesmo com orçamento parecido?",
       "alternativas": [
         "Porque os adversários plausíveis e o impacto de um incidente são diferentes, o que muda a prioridade dos controles",
@@ -362,13 +453,20 @@
         "3": "Ambos os setores precisam de segurança física e digital; a divisão proposta é falsa."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 2; NIST Cybersecurity Framework",
-      "tags": ["adversarios", "modelo-de-ameaca", "setores", "priorizacao"]
+      "tags": [
+        "adversarios",
+        "modelo-de-ameaca",
+        "setores",
+        "priorizacao"
+      ]
     },
     {
       "id": "0.3.q12",
       "tipo": "ataque_defesa",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Contra adversários oportunistas de baixa capacidade, qual conjunto de medidas entrega a maior redução de risco pelo menor custo?",
       "alternativas": [
         "Manter sistemas atualizados, não expor serviços desnecessários e exigir múltiplo fator de autenticação",
@@ -390,13 +488,21 @@
         "3": "Teste de intrusão trimestral encontraria justamente as falhas que a higiene básica já teria removido."
       },
       "fonte": "CIS Benchmarks; NIST Cybersecurity Framework (proteger)",
-      "tags": ["defesa-proporcional", "higiene-basica", "mfa", "priorizacao"]
+      "tags": [
+        "defesa-proporcional",
+        "higiene-basica",
+        "mfa",
+        "priorizacao"
+      ]
     },
     {
       "id": "0.3.q13",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [1, 3],
+      "objetivos": [
+        1,
+        3
+      ],
       "enunciado": "Por que, diante de um adversário determinado e com recursos, a métrica mais importante deixa de ser prevenção e passa a ser tempo até detectar e conter?",
       "alternativas": [
         "Porque um adversário com tempo e recurso acaba encontrando um caminho, e o dano depende de quanto tempo ele permanece sem ser notado",
@@ -418,13 +524,20 @@
         "3": "Detecção não é universalmente mais barata; a escolha depende do adversário e do contexto."
       },
       "fonte": "NIST SP 800-61; MITRE ATT&CK; caso SolarWinds (2020)",
-      "tags": ["defesa-proporcional", "deteccao", "resposta-a-incidentes", "apt"]
+      "tags": [
+        "defesa-proporcional",
+        "deteccao",
+        "resposta-a-incidentes",
+        "apt"
+      ]
     },
     {
       "id": "0.3.q14",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Uma empresa investiu em prevenção robusta e não tem nenhuma capacidade de detecção. Qual é a consequência mais provável de um comprometimento?",
       "alternativas": [
         "O incidente só será descoberto por um sinal externo, como aviso de cliente ou aparição dos dados à venda, muito depois de ter começado",
@@ -446,13 +559,19 @@
         "3": "Sem detecção, o alcance tende a aumentar com o tempo, não a diminuir."
       },
       "fonte": "NIST Cybersecurity Framework (detectar); NIST SP 800-61",
-      "tags": ["defesa-proporcional", "deteccao", "prevencao"]
+      "tags": [
+        "defesa-proporcional",
+        "deteccao",
+        "prevencao"
+      ]
     },
     {
       "id": "0.3.q15",
       "tipo": "ordenacao",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Uma empresa sem nenhuma estrutura de segurança quer construir defesa proporcional. Coloque as etapas na ordem que entrega mais redução de risco a cada passo.",
       "itens": [
         "Identificar o que a empresa tem de valioso e quais adversários teriam motivo para querer isso",
@@ -461,7 +580,13 @@
         "Preparar plano de resposta e testar a restauração de backups",
         "Desenvolver capacidade de caça a ameaças para adversários persistentes e discretos"
       ],
-      "ordem_correta": [0, 1, 2, 3, 4],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
       "dicas": [
         "Você consegue priorizar controles antes de saber o que protege e contra quem?",
         "A medida que elimina a maior parte dos ataques automatizados vem cedo.",
@@ -470,13 +595,20 @@
       "pergunta_socratica": "Antes de conferir: qual seria o erro de começar pela caça a ameaças?",
       "explicacao": "Primeiro entender o que se protege e contra quem, depois eliminar a maior parte dos ataques com higiene básica, então enxergar o que passou, em seguida saber reagir e recuperar, e só por último caçar adversários discretos. Começar pelo fim é o erro caro clássico: caça a ameaças sem registros nem higiene básica procura o adversário sofisticado enquanto o servidor desatualizado continua exposto.",
       "fonte": "NIST Cybersecurity Framework; CIS Benchmarks; teoria 0.3.t6",
-      "tags": ["defesa-proporcional", "priorizacao", "ciclo", "higiene-basica"]
+      "tags": [
+        "defesa-proporcional",
+        "priorizacao",
+        "ciclo",
+        "higiene-basica"
+      ]
     },
     {
       "id": "0.3.q16",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Uma organização identifica que seu adversário mais plausível é o crime organizado com ransomware. Qual controle protege melhor a continuidade do negócio?",
       "alternativas": [
         "Backup em cópia isolada, com teste periódico de restauração e prazo conhecido de recuperação",
@@ -498,13 +630,20 @@
         "3": "Política de não pagamento é decisão de postura e não resolve a recuperação técnica."
       },
       "fonte": "NIST Cybersecurity Framework (recuperar); caso Colonial Pipeline (2021)",
-      "tags": ["defesa-proporcional", "ransomware", "backup", "continuidade"]
+      "tags": [
+        "defesa-proporcional",
+        "ransomware",
+        "backup",
+        "continuidade"
+      ]
     },
     {
       "id": "0.3.q17",
       "tipo": "caca_erro",
       "dificuldade": 3,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "trecho": "PLANO DE SEGURANÇA — startup de 30 pessoas\nAdversário principal identificado: crime organizado com ransomware.\nControles implantados: múltiplo fator em todos os acessos, atualização automática, redução de serviços expostos.\nBackup: cópia diária no mesmo servidor de arquivos, para agilizar a restauração.\nDetecção: registros centralizados com alerta para acessos fora do horário.",
       "enunciado": "O plano é coerente com o adversário escolhido, exceto em um ponto. Qual?",
       "alternativas": [
@@ -527,13 +666,21 @@
         "3": "Alerta fora do horário pode ser ajustado; ruído de alerta não anula a capacidade de recuperação."
       },
       "fonte": "NIST Cybersecurity Framework (recuperar); teoria 0.3.t6",
-      "tags": ["defesa-proporcional", "ransomware", "backup", "caca-erro"]
+      "tags": [
+        "defesa-proporcional",
+        "ransomware",
+        "backup",
+        "caca-erro"
+      ]
     },
     {
       "id": "0.3.q18",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [1, 0],
+      "objetivos": [
+        1,
+        0
+      ],
       "enunciado": "Uma organização não governamental que atua em direitos humanos avalia seu modelo de ameaça. O que ela deveria considerar que uma loja de roupas provavelmente não precisa?",
       "alternativas": [
         "Adversários com motivação política e capacidade elevada, interessados em identificar fontes, contatos e localização de pessoas",
@@ -555,13 +702,20 @@
         "3": "Fraude em pagamentos atinge qualquer empresa que faça transferências."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 2",
-      "tags": ["modelo-de-ameaca", "defesa-proporcional", "adversarios", "privacidade"]
+      "tags": [
+        "modelo-de-ameaca",
+        "defesa-proporcional",
+        "adversarios",
+        "privacidade"
+      ]
     },
     {
       "id": "0.3.q19",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "O que significa dizer que a segurança deve elevar o custo do ataque acima do valor do alvo?",
       "alternativas": [
         "Que o objetivo prático é tornar o ataque caro ou demorado o suficiente para que o adversário desista ou seja detectado antes de concluir",
@@ -583,13 +737,19 @@
         "3": "O custo do ataque depende das defesas e do alvo específico, não do porte da empresa."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 1 e 2",
-      "tags": ["defesa-proporcional", "economia-da-seguranca", "raciocinio"]
+      "tags": [
+        "defesa-proporcional",
+        "economia-da-seguranca",
+        "raciocinio"
+      ]
     },
     {
       "id": "0.3.q20",
       "tipo": "conceitual",
       "dificuldade": 1,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "O que define um insider no contexto de segurança?",
       "alternativas": [
         "Alguém com acesso legítimo à organização, que causa dano de forma intencional ou não",
@@ -611,13 +771,19 @@
         "3": "Sem acesso a sistemas nem a informação, não há a condição que caracteriza o insider."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 2; teoria 0.3.t4",
-      "tags": ["insider", "vocabulario", "fundamentos"]
+      "tags": [
+        "insider",
+        "vocabulario",
+        "fundamentos"
+      ]
     },
     {
       "id": "0.3.q21",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Por que controles de perímetro têm pouco efeito contra o insider?",
       "alternativas": [
         "Porque o insider já está autorizado a atravessar o perímetro, e suas ações se parecem com uso normal do sistema",
@@ -639,13 +805,20 @@
         "3": "Insiders agem em horário normal com frequência, o que torna a detecção ainda mais difícil."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 2 e 6",
-      "tags": ["insider", "perimetro", "menor-privilegio", "auditoria"]
+      "tags": [
+        "insider",
+        "perimetro",
+        "menor-privilegio",
+        "auditoria"
+      ]
     },
     {
       "id": "0.3.q22",
       "tipo": "cenario",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Uma analista envia por engano uma planilha com dados de 4.000 clientes para uma lista externa de contatos. Como classificar esse incidente?",
       "alternativas": [
         "Incidente de insider não intencional, com violação de confidencialidade",
@@ -667,13 +840,20 @@
         "3": "Malicioso pressupõe intenção de causar dano, que não existe no caso."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 2; LGPD, art. 48 (comunicação de incidente)",
-      "tags": ["insider", "erro-humano", "lgpd", "confidencialidade"]
+      "tags": [
+        "insider",
+        "erro-humano",
+        "lgpd",
+        "confidencialidade"
+      ]
     },
     {
       "id": "0.3.q23",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Uma empresa quer reduzir o risco de um funcionário do financeiro desviar recursos por meio de pagamentos fraudulentos. Qual controle ataca a raiz do problema?",
       "alternativas": [
         "Separação de funções: quem cadastra o fornecedor não pode ser quem aprova o pagamento",
@@ -695,13 +875,20 @@
         "3": "Log é fundamental para detectar e comprovar, mas não impede a execução."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 6 (controle de acesso e separação de funções)",
-      "tags": ["insider", "separacao-de-funcoes", "fraude", "controle-de-acesso"]
+      "tags": [
+        "insider",
+        "separacao-de-funcoes",
+        "fraude",
+        "controle-de-acesso"
+      ]
     },
     {
       "id": "0.3.q24",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Um desenvolvedor comunicou demissão e cumprirá aviso prévio de 30 dias, com acesso total aos repositórios de código e ao ambiente de produção. Qual abordagem é a mais equilibrada?",
       "alternativas": [
         "Revisar e reduzir acessos ao necessário para as entregas restantes, ampliar o registro de auditoria e planejar a revogação completa para o desligamento",
@@ -723,19 +910,38 @@
         "3": "Monitoramento amplo e oculto tem implicações legais e não reduz o alcance do acesso."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 2 e 6; NIST Cybersecurity Framework (proteger)",
-      "tags": ["insider", "desligamento", "menor-privilegio", "gestao-de-acessos"]
+      "tags": [
+        "insider",
+        "desligamento",
+        "menor-privilegio",
+        "gestao-de-acessos"
+      ]
     },
     {
       "id": "0.3.q25",
       "tipo": "pareamento",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Ligue cada situação de insider ao controle que a trata de forma mais direta.",
       "pares": [
-        ["Envio acidental de dado sensível para fora", "Confirmação obrigatória e rotulagem em envios externos com anexo"],
-        ["Acúmulo de permissões após mudanças de área", "Revisão periódica de acessos com validação do gestor"],
-        ["Desvio financeiro por uma única pessoa", "Separação de funções entre cadastro e aprovação"],
-        ["Cópia de base de clientes antes do desligamento", "Redução de privilégios na transição e auditoria de exportações"]
+        [
+          "Envio acidental de dado sensível para fora",
+          "Confirmação obrigatória e rotulagem em envios externos com anexo"
+        ],
+        [
+          "Acúmulo de permissões após mudanças de área",
+          "Revisão periódica de acessos com validação do gestor"
+        ],
+        [
+          "Desvio financeiro por uma única pessoa",
+          "Separação de funções entre cadastro e aprovação"
+        ],
+        [
+          "Cópia de base de clientes antes do desligamento",
+          "Redução de privilégios na transição e auditoria de exportações"
+        ]
       ],
       "dicas": [
         "Pergunte de cada situação: o problema é excesso de permissão, ausência de checagem ou falta de trilha?",
@@ -745,13 +951,20 @@
       "pergunta_socratica": "Antes de conferir: em cada caso, o que precisaria ser verdade para o incidente não conseguir acontecer?",
       "explicacao": "Cada situação de insider tem um controle correspondente: envio acidental pede barreira no momento do envio; acúmulo de permissões pede revisão periódica; desvio individual pede separação de funções; cópia na saída pede redução de privilégio e auditoria. Nenhum deles é sobre perímetro, porque o acesso é legítimo — o que muda é quanto ele alcança e o que fica registrado.",
       "fonte": "Security Engineering, 3ª ed., cap. 2 e 6",
-      "tags": ["insider", "controles", "pareamento", "gestao-de-acessos"]
+      "tags": [
+        "insider",
+        "controles",
+        "pareamento",
+        "gestao-de-acessos"
+      ]
     },
     {
       "id": "0.3.q26",
       "tipo": "caca_erro",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "trecho": "POLÍTICA DE RISCO INTERNO — resumo\nObjetivo: prevenir ações maliciosas de funcionários contra a organização.\nMedidas: verificação de antecedentes na contratação, termo de confidencialidade assinado e canal de denúncia anônima.\nEscopo: aplica-se a casos de má-fé comprovada.",
       "enunciado": "O que esta política deixa de fora, e por que isso importa?",
       "alternativas": [
@@ -774,13 +987,21 @@
         "3": "Renovação de termo é formalidade contratual, sem efeito sobre o erro honesto."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 2 e 3",
-      "tags": ["insider", "erro-humano", "politica", "caca-erro"]
+      "tags": [
+        "insider",
+        "erro-humano",
+        "politica",
+        "caca-erro"
+      ]
     },
     {
       "id": "0.3.q27",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [2, 1],
+      "objetivos": [
+        2,
+        1
+      ],
       "enunciado": "Por que a defesa contra insider costuma exigir equilíbrio explícito com confiança e privacidade, mais do que a defesa contra atacantes externos?",
       "alternativas": [
         "Porque os controles recaem sobre pessoas da própria organização, e vigilância excessiva prejudica o ambiente de trabalho e esbarra em limites legais",
@@ -802,13 +1023,20 @@
         "3": "Controles técnicos como menor privilégio e separação de funções são justamente os mais eficazes nessa categoria."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 2 e 3; LGPD, art. 6º (finalidade, necessidade, transparência)",
-      "tags": ["insider", "privacidade", "lgpd", "cultura"]
+      "tags": [
+        "insider",
+        "privacidade",
+        "lgpd",
+        "cultura"
+      ]
     },
     {
       "id": "0.3.q28",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "O que a sigla APT designa, e qual das três palavras é a mais determinante para a defesa?",
       "alternativas": [
         "Ameaça persistente avançada, e a palavra determinante é persistente: o adversário permanece no ambiente por longos períodos",
@@ -820,7 +1048,7 @@
       "dicas": [
         "A sigla vem de advanced persistent threat.",
         "Pergunte qual das três palavras muda o que a defesa precisa fazer.",
-        "Se o adversário fica meses no ambiente, o que se torna crítico medir?"
+        "Das três palavras da sigla, qual muda o horizonte de tempo da defesa?"
       ],
       "pergunta_socratica": "Antes de conferir: o que muda na sua defesa se o adversário pretende ficar oito meses sem ser notado?",
       "explicacao": "APT é ameaça persistente avançada, e persistência é o que define o problema: o adversário permanece, se move devagar e evita barulho. Isso desloca a defesa da prevenção pura para detecção de comportamento discreto, segmentação e redução do tempo de permanência. Avançado descreve a organização e a disciplina do grupo, não a garantia de técnicas inéditas em cada passo.",
@@ -830,13 +1058,20 @@
         "3": "A expansão está incorreta; APT não significa ataque por proxy terceirizado."
       },
       "fonte": "MITRE ATT&CK; teoria 0.3.t5",
-      "tags": ["apt", "vocabulario", "nacao-estado", "fundamentos"]
+      "tags": [
+        "apt",
+        "vocabulario",
+        "nacao-estado",
+        "fundamentos"
+      ]
     },
     {
       "id": "0.3.q29",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Por que campanhas atribuídas a grupos APT frequentemente começam com técnicas banais, como phishing ou credencial reutilizada?",
       "alternativas": [
         "Porque o adversário usa o método mais barato que funcione, e reserva recursos sofisticados para etapas em que sejam necessários",
@@ -858,13 +1093,21 @@
         "3": "Técnicas sofisticadas costumam ser mais difíceis de detectar, não menos."
       },
       "fonte": "MITRE ATT&CK; casos SolarWinds (2020) e Stuxnet (2010)",
-      "tags": ["apt", "phishing", "higiene-basica", "economia-da-seguranca"]
+      "tags": [
+        "apt",
+        "phishing",
+        "higiene-basica",
+        "economia-da-seguranca"
+      ]
     },
     {
       "id": "0.3.q30",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [3, 1],
+      "objetivos": [
+        3,
+        1
+      ],
       "enunciado": "Uma investigação revela que um invasor esteve no ambiente por sete meses, com acessos discretos em horário comercial e pouca movimentação de dados por vez. Qual é a leitura mais provável e a lição para a defesa?",
       "alternativas": [
         "Comportamento típico de adversário persistente; a lacuna está na detecção, e a métrica a melhorar é o tempo até perceber",
@@ -886,13 +1129,21 @@
         "3": "Hacktivismo busca repercussão imediata, o oposto de permanecer oculto."
       },
       "fonte": "MITRE ATT&CK; NIST SP 800-61; caso SolarWinds (2020)",
-      "tags": ["apt", "deteccao", "exfiltracao", "resposta-a-incidentes"]
+      "tags": [
+        "apt",
+        "deteccao",
+        "exfiltracao",
+        "resposta-a-incidentes"
+      ]
     },
     {
       "id": "0.3.q31",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [3, 1],
+      "objetivos": [
+        3,
+        1
+      ],
       "enunciado": "Contra um adversário persistente que já demonstrou capacidade de entrar, qual medida reduz mais o dano potencial?",
       "alternativas": [
         "Segmentar o ambiente e registrar acessos entre segmentos, de modo que alcançar sistemas críticos exija passos detectáveis",
@@ -914,13 +1165,20 @@
         "3": "Seguro trata prejuízo financeiro posterior, sem reduzir alcance nem tempo de permanência."
       },
       "fonte": "MITRE ATT&CK; NIST SP 800-63B; NIST Cybersecurity Framework",
-      "tags": ["apt", "segmentacao", "deteccao", "defesa-em-profundidade"]
+      "tags": [
+        "apt",
+        "segmentacao",
+        "deteccao",
+        "defesa-em-profundidade"
+      ]
     },
     {
       "id": "0.3.q32",
       "tipo": "caca_erro",
       "dificuldade": 3,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "trecho": "COMUNICADO INTERNO — segurança\nFomos informados de uma campanha APT ativa no setor.\nAvaliação: como não utilizamos os produtos citados no alerta e nossos sistemas estão atualizados, concluímos que não estamos expostos a esse tipo de adversário.\nAção: nenhuma ação adicional necessária.",
       "enunciado": "Qual raciocínio está errado neste comunicado?",
       "alternativas": [
@@ -943,13 +1201,21 @@
         "3": "Consultar alertas setoriais é exatamente o que se espera de uma equipe atenta."
       },
       "fonte": "MITRE ATT&CK; NIST SP 800-61",
-      "tags": ["apt", "caca-erro", "inteligencia-de-ameacas", "raciocinio"]
+      "tags": [
+        "apt",
+        "caca-erro",
+        "inteligencia-de-ameacas",
+        "raciocinio"
+      ]
     },
     {
       "id": "0.3.q33",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [3, 0],
+      "objetivos": [
+        3,
+        0
+      ],
       "enunciado": "Por que a atribuição de autoria de um ataque é considerada um problema difícil?",
       "alternativas": [
         "Porque adversários usam infraestrutura de terceiros, ferramentas públicas e técnicas de outros grupos, o que permite confundir a análise",
@@ -960,7 +1226,7 @@
       "correta": 0,
       "dicas": [
         "Pergunte de quem é o servidor de onde o ataque partiu.",
-        "Ferramentas públicas são usadas por muitos grupos diferentes.",
+        "Se dois grupos diferentes usam a mesma ferramenta, o que a ferramenta prova sobre a autoria?",
         "Existe interesse deliberado em parecer outro grupo."
       ],
       "pergunta_socratica": "Antes de conferir: se você quisesse atacar parecendo outra pessoa, o que faria?",
@@ -971,13 +1237,21 @@
         "3": "Não há impedimento legal à investigação técnica da origem de um ataque."
       },
       "fonte": "MITRE ATT&CK; Security Engineering, 3ª ed., cap. 2",
-      "tags": ["atribuicao", "apt", "investigacao", "raciocinio"]
+      "tags": [
+        "atribuicao",
+        "apt",
+        "investigacao",
+        "raciocinio"
+      ]
     },
     {
       "id": "0.3.q34",
       "tipo": "ordenacao",
       "dificuldade": 3,
-      "objetivos": [3, 1],
+      "objetivos": [
+        3,
+        1
+      ],
       "enunciado": "Coloque as etapas de uma campanha persistente na ordem típica em que acontecem.",
       "itens": [
         "Reconhecimento: levantamento público sobre a organização, pessoas e tecnologias usadas",
@@ -986,7 +1260,13 @@
         "Movimento lateral: alcance de outras máquinas e contas com credenciais coletadas",
         "Exfiltração lenta: saída de dados em pequenos volumes, para não chamar atenção"
       ],
-      "ordem_correta": [0, 1, 2, 3, 4],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
       "dicas": [
         "Uma etapa acontece antes de qualquer contato com o ambiente da vítima.",
         "Garantir que o acesso sobreviva vem antes ou depois de se espalhar? Pense no que o adversário protege primeiro.",
@@ -995,13 +1275,23 @@
       "pergunta_socratica": "Antes de conferir: qual dessas etapas deixa rastro no ambiente da vítima e qual não deixa?",
       "explicacao": "A sequência típica é reconhecimento, acesso inicial, persistência, movimento lateral e exfiltração lenta. A persistência vem logo depois da entrada porque é o que protege o investimento do adversário: sem ela, uma reinicialização ou troca de senha desfaz todo o trabalho. Repare que o reconhecimento não deixa rastro no ambiente da vítima — o que explica por que a defesa só começa a enxergar a partir da segunda etapa.",
       "fonte": "MITRE ATT&CK (táticas); teoria 0.3.t5",
-      "tags": ["apt", "cadeia-de-ataque", "mitre", "ciclo"]
+      "tags": [
+        "apt",
+        "cadeia-de-ataque",
+        "mitre",
+        "ciclo"
+      ]
     },
     {
       "id": "0.3.q35",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [0, 1, 2, 3],
+      "objetivos": [
+        0,
+        1,
+        2,
+        3
+      ],
       "enunciado": "Você precisa apresentar à diretoria de uma indústria de médio porte quais adversários importam e o que fazer primeiro. Qual estrutura de resposta é a mais defensável?",
       "alternativas": [
         "Priorizar crime organizado e ataque oportunista, com higiene básica e capacidade de recuperação, e tratar insider por menor privilégio e separação de funções desde já",
@@ -1023,7 +1313,13 @@
         "3": "Norma sem priorização produz projeto longo, caro e frequentemente inacabado."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 2; NIST Cybersecurity Framework; teoria 0.3.t6",
-      "tags": ["modelo-de-ameaca", "defesa-proporcional", "priorizacao", "insider", "carreira"]
+      "tags": [
+        "modelo-de-ameaca",
+        "defesa-proporcional",
+        "priorizacao",
+        "insider",
+        "carreira"
+      ]
     }
   ]
 }

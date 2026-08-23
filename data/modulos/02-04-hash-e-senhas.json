@@ -8,7 +8,9 @@
     "Escolher a função correta para armazenar senha e explicar o papel do sal e do custo",
     "Aplicar hash na verificação de integridade e reconhecer os limites dessa verificação"
   ],
-  "pre_requisitos": ["2.1"],
+  "pre_requisitos": [
+    "2.1"
+  ],
   "teoria": [
     {
       "id": "2.4.t1",
@@ -64,7 +66,9 @@
       "id": "2.4.q1",
       "tipo": "conceitual",
       "dificuldade": 1,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "O que caracteriza a saída de uma função de hash criptográfica?",
       "alternativas": [
         "Tamanho fixo, independentemente do tamanho da entrada, e sempre o mesmo valor para a mesma entrada",
@@ -86,13 +90,19 @@
         "3": "Não há reversão: informação é descartada por construção."
       },
       "fonte": "Crypto 101, cap. 10; comportamento verificado em execução",
-      "tags": ["hash", "fundamentos", "propriedades"]
+      "tags": [
+        "hash",
+        "fundamentos",
+        "propriedades"
+      ]
     },
     {
       "id": "2.4.q2",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "O que é uma colisão em uma função de hash?",
       "alternativas": [
         "Duas entradas diferentes que produzem exatamente o mesmo resumo",
@@ -114,13 +124,20 @@
         "3": "Não se trata de falha de execução."
       },
       "fonte": "Crypto 101, cap. 10; colisão verificada em execução",
-      "tags": ["hash", "colisao", "vocabulario", "fundamentos"]
+      "tags": [
+        "hash",
+        "colisao",
+        "vocabulario",
+        "fundamentos"
+      ]
     },
     {
       "id": "2.4.q3",
       "tipo": "artefato",
       "dificuldade": 3,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "artefato": "$ python verificar_colisao.py\nblocos iguais?       False\nmd5 do bloco 1      : 79054025255fb1a26e4bc422aef54eb4\nmd5 do bloco 2      : 79054025255fb1a26e4bc422aef54eb4\nMESMO md5?           True\nsha256 difere?       True",
       "enunciado": "O que esta saída demonstra?",
       "alternativas": [
@@ -143,13 +160,21 @@
         "3": "A primeira linha afirma explicitamente que os blocos diferem."
       },
       "fonte": "Colisão verificada em execução com blocos conhecidos; Crypto 101, cap. 10.2",
-      "tags": ["hash", "md5", "colisao", "artefato", "obsoleto"]
+      "tags": [
+        "hash",
+        "md5",
+        "colisao",
+        "artefato",
+        "obsoleto"
+      ]
     },
     {
       "id": "2.4.q4",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "O que exatamente se perdeu quando MD5 e SHA-1 foram quebrados?",
       "alternativas": [
         "A resistência a colisão: resumo igual deixou de ser evidência de conteúdo igual",
@@ -171,13 +196,21 @@
         "3": "As funções continuam determinísticas."
       },
       "fonte": "Crypto 101, cap. 10.2 e 10.3; colisão verificada em execução",
-      "tags": ["hash", "md5", "sha1", "colisao", "obsoleto"]
+      "tags": [
+        "hash",
+        "md5",
+        "sha1",
+        "colisao",
+        "obsoleto"
+      ]
     },
     {
       "id": "2.4.q5",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Por que SHA-256 é inadequado para armazenar senhas, apesar de ser uma função de hash forte?",
       "alternativas": [
         "Porque é rápido demais: quem obtém a base testa bilhões de senhas offline a um custo desprezível",
@@ -199,13 +232,20 @@
         "3": "A função opera sobre bytes e lida com qualquer caractere."
       },
       "fonte": "OWASP Password Storage Cheat Sheet; medição verificada em execução",
-      "tags": ["hash", "senhas", "velocidade", "ataque-offline"]
+      "tags": [
+        "hash",
+        "senhas",
+        "velocidade",
+        "ataque-offline"
+      ]
     },
     {
       "id": "2.4.q6",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Qual é a primeira escolha atual para armazenar senhas?",
       "alternativas": [
         "Argon2id",
@@ -227,19 +267,38 @@
         "3": "Cifra é reversível: senha nunca deve poder ser recuperada."
       },
       "fonte": "OWASP Password Storage Cheat Sheet (consultado)",
-      "tags": ["hash", "senhas", "argon2", "escolha"]
+      "tags": [
+        "hash",
+        "senhas",
+        "argon2",
+        "escolha"
+      ]
     },
     {
       "id": "2.4.q7",
       "tipo": "pareamento",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Ligue cada função de senha à sua posição na recomendação atual.",
       "pares": [
-        ["Argon2id", "Primeira escolha, com mínimo de 19 MiB de memória, 2 iterações e paralelismo 1"],
-        ["scrypt", "Segunda opção, quando Argon2id não está disponível, com custo mínimo de 2^17"],
-        ["PBKDF2", "Indicado quando há exigência de conformidade FIPS-140, com 600.000 iterações e HMAC-SHA-256"],
-        ["bcrypt", "Apenas para sistemas legados, fator mínimo 10 e limite de 72 bytes de entrada"]
+        [
+          "Argon2id",
+          "Primeira escolha, com mínimo de 19 MiB de memória, 2 iterações e paralelismo 1"
+        ],
+        [
+          "scrypt",
+          "Segunda opção, quando Argon2id não está disponível, com custo mínimo de 2^17"
+        ],
+        [
+          "PBKDF2",
+          "Indicado quando há exigência de conformidade FIPS-140, com 600.000 iterações e HMAC-SHA-256"
+        ],
+        [
+          "bcrypt",
+          "Apenas para sistemas legados, fator mínimo 10 e limite de 72 bytes de entrada"
+        ]
       ],
       "dicas": [
         "Uma das opções é indicada por motivo regulatório, e não técnico.",
@@ -249,13 +308,21 @@
       "pergunta_socratica": "Antes de conferir: por que uma função que consome memória resiste melhor a ataque com hardware dedicado?",
       "explicacao": "A ordem reflete a recomendação atual do OWASP. Argon2id lidera porque o custo em memória dificulta ataque com hardware paralelo especializado, onde funções que só custam processamento são aceleradas com facilidade. PBKDF2 aparece por conformidade, não por ser preferível tecnicamente, e bcrypt fica para o legado — com o detalhe do limite de 72 bytes, que precisa ser imposto pela aplicação.",
       "fonte": "OWASP Password Storage Cheat Sheet (consultado)",
-      "tags": ["hash", "senhas", "pareamento", "argon2", "parametros"]
+      "tags": [
+        "hash",
+        "senhas",
+        "pareamento",
+        "argon2",
+        "parametros"
+      ]
     },
     {
       "id": "2.4.q8",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Para que serve o sal no armazenamento de senhas?",
       "alternativas": [
         "Garantir que usuários com a mesma senha tenham resumos diferentes, impedindo o reaproveitamento de esforço entre alvos",
@@ -277,13 +344,20 @@
         "3": "Hash não permite recuperação; recuperação de senha se faz por redefinição."
       },
       "fonte": "OWASP Password Storage Cheat Sheet; comportamento verificado em execução",
-      "tags": ["hash", "senhas", "sal", "tabela-precalculada"]
+      "tags": [
+        "hash",
+        "senhas",
+        "sal",
+        "tabela-precalculada"
+      ]
     },
     {
       "id": "2.4.q9",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Por que o sal não precisa ser secreto?",
       "alternativas": [
         "Porque a função dele é impedir o reaproveitamento de esforço entre alvos, e isso funciona mesmo com o sal conhecido",
@@ -305,13 +379,20 @@
         "3": "Um segredo adicional é possível — é a pimenta — e não impede a verificação."
       },
       "fonte": "OWASP Password Storage Cheat Sheet",
-      "tags": ["hash", "senhas", "sal", "conceito"]
+      "tags": [
+        "hash",
+        "senhas",
+        "sal",
+        "conceito"
+      ]
     },
     {
       "id": "2.4.q10",
       "tipo": "caca_erro",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "trecho": "import hashlib\n\nSAL = \"s4lt0-d4-4plic4c40\"   # sal fixo da aplicacao\n\ndef guardar_senha(senha: str) -> str:\n    return hashlib.sha256((SAL + senha).encode()).hexdigest()\n\ndef conferir(senha: str, guardado: str) -> bool:\n    return guardar_senha(senha) == guardado",
       "enunciado": "Quantos problemas de segurança este código tem?",
       "alternativas": [
@@ -334,13 +415,21 @@
         "3": "Sal fixo não individualiza, e SHA-256 é inadequado para senha."
       },
       "fonte": "OWASP Password Storage Cheat Sheet; comportamento verificado em execução",
-      "tags": ["hash", "senhas", "caca-erro", "sal", "canal-lateral"]
+      "tags": [
+        "hash",
+        "senhas",
+        "caca-erro",
+        "sal",
+        "canal-lateral"
+      ]
     },
     {
       "id": "2.4.q11",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "O que caracteriza um ataque offline contra uma base de senhas?",
       "alternativas": [
         "O atacante tem os resumos em mãos e testa candidatos na própria máquina, sem limite de tentativas e sem gerar registro no servidor",
@@ -362,13 +451,20 @@
         "3": "Enganar o usuário é engenharia social."
       },
       "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
-      "tags": ["hash", "senhas", "ataque-offline", "modelo-de-ameaca"]
+      "tags": [
+        "hash",
+        "senhas",
+        "ataque-offline",
+        "modelo-de-ameaca"
+      ]
     },
     {
       "id": "2.4.q12",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Por que Argon2id é preferido a PBKDF2 quando não há exigência de conformidade?",
       "alternativas": [
         "Porque o custo em memória dificulta ataques com hardware paralelo especializado, que aceleram com facilidade funções que só custam processamento",
@@ -390,13 +486,21 @@
         "3": "Nenhuma função de senha é reversível."
       },
       "fonte": "OWASP Password Storage Cheat Sheet (consultado)",
-      "tags": ["hash", "senhas", "argon2", "pbkdf2", "hardware"]
+      "tags": [
+        "hash",
+        "senhas",
+        "argon2",
+        "pbkdf2",
+        "hardware"
+      ]
     },
     {
       "id": "2.4.q13",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Um site publica o SHA-256 de um instalador ao lado do link de download. Contra o que essa conferência protege?",
       "alternativas": [
         "Contra corrupção no download e contra troca do arquivo no caminho — não contra comprometimento do próprio site",
@@ -418,13 +522,20 @@
         "3": "Requisitos de sistema não têm relação com verificação de integridade."
       },
       "fonte": "Crypto 101, cap. 10 e 12; comportamento verificado em execução",
-      "tags": ["hash", "integridade", "cadeia-de-fornecimento", "limites"]
+      "tags": [
+        "hash",
+        "integridade",
+        "cadeia-de-fornecimento",
+        "limites"
+      ]
     },
     {
       "id": "2.4.q14",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Por que a comparação de um resumo calculado com um valor esperado deve usar comparação em tempo constante?",
       "alternativas": [
         "Porque a comparação comum retorna na primeira diferença, e o tempo revela quantos caracteres iniciais estão corretos",
@@ -446,13 +557,20 @@
         "3": "Sensibilidade a maiúsculas é comportamento das duas."
       },
       "fonte": "Comportamento verificado em execução; teoria 2.3.t4",
-      "tags": ["hash", "canal-lateral", "tempo", "comparacao"]
+      "tags": [
+        "hash",
+        "canal-lateral",
+        "tempo",
+        "comparacao"
+      ]
     },
     {
       "id": "2.4.q15",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Uma base de senhas armazenadas com SHA-256 sem sal vazou. Qual é a avaliação e a resposta?",
       "alternativas": [
         "Considerar todas as senhas comprometidas, forçar redefinição, e migrar o armazenamento para Argon2id com sal por usuário",
@@ -474,13 +592,21 @@
         "3": "Trocar o algoritmo não recalcula resumos já armazenados nem corrige a ausência de sal."
       },
       "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
-      "tags": ["hash", "senhas", "vazamento", "incidente", "migracao"]
+      "tags": [
+        "hash",
+        "senhas",
+        "vazamento",
+        "incidente",
+        "migracao"
+      ]
     },
     {
       "id": "2.4.q16",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "O que é a pimenta no armazenamento de senhas, e o que ela acrescenta?",
       "alternativas": [
         "Um segredo adicional, igual para toda a base e guardado fora do banco; protege no caso de o banco vazar sem o segredo",
@@ -502,13 +628,22 @@
         "3": "Ela não substitui o sal; os dois têm funções distintas."
       },
       "fonte": "OWASP Password Storage Cheat Sheet",
-      "tags": ["hash", "senhas", "pimenta", "sal", "defesa-em-profundidade"]
+      "tags": [
+        "hash",
+        "senhas",
+        "pimenta",
+        "sal",
+        "defesa-em-profundidade"
+      ]
     },
     {
       "id": "2.4.q17",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0, 3],
+      "objetivos": [
+        0,
+        3
+      ],
       "enunciado": "Qual é a diferença entre hash e HMAC na verificação de integridade?",
       "alternativas": [
         "O hash detecta corrupção acidental; o HMAC usa chave secreta e detecta também alteração deliberada",
@@ -530,13 +665,21 @@
         "3": "Ambos operam sobre qualquer sequência de bytes."
       },
       "fonte": "Crypto 101, cap. 11.4; comportamento verificado em execução",
-      "tags": ["hash", "hmac", "integridade", "modelo-de-ameaca"]
+      "tags": [
+        "hash",
+        "hmac",
+        "integridade",
+        "modelo-de-ameaca"
+      ]
     },
     {
       "id": "2.4.q18",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [1, 3],
+      "objetivos": [
+        1,
+        3
+      ],
       "enunciado": "Um sistema legado usa MD5 para verificar a integridade de arquivos recebidos de parceiros externos. Qual é o risco?",
       "alternativas": [
         "Um parceiro comprometido pode entregar um arquivo diferente com o mesmo resumo, e a verificação passa",
@@ -558,13 +701,21 @@
         "3": "Colisão acidental é improvável; a deliberada é o risco."
       },
       "fonte": "Crypto 101, cap. 10.2; colisão verificada em execução",
-      "tags": ["hash", "md5", "integridade", "terceiros", "migracao"]
+      "tags": [
+        "hash",
+        "md5",
+        "integridade",
+        "terceiros",
+        "migracao"
+      ]
     },
     {
       "id": "2.4.q19",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Por que os parâmetros recomendados para funções de senha aumentam ao longo dos anos?",
       "alternativas": [
         "Porque o hardware fica mais rápido, e o custo por tentativa precisa acompanhar para manter o ataque inviável",
@@ -586,13 +737,21 @@
         "3": "Não há exigência normativa de revisão anual dos valores."
       },
       "fonte": "OWASP Password Storage Cheat Sheet",
-      "tags": ["hash", "senhas", "parametros", "calibracao"]
+      "tags": [
+        "hash",
+        "senhas",
+        "parametros",
+        "calibracao"
+      ]
     },
     {
       "id": "2.4.q20",
       "tipo": "caca_erro",
       "dificuldade": 3,
-      "objetivos": [2, 3],
+      "objetivos": [
+        2,
+        3
+      ],
       "trecho": "POLÍTICA DE ARMAZENAMENTO DE CREDENCIAIS — v2\n1. Senhas são armazenadas com hash SHA-256 e sal único por usuário.\n2. O sal é gerado com o gerador aleatório padrão da linguagem.\n3. Em caso de esquecimento, a senha original é recuperada e enviada por e-mail.\n4. A comparação do hash é feita com o operador de igualdade da linguagem.",
       "enunciado": "Qual item revela que a política não está apenas desatualizada, mas descreve algo tecnicamente impossível?",
       "alternativas": [
@@ -615,13 +774,21 @@
         "3": "O operador funciona; o problema é o vazamento de tempo."
       },
       "fonte": "OWASP Password Storage Cheat Sheet; Crypto 101, cap. 10",
-      "tags": ["hash", "senhas", "caca-erro", "politica", "recuperacao"]
+      "tags": [
+        "hash",
+        "senhas",
+        "caca-erro",
+        "politica",
+        "recuperacao"
+      ]
     },
     {
       "id": "2.4.q21",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "O que deve acontecer quando um usuário esquece a senha, em um sistema que armazena senhas corretamente?",
       "alternativas": [
         "Um processo de redefinição com token temporário e de uso único, porque a senha original não pode ser recuperada",
@@ -633,7 +800,7 @@
       "dicas": [
         "Hash tem volta?",
         "Se o sistema envia a senha original, o que isso revela sobre o armazenamento?",
-        "O token de redefinição precisa vir de qual fonte de aleatoriedade?"
+        "Se a senha original não pode ser recuperada, o que o sistema pode oferecer no lugar dela?"
       ],
       "pergunta_socratica": "Antes de conferir: um sistema que consegue te mostrar a sua senha guarda o quê, exatamente?",
       "explicacao": "Com armazenamento correto a senha não existe em lugar nenhum de forma recuperável, então só resta a redefinição — com token aleatório de fonte criptográfica, uso único e prazo curto. Qualquer sistema que devolva a senha original está guardando algo reversível, e isso é um achado por si só: em um vazamento, todas as senhas saem em claro.",
@@ -643,13 +810,20 @@
         "3": "Não é possível derivar a senha a partir do resumo."
       },
       "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
-      "tags": ["hash", "senhas", "recuperacao", "tokens"]
+      "tags": [
+        "hash",
+        "senhas",
+        "recuperacao",
+        "tokens"
+      ]
     },
     {
       "id": "2.4.q22",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [0],
+      "objetivos": [
+        0
+      ],
       "enunciado": "Qual é a diferença entre resistência de segunda pré-imagem e resistência a colisão?",
       "alternativas": [
         "Na segunda pré-imagem a entrada é dada e o atacante precisa achar outra com o mesmo resumo; na colisão ele pode escolher as duas livremente",
@@ -671,13 +845,20 @@
         "3": "Ambas dependem do tamanho da saída e da qualidade da função."
       },
       "fonte": "Crypto 101, cap. 10",
-      "tags": ["hash", "propriedades", "colisao", "conceito"]
+      "tags": [
+        "hash",
+        "propriedades",
+        "colisao",
+        "conceito"
+      ]
     },
     {
       "id": "2.4.q23",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Uma equipe precisa migrar senhas de SHA-256 sem sal para Argon2id sem forçar todos os usuários a redefinir imediatamente. Qual abordagem funciona?",
       "alternativas": [
         "Recalcular com Argon2id na próxima autenticação bem-sucedida, quando a senha em claro está disponível, marcando quais registros já foram migrados",
@@ -699,13 +880,22 @@
         "3": "Resumos não são reversíveis."
       },
       "fonte": "OWASP Password Storage Cheat Sheet",
-      "tags": ["hash", "senhas", "migracao", "argon2", "legado"]
+      "tags": [
+        "hash",
+        "senhas",
+        "migracao",
+        "argon2",
+        "legado"
+      ]
     },
     {
       "id": "2.4.q24",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1, 2],
+      "objetivos": [
+        1,
+        2
+      ],
       "enunciado": "Em qual situação MD5 ainda pode ser usado sem problema de segurança?",
       "alternativas": [
         "Como verificação de corrupção acidental, onde não há adversário escolhendo o conteúdo — ainda assim, sem razão para preferi-lo a SHA-256",
@@ -715,7 +905,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "A pergunta é se existe adversário escolhendo o conteúdo.",
+        "Separe os quatro usos em dois grupos: naqueles em que alguém ganha algo enganando a verificação, e nos outros.",
         "Três das opções envolvem alguém interessado em enganar a verificação.",
         "Mesmo no caso permitido, há motivo para preferir MD5?"
       ],
@@ -727,13 +917,20 @@
         "3": "Terceiro na internet é adversário em potencial."
       },
       "fonte": "Crypto 101, cap. 10.2; colisão verificada em execução",
-      "tags": ["hash", "md5", "modelo-de-ameaca", "obsoleto"]
+      "tags": [
+        "hash",
+        "md5",
+        "modelo-de-ameaca",
+        "obsoleto"
+      ]
     },
     {
       "id": "2.4.q25",
       "tipo": "ordenacao",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Coloque em ordem as etapas de verificar uma senha em um sistema bem construído.",
       "itens": [
         "Localizar o registro do usuário e recuperar o resumo armazenado, que já embute o sal e os parâmetros usados",
@@ -742,7 +939,13 @@
         "Se os parâmetros armazenados estiverem defasados, recalcular e atualizar o registro",
         "Registrar a tentativa e aplicar o controle de taxa antes de responder"
       ],
-      "ordem_correta": [0, 1, 2, 3, 4],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
       "dicas": [
         "O sal precisa ser conhecido antes do cálculo.",
         "A atualização de parâmetros só faz sentido depois de a senha ser confirmada.",
@@ -751,13 +954,21 @@
       "pergunta_socratica": "Antes de conferir: por que a atualização dos parâmetros só pode acontecer depois da comparação?",
       "explicacao": "O resumo armazenado carrega sal e parâmetros, então recuperá-lo vem primeiro; em seguida recalcula-se com exatamente os mesmos valores e compara-se em tempo constante. A atualização de parâmetros defasados só é possível depois da confirmação, porque é o único instante em que a senha em claro está disponível — é assim que uma base migra sem forçar redefinição. Registro e controle de taxa fecham a operação, e são o que contém o ataque online.",
       "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
-      "tags": ["hash", "senhas", "verificacao", "ciclo", "migracao"]
+      "tags": [
+        "hash",
+        "senhas",
+        "verificacao",
+        "ciclo",
+        "migracao"
+      ]
     },
     {
       "id": "2.4.q26",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [3],
+      "objetivos": [
+        3
+      ],
       "enunciado": "Ao calcular o hash de um arquivo grande, por que ler em blocos em vez de carregar tudo na memória?",
       "alternativas": [
         "Porque o consumo de memória fica constante, e o resumo produzido é exatamente o mesmo",
@@ -779,13 +990,20 @@
         "3": "Não se somam resumos parciais; o estado é atualizado incrementalmente."
       },
       "fonte": "Comportamento verificado em execução; Crypto 101, cap. 10",
-      "tags": ["hash", "integridade", "arquivos", "python"]
+      "tags": [
+        "hash",
+        "integridade",
+        "arquivos",
+        "python"
+      ]
     },
     {
       "id": "2.4.q27",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Um sistema aplica bcrypt em senhas e não trata o limite de tamanho da função. Qual é a consequência?",
       "alternativas": [
         "Senhas longas são truncadas em 72 bytes: tudo além disso é ignorado, e senhas com o mesmo prefixo passam a ser equivalentes",
@@ -807,13 +1025,22 @@
         "3": "O limite existe e é de 72 bytes."
       },
       "fonte": "OWASP Password Storage Cheat Sheet (consultado)",
-      "tags": ["hash", "senhas", "bcrypt", "limite", "armadilha"]
+      "tags": [
+        "hash",
+        "senhas",
+        "bcrypt",
+        "limite",
+        "armadilha"
+      ]
     },
     {
       "id": "2.4.q28",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [0, 2],
+      "objetivos": [
+        0,
+        2
+      ],
       "enunciado": "Por que armazenar senhas cifradas, em vez de resumidas, é considerado errado?",
       "alternativas": [
         "Porque cifra tem volta: quem obtiver a chave recupera todas as senhas em claro, e o sistema não precisa dessa capacidade",
@@ -835,13 +1062,21 @@
         "3": "Espaço em disco é irrelevante nessa decisão."
       },
       "fonte": "OWASP Password Storage Cheat Sheet; Crypto 101, cap. 10.6",
-      "tags": ["hash", "senhas", "cifra", "irreversibilidade"]
+      "tags": [
+        "hash",
+        "senhas",
+        "cifra",
+        "irreversibilidade"
+      ]
     },
     {
       "id": "2.4.q29",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [3, 1],
+      "objetivos": [
+        3,
+        1
+      ],
       "enunciado": "Uma equipe monitora integridade de arquivos de configuração comparando resumos SHA-256 guardados em um arquivo no mesmo servidor. Qual é a limitação?",
       "alternativas": [
         "Quem obtiver privilégio no servidor altera o arquivo e o resumo de referência juntos; a referência precisa ficar fora do alcance de quem foi comprometido",
@@ -863,13 +1098,20 @@
         "3": "Mudança legítima é tratada por atualização controlada da referência."
       },
       "fonte": "Crypto 101, cap. 10; teoria 1.1.t6",
-      "tags": ["hash", "integridade", "monitoramento", "centralizacao"]
+      "tags": [
+        "hash",
+        "integridade",
+        "monitoramento",
+        "centralizacao"
+      ]
     },
     {
       "id": "2.4.q30",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [2],
+      "objetivos": [
+        2
+      ],
       "enunciado": "Por que o controle de taxa e o bloqueio de conta não substituem o armazenamento adequado de senhas?",
       "alternativas": [
         "Porque eles só atuam no ataque online; se a base vazar, o atacante testa candidatos offline sem passar pelo servidor",
@@ -891,13 +1133,21 @@
         "3": "Essas medidas funcionam independentemente de múltiplo fator."
       },
       "fonte": "NIST SP 800-63B; OWASP Password Storage Cheat Sheet",
-      "tags": ["hash", "senhas", "controle-de-taxa", "defesa-em-profundidade"]
+      "tags": [
+        "hash",
+        "senhas",
+        "controle-de-taxa",
+        "defesa-em-profundidade"
+      ]
     },
     {
       "id": "2.4.q31",
       "tipo": "conceitual",
       "dificuldade": 3,
-      "objetivos": [0, 1],
+      "objetivos": [
+        0,
+        1
+      ],
       "enunciado": "Por que a resistência a colisão é a propriedade que mais importa em assinatura digital?",
       "alternativas": [
         "Porque a assinatura é calculada sobre o resumo: se o atacante produz dois documentos com o mesmo resumo, a assinatura de um vale para o outro",
@@ -919,13 +1169,22 @@
         "3": "Resumos têm tamanho fixo."
       },
       "fonte": "Crypto 101, cap. 10 e 12",
-      "tags": ["hash", "colisao", "assinatura", "md5", "sha1"]
+      "tags": [
+        "hash",
+        "colisao",
+        "assinatura",
+        "md5",
+        "sha1"
+      ]
     },
     {
       "id": "2.4.q32",
       "tipo": "ataque_defesa",
       "dificuldade": 3,
-      "objetivos": [2, 3],
+      "objetivos": [
+        2,
+        3
+      ],
       "enunciado": "Uma aplicação nova precisa autenticar usuários por senha. Qual conjunto de decisões é o mais defensável?",
       "alternativas": [
         "Argon2id com os parâmetros mínimos recomendados, sal gerado pela própria biblioteca, verificação em tempo constante, controle de taxa e múltiplo fator disponível",
@@ -947,13 +1206,21 @@
         "3": "Senha nunca deve ser recuperável; cifra tem volta."
       },
       "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
-      "tags": ["hash", "senhas", "argon2", "projeto", "mfa"]
+      "tags": [
+        "hash",
+        "senhas",
+        "argon2",
+        "projeto",
+        "mfa"
+      ]
     },
     {
       "id": "2.4.q33",
       "tipo": "conceitual",
       "dificuldade": 2,
-      "objetivos": [1],
+      "objetivos": [
+        1
+      ],
       "enunciado": "Qual função de hash é adequada para verificação de integridade em projeto novo?",
       "alternativas": [
         "SHA-256 ou uma função mais forte da mesma família",
@@ -975,13 +1242,21 @@
         "3": "CRC32 não é criptográfico e é trivial de forjar."
       },
       "fonte": "Crypto 101, cap. 10.3 e 10.4",
-      "tags": ["hash", "sha256", "integridade", "escolha"]
+      "tags": [
+        "hash",
+        "sha256",
+        "integridade",
+        "escolha"
+      ]
     },
     {
       "id": "2.4.q34",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [2, 3],
+      "objetivos": [
+        2,
+        3
+      ],
       "enunciado": "Ao revisar um sistema de autenticação, quais quatro perguntas sobre armazenamento de senha rendem mais?",
       "alternativas": [
         "Qual função é usada e com quais parâmetros; o sal é único por usuário; a comparação é em tempo constante; e existe caminho que recupere a senha original",
@@ -1003,13 +1278,23 @@
         "3": "São boas práticas de engenharia, sem cobrir o desenho de senha."
       },
       "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
-      "tags": ["hash", "senhas", "revisao", "auditoria"]
+      "tags": [
+        "hash",
+        "senhas",
+        "revisao",
+        "auditoria"
+      ]
     },
     {
       "id": "2.4.q35",
       "tipo": "cenario",
       "dificuldade": 3,
-      "objetivos": [0, 1, 2, 3],
+      "objetivos": [
+        0,
+        1,
+        2,
+        3
+      ],
       "enunciado": "Um sistema usa MD5 sem sal para senhas, e a equipe tem orçamento para uma única mudança neste trimestre. O que priorizar?",
       "alternativas": [
         "Migrar o armazenamento para Argon2id com sal por usuário, recalculando na próxima autenticação — é o que protege quando a base vazar",
@@ -1031,7 +1316,13 @@
         "3": "Controle de taxa não atua no ataque offline."
       },
       "fonte": "OWASP Password Storage Cheat Sheet; NIST SP 800-63B",
-      "tags": ["hash", "senhas", "priorizacao", "migracao", "carreira"]
+      "tags": [
+        "hash",
+        "senhas",
+        "priorizacao",
+        "migracao",
+        "carreira"
+      ]
     }
   ]
 }

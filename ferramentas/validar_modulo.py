@@ -156,12 +156,25 @@ LIMIAR_DICA, PALAVRAS_DICA = 0.30, 2
 LIMIAR_ENUNCIADO, PALAVRAS_ENUNCIADO = 0.35, 3
 LIMIAR_ARTEFATO, PALAVRAS_ARTEFATO = 0.35, 3
 LIMIAR_TRECHO = 0.70  # caça ao erro: o gabarito cita o trecho por construção
-LIMIAR_DISTRATOR = 0.60
+LIMIAR_DISTRATOR = 0.72
 LIMIAR_ENUNCIADO_IGUAL = 0.40  # só acusa quando as duas questões perguntam o mesmo
+LIMIAR_GABARITO_IGUAL = 0.55   # duas questões ensinando a mesma coisa, aqui ou em outro módulo
+
+
+ACEITOS = json.loads((RAIZ / "ferramentas" / "avisos_aceitos.json").read_text(encoding="utf-8"))
+
+
+def _aceito(qid, rotulo):
+    """Caso já analisado e aceito como legítimo, com justificativa no arquivo."""
+    return rotulo in ACEITOS.get(qid, {})
 
 
 def achar_gabarito_entregue(dados, avisos):
-    """As quatro regras de gabarito entregue. Só produz aviso, nunca falha."""
+    """As quatro regras de gabarito entregue. Só produz aviso, nunca falha.
+
+    Caso listado em ferramentas/avisos_aceitos.json não vira aviso: ele já foi
+    lido, decidido e justificado ali.
+    """
     questoes = dados["questoes"]
 
     for questao in questoes:
@@ -174,7 +187,7 @@ def achar_gabarito_entregue(dados, avisos):
         # 1. dica que reescreve a alternativa correta
         for n, dica in enumerate(questao["dicas"], start=1):
             medida = _eco(dica, questao, LIMIAR_DICA, PALAVRAS_DICA)
-            if medida:
+            if medida and not _aceito(ctx, f"dica {n}"):
                 avisos.append(
                     f"{ctx}: a dica {n} traz {medida[0]:.0%} das palavras que só a alternativa "
                     f"correta tem ({', '.join(medida[1])}) — a dica deve estreitar o "
@@ -189,7 +202,7 @@ def achar_gabarito_entregue(dados, avisos):
                 continue
             limiar = LIMIAR_TRECHO if questao["tipo"] == "caca_erro" else LIMIAR_ARTEFATO
             medida = _eco(texto, questao, limiar, PALAVRAS_ARTEFATO)
-            if medida:
+            if medida and not _aceito(ctx, campo):
                 avisos.append(
                     f"{ctx}: o campo '{campo}' traz {medida[0]:.0%} das palavras que só a "
                     f"alternativa correta tem ({', '.join(medida[1])}) — o aluno lê a "
@@ -198,11 +211,38 @@ def achar_gabarito_entregue(dados, avisos):
         # 3. enunciado que afirma a própria resposta
         medida = _eco(questao["enunciado"], questao, LIMIAR_ENUNCIADO,
                       PALAVRAS_ENUNCIADO, descontar_enunciado=False)
-        if medida:
+        if medida and not _aceito(ctx, "enunciado"):
             avisos.append(
                 f"{ctx}: o enunciado traz {medida[0]:.0%} das palavras que só a alternativa "
                 f"correta tem ({', '.join(medida[1])}) — confira se ele não afirma a "
                 f"resposta antes de perguntar")
+
+    # 5. duas questões com a mesma resposta certa, aqui ou em outro módulo.
+    # Foi a duplicação que a revisão do nível 3 mais encontrou à mão, e a regra 4
+    # não a alcança: ela nasce de paráfrase, não de cópia.
+    publicadas = []
+    pasta = RAIZ / "data" / "modulos"
+    for caminho in sorted(pasta.glob("*.json")):
+        outro = json.loads(caminho.read_text(encoding="utf-8"))
+        if outro["id"] == dados["id"]:
+            continue
+        for x in outro["questoes"]:
+            if x.get("alternativas"):
+                publicadas.append((x["id"], x["alternativas"][x["correta"]]))
+    for questao in questoes:
+        if not questao.get("alternativas"):
+            continue
+        certa = questao["alternativas"][questao["correta"]]
+        vizinhas = publicadas + [(x["id"], x["alternativas"][x["correta"]])
+                                 for x in questoes
+                                 if x.get("alternativas") and x["id"] < questao["id"]]
+        for outro_id, outra_certa in vizinhas:
+            mutua = min(_cobertura(certa, outra_certa), _cobertura(outra_certa, certa))
+            if (mutua >= LIMIAR_GABARITO_IGUAL and questao["id"] < outro_id
+                    and not _aceito(questao["id"], f"gabarito de {outro_id}")):
+                avisos.append(
+                    f"{questao['id']}: a resposta certa divide {mutua:.0%} do vocabulário com a de "
+                    f"{outro_id} — duas questões ensinando a mesma coisa")
 
     # 4. distrator que é o gabarito de outra questão
     corretas = {q["id"]: q for q in questoes if q.get("alternativas")}
@@ -219,7 +259,7 @@ def achar_gabarito_entregue(dados, avisos):
                 outra_correta = proximo["alternativas"][proximo["correta"]]
                 mutua = min(_cobertura(distrator, outra_correta),
                             _cobertura(outra_correta, distrator))
-                if mutua >= LIMIAR_DISTRATOR:
+                if mutua >= LIMIAR_DISTRATOR and not _aceito(questao["id"], f"alternativa {i + 1}"):
                     # questões que definem termos vizinhos usam as definições umas
                     # das outras como distrator de propósito; o sinal só interessa
                     # quando as duas perguntam a mesma coisa

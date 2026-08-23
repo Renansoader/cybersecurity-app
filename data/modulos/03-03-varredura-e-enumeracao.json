@@ -374,7 +374,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "\"Mais comuns\" e \"primeiras\" não são a mesma coisa.",
+        "A varredura padrão examina um conjunto escolhido. Escolhido por qual critério?",
         "Uma varredura padrão e uma varredura de 1 a 1000 não devolvem o mesmo conjunto de portas.",
         "Há portas altas nesse conjunto, como as de proxy e de banco de dados."
       ],

@@ -1,0 +1,29 @@
+{
+  "_comentario": "Avisos das quatro regras de gabarito entregue que foram analisados um a um e ACEITOS como legítimos. Cada entrada precisa de justificativa: o validador deixa de reportar o caso, e esta é a única documentação de que ele foi visto e decidido. Chave = id da questão; dentro, o rótulo da regra (dica N, artefato, trecho, enunciado) e o porquê. Revisão desta lista em 22/08/2026.",
+
+  "_criterio": "CORRIGIR quando a dica AFIRMA uma proposição que é a alternativa correta ou parte dela. ACEITAR quando a dica apenas dirige a atenção — pergunta, contraste, ordem de leitura — sem afirmar a resposta; ou quando a sobreposição é inerente ao tipo de questão: cenário e artefato precisam conter os fatos que a alternativa correta classifica, e caça ao erro precisa conter o item defeituoso que a correta aponta.",
+
+  "0.1.q30": { "dica 1": "Pergunta por que o caminho inseguro foi escolhido. Dirige a atenção ao eixo do esforço sem afirmar qual é a correção." },
+  "0.2.q13": { "enunciado": "Cenário de classificação: o enunciado descreve o incidente e a alternativa correta nomeia os domínios envolvidos. Retirar os fatos do enunciado destruiria a questão." },
+  "0.3.q17": { "dica 1": "Pergunta o que o ransomware alcança a partir do sistema comprometido. É o caminho do raciocínio, e não o item defeituoso." },
+  "0.4.q26": { "dica 2": "Apresenta a dicotomia — ordem judicial ou critério da lei — sem dizer qual vale. O aluno ainda precisa saber o que a LGPD exige." },
+  "1.1.q24": { "dica 2": "Pergunta onde software legítimo costuma ser instalado. A resposta trata do inverso: por que /tmp não é esse lugar." },
+  "1.5.q7": { "dica 2": "Pergunta sobre o que o certificado prova controle. Não afirma que é o domínio." },
+  "1.5.q32": { "dica 2": "Pergunta o que alguém faria de posse da chave privada da autoridade. Não afirma que o cuidado central passa a ser protegê-la." },
+  "1.6.q16": { "dica 1": "Propõe o experimento — fixar a semente e gerar duas vezes — sem dizer o resultado nem a conclusão de segurança." },
+  "2.2.q17": { "trecho": "Caça ao erro: o trecho é a proposta defeituosa, e a alternativa correta explica por que ela não dá sigilo. A sobreposição de vocabulário é o próprio exercício." },
+  "2.2.q26": { "dica 2": "Pergunta que garantia externa existe sobre o vínculo entre chave e nome. Não afirma que não há nenhuma." },
+  "2.2.q32": { "dica 1": "Enuncia o problema — o aplicativo aceita qualquer autoridade do sistema —, e a alternativa correta é a correção, que a dica não nomeia." },
+  "2.2.q33": { "dica 2": "Pergunta o que sustenta a dificuldade de negar. A resposta é a posse exclusiva da chave privada, que a dica não diz." },
+  "2.3.q27": { "dica 2": "Pergunta o que acontece ao combinar dois textos cifrados com o mesmo fluxo. O mecanismo da resposta é justamente o que fica em aberto." },
+  "2.3.q29": { "dica 2": "É o aforismo posto como pergunta. Não afirma que ninguém tentou atacar o esquema." },
+  "2.4.q20": { "dica 2": "Pergunta se é possível recuperar a senha a partir do resumo. A questão é qual item da política se contradiz, que a dica não aponta." },
+  "2.5.q25": { "dica 3": "Pergunta qual artefato do conjunto tem o cliente como audiência. Não diz que o token de acesso é o que falha." },
+  "2.6.q18": { "dica 1": "Manda comparar o que a função exige com o que a conta alcança. Não nomeia o acúmulo de privilégio nem a revisão periódica." },
+  "2.6.q20": { "trecho": "Caça ao erro: o item 1 do trecho é o defeito, e a alternativa correta o cita para apontá-lo. Inerente ao tipo." },
+  "2.7.q4": { "dica 2": "Contrapõe as duas regras de leitura de domínio e pergunta qual é mais forte. É o exercício, não a resposta." },
+  "2.7.q16": { "artefato": "Leitura de artefato: os cabeçalhos precisam estar completos para o aluno comparar os domínios. Retirar a linha do DMARC eliminaria a questão." },
+  "2.7.q17": { "enunciado": "O enunciado traz o dado do cadastro porque a comparação com o remetente é o exercício. Sem ele não há o que comparar." },
+  "3.1.q34": { "dica 1": "Pergunta o que voltaria a acontecer se apenas a falha observada fosse corrigida. Conduz ao raciocínio sem nomear a distinção." },
+  "3.3.q7": { "enunciado": "O enunciado pergunta o que a linha passa a afirmar; a alternativa correta responde. Reformular para evitar a coincidência tornaria a pergunta vaga."}
+}

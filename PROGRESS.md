@@ -284,10 +284,10 @@ real de requisição.
   As quatro regras do validador pegam a versão literal dele; a paráfrase, que é a
   maioria, continua dependendo de leitura. No 4.1 o defeito apareceu mesmo com a
   regra escrita no encargo do autor.
-- **46 avisos das quatro regras de gabarito entregue nos módulos publicados**,
-  levantados em 22/08/2026 e ainda não tratados: 39 de dica, 3 de artefato, 3 de
-  enunciado e 1 de distrator. Amostragem manual indicou que a maioria é vazamento
-  real em conteúdo dos níveis 0 a 2, que nunca passou por essa auditoria.
+- **Sete pares de questões que ensinam a mesma coisa**, achados pela regra 5 em
+  22/08/2026 e ainda não tratados. Os mais fortes: `2.3.q31` × `2.4.q14` (90% do
+  vocabulário em comum), `2.3.q9` × `2.4.q14` (80%) e `1.2.q6` × `1.6.q6` (77%).
+  Decidir, em cada par, qual questão fica e para onde a outra é repontada.
 - **O relatório de procedência do 3.3 nunca foi escrito** — o processo foi
   interrompido antes disso.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
