@@ -526,7 +526,7 @@
       "correta": 0,
       "dicas": [
         "Dois nomes muito parecidos existem: um fala do filtro, o outro fala da rede em que você está.",
-        "A pergunta pede dois campos, uma linha por perfil. Verifique, em cada opção, o formato da saída que ela devolve.",
+        "Repare no que a pergunta exige da saída: uma linha por contexto de rede, com o estado e a ação lado a lado. Confira o que cada leitura devolve.",
         "Cadastro de regra tem quantas linhas? É isso que responde a pergunta feita?"
       ],
       "pergunta_socratica": "Antes de conferir: a categoria da rede em que a máquina está ligada é a mesma coisa que a política do filtro?",
