@@ -3,7 +3,7 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-23 · commit `1958f9e` · 2.644 testes passando
+Última atualização: 2026-08-23 · commit `53da38a` · 2.644 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -18,7 +18,7 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 | Blocos de teoria | 140 |
 | Tags distintas | 735 |
 | Testes automatizados | 2.644 |
-| Linhas de código Python | ~3.260 |
+| Linhas de código Python | ~2.280 no app · ~3.830 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
 **nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 70 (2 de 8 módulos).
@@ -299,8 +299,6 @@ real de requisição.
   encargo do autor e com o teste operacional descrito. Nenhuma delas dispara no
   validador, porque não repetem vocabulário. Vale considerar, no próximo módulo,
   proibir explicitamente dica que comece com "Pergunte".
-- **O relatório de procedência do 3.3 nunca foi escrito** — o processo foi
-  interrompido antes disso.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
   existir `.venv` na pasta, o atalho continuará usando o Python global; o
   `run.bat` é quem prefere a `.venv`.
@@ -385,14 +383,6 @@ Quatro hábitos, em ordem de retorno:
    defeito mais comum e o mais fácil de não enxergar sozinho. Se houver, o
    problema é do distrator, não do aluno.
 4. **Nunca deixe a alternativa correta ser a mais longa.** O validador avisa.
-
-### Retomar o bloco 3.1–3.3 que ficou pela metade
-
-Os três arquivos estão em `C:\Dev\cybersecurity-app-pendente\staging3\`, com os
-relatórios de procedência em `relatorios3\` e os laboratórios executados em
-`lab3\`. Eles passam na validação estrutural, mas **não** passaram pela revisão.
-Para aproveitá-los: leia questão por questão com os quatro hábitos acima, corrija
-o que estiver errado, copie para `data/modulos/`, valide, rode os testes e commite.
 
 ### Manutenção do app
 
