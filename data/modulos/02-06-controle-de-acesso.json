@@ -184,7 +184,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem tem autoridade para escrever as entradas da lista.",
+        "Um sistema pode guardar permissões em lista e ainda assim não deixar o dono mexer nelas. Use esse caso para testar as quatro opções.",
         "Um sistema mandatório também guarda decisões em listas.",
         "Mecanismo e política respondem a perguntas diferentes."
       ],
@@ -220,7 +220,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem tem a palavra final: o dono ou o sistema.",
+        "A palavra mandatório qualifica a política, e não a operação do dia a dia. Verifique quais opções falam de política e quais falam de operação.",
         "Uma das alternativas é a definição de DAC.",
         "Outra descreve o modelo por atributos."
       ],
@@ -297,7 +297,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem está sendo protegido: o arquivo de baixo ou o segredo de cima.",
+        "A regra de escrita de Bell-LaPadula tem um par: a regra de leitura. Escreva as duas e veja em que direção cada uma bloqueia.",
         "A alternativa mais tentadora descreve o objetivo do outro modelo.",
         "A regra tem nome: não escreve abaixo."
       ],
@@ -442,7 +442,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte o que o RBAC prometia economizar em relação a manter permissão por usuário.",
+        "O enunciado dá dois números: 900 papéis e 1.100 funcionários. Antes de escolher, diga o que a proximidade entre eles significa.",
         "Um papel com um único membro comprime alguma coisa?",
         "Compare o custo de auditar 900 papéis com o de auditar 1.100 usuários."
       ],
@@ -621,7 +621,7 @@
       "correta": 0,
       "dicas": [
         "Quando o controle preventivo não cabe, o que se coloca no lugar dele?",
-        "Pergunte quem, de fora da área, consegue olhar a operação antes de o dinheiro sair.",
+        "O enunciado fecha uma porta: a separação de funções não cabe. Verifique, em cada opção, se ela propõe outro controle ou apenas convive com o risco.",
         "Duas das opções não são controle nenhum: uma documenta o risco, a outra o descobre tarde."
       ],
       "pergunta_socratica": "Antes de conferir: se não dá para dividir as duas permissões entre pessoas, o que ainda pode ser dividido?",
@@ -726,7 +726,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte de que direitos a tarefa de backup realmente precisa.",
+        "Compare as quatro opções pelo que cada uma muda no alcance de um comprometimento da ferramenta, e não pela dificuldade de implantar.",
         "Trocar a senha reduz o que um comprometimento alcança?",
         "Administrador local em muitos servidores é menos privilégio, ou o mesmo espalhado?"
       ],
@@ -1240,7 +1240,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte qual verificação passa a existir em cada uma das opções.",
+        "Suponha que o atacante já conhece o identificador do pedido alheio. Teste as quatro opções contra essa suposição.",
         "Um identificador difícil de adivinhar continua funcionando quando alguém o obtém.",
         "Limitar a taxa reduz o volume do vazamento — ele deixa de existir?"
       ],
