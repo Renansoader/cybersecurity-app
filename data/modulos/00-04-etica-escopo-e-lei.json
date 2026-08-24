@@ -75,7 +75,7 @@
       "correta": 0,
       "dicas": [
         "As ações técnicas podem ser exatamente as mesmas nos dois casos.",
-        "Pergunte o que um juiz consegue verificar depois: intenção ou documento?",
+        "Compare a pergunta com as opções: ela pede o que distingue do ponto de vista legal, e algumas opções respondem do ponto de vista profissional ou técnico.",
         "Ferramenta e relatório não mudam a natureza do acesso."
       ],
       "pergunta_socratica": "Antes de conferir: se as ações são idênticas, o que sobra para diferenciar as duas situações?",
@@ -215,7 +215,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem é o alvo real desse tipo de teste.",
+        "Repare no que a pergunta chama de terceiros. Delimite quem entra nessa palavra antes de julgar as opções.",
         "Um funcionário enganado durante um teste sofre que tipo de consequência?",
         "Cuidado com a alternativa que proíbe categoricamente."
       ],
@@ -457,7 +457,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem sente o efeito do teste enquanto ele acontece.",
+        "O programa proíbe um tipo de teste, e não um tipo de falha. Separe as opções que falam do teste das que falam da vulnerabilidade.",
         "Demonstrar risco e causar prejuízo são coisas diferentes.",
         "Cuidado com afirmações legais categóricas."
       ],
@@ -655,7 +655,7 @@
       "correta": 0,
       "dicas": [
         "A lei prevê comunicação a dois destinatários.",
-        "Pergunte quem precisa da informação para se proteger.",
+        "Duas das opções restringem quem é avisado, e uma dispensa o aviso. Confira cada restrição contra o que a lei determina.",
         "Desde 2024 existe prazo fixado em resolução da ANPD, contado da ciência do incidente."
       ],
       "pergunta_socratica": "Antes de conferir: quem consegue se proteger de fraude com esses dados se souber do vazamento?",
@@ -683,7 +683,7 @@
       "correta": 0,
       "dicas": [
         "Leis costumam estabelecer objetivo, e não produto específico.",
-        "Pergunte o que aconteceria se a lei fixasse uma tecnologia hoje e ela ficasse obsoleta.",
+        "A pergunta ataca a palavra exige, e não a criptografia. Verifique o que a lei de fato impõe, e em que termos.",
         "Criptografia é citada como exemplo de boa prática, não como obrigação universal."
       ],
       "pergunta_socratica": "Antes de conferir: por que uma lei evitaria nomear uma tecnologia específica como obrigatória?",
