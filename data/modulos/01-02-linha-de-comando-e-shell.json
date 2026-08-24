@@ -467,7 +467,7 @@
       "dicas": [
         "Leia os cinco campos de tempo: minuto, hora, dia do mês, mês, dia da semana.",
         "O que */10 significa no campo de minuto?",
-        "Pergunte por que um servidor web baixaria e executaria código de um endereço externo."
+        "Depois de decodificar os tempos, olhe o que cada linha executa e sob qual usuário ela roda."
       ],
       "pergunta_socratica": "Antes de conferir: o que acontece com essa máquina 10 minutos depois de você limpar o malware?",
       "explicacao": "*/10 no campo de minuto significa a cada 10 minutos. A primeira entrada busca um script em um endereço externo e o executa diretamente, sob o usuário do servidor web — é o padrão clássico de persistência: mesmo depois da limpeza, a máquina se reinfecta no próximo ciclo. A segunda roda aos domingos às 3h (dia da semana 0) e tem cara de manutenção legítima. Horário de madrugada, sozinho, não é indício.",
