@@ -194,7 +194,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte qual promessa o backup faz. Ele existe para garantir o quê?",
+        "Separe duas coisas que o enunciado junta: o que a empresa tinha guardado e o que ela conseguiu fazer com aquilo.",
         "O enunciado não menciona nenhum acesso indevido nem ataque ao backup.",
         "Um controle que nunca foi testado é uma hipótese, não uma garantia."
       ],
@@ -272,7 +272,7 @@
       "correta": 0,
       "dicas": [
         "O hash não esconde nem transporta nada. Ele resume.",
-        "Pergunte que problema você resolve comparando dois resumos.",
+        "O resumo é publicado junto com o arquivo, e não no lugar dele. Considere o que pode mudar entre o momento da publicação e o momento em que o arquivo chega à sua máquina.",
         "O cenário de ataque aqui é alguém trocar o arquivo no caminho entre o site e a sua máquina."
       ],
       "pergunta_socratica": "Antes de conferir: o que exatamente você descobre ao comparar o hash do seu download com o publicado no site?",
@@ -519,7 +519,7 @@
       "correta": 0,
       "dicas": [
         "Por onde a informação saiu? Por qual meio ela trafegou?",
-        "Pergunte qual controle listado consegue interceptar uma ligação telefônica.",
+        "Percorra as quatro opções e marque, em cada uma, em que ponto do caminho da informação o controle proposto atua.",
         "O canal foi humano, e o pilar que falhou não foi o tecnológico."
       ],
       "pergunta_socratica": "Antes de conferir: qual controle da sua empresa hoje interceptaria essa ligação?",
@@ -683,7 +683,7 @@
       "correta": 0,
       "dicas": [
         "Olhe a ordem das funções do ciclo do NIST. Qual vem primeiro, e por quê ela vem primeiro?",
-        "Pergunte o que a ferramenta de detecção vai monitorar se ninguém sabe quais são os sistemas críticos.",
+        "As três iniciativas dependem umas das outras em alguma ordem. Desenhe essa dependência antes de escolher.",
         "Um teste de intrusão em um escopo que ninguém mapeou testa o que exatamente?"
       ],
       "pergunta_socratica": "Antes de conferir: você conseguiria listar hoje, de memória, todos os sistemas que guardam dados de clientes na sua empresa?",
@@ -797,7 +797,7 @@
       "correta": 0,
       "dicas": [
         "Repare no dado mais incômodo do relatório: a correção existia havia oito meses.",
-        "Pergunte se a mesma falha poderia acontecer amanhã em outro servidor da empresa.",
+        "O relatório tem quatro linhas. Compare o alcance da linha de ação corretiva com o alcance da linha de causa raiz.",
         "Um pilar responde por \"o que estava quebrado\"; outro responde por \"por que ninguém percebeu durante oito meses\"."
       ],
       "pergunta_socratica": "Antes de conferir: depois dessa ação corretiva, o que impede que a próxima biblioteca vulnerável fique oito meses sem correção?",
@@ -846,7 +846,7 @@
       "correta": 0,
       "dicas": [
         "Liste os três pilares e marque quais foram tratados pela decisão.",
-        "Pergunte o que acontece no dia em que alguém clicar de novo — porque alguém vai clicar.",
+        "Separe duas perguntas diferentes: como reduzir a chance de alguém clicar, e o que acontece depois do clique. A decisão descrita responde a qual das duas?",
         "Existe controle técnico e existe regra de processo que reduzem o dano depois do clique."
       ],
       "pergunta_socratica": "Antes de conferir: qual seria o segundo obstáculo do atacante, se o primeiro (a atenção do funcionário) falhar?",
@@ -902,7 +902,7 @@
       "correta": 0,
       "dicas": [
         "O e-mail é só o canal. Qual é a ação que causa o prejuízo?",
-        "Pergunte qual controle funciona mesmo quando o e-mail é perfeitamente convincente.",
+        "O golpe depende de uma única fonte de informação ser aceita como verdadeira. Veja o que cada opção faz com essa dependência.",
         "Verificar por outro canal quebra a premissa do golpe: o atacante controla apenas um deles."
       ],
       "pergunta_socratica": "Antes de conferir: se o e-mail fosse tão bem feito que você não desconfiasse, o que ainda impediria o pagamento errado?",
@@ -1009,7 +1009,7 @@
       "correta": 0,
       "dicas": [
         "Uma empresa com dez ferramentas mal configuradas está mais segura que outra com três bem operadas?",
-        "Pergunte o que a métrica mede: esforço de compra ou resultado?",
+        "Uma métrica de maturidade precisa dizer alguma coisa sobre o que melhorou. Verifique o que essa contagem consegue dizer — e sobre o que ela silencia.",
         "Dois dos três pilares não aparecem em lugar nenhum dessa contagem."
       ],
       "pergunta_socratica": "Antes de conferir: qual pergunta essa métrica responde, e qual ela deixa sem resposta?",

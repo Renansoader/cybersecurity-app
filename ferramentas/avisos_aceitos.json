@@ -1,9 +1,14 @@
 {
-  "_comentario": "Avisos das quatro regras de gabarito entregue que foram analisados um a um e ACEITOS como legítimos. Cada entrada precisa de justificativa: o validador deixa de reportar o caso, e esta é a única documentação de que ele foi visto e decidido. Chave = id da questão; dentro, o rótulo da regra (dica N, artefato, trecho, enunciado) e o porquê. Revisão desta lista em 22/08/2026.",
+  "_comentario": "Avisos das regras de gabarito entregue que foram analisados um a um e ACEITOS como legítimos. Cada entrada precisa de justificativa: o validador deixa de reportar o caso, e esta é a única documentação de que ele foi visto e decidido. Chave = id da questão; dentro, o rótulo da regra (dica N, molde da dica N, artefato, trecho, enunciado) e o porquê. Revisão desta lista em 22/08/2026; varredura da regra 6 em 24/08/2026.",
 
-  "_criterio": "CORRIGIR quando a dica AFIRMA uma proposição que é a alternativa correta ou parte dela. ACEITAR quando a dica apenas dirige a atenção — pergunta, contraste, ordem de leitura — sem afirmar a resposta; ou quando a sobreposição é inerente ao tipo de questão: cenário e artefato precisam conter os fatos que a alternativa correta classifica, e caça ao erro precisa conter o item defeituoso que a correta aponta.",
+  "_criterio": "CORRIGIR quando a dica AFIRMA uma proposição que é a alternativa correta ou parte dela. ACEITAR quando a dica apenas dirige a atenção — pergunta, contraste, ordem de leitura — sem afirmar a resposta; ou quando a sobreposição é inerente ao tipo de questão: cenário e artefato precisam conter os fatos que a alternativa correta classifica, e caça ao erro precisa conter o item defeituoso que a correta aponta. Para a regra 6, que é de forma: CORRIGIR quando a dica contém uma proposição que, se acreditada, identifica unicamente a alternativa correta; ACEITAR quando ela apenas nomeia um eixo ou um teste que ainda precisa ser aplicado às quatro opções.",
 
-  "0.1.q30": { "dica 1": "Pergunta por que o caminho inseguro foi escolhido. Dirige a atenção ao eixo do esforço sem afirmar qual é a correção." },
+  "0.1.q1": { "molde da dica 1": "Enumera os três desfechos possíveis — mudou, sumiu, foi visto — sem nomear a propriedade. Mapear o desfecho para a propriedade é o que a questão cobra." },
+  "0.1.q3": { "molde da dica 1": "Mesma forma da 0.1.q1: lista os três estados possíveis e deixa o mapeamento para o aluno." },
+  "0.1.q11": { "molde da dica 2": "Propõe um teste para aplicar às quatro alternativas, uma a uma. Não diz qual delas passa no teste." },
+  "0.1.q14": { "molde da dica 1": "Pareamento: propõe os dois eixos de classificação e deixa o encaixe de cada incidente para o aluno." },
+  "0.1.q28": { "molde da dica 1": "Pareamento: parafraseia as três categorias — julgamento, regra combinada, componente — sem dizer qual caso cai em qual." },
+  "0.1.q30": { "dica 1": "Pergunta por que o caminho inseguro foi escolhido. Dirige a atenção ao eixo do esforço sem afirmar qual é a correção.", "molde da dica 1": "Já aceita para a regra 1 pelo mesmo motivo: dirige a atenção ao eixo do esforço sem afirmar qual é a correção." },
   "0.2.q13": { "enunciado": "Cenário de classificação: o enunciado descreve o incidente e a alternativa correta nomeia os domínios envolvidos. Retirar os fatos do enunciado destruiria a questão." },
   "0.3.q17": { "dica 1": "Pergunta o que o ransomware alcança a partir do sistema comprometido. É o caminho do raciocínio, e não o item defeituoso." },
   "0.4.q26": { "dica 2": "Apresenta a dicotomia — ordem judicial ou critério da lei — sem dizer qual vale. O aluno ainda precisa saber o que a LGPD exige." },
@@ -25,5 +30,5 @@
   "2.7.q16": { "artefato": "Leitura de artefato: os cabeçalhos precisam estar completos para o aluno comparar os domínios. Retirar a linha do DMARC eliminaria a questão." },
   "2.7.q17": { "enunciado": "O enunciado traz o dado do cadastro porque a comparação com o remetente é o exercício. Sem ele não há o que comparar." },
   "3.1.q34": { "dica 1": "Pergunta o que voltaria a acontecer se apenas a falha observada fosse corrigida. Conduz ao raciocínio sem nomear a distinção." },
-  "3.3.q7": { "enunciado": "O enunciado pergunta o que a linha passa a afirmar; a alternativa correta responde. Reformular para evitar a coincidência tornaria a pergunta vaga."}
+  "3.3.q7": { "enunciado": "O enunciado pergunta o que a linha passa a afirmar; a alternativa correta responde. Reformular para evitar a coincidência tornaria a pergunta vaga." }
 }
