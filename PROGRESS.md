@@ -3,7 +3,7 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-23 · commit `53da38a` · 2.644 testes passando
+Última atualização: 2026-08-23 · commit `53da38a` · 2.656 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -17,7 +17,7 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 | Questões | 806 |
 | Blocos de teoria | 140 |
 | Tags distintas | 735 |
-| Testes automatizados | 2.644 |
+| Testes automatizados | 2.656 |
 | Linhas de código Python | ~2.280 no app · ~3.830 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
@@ -56,8 +56,9 @@ C:\Dev\cybersecurity-app\
 │   └── modulo-minimo.json   modelo comentado, um exemplo de cada tipo de questão
 ├── ferramentas/
 │   ├── validar_modulo.py    valida um módulo antes de ele entrar em data/modulos/
+│   ├── avisos_aceitos.json  casos já lidos e justificados, que não viram aviso
 │   └── gerar_icone.py       redesenha o app.ico (precisa de pillow)
-├── tests/                   6 arquivos de teste
+├── tests/                   7 arquivos de teste
 ├── docs/                    PDFs de referência (fora do Git)
 └── progress.db              criado no primeiro uso (fora do Git)
 ```
@@ -293,12 +294,17 @@ real de requisição.
   `1.5.q13`), `0.3.q3` (80% com `0.3.q2`), `2.2.q6` (três pares, com `2.2.q2` e
   `2.2.q3`), `1.2.q33`, `1.3.q12` e `4.1.q5`. Mesmo tratamento dos sete pares
   acima: trocar o eixo do pareamento, e não apagar a questão.
-- **A dica que parafraseia o gabarito é o defeito mais teimoso do projeto.** No
-  4.2 foram 41 das 105 dicas, todas seguindo um molde único — "Pergunte ⟨a
-  pergunta cuja única resposta é o gabarito⟩" — mesmo com a regra escrita no
-  encargo do autor e com o teste operacional descrito. Nenhuma delas dispara no
-  validador, porque não repetem vocabulário. Vale considerar, no próximo módulo,
-  proibir explicitamente dica que comece com "Pergunte".
+- **A dica que parafraseia o gabarito é o defeito mais teimoso do projeto.** O
+  molde é sempre o mesmo — "Pergunte ⟨a pergunta cuja única resposta é o
+  gabarito⟩" — e nenhuma ocorrência dispara nas regras 1 a 5, porque não repete
+  vocabulário. O número de 41 no 4.2 media o arquivo **antes** da revisão
+  adversarial: `1958f9e` já havia reescrito a maior parte, e restavam 8. As 8
+  foram reescritas, e a **regra 6** do validador passou a acusar o molde por
+  forma — no começo da dica e no começo de qualquer frase dentro dela. Fica o
+  passivo dos outros módulos: **170 dicas em 15 módulos**, com 4.1 (29),
+  3.1 (25), 3.3 (20), 0.3 (17) e 3.2 (16) na frente. A regra é de forma e não
+  alcança a paráfrase que dispensa o molde; a leitura humana continua sendo a
+  rede que pega esses casos.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
   existir `.venv` na pasta, o atalho continuará usando o Python global; o
   `run.bat` é quem prefere a `.venv`.

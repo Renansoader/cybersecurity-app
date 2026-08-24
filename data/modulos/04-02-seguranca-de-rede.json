@@ -333,7 +333,7 @@
       "correta": 0,
       "dicas": [
         "Some as duas contagens por sentido e compare com o total impresso na primeira linha. Que categoria ficou de fora?",
-        "O artefato tem duas seções. Pergunte por que a segunda existe, se a primeira já lista tudo que está cadastrado.",
+        "O artefato tem duas seções. A primeira lista o que está cadastrado; leia com atenção o que a segunda mede, e repare que ela não conta regras.",
         "Conte quantas das 476 linhas precisariam mudar de ação para que a leitura ingênua do total ficasse verdadeira."
       ],
       "pergunta_socratica": "Antes de conferir: uma regra de permissão deixa a máquina mais fechada ou mais aberta do que ela estava?",
@@ -368,7 +368,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quantos lugares diferentes podem apontar um intermediário para um mesmo computador.",
+        "Separe duas perguntas que a conclusão do analista funde numa só: o que esta máquina tem anotado, e por onde os pacotes dela realmente saem.",
         "Liste os lugares onde um ajuste de intermediário pode estar guardado. Quantos deles essa leitura alcança?",
         "Compare o que a segunda seção diz sobre si mesma com a afirmação que o analista fez sobre \"o tráfego web\"."
       ],
@@ -440,7 +440,7 @@
       "correta": 0,
       "dicas": [
         "Um dos dois é ligado ao equipamento de rede por um cabo a mais; o outro, por dois. Desenhe as duas montagens.",
-        "Pergunte o que acontece com o tráfego se você desligar cada um dos dois da tomada.",
+        "Repare, em cada montagem, se o que chega ao equipamento é o tráfego original ou uma segunda via dele.",
         "Duas das opções falam de método de análise, e não de onde o equipamento está."
       ],
       "pergunta_socratica": "Antes de conferir: qual dos dois consegue causar uma interrupção de serviço ao errar?",
@@ -510,7 +510,7 @@
       "correta": 0,
       "dicas": [
         "O equipamento novo entra em série com o serviço. O que isso acrescenta à lista de coisas capazes de derrubá-lo?",
-        "Pergunte qual dessas decisões precisa ser tomada por quem responde pela receita da loja, e não pela segurança.",
+        "Antes de olhar as opções, escreva o que precisa estar combinado com a área de negócio, e não só com a de segurança, quando um equipamento novo passa a ficar entre o cliente e a loja.",
         "Três das opções podem ser revistas na semana seguinte sem consequência para o cliente; uma não."
       ],
       "pergunta_socratica": "Antes de conferir: um equipamento de segurança pode se tornar o ponto único de falha do serviço que ele protege?",
@@ -721,7 +721,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte o que exatamente a marcação carrega dentro do quadro, e quem lê essa marcação.",
+        "A marcação viaja no quadro e é lida pelo comutador. Antes de julgar o efeito, escreva o que ela contém — e o que ela não contém.",
         "Duas máquinas em VLANs diferentes trocam um pacote. Conte quantos equipamentos ele atravessa.",
         "Compare dois tipos de tráfego: o que vai para todo mundo e o que vai para um endereço só."
       ],
@@ -901,7 +901,7 @@
       "dicas": [
         "Dois itens tratam do que o tronco transporta e do papel que a porta pode assumir; os outros dois, do que atravessa a fronteira entre segmentos. Separe os assuntos.",
         "Dois dos itens descrevem prática defensável; procure primeiro qual deles você manteria sem mudança.",
-        "Pergunte, item por item, o que muda se quem senta naquela sala trouxer o próprio equipamento."
+        "Duas opções montam o par misturando um item de cada assunto. Descarte-as antes de escolher entre as que restam."
       ],
       "pergunta_socratica": "Antes de conferir: o item que fala em lista de controle nos dois sentidos é problema ou é exatamente o que se espera ver?",
       "explicacao": "Os itens 1 e 2 falham pelo mesmo motivo: os dois deixam quem se conecta na sala receber tráfego que não é dele. Dado de usuário na VLAN nativa viaja sem marcação no tronco, o que é a base da técnica de dupla marcação; porta em negociação automática pode ser convencida a virar tronco e entregar todos os grupos. O item 3 é o que a segmentação deveria ser: encaminhamento com regra nos dois sentidos. O item 4 descreve o arranjo comum de telefonia, com a porta do telefone marcada e o computador atrás dele na VLAN de dados — a marcação ali é decisão da organização, e não confiança no que o visitante anuncia.",
@@ -935,7 +935,7 @@
       "correta": 0,
       "dicas": [
         "Marque no desenho onde está a filtragem e por onde passou o tráfego que se espalhou. Eles se cruzam?",
-        "Pergunte se aumentar a quantidade de caixas resolve algo quando o problema aconteceu dentro de uma delas.",
+        "Releia o enunciado e marque em que momento o tráfego que se espalhou cruzou uma fronteira entre segmentos. Se não cruzou, a filtragem que existe nunca chegou a ser consultada.",
         "Uma das opções melhora a qualidade da decisão num ponto por onde esse tráfego nunca passou."
       ],
       "pergunta_socratica": "Antes de conferir: duas máquinas do mesmo segmento precisam do filtro para conversar entre si?",
@@ -1116,7 +1116,7 @@
       "correta": 0,
       "dicas": [
         "Os três nomes vêm de perspectivas diferentes sobre a mesma conexão partida ao meio. Descubra de qual ponto de vista cada nome foi dado.",
-        "Um dos três chegou até o tráfego sem que ninguém tivesse pedido. Pergunte por onde ele entrou.",
+        "Um dos três chegou até o tráfego sem que ninguém tivesse pedido. Reveja em que ponto da rede ele precisou ser posto para conseguir isso.",
         "Um dos três é escolhido por quem navega, outro por quem publica o serviço. E o terceiro, quem escolheu?"
       ],
       "pergunta_socratica": "Antes de conferir: quem escolheu usar cada um dos três — o usuário, o dono do serviço, ou quem opera a rede?",

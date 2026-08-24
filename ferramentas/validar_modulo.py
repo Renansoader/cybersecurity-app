@@ -160,6 +160,17 @@ LIMIAR_DISTRATOR = 0.72
 LIMIAR_ENUNCIADO_IGUAL = 0.40  # só acusa quando as duas questões perguntam o mesmo
 LIMIAR_GABARITO_IGUAL = 0.55   # duas questões ensinando a mesma coisa, aqui ou em outro módulo
 
+# Regra 6: a fôrma "Pergunte ⟨a pergunta cuja única resposta é o gabarito⟩".
+# É regra de forma, não de conteúdo: não mede eco nenhum e não sabe se aquela
+# dica específica entrega o gabarito. Existe porque o molde reincidiu módulo
+# após módulo mesmo com a proibição escrita no encargo do autor, e porque a
+# paráfrase que ele produz é justamente a que as regras 1 a 5 não alcançam.
+# Proibir a fôrma é o que sobrou de acionável: dica boa aponta onde olhar.
+# Pega o molde no começo da dica e no começo de qualquer frase dentro dela.
+MOLDE_PERGUNTE = re.compile(
+    r"(?:^|(?<=[.!?;]))\s*(?:se\s+)?pergunt[ae](?:-se)?\b"
+    r"|(?:^|(?<=[.!?;]))\s*(?:questione|indague)\b", re.I)
+
 
 ACEITOS = json.loads((RAIZ / "ferramentas" / "avisos_aceitos.json").read_text(encoding="utf-8"))
 
@@ -192,6 +203,15 @@ def achar_gabarito_entregue(dados, avisos):
                     f"{ctx}: a dica {n} traz {medida[0]:.0%} das palavras que só a alternativa "
                     f"correta tem ({', '.join(medida[1])}) — a dica deve estreitar o "
                     f"raciocínio, não reescrever o gabarito")
+
+        # 6. dica no molde "Pergunte ⟨…⟩"
+        for n, dica in enumerate(questao["dicas"], start=1):
+            achado = MOLDE_PERGUNTE.search(dica)
+            if achado and not _aceito(ctx, f"molde da dica {n}"):
+                avisos.append(
+                    f"{ctx}: a dica {n} usa o molde {achado.group(0).strip()!r} — formular a "
+                    f"pergunta cuja única resposta é o gabarito não é estreitar o raciocínio; "
+                    f"aponte onde olhar")
 
         # 2. artefato ou trecho que carrega a resposta.
         # Em caça ao erro o gabarito aponta para um item do próprio trecho, então
