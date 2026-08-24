@@ -236,11 +236,12 @@ duplicado e dado pessoal em artefato. Ele também **avisa** quando a alternativa
 correta é bem mais longa que as outras — sinal clássico de gabarito entregue de
 graça.
 
-### As cinco regras de gabarito entregue
+### As seis regras de gabarito entregue
 
-Estas quatro saíram de defeitos reais, encontrados à mão na revisão do nível 3 e
-depois automatizados. Todas produzem **aviso**, nunca falha: são heurísticas, e
-quem decide é quem lê.
+As cinco primeiras saíram de defeitos reais, encontrados à mão na revisão do
+nível 3 e depois automatizados; a sexta saiu da constatação de que um molde de
+redação específico produzia o defeito de novo a cada módulo. Todas produzem
+**aviso**, nunca falha: são heurísticas, e quem decide é quem lê.
 
 | Regra | O que procura | Caso que a originou |
 |---|---|---|
@@ -249,6 +250,8 @@ quem decide é quem lê.
 | 3. Enunciado que afirma a resposta | Enunciado com ≥35% das palavras exclusivas da correta (≥3 palavras) | `3.1.q17`: "por que X e Y **são independentes**?" afirmava o que a correta dizia |
 | 4. Distrator que é gabarito de outra | Distrator com ≥72% de vocabulário em comum com a resposta certa de outra questão que **pergunta o mesmo** | `3.1.q24` usava como distrator a resposta certa de `3.1.q32` |
 | 5. Duas questões ensinando o mesmo | Duas respostas certas com ≥55% de vocabulário em comum, inclusive **entre módulos** | `3.3.q25` repetia `3.2.q12`, e `4.1.q20` repetia `3.1.q35` |
+| 5b. Pareamento que entrega gabarito | Lado direito de `pares` com ≥55% de vocabulário em comum com a resposta certa de outra questão | oito pares em seis questões; `1.5.q28` dizia o que `1.5.q13` ia cobrar |
+| 6. Dica no molde "Pergunte ⟨…⟩" | Dica que abre — nela ou em qualquer frase dentro dela — com `Pergunte`, `Pergunte-se`, `Se pergunte`, `Questione` ou `Indague` | 41 dicas do 4.2 escritas no mesmo molde, nenhuma delas acusada pelas regras 1 a 5 |
 
 O cálculo é sempre o mesmo: tomam-se as palavras da alternativa correta,
 descontam-se as que aparecem em qualquer distrator (essas são vocabulário do
@@ -276,11 +279,21 @@ corpus era vocabulário de criptografia compartilhado entre duas questões
 diferentes. A regra 5 nasceu dessa medição: comparar **resposta certa com
 resposta certa**, que é onde a duplicação real aparece.
 
+**A regra 6 é de forma, e é a única assim.** As outras cinco medem vocabulário;
+esta olha só como a frase começa, e por isso não sabe se aquela dica específica
+entrega alguma coisa. Ela existe porque o molde "Pergunte ⟨a pergunta cuja única
+resposta é o gabarito⟩" reincidiu módulo após módulo mesmo proibido no encargo
+do autor, e porque a paráfrase que ele produz é justamente a que as regras 1 a 5
+não alcançam. Proibir a fôrma foi o que sobrou de acionável: dica boa aponta onde
+olhar. O passivo herdado é de **179 dicas em 15 módulos** — 4.2 é o único módulo
+limpo — e será tratado módulo a módulo, não em varredura automática.
+
 ### Aviso aceito como legítimo
 
 Nem todo disparo é defeito. Um cenário precisa conter os fatos que a resposta
 classifica; um artefato precisa conter as linhas que a resposta lê; uma dica pode
-dirigir a atenção com uma pergunta sem afirmar a conclusão.
+dirigir a atenção com um contraste ou uma ordem de leitura sem afirmar a
+conclusão — o que a regra 6 proíbe é o molde, não o ato de dirigir a atenção.
 
 Esses casos ficam em [`ferramentas/avisos_aceitos.json`](ferramentas/avisos_aceitos.json),
 com a justificativa de cada um. O validador consulta esse arquivo e não repete o
