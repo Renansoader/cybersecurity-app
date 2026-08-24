@@ -114,7 +114,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte, em cada técnica, até que camada a conexão chega.",
+        "As duas técnicas diferem no que fazem com o aperto de mão. Escreva o que cada uma completa e o que cada uma interrompe.",
         "Log de serviço é escrito por quem aceitou a conexão.",
         "Não aparecer no log do serviço é o mesmo que não ser detectado?"
       ],
@@ -189,7 +189,7 @@
       "correta": 0,
       "dicas": [
         "Uma das duas linhas nasceu de uma resposta que chegou de volta.",
-        "Pergunte, para cada linha, sobre o que ela fala: sobre a porta ou sobre o caminho até ela.",
+        "Fechada e filtrada nascem de situações diferentes. Escreva o que o ponto de teste recebeu de volta em cada caso.",
         "Escreva a frase mais forte que cada linha sustenta, e apague a parte que você não conseguiria provar."
       ],
       "pergunta_socratica": "Antes de conferir: qual das duas linhas prova que existe uma máquina naquele endereço?",
@@ -269,7 +269,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte se o nmap chegou a trocar alguma palavra com o serviço.",
+        "Três das opções pressupõem alguma troca com o alvo ou com o sistema dele. Confira se essa troca chegou a acontecer.",
         "A coluna é preenchida mesmo quando nenhum byte foi trocado com a porta.",
         "A documentação chama esse passo de heurística frágil."
       ],
@@ -304,7 +304,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte se o nmap se limita a olhar a porta aberta ou se manda alguma coisa para ela.",
+        "As quatro opções atribuem à detecção de versão fontes diferentes: uma base de falhas, o aperto de mão, o sistema do alvo, ou a própria porta. Escolha pela fonte.",
         "Compatível com uma assinatura é o mesmo que instalado na máquina?",
         "Pergunte quem escreve o texto que o serviço responde."
       ],
@@ -447,7 +447,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte que caminho sobra quando a ferramenta não pode montar o pacote por conta própria.",
+        "Compare as quatro opções pelo que cada uma afirma que chega à rede: nada, eco ICMP, as sondas privilegiadas, ou conexões completas. Depois decida o que a conta comum permite.",
         "Duas portas específicas aparecem nesse caminho.",
         "Quem escuta nessas portas registra o quê?"
       ],
@@ -483,7 +483,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte o que a fase de descoberta economizava antes de ser pulada.",
+        "Duas das opções dizem que o volume cai, uma diz que não muda e uma diz que sobe. Conte quantos endereços de uma faixa são varridos com a fase de descoberta e sem ela.",
         "Um /16 tem 65.536 endereços; quantos deles são varridos com -Pn?",
         "Contra endereço que não existe, o que a varredura faz com o tempo?"
       ],
@@ -555,7 +555,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte, em cada protocolo, quem tem a obrigação de falar primeiro.",
+        "Uma das linhas traz texto e a outra traz um erro de espera. Verifique o que a coleta de banner faz em cada um dos dois casos.",
         "Coletar banner é conectar e esperar; se ninguém fala, o que acontece?",
         "O enunciado já diz que as duas portas estavam abertas."
       ],
@@ -667,7 +667,7 @@
       "correta": 0,
       "dicas": [
         "O 401 vem obrigatoriamente acompanhado de um cabeçalho que propõe um desafio.",
-        "Pergunte se a norma obriga o servidor a ser sincero sobre a razão de ter recusado.",
+        "A pergunta é sobre o que cada código informa a quem enumera. Separe o que o código prova do que ele apenas sugere.",
         "Se ele pode esconder o motivo, o que o 404 deixa de provar?"
       ],
       "pergunta_socratica": "Antes de conferir: um servidor que não quer revelar por que recusou pode responder o quê?",
@@ -772,7 +772,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte de onde saem os nomes que a ferramenta testa.",
+        "A ferramenta testa um conjunto finito de nomes. Delimite esse conjunto antes de julgar o que a ausência de achado significa.",
         "A opção de lista de palavras é obrigatória nas duas ferramentas por um motivo.",
         "O que o relatório precisa dizer junto do resultado para ele significar alguma coisa?"
       ],
@@ -842,7 +842,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte se a recusa é defeito de configuração ou recomendação da norma.",
+        "A pergunta é sobre por que a transferência falha, e não sobre se ela ainda existe. Verifique o que cada opção atribui à falha: a norma, o protocolo, o transporte ou a topologia.",
         "A norma trata de quem pode pedir a transferência, e não de a transferência ainda existir.",
         "A transferência precisa de transporte confiável — e isso já responde uma das alternativas."
       ],
@@ -878,7 +878,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte se o servidor fez algo proibido pela norma ou algo permitido pela configuração.",
+        "A pergunta pede um enquadramento e uma correção. Verifique se as duas partes de cada opção são coerentes entre si.",
         "A correção mexe em política de zona, e não em versão de pacote.",
         "Ler o que um servidor entrega voluntariamente, dentro do protocolo, é invasão?"
       ],
@@ -950,7 +950,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem decide o conteúdo servido quando o nome do cliente aponta para a infraestrutura de outra empresa.",
+        "Compare as quatro opções pelo risco que cada uma nomeia: tomada do nome, indisponibilidade, revelação do fornecedor, ou nenhum. Depois teste cada risco contra o cenário.",
         "O que impede uma pessoa qualquer de ocupar aquele espaço no provedor amanhã?",
         "Compare a correção que apaga o problema com a que apenas o mantém de pé."
       ],
@@ -1105,7 +1105,7 @@
       "correta": 0,
       "dicas": [
         "Leia primeiro linha a linha, depois leia o resumo, e veja em qual dos dois a conclusão aparece.",
-        "Pergunte se alguma linha, isolada, teria algo de anormal.",
+        "As quatro opções apontam sinais diferentes: origem externa, conexões aceitas, horário e volume. Verifique quais desses sinais aparecem também em tráfego legítimo.",
         "O que um usuário legítimo faria com mil portas do mesmo servidor?"
       ],
       "pergunta_socratica": "Antes de conferir: alguma linha desse log, sozinha, chamaria a atenção de alguém?",
@@ -1214,7 +1214,7 @@
       "correta": 0,
       "dicas": [
         "Três dos itens erram sobre a saída da ferramenta; um deles erra sobre a outra parte.",
-        "Pergunte qual afirmação depende de algo que não está sob controle de quem testa.",
+        "A dica anterior separa os itens que erram sobre a saída da ferramenta dos que erram sobre outra coisa. Aplique essa separação aos quatro.",
         "Um dos itens fala do que o cliente vai ou não vai perceber."
       ],
       "pergunta_socratica": "Antes de conferir: qual desses itens vira problema contratual se o time de resposta do cliente abrir um incidente na madrugada?",
@@ -1250,7 +1250,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte, item a item, o que continua alcançável depois da mudança.",
+        "Uma varredura completa da faixa de portas encontra o quê, depois de cada uma das quatro mudanças? Responda para as quatro.",
         "Duas das mudanças alteram apenas o que o serviço diz sobre si mesmo.",
         "Escutar em todas as interfaces é decisão de alcance, e não de senha."
       ],
@@ -1285,9 +1285,9 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem impediu a sonda: o alvo ou algo no caminho.",
+        "Filtrada é um rótulo que a ferramenta imprime a partir do que recebeu de volta. Escreva o que ela recebeu antes e depois da segmentação.",
         "Compare com o efeito de mudar de porta, em que a sonda continua chegando.",
-        "Pergunte se o filtro barra só a ferramenta de varredura ou qualquer pacote que venha de fora."
+        "As quatro opções afirmam coisas diferentes sobre os serviços: que sumiram, que recusam, que continuam alcançáveis, ou que deixaram de ser alcançados. Verifique qual delas a segmentação sustenta."
       ],
       "pergunta_socratica": "Antes de conferir: o serviço parou de funcionar para quem está do lado certo do segmento?",
       "explicacao": "Filtrada, na definição do nmap, é o estado em que a filtragem impediu a sonda de alcançar a porta. Isso é diferente de esconder: o serviço pode continuar de pé e funcional para quem está dentro do segmento autorizado, enquanto de fora ele deixou de ser alcançável. Mudar a porta não produz esse efeito, porque a sonda continua chegando ao destino. Vale a contrapartida honesta: o resultado filtrado ainda informa onde existe filtro, o que é achado de arquitetura e ajuda quem mapeia a rede.",

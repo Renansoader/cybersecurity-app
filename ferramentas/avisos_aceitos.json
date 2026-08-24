@@ -48,5 +48,9 @@
   "3.2.q10": { "molde da dica 2": "Elimina apenas a opção que exige nome público para todo host. As demais sobrevivem, e a distinção entre elas é o que a questão cobra." },
   "3.2.q23": { "molde da dica 3": "Elimina apenas a opção que pede ao buscador o que ele não indexou. Restam três, e a escolha entre elas depende do critério de periodicidade." },
   "3.2.q30": { "molde da dica 3": "Caça ao erro: propõe percorrer os quatro itens medindo o ganho do atacante, e aplicar isso exige saber que o robots.txt é público. Não indica o item." },
-  "3.3.q7": { "enunciado": "O enunciado pergunta o que a linha passa a afirmar; a alternativa correta responde. Reformular para evitar a coincidência tornaria a pergunta vaga." }
+  "3.3.q7": { "enunciado": "O enunciado pergunta o que a linha passa a afirmar; a alternativa correta responde. Reformular para evitar a coincidência tornaria a pergunta vaga.", "molde da dica 3": "Quem escreve o texto de resposta não separa as quatro opções: elas divergem sobre a fonte da informação, e não sobre a autoria do banner." },
+  "3.3.q16": { "molde da dica 1": "Instrução de leitura genérica — ler o que cada resposta entrega, e não só que o caminho existe. Vale para as sete linhas e não indica nenhuma." },
+  "3.3.q26": { "molde da dica 3": "Pareamento: percorrer cada tipo de registro dizendo o que ele entrega é a própria tarefa da questão." },
+  "3.3.q27": { "molde da dica 2": "Elimina apenas a opção que varre por dentro da rede. As outras três continuam de pé depois da dica." },
+  "3.3.q28": { "molde da dica 2": "Ordenação: informa que duas medidas deixam o serviço alcançável, o que não define a ordem das quatro." }
 }
