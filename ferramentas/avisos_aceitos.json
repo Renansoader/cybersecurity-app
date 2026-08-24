@@ -42,6 +42,7 @@
   "2.7.q16": { "artefato": "Leitura de artefato: os cabeçalhos precisam estar completos para o aluno comparar os domínios. Retirar a linha do DMARC eliminaria a questão." },
   "2.7.q17": { "enunciado": "O enunciado traz o dado do cadastro porque a comparação com o remetente é o exercício. Sem ele não há o que comparar." },
   "2.7.q26": { "molde da dica 2": "Caça ao erro: propõe uma heurística para percorrer os cinco itens, e aplicá-la exige conhecer a posição da norma vigente sobre cada um. Não indica quais itens compõem a resposta." },
-  "3.1.q34": { "dica 1": "Pergunta o que voltaria a acontecer se apenas a falha observada fosse corrigida. Conduz ao raciocínio sem nomear a distinção." },
+  "3.1.q2": { "molde da dica 1": "Ordenação: propõe rastrear o insumo de cada fase, e aplicar isso às seis fases é a própria tarefa. Não entrega a ordem." },
+  "3.1.q10": { "molde da dica 1": "Genérica: separar o que a saída afirma do que ela não afirma vale para qualquer artefato e não seleciona nenhuma das quatro opções." },
   "3.3.q7": { "enunciado": "O enunciado pergunta o que a linha passa a afirmar; a alternativa correta responde. Reformular para evitar a coincidência tornaria a pergunta vaga." }
 }
