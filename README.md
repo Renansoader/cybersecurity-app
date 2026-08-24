@@ -285,8 +285,10 @@ entrega alguma coisa. Ela existe porque o molde "Pergunte ⟨a pergunta cuja ún
 resposta é o gabarito⟩" reincidiu módulo após módulo mesmo proibido no encargo
 do autor, e porque a paráfrase que ele produz é justamente a que as regras 1 a 5
 não alcançam. Proibir a fôrma foi o que sobrou de acionável: dica boa aponta onde
-olhar. O passivo herdado é de **179 dicas em 15 módulos** — 4.2 é o único módulo
-limpo — e será tratado módulo a módulo, não em varredura automática.
+olhar. O passivo herdado — **179 dicas em 15 módulos** — foi auditado um a um em
+24/08/2026, módulo a módulo: 141 reescritas e 38 aceitas com justificativa em
+[`ferramentas/avisos_aceitos.json`](ferramentas/avisos_aceitos.json). O corpus
+inteiro está hoje sem nenhum aviso desta regra.
 
 ### Aviso aceito como legítimo
 

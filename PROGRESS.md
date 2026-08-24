@@ -3,7 +3,7 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-24 · commit `f7dfce5` · 2.656 testes passando
+Última atualização: 2026-08-24 · commit `2394256` · 2.656 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -289,17 +289,18 @@ real de requisição.
   22/08/2026 e ainda não tratados. Os mais fortes: `2.3.q31` × `2.4.q14` (90% do
   vocabulário em comum), `2.3.q9` × `2.4.q14` (80%) e `1.2.q6` × `1.6.q6` (77%).
   Decidir, em cada par, qual questão fica e para onde a outra é repontada.
-- **A dica que parafraseia o gabarito é o defeito mais teimoso do projeto.** O
-  molde é sempre o mesmo — "Pergunte ⟨a pergunta cuja única resposta é o
-  gabarito⟩" — e nenhuma ocorrência dispara nas regras 1 a 5, porque não repete
-  vocabulário. O número de 41 no 4.2 media o arquivo **antes** da revisão
-  adversarial: `1958f9e` já havia reescrito a maior parte, e restavam 8. As 8
-  foram reescritas, e a **regra 6** do validador passou a acusar o molde por
-  forma — no começo da dica e no começo de qualquer frase dentro dela. Fica o
-  passivo dos outros módulos: **179 dicas em 15 módulos**, com 4.1 (30),
-  3.1 (26), 3.3 (22), 0.3 (18) e 3.2 (16) na frente. A regra é de forma e não
-  alcança a paráfrase que dispensa o molde; a leitura humana continua sendo a
-  rede que pega esses casos.
+- **A dica que parafraseia o gabarito continua sendo o defeito mais teimoso do
+  projeto — o que acabou foi o molde, não o defeito.** A **regra 6** acusa a
+  fôrma "Pergunte ⟨a pergunta cuja única resposta é o gabarito⟩" por forma, e as
+  179 ocorrências do corpus foram auditadas uma a uma em 24/08/2026: **141
+  reescritas** (79%) e **38 aceitas** (21%), com justificativa em
+  `ferramentas/avisos_aceitos.json`. O critério foi o efeito, não a sintaxe:
+  reescrever quando a dica contém uma proposição que, se acreditada, identifica
+  unicamente a alternativa correta; aceitar quando ela apenas nomeia um eixo ou
+  um teste que ainda precisa ser aplicado às quatro opções. A regra segue de
+  forma e **não alcança a paráfrase que dispensa o molde** — a leitura humana
+  continua sendo a única rede para esses casos, e o passivo deles é
+  desconhecido.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
   existir `.venv` na pasta, o atalho continuará usando o Python global; o
   `run.bat` é quem prefere a `.venv`.
