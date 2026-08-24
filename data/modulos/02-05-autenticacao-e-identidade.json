@@ -184,7 +184,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "O atacante já tem a senha. Pergunte o que ainda o impediria de entrar.",
+        "Duas coisas diferentes podem ser atacadas aqui: a senha em si e a reutilização dela. Decida qual das duas o levantamento descreve.",
         "Algumas das alternativas aumentam o incômodo do usuário sem tirar valor da senha que já vazou.",
         "Separe as medidas que mudam o mecanismo do ataque das que mudam o comportamento esperado do usuário."
       ],
@@ -255,7 +255,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem valida a origem: o usuário ou o navegador?",
+        "Phishing funciona porque alguém entrega alguma coisa a um site falso. Verifique, em cada opção, o que exatamente seria entregue.",
         "O que exatamente o servidor recebe — um segredo que pode ser repassado, ou uma assinatura?",
         "A definição do NIST fala em não depender da vigilância de quem se autentica."
       ],
@@ -406,7 +406,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem decide o papel do usuário depois que o token já foi emitido.",
+        "Três componentes aparecem no enunciado: a função de hash, o token e a claim dentro dele. Avalie cada um contra o que ele promete proteger.",
         "O hash protege a base vazada. O token protege o quê, e por quanto tempo?",
         "Compare o instante em que o privilégio muda no servidor com o instante em que o token deixa de valer."
       ],
@@ -799,7 +799,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte a quem cada artefato é endereçado.",
+        "As quatro opções descrevem coisas de tipos diferentes: um artefato novo, um ajuste de validade, uma camada de cifra e um endpoint. Comece decidindo de que tipo é o que o OIDC acrescenta.",
         "Qual deles o cliente consegue validar sozinho, e contra o quê?",
         "Consultar um endpoint de perfil prova autenticação, ou só devolve dados?"
       ],
@@ -948,7 +948,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte a quem o token de acesso é endereçado.",
+        "Compare o que o backend faz aqui com o que ele faria se tivesse recebido o artefato de login emitido pelo próprio provedor.",
         "O backend consegue distinguir um token emitido para outro aplicativo?",
         "Existe um artefato do conjunto cuja audiência é o cliente. Qual?"
       ],
