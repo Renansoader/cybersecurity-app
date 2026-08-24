@@ -112,7 +112,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quantos pontos de contato a empresa tinha antes e quantos tem depois.",
+        "Duas das opções tratam superfície como algo que só muda quando se instala ou se compra alguma coisa. Confira se essa premissa se sustenta.",
         "O que não existe precisa de correção? De monitoramento?",
         "Redução de superfície não é sinônimo de compra de controle."
       ],
@@ -251,7 +251,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem vai lembrar de atualizar esse ambiente daqui a seis meses.",
+        "Compare esse ambiente com um servidor de produção qualquer da empresa: o que existe em volta de um e não existe em volta do outro?",
         "O que está dentro dele? E quem sabe que ele existe?",
         "Custo é um efeito colateral real, mas não é a questão de segurança."
       ],
@@ -542,7 +542,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte o que muda na prática depois de classificar uma falha.",
+        "Antes de olhar as opções, escreva para que serve uma classificação qualquer — dentro da segurança ou fora dela.",
         "Quem conserta um roteador é a mesma pessoa que conserta uma regra de aprovação?",
         "Duas alternativas inventam correspondências que não existem."
       ],
@@ -613,7 +613,7 @@
       "correta": 0,
       "dicas": [
         "O aparelho já está na mão de outra pessoa. O que ainda protege o dado?",
-        "Pergunte qual controle atua depois que o acesso físico foi perdido.",
+        "Marque, para cada uma das quatro opções, em que momento ela atua: antes da viagem, no instante do furto, ou depois que o aparelho já se foi.",
         "Backup protege contra perda do dado, não contra leitura por terceiro."
       ],
       "pergunta_socratica": "Antes de conferir: com o notebook desligado na mão de um estranho, o que impede a leitura do disco?",
@@ -648,7 +648,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte de que a ferramenta de marketing realmente precisa para funcionar.",
+        "O enunciado diz por que o perfil foi escolhido, e não o que ele permite. Separe as duas coisas antes de julgar.",
         "Se essa chave aparecesse em um repositório público amanhã, qual seria o alcance do estrago?",
         "Confiança no fornecedor cobre a intenção dele, não o vazamento da chave."
       ],
@@ -827,7 +827,7 @@
       "dicas": [
         "Ponto de entrada é o começo do caminho, não o fim.",
         "Se uma credencial foi obtida naquela máquina, ela deixou de valer com a reinstalação?",
-        "Pergunte o que o atacante pode ter feito entre a entrada e a detecção."
+        "A reinstalação age sobre um objeto só. Delimite qual é esse objeto, e o que fica fora dele."
       ],
       "pergunta_socratica": "Antes de conferir: quais credenciais estavam disponíveis naquela estação, e onde elas ainda funcionam?",
       "explicacao": "Reinstalar remove o que estava naquela máquina e não toca no resto: credenciais coletadas continuam válidas, acessos criados em outros sistemas continuam ativos e qualquer persistência estabelecida em outro ponto permanece. Por isso a contenção precisa incluir troca de credenciais e verificação do alcance — a pergunta \"até onde ele chegou?\" é o que separa a resposta a incidente de uma formatação.",
@@ -936,7 +936,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte onde é mais fácil entrar e onde está o que tem valor.",
+        "Duas das opções afirmam algo absoluto — \"sempre\", \"nenhum\". Comece testando se essas afirmações se sustentam.",
         "Esses dois lugares costumam ser os mesmos?",
         "Pense na estação de um estagiário e no banco de dados de clientes."
       ],
@@ -1041,7 +1041,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte qual das três remove a necessidade de corrigir, monitorar e testar aquele ponto para sempre.",
+        "Compare as três pelo que cada uma deixa para trás depois de aplicada, e não pelo efeito no dia em que foi aplicada.",
         "As outras duas continuam exigindo manutenção do ponto ao longo do tempo.",
         "O que não existe não precisa de defesa."
       ],
@@ -1111,7 +1111,7 @@
       "correta": 0,
       "dicas": [
         "Conta que existe pode ser usada; ninguém precisa estar por perto para isso acontecer.",
-        "Pergunte quem notaria um acesso feito por uma dessas 50 contas.",
+        "O levantamento dá dois números. Antes de escolher, diga o que a diferença entre eles representa em pontos de contato.",
         "Histórico e conta ativa são coisas separáveis."
       ],
       "pergunta_socratica": "Antes de conferir: se alguém acessasse hoje com a conta de um ex-funcionário, quem perceberia?",
