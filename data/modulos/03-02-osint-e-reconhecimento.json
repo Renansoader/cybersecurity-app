@@ -196,7 +196,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte em qual servidor a consulta foi atendida.",
+        "Desenhe o caminho da consulta: quem pergunta, quem responde, e por onde o pacote passa.",
         "Se o pacote não chega à empresa, o que ela teria para registrar?",
         "O MITRE trata reconhecimento como algo que ocorre fora do alcance das defesas da organização."
       ],
@@ -308,7 +308,7 @@
       "correta": 0,
       "dicas": [
         "Domínio sem serviço de correio ainda pode ser usado como remetente forjado.",
-        "Pergunte o que o servidor que recebe a mensagem consulta antes de aceitá-la.",
+        "O abuso descrito é o envio de mensagem em nome do domínio. Verifique, em cada opção, se ela impede o envio ou apenas muda a aparência.",
         "Uma das opções trata aparência; outra confunde ausência de registro com proibição."
       ],
       "pergunta_socratica": "Antes de conferir: o que impede alguém de enviar mensagem em nome de um domínio que não publica nada?",
@@ -453,7 +453,7 @@
       "correta": 0,
       "dicas": [
         "A obrigação vem de quem valida o certificado, e não de quem opera o DNS.",
-        "Pergunte o que o navegador exige para considerar um certificado público válido.",
+        "A dica anterior já diz de quem vem a obrigação. Verifique, em cada opção, quem seria o responsável por publicar o nome.",
         "O nome entra no log no momento da emissão, e não no momento do acesso."
       ],
       "pergunta_socratica": "Antes de conferir: quem obrigou esse nome a ser publicado — o dono do domínio, ou a regra de aceitação do certificado?",
@@ -488,7 +488,7 @@
       "correta": 0,
       "dicas": [
         "Uma das técnicas só encontra o que alguém já imaginou e escreveu numa lista.",
-        "Pergunte o que acontece com o host que nunca teve certificado público.",
+        "A pergunta compara duas fontes. Escreva o que cada uma consegue enxergar, e o que fica fora do alcance de cada uma.",
         "Curinga no DNS estraga uma das duas listas de resultado."
       ],
       "pergunta_socratica": "Antes de conferir: qual das duas encontraria um nome esquisito que ninguém colocaria numa lista de palavras?",
@@ -678,7 +678,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte o que o modo ativo faz com cada nome que descobre.",
+        "Passivo e ativo se distinguem por um critério só. Escreva esse critério antes de julgar a ferramenta.",
         "Transferência de zona é um pedido feito a qual servidor?",
         "Duas alternativas afirmam coisas sobre fontes pagas e sobre o estado do projeto que dá para conferir no repositório."
       ],
@@ -931,7 +931,7 @@
       "dicas": [
         "Ferramenta parada não é ferramenta apagada.",
         "O que quebra primeiro num agregador de fontes: o código, ou a fonte que mudou de API?",
-        "Pergunte o que ainda se aprende com um projeto sem versão nova."
+        "Três das opções afirmam mudanças concretas — módulos de terceiros recusados, licença comercial, atualização semanal — e todas dão para conferir no repositório do projeto."
       ],
       "pergunta_socratica": "Antes de conferir: se uma das fontes agregadas mudar o formato da resposta amanhã, quem conserta?",
       "explicacao": "Os dois continuam disponíveis e instaláveis, e o método que ensinam — espaço de trabalho, módulos, guarda de chaves, correlação de achados — segue valendo. O problema é de manutenção: um está sem versão marcada desde 2022, e passou ao controle de uma empresa que priorizou o produto pago; o outro está sem alteração desde o fim de 2024 e nunca publicou versão no repositório. Em agregador de fontes, o que quebra primeiro não é o código, e sim a fonte que mudou de formato. Use pelo padrão de trabalho, e confira a data da última alteração antes de apostar a metodologia numa ferramenta.",
@@ -1001,7 +1001,7 @@
       "correta": 0,
       "dicas": [
         "A pergunta é sobre o arquivo publicado, e não sobre cópias que estejam fora dele.",
-        "Pergunte como o formato registra uma alteração: por cima do valor antigo, ou depois dele?",
+        "A dica anterior já exclui as cópias que estão fora do arquivo. Das opções que restam, veja qual descreve o comportamento do formato e quais atribuem a ação a outro agente.",
         "Se o valor antigo tivesse sido sobrescrito, a alteração ainda poderia ser desfeita?"
       ],
       "pergunta_socratica": "Antes de conferir: se a alteração pode ser desfeita, o valor antigo foi apagado ou foi acrescentado por cima?",
@@ -1074,7 +1074,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quantas cópias do repositório já existem fora do seu controle.",
+        "A pergunta é sobre a ordem, e não sobre quais medidas tomar. Liste o que cada medida alcança antes de ordená-las.",
         "A orientação do próprio serviço de hospedagem começa por um verbo específico.",
         "Reescrever histórico age sobre o seu repositório; e sobre as bifurcações dele?"
       ],
@@ -1110,8 +1110,8 @@
       ],
       "correta": 0,
       "dicas": [
-        "A vaga precisa comunicar alguma coisa; pergunte o mínimo que ela precisa dizer para atrair quem interessa.",
-        "Pergunte o que o número da versão acrescenta à triagem de candidato.",
+        "A vaga tem duas funções em conflito: atrair o candidato certo e não descrever o parque. Avalie cada opção contra as duas.",
+        "Compare as quatro opções pelo que acontece se o candidato certo nunca chegar a ver a vaga.",
         "Duas opções tentam esconder o texto em vez de mudar o texto."
       ],
       "pergunta_socratica": "Antes de conferir: qual candidato você perderia ao escrever a categoria do produto em vez da versão dele?",
@@ -1183,7 +1183,7 @@
       "correta": 0,
       "dicas": [
         "O log registra emissão; então o alerta fala sobre o quê?",
-        "Pergunte quem, dentro da empresa, pode emitir certificado sem passar pelo processo.",
+        "Compare as quatro opções pelo evento que cada uma pressupõe: uma emissão, uma força bruta, uma visita ou um vencimento.",
         "Autoridade certificadora interna publica em log público?"
       ],
       "pergunta_socratica": "Antes de conferir: se um time subiu um ambiente novo por conta própria, onde isso aparece antes de aparecer no inventário?",
@@ -1219,7 +1219,7 @@
       "dicas": [
         "O domínio sósia é infraestrutura de terceiro; seu escopo cobre isso?",
         "O log é somente de acréscimo; pedir remoção faz sentido?",
-        "Pergunte quais controles seus podem ser ajustados hoje, sem tocar em nada de fora."
+        "As duas dicas anteriores descartam duas opções. Entre as que restam, compare o que cada uma faz hoje com o que ela deixa para depois."
       ],
       "pergunta_socratica": "Antes de conferir: o que você pode mudar sem depender de ninguém — o domínio do outro, ou os seus próprios controles?",
       "explicacao": "A ação fica do seu lado da cerca. Registro do achado com evidência, acionamento de quem responde pela marca e ajuste dos controles próprios: bloqueio ou marcação do domínio no gateway de correio, alerta interno e comunicação preparada para clientes, se o caso evoluir. Varrer o sósia é tocar infraestrutura de terceiro sem autorização — a curiosidade não amplia o escopo, e o dono do domínio suspeito não assinou nada com você. O log não remove registro, porque é somente de acréscimo. E esperar a vítima transforma um alerta antecipado em resposta a incidente.",

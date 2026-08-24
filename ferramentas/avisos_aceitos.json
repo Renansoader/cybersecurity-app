@@ -44,5 +44,9 @@
   "2.7.q26": { "molde da dica 2": "Caça ao erro: propõe uma heurística para percorrer os cinco itens, e aplicá-la exige conhecer a posição da norma vigente sobre cada um. Não indica quais itens compõem a resposta." },
   "3.1.q2": { "molde da dica 1": "Ordenação: propõe rastrear o insumo de cada fase, e aplicar isso às seis fases é a própria tarefa. Não entrega a ordem." },
   "3.1.q10": { "molde da dica 1": "Genérica: separar o que a saída afirma do que ela não afirma vale para qualquer artefato e não seleciona nenhuma das quatro opções." },
+  "3.2.q8": { "molde da dica 3": "Elimina apenas a opção do histórico de titulares. As outras três continuam de pé depois da dica." },
+  "3.2.q10": { "molde da dica 2": "Elimina apenas a opção que exige nome público para todo host. As demais sobrevivem, e a distinção entre elas é o que a questão cobra." },
+  "3.2.q23": { "molde da dica 3": "Elimina apenas a opção que pede ao buscador o que ele não indexou. Restam três, e a escolha entre elas depende do critério de periodicidade." },
+  "3.2.q30": { "molde da dica 3": "Caça ao erro: propõe percorrer os quatro itens medindo o ganho do atacante, e aplicar isso exige saber que o robots.txt é público. Não indica o item." },
   "3.3.q7": { "enunciado": "O enunciado pergunta o que a linha passa a afirmar; a alternativa correta responde. Reformular para evitar a coincidência tornaria a pergunta vaga." }
 }
