@@ -79,7 +79,7 @@
       "correta": 0,
       "dicas": [
         "O termo mora em dois vocabulários diferentes: um é de desempenho, o outro é de configuração. Qual deles a auditoria usa?",
-        "Pergunte o que uma ferramenta de conformidade precisa receber antes de rodar pela primeira vez.",
+        "Três das opções descrevem coisas que a máquina produz sozinha: consumo, falhas conhecidas, correções publicadas. Verifique o que a quarta exige de alguém.",
         "Duas máquinas idênticas, uma aprovada e outra não. O que existe em uma e não existe na outra?"
       ],
       "pergunta_socratica": "Antes de conferir: quando alguém diz que a máquina está \"fora da linha de base\", fora do quê ela está?",
@@ -188,7 +188,7 @@
       "dicas": [
         "A medida saiu de uma comparação entre duas coisas. Alguma delas é o adversário?",
         "Três das opções são recortes do mesmo número que já estava em cem por cento.",
-        "Pergunte o que precisaria mudar para que a nota continuasse alta e o comprometimento não acontecesse."
+        "A aderência mede a máquina contra um documento. Escreva contra o que mais ela poderia ser medida."
       ],
       "pergunta_socratica": "Antes de conferir: cem por cento de aderência responde a pergunta \"estamos iguais ao documento\" ou \"estamos protegidos\"?",
       "explicacao": "Aderência mede distância entre o parque e o documento. Se o documento não previu o caminho que o adversário usou, a aderência pode estar em cem por cento e a lacuna continuar aberta — e as três medidas erradas são recortes desse mesmo número. A única que acrescenta informação é a que tenta o que o documento não previu: exercício ofensivo autorizado, simulação de adversário, revisão contra modelo de ameaça. Ela fala da outra ponta da relação. Por isso conformidade e eficácia aparecem lado a lado no relatório, e não uma no lugar da outra.",
@@ -306,7 +306,7 @@
       "dicas": [
         "Você vai tomar uma decisão por linha. Que decisões existem, e o que cada uma exige saber antes?",
         "Duas linhas dessa lista podem ser do mesmo software legítimo de trabalho. Como você saberia?",
-        "Pergunte o que acontece com o serviço quando você age antes de saber quem depende dele."
+        "Compare as quatro opções pelo que cada uma exige saber antes de agir: nada, a faixa do número, o processo, ou o inventário."
       ],
       "pergunta_socratica": "Antes de conferir: olhando só para o número 37777, você consegue dizer se ele deve ficar?",
       "explicacao": "A leitura devolve pontos de escuta e quantos processos sustentam cada um, e é só isso. Número de porta não identifica software, e faixa de numeração não separa legítimo de indesejado: 135, 139 e 445 são serviços do próprio sistema, e portas altas costumam ser de aplicações instaladas pelo usuário. Reduzir superfície começa por cruzar cada linha com o processo dono e com a necessidade que o justifica, para então decidir entre remover, desabilitar, filtrar ou registrar como exceção. Agir antes disso derruba serviço legítimo e faz o programa de endurecimento perder apoio na primeira semana.",
@@ -342,7 +342,7 @@
       "correta": 0,
       "dicas": [
         "Nem todo ponto de escuta foi publicado por alguém. Que segunda leitura distinguiria os dois casos?",
-        "Pergunte se aquele mesmo número estaria em escuta depois de reiniciar a máquina.",
+        "As quatro opções dão critérios diferentes: faixa de numeração, número de processos, limite de registro da IANA e origem no sistema. Teste cada critério contra as doze linhas.",
         "Cobrar justificativa de um número que muda a cada reinício produz o quê, na fila de investigação?"
       ],
       "pergunta_socratica": "Antes de conferir: qual dessas duas portas você esperaria encontrar com outro número amanhã?",
@@ -455,7 +455,7 @@
       "dicas": [
         "Separe o que a saída mediu do que ela explica sobre si mesma.",
         "O padrão de fábrica descreve a máquina que saiu da linha de montagem. Esta máquina é essa?",
-        "Pergunte qual das opções continua verdadeira se, depois, alguém consultar com privilégio e achar o contrário."
+        "As quatro opções escrevem coisas diferentes no relatório. Verifique quais delas afirmam um estado do item, e qual afirma um estado da verificação."
       ],
       "pergunta_socratica": "Antes de conferir: qual dessas frases você teria de apagar do relatório se a consulta com privilégio contradissesse o palpite?",
       "explicacao": "A consulta não foi executada: ela exige elevação, e o levantamento rodou somente leitura. Ausência de medição não é medição de ausência, e nenhum dos dois palpites — ativo ou desativado — tem lastro na saída. O que o relatório registra é \"não verificado\", com o motivo e o caminho para verificar depois. Instalações recentes desse sistema já removem ou desabilitam o protocolo legado por padrão, mas isso é afirmação sobre o padrão do produto, não sobre esta máquina. Marcar como conforme por falta de evidência é o defeito mais silencioso de auditoria, porque some do relatório junto com o item.",
@@ -526,7 +526,7 @@
       "correta": 0,
       "dicas": [
         "Dois nomes muito parecidos existem: um fala do filtro, o outro fala da rede em que você está.",
-        "Pergunte se a leitura escolhida distingue os três contextos de rede ou devolve um valor só para a máquina.",
+        "A pergunta pede dois campos, uma linha por perfil. Verifique, em cada opção, o formato da saída que ela devolve.",
         "Cadastro de regra tem quantas linhas? É isso que responde a pergunta feita?"
       ],
       "pergunta_socratica": "Antes de conferir: a categoria da rede em que a máquina está ligada é a mesma coisa que a política do filtro?",
@@ -704,7 +704,7 @@
       "dicas": [
         "O nome da iniciativa traz uma palavra que indica antecipação, e ela não é a primeira.",
         "Duas notas conhecidas convivem no mesmo relatório e respondem perguntas diferentes: uma é sobre o quanto dói.",
-        "Pergunte se o número muda quando ninguém mexe na falha, só porque o mundo lá fora mudou."
+        "As quatro opções descrevem grandezas diferentes: probabilidade, impacto, esforço e alcance. Decida qual delas o nome da iniciativa anuncia."
       ],
       "pergunta_socratica": "Antes de conferir: uma falha devastadora que ninguém nunca vai tentar explorar receberia nota alta em qual das escalas?",
       "explicacao": "O EPSS é um modelo de aprendizado de máquina, orientado a dados, que estima a probabilidade de um CVE publicado ser explorado na natureza nos próximos trinta dias. A saída é um número entre zero e um, acompanhado de percentil, e é mantido pelo grupo de interesse específico do FIRST. Ele responde \"vai acontecer?\", enquanto a escala de gravidade responde \"quanto dói se acontecer\" e o catálogo de exploração confirmada responde \"já aconteceu\". As três convivem: a nota de gravidade sozinha não ordena fila, e o EPSS sozinho não mede consequência.",
@@ -780,7 +780,7 @@
       "correta": 0,
       "dicas": [
         "A decisão de duas semanas atrás foi sobre ordem. O que ela nunca decidiu?",
-        "Pergunte o que precisaria estar escrito para alguém ser cobrado pelo item que ficou para trás.",
+        "A primeira dica diz que a decisão foi sobre ordem. Verifique quais opções tratam de ordem e quais tratam do que veio depois dela.",
         "Duas opções culpam o critério de ordenação; o desfecho descrito aconteceu depois da ordenação."
       ],
       "pergunta_socratica": "Antes de conferir: passados seis meses, o que ainda existe da decisão de adiar aquele item — o registro, ou só o atraso?",
@@ -816,7 +816,7 @@
       "correta": 0,
       "dicas": [
         "Três dos itens erram por estarem presos a um documento de 2021. Um erra por outro motivo.",
-        "Pergunte qual item continuaria errado mesmo que a diretiva de 2021 nunca tivesse sido revogada.",
+        "A primeira dica separa os itens presos a um documento de 2021 daquele que erra por outro motivo. Aplique essa separação aos quatro.",
         "Um dos itens joga fora casos inteiros antes de olhar onde a máquina está ligada."
       ],
       "pergunta_socratica": "Antes de conferir: se você apagasse desse trecho tudo que veio da diretiva antiga, sobraria algum defeito?",
@@ -850,8 +850,8 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte se o custo dessa atividade entra no orçamento anual ou no fundo de emergência.",
-        "Pergunte se a atividade é excepcional ou rotineira — e o que muda no orçamento em cada caso.",
+        "As quatro opções enquadram a atividade em categorias diferentes: manutenção, resposta a incidente, decisão local e controle temporário. Compare cada uma com o que o documento diz.",
+        "O documento trata de estratégia da organização. Confira o que ele recomenda que seja feito antes de a correção existir.",
         "Se cada equipe decidir sozinha quando parar o serviço para atualizar, o que acontece com a janela?"
       ],
       "pergunta_socratica": "Antes de conferir: trocar o óleo do carro é resposta a incidente ou rotina planejada?",
@@ -887,7 +887,7 @@
       "correta": 0,
       "dicas": [
         "Escreva o que precisa ser verdade daqui a seis meses e trabalhe de trás para frente.",
-        "Pergunte o que acontece com o restante do parque enquanto um sistema específico bloqueia a fila.",
+        "O caso tem dois problemas ao mesmo tempo: um sistema que quebra, e um prazo que corre. Verifique se cada opção resolve os dois ou só um deles.",
         "Se a correção não couber em tudo, o que impede que a parte que ficou de fora seja esquecida?"
       ],
       "pergunta_socratica": "Antes de conferir: daqui a seis meses, o que faria alguém voltar a olhar para a máquina que ficou de fora?",
@@ -923,7 +923,7 @@
       "correta": 0,
       "dicas": [
         "Pergunte quantas versões diferentes de cada um dos dois existem hoje.",
-        "Pergunte qual dos dois muda quando a organização troca de fornecedor de sistema operacional.",
+        "As quatro opções separam os dois por critérios diferentes: alcance de nuvem, obrigatoriedade, objeto descrito e finalidade. Confira qual desses critérios se sustenta.",
         "Se você fosse aplicar cada um deles amanhã, que ferramenta abriria em cada caso?"
       ],
       "pergunta_socratica": "Antes de conferir: qual dos dois documentos existe em uma versão diferente para cada produto e para cada versão dele?",
@@ -958,7 +958,7 @@
       "correta": 0,
       "dicas": [
         "A divisão existe por causa de um risco concreto do endurecimento. Qual risco?",
-        "Pergunte o que a organização perde, e não o que ela ganha, ao subir de perfil.",
+        "A primeira dica diz que a divisão existe por causa de um risco concreto. Nomeie esse risco antes de olhar as opções.",
         "Se um único conjunto servisse a todo mundo, quantos perfis existiriam?"
       ],
       "pergunta_socratica": "Antes de conferir: por que um catálogo de recomendações se daria ao trabalho de separar suas próprias recomendações em dois grupos?",
@@ -993,7 +993,7 @@
       "correta": 0,
       "dicas": [
         "O problema tem duas partes: a operação precisa continuar de pé, e alguém precisa poder achar isso depois.",
-        "Pergunte o que diferencia uma decisão consciente de um esquecimento, seis meses depois.",
+        "A primeira dica já separa as duas partes do problema. Verifique, em cada opção, quantas delas são atendidas.",
         "Se nada for anotado, como o próximo analista saberá que isso foi discutido?"
       ],
       "pergunta_socratica": "Antes de conferir: daqui a um ano, quem vai lembrar por que este item específico está diferente do resto do parque?",
@@ -1029,7 +1029,7 @@
       "correta": 0,
       "dicas": [
         "Pense no que acontece com uma lista que só cresce e nunca é revisada.",
-        "Pergunte que evento, no processo, faria alguém voltar a olhar aquele item.",
+        "A pergunta tem duas partes: como o adversário se beneficia, e o que corrige. Verifique se as duas partes de cada opção se sustentam juntas.",
         "O adversário procura o que está diferente do padrão e não é observado. Onde isso se acumula?"
       ],
       "pergunta_socratica": "Antes de conferir: sem data marcada, quantas vezes por ano alguém reabre aquele item?",
@@ -1065,7 +1065,7 @@
       "correta": 0,
       "dicas": [
         "\"Ninguém usa\" e \"ninguém alcança\" são a mesma coisa? Quem decide qual das duas vale?",
-        "Pergunte quem acompanha as atualizações de um componente que a equipe considera dispensável.",
+        "A primeira dica separa não usar de não alcançar. Aplique essa separação às quatro opções.",
         "Quem faz o inventário do adversário: a organização ou ele mesmo?"
       ],
       "pergunta_socratica": "Antes de conferir: entre um serviço que a equipe usa todo dia e um que ela esqueceu, qual recebe correção mais rápido?",
@@ -1137,7 +1137,7 @@
       "correta": 0,
       "dicas": [
         "Compare dois adversários: um precisa de uma hora por alvo, o outro não precisa de nenhuma.",
-        "Pergunte quantos alvos cada um deles alcança em uma semana.",
+        "As quatro opções atribuem o encurtamento do prazo a coisas diferentes: dano por máquina, contorno de autenticação, comportamento do fornecedor e alcance. Escolha pela que decorre da automatização.",
         "O que muda para o defensor quando o número de tentativas deixa de depender de gente?"
       ],
       "pergunta_socratica": "Antes de conferir: o que decide se você está na lista de alvos — ser interessante, ou apenas estar respondendo?",
@@ -1174,7 +1174,7 @@
       "correta": 0,
       "dicas": [
         "Leia cada item perguntando duas coisas: o que ele tira da máquina, e o que ele tira de quem for investigar depois.",
-        "Pergunte quantos dias de histórico cabem no limite que o item impôs, numa estação movimentada.",
+        "Aplique as duas perguntas da primeira dica aos quatro itens, um a um, e compare as respostas.",
         "Investigação acontece depois. O que precisa ter sobrevivido até lá?"
       ],
       "pergunta_socratica": "Antes de conferir: se o incidente for descoberto três semanas depois, qual desses itens decide o que ainda existe para ler?",
@@ -1212,7 +1212,7 @@
       "correta": 0,
       "dicas": [
         "Leia os quatro itens perguntando, em cada um, se o defeito está no que foi feito ou no que foi concluído a partir do que foi feito.",
-        "Pergunte quais desses itens ainda poderiam ser corrigidos refazendo o trabalho do trimestre.",
+        "A primeira dica separa o defeito no que foi feito do defeito na conclusão tirada dele. Aplique essa separação aos quatro itens.",
         "Qual das quatro frases uma diretoria repetiria numa reunião sem perceber o problema?"
       ],
       "pergunta_socratica": "Antes de conferir: qual desses itens continuaria errado mesmo se todo o resto do trimestre tivesse sido executado com perfeição?",
@@ -1282,7 +1282,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte o que precisa acontecer, e quantas mãos precisam se mexer, para o recurso voltar em cada um dos dois casos.",
+        "Compare as quatro opções pelo que cada uma afirma que sobra depois de desabilitar: nada, disco, histórico, ou o próprio componente.",
         "Um dos dois estados ainda aparece no relatório de correções pendentes. Qual?",
         "Pense em quem religa por engano: atualização de sistema, script antigo, restauração de imagem."
       ],
@@ -1318,8 +1318,8 @@
       "correta": 0,
       "dicas": [
         "O catálogo convive com uma escala de gravidade e com uma estimativa de probabilidade. Se ele repetisse qualquer uma das duas, por que existiria?",
-        "Pergunte se uma falha grave e nunca usada por ninguém entraria nessa lista.",
-        "Pergunte que evidência alguém precisa apresentar para pedir a inclusão de uma falha nessa lista."
+        "As quatro opções propõem critérios diferentes de entrada no catálogo: uso observado, nota de gravidade, prevalência e ausência de correção. Verifique qual deles a CISA usa.",
+        "A primeira dica nota que o catálogo convive com uma escala e com uma estimativa. Escreva o que ele acrescentaria a essas duas."
       ],
       "pergunta_socratica": "Antes de conferir: entre \"pode ser explorada\" e \"foi explorada\", qual delas separa esse catálogo dos demais?",
       "explicacao": "O catálogo reúne vulnerabilidades com exploração confirmada em uso, e esse é o critério de entrada: não é nota alta, não é previsão, não é ausência de correção. Ele responde uma pergunta factual e retrospectiva — já aconteceu —, que é diferente da estimativa probabilística do EPSS e da medida de impacto do CVSS. Até 2026 ele funcionava como gatilho de prazo fixo para as agências federais americanas, por força da BOD 22-01; com a BOD 26-04, de 10/06/2026, ele passou a ser um dos fatores da decisão de prioridade, ao lado de exposição, automatizabilidade e impacto. O catálogo continua existindo e continua sendo da CISA; o que mudou foi o papel dele.",

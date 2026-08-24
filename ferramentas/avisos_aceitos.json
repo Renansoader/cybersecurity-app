@@ -52,5 +52,12 @@
   "3.3.q16": { "molde da dica 1": "Instrução de leitura genérica — ler o que cada resposta entrega, e não só que o caminho existe. Vale para as sete linhas e não indica nenhuma." },
   "3.3.q26": { "molde da dica 3": "Pareamento: percorrer cada tipo de registro dizendo o que ele entrega é a própria tarefa da questão." },
   "3.3.q27": { "molde da dica 2": "Elimina apenas a opção que varre por dentro da rede. As outras três continuam de pé depois da dica." },
-  "3.3.q28": { "molde da dica 2": "Ordenação: informa que duas medidas deixam o serviço alcançável, o que não define a ordem das quatro." }
+  "3.3.q28": { "molde da dica 2": "Ordenação: informa que duas medidas deixam o serviço alcançável, o que não define a ordem das quatro." },
+  "4.1.q3": { "molde da dica 2": "Convida a testar a hipótese de uma das alternativas erradas — reativar o serviço. Derrubá-la não escolhe entre as três que sobram." },
+  "4.1.q9": { "molde da dica 2": "Cobrar explicação por cada campo não separa as opções: três delas divergem sobre o efeito da ausência de valor, e a dica não toca nisso." },
+  "4.1.q10": { "molde da dica 2": "Propõe o teste de reprodutibilidade entre dois auditores, e aplicá-lo aos quatro textos é a própria tarefa da questão." },
+  "4.1.q16": { "molde da dica 3": "Elimina apenas a opção do CVSS. As outras três, todas documentos, continuam de pé depois da dica." },
+  "4.1.q19": { "molde da dica 1": "Pareamento: dizer o que fica fora do campo de visão de cada insumo é exatamente o que a questão pede." },
+  "4.1.q24": { "molde da dica 1": "Contar versões exige conhecimento de fora da questão e não separa as quatro opções, que divergem sobre o objeto descrito por cada conjunto." },
+  "4.1.q29": { "molde da dica 2": "Evento de calendário cabe tanto na medição periódica quanto na janela de mudança aprovada, que são duas alternativas diferentes. A dica não decide entre elas." }
 }
