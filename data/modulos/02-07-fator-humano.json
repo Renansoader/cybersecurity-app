@@ -120,7 +120,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte em qual dos dois a intenção já estava certa.",
+        "Separe duas etapas de qualquer ação: decidir o que fazer, e executar o que foi decidido. Cada um dos dois termos falha numa delas.",
         "Um se corrige mexendo na interface; o outro, na regra que foi ensinada.",
         "Nada nessa taxonomia depende do nível de experiência de quem opera."
       ],
@@ -475,7 +475,7 @@
       "correta": 0,
       "dicas": [
         "O experimento clássico foi feito em laboratório; a evidência recente veio de outro tipo de observação.",
-        "Pergunte se o que caiu foi a chance de UM indivíduo agir ou a chance de ALGUÉM agir.",
+        "A dica anterior já separou laboratório de observação real. Escreva o que cada tipo de estudo consegue medir antes de julgar as opções.",
         "Difusão de responsabilidade continua real; o que mudou foi a leitura pessimista do desfecho."
       ],
       "pergunta_socratica": "Antes de conferir: o experimento mediu a chance de uma pessoa agir ou o desfecho do grupo inteiro?",
@@ -753,7 +753,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte qual campo o SPF valida e qual campo o destinatário enxerga.",
+        "Três das opções descrevem o DMARC fazendo algo por conta própria: consultar uma lista, exigir igualdade estrita, substituir os outros dois. Verifique se o padrão faz alguma dessas coisas.",
         "A palavra-chave do padrão é alinhamento, e ele admite alinhamento relaxado.",
         "O DMARC não substitui nem refaz o trabalho de SPF e DKIM; ele amarra o resultado deles ao From."
       ],
@@ -827,8 +827,8 @@
       "correta": 0,
       "dicas": [
         "O procedimento confia num dado guardado. Quem pode ter mexido nesse dado, e quando?",
-        "O procedimento confia num número de telefone. Pergunte desde quando aquele número está lá.",
-        "Pergunte se a alteração do próprio cadastro é tratada como mudança crítica ou como recado administrativo."
+        "Compare o que o procedimento verifica com o que ele pressupõe. São coisas diferentes.",
+        "As quatro opções apontam a falha em momentos diferentes: na mensagem, no canal de resposta, no horário e no cadastro. Situe cada uma na linha do tempo."
       ],
       "pergunta_socratica": "Antes de conferir: o cadastro interno é confiável por natureza, ou porque alguém controla quem o altera?",
       "explicacao": "Retorno de chamada só vale se o número discado vier de uma fonte que o atacante não conseguiu tocar. O roteiro maduro da fraude de e-mail corporativo ataca justamente isso: primeiro um pedido banal de atualização de contato muda o telefone ou o e-mail do fornecedor no cadastro, e semanas depois chega o pedido de mudança de conta bancária — que passa na verificação porque a verificação liga para o próprio atacante. A consequência de projeto é que alterar o cadastro é mudança crítica, com o mesmo rigor da alteração de pagamento: verificação fora de banda e segunda pessoa. Um canal só é confiável enquanto o controle sobre quem o define for confiável.",
@@ -972,7 +972,7 @@
       "dicas": [
         "O tailgating funciona porque as pessoas são educadas; a regra precisa conviver com isso.",
         "O que faz uma regra pegar: estar no PDF ou virar hábito comentado entre colegas?",
-        "Pergunte o que muda no instante em que a porta está aberta, não no mês seguinte."
+        "As duas dicas anteriores dizem por que o tailgating acontece e o que faz uma regra pegar. Aplique os dois critérios juntos às quatro opções."
       ],
       "pergunta_socratica": "Antes de conferir: qual dessas medidas muda o que acontece na porta, no instante em que acontece?",
       "explicacao": "O caso é de uma grande empresa de tecnologia que não quis catraca para não destruir o ambiente. A solução foi inserir socialmente uma regra pequena: quem recebe a gentileza da porta aberta mostra o crachá. O fator crítico não foi o treinamento, foi a inserção social — a liderança repetia a mensagem em reuniões gerais até virar o jeito de trabalhar. Câmera e relatório mensal detectam depois; manual assinado transfere culpa. E a regra respeita a educação das pessoas em vez de tentar suprimi-la.",
@@ -1269,7 +1269,7 @@
       "dicas": [
         "A autoridade aqui é apenas alegada; nada foi verificado.",
         "Registrar um dado inventado verifica alguma coisa?",
-        "Pergunte o que exatamente foi verificado — e por quem foi fornecido o dado que você verificou."
+        "O enunciado não afirma que a ligação era falsa. Repare no que o procedimento precisa cobrir mesmo que ela seja verdadeira."
       ],
       "pergunta_socratica": "Antes de conferir: o que impede alguém de dizer qualquer matrícula ao telefone?",
       "explicacao": "Entre 1995 e 2005 um trote com esse roteiro convenceu gerentes de dezenas de estabelecimentos nos Estados Unidos, com consequências graves para as vítimas, condenações de quem obedeceu e indenizações contra os empregadores. Autoridade aparente é vetor concreto, e a defesa não é o gerente ser mais desconfiado — é o procedimento tornar impossível que uma voz ao telefone acione sozinha uma ação séria. Registrar matrícula não verifica nada: quem liga inventa o número. Retorno de chamada e um segundo responsável verificam.",
@@ -1305,7 +1305,7 @@
       "dicas": [
         "O atacante escolhe o caminho, e ele vai escolher o mais barato.",
         "A revisão vigente do NIST tem veredito explícito sobre pergunta secreta.",
-        "A recuperação usa dois caminhos. Pergunte o que a norma vigente diz sobre cada um deles."
+        "A conta tem dois caminhos de acesso, e o enunciado descreve os dois. Avalie cada caminho separadamente antes de julgar o conjunto."
       ],
       "pergunta_socratica": "Antes de conferir: por que o atacante enfrentaria a passkey se existe um botão \"esqueci meu acesso\"?",
       "explicacao": "Um sistema de autenticação vale o que vale seu mecanismo de retaguarda mais fraco, e aqui a retaguarda anula a passkey. A revisão vigente do NIST proíbe autenticação por conhecimento prévio, incluindo pergunta secreta, e proíbe e-mail como canal fora de banda; SMS é permitido, porém classificado como restrito, com obrigação de observar indicadores como troca de chip e portabilidade. Uma retaguarda decente aqui seria um segundo autenticador registrado, códigos de recuperação gerados no cadastro e guardados fora do aparelho, e notificação de todo registro novo.",
@@ -1343,7 +1343,7 @@
       "correta": 0,
       "dicas": [
         "Erro humano é previsível. Um requisito que ninguém consegue cumprir é requisito de quem?",
-        "Pergunte o que o sistema deveria ter tornado impossível.",
+        "A conclusão nomeia uma causa e propõe uma medida. Verifique se a medida responde à causa nomeada, ou a outra coisa.",
         "Treinar tem valor real — mas valor de quê, exatamente?"
       ],
       "pergunta_socratica": "Antes de conferir: se a mesma pessoa tirar férias, o próximo funcionário no lugar dela erraria igual?",

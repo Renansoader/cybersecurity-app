@@ -41,6 +41,7 @@
   "2.7.q4": { "dica 2": "Contrapõe as duas regras de leitura de domínio e pergunta qual é mais forte. É o exercício, não a resposta." },
   "2.7.q16": { "artefato": "Leitura de artefato: os cabeçalhos precisam estar completos para o aluno comparar os domínios. Retirar a linha do DMARC eliminaria a questão." },
   "2.7.q17": { "enunciado": "O enunciado traz o dado do cadastro porque a comparação com o remetente é o exercício. Sem ele não há o que comparar." },
+  "2.7.q26": { "molde da dica 2": "Caça ao erro: propõe uma heurística para percorrer os cinco itens, e aplicá-la exige conhecer a posição da norma vigente sobre cada um. Não indica quais itens compõem a resposta." },
   "3.1.q34": { "dica 1": "Pergunta o que voltaria a acontecer se apenas a falha observada fosse corrigida. Conduz ao raciocínio sem nomear a distinção." },
   "3.3.q7": { "enunciado": "O enunciado pergunta o que a linha passa a afirmar; a alternativa correta responde. Reformular para evitar a coincidência tornaria a pergunta vaga." }
 }
