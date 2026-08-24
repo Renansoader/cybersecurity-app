@@ -694,7 +694,7 @@
       "dicas": [
         "Um tíquete de serviço é cifrado com material derivado da senha da conta de serviço.",
         "O que alguém faria com muitos tíquetes na mão, longe do servidor?",
-        "Pergunte onde o trabalho do atacante acontece depois que ele já tem os tíquetes em mãos."
+        "O evento 4769 registra um pedido atendido, e não uma falha. Repare no que o atacante leva embora quando o pedido é atendido."
       ],
       "pergunta_socratica": "Antes de conferir: por que um atacante preferiria coletar tíquetes a tentar senhas diretamente no servidor?",
       "explicacao": "Tíquetes de serviço são cifrados com material derivado da senha da conta de serviço, então quem os coleta pode tentar quebrá-los na própria máquina, sem gerar tentativas de login, sem bloqueio de conta e sem alarme no servidor. Pedir muitos tíquetes de uma vez é o passo de coleta desse ataque. Sobrecarga de servidor e problema de relógio produzem sintomas diferentes, e perda de tíquete inicial geraria novo 4768.",
