@@ -470,25 +470,25 @@
           "Tentativa de logon malsucedida, com código de status da causa"
         ],
         [
-          "4672",
-          "Privilégios especiais atribuídos a um novo logon"
-        ],
-        [
           "4720",
           "Criação de uma conta de usuário"
         ],
         [
           "4769",
           "Pedido de tíquete de serviço Kerberos, registrado no controlador de domínio"
+        ],
+        [
+          "1102",
+          "Limpeza do log de segurança, registrada no próprio log que foi limpo"
         ]
       ],
       "dicas": [
         "Dois identificadores vizinhos tratam do sucesso e da falha do mesmo evento.",
         "Um deles só aparece em controlador de domínio.",
-        "Um registra criação, e não acesso."
+        "Um dos cinco tem número muito fora da faixa dos outros, e não fala de conta nem de logon."
       ],
       "pergunta_socratica": "Antes de conferir: quais desses eventos você monitoraria diariamente em um ambiente pequeno?",
-      "explicacao": "Esses cinco cobrem a maior parte da triagem em ambientes Windows: entrada bem-sucedida, entrada recusada, entrada com privilégio, criação de conta e pedido de tíquete de serviço no domínio. O último é especialmente relevante porque volume anômalo de pedidos de tíquete por uma única conta é um dos indícios de tentativa de extrair credenciais de serviço para quebra offline.",
+      "explicacao": "Esses cinco cobrem boa parte da triagem em ambientes Windows: entrada bem-sucedida, entrada recusada, criação de conta, pedido de tíquete de serviço no domínio e limpeza do log. O 4769 importa porque volume anômalo de pedidos de tíquete por uma única conta é indício de tentativa de extrair credenciais de serviço para quebra offline. O 1102 importa por outro motivo: ele é a última linha honesta de um log adulterado, e por isso costuma ser encaminhado para fora da máquina assim que aparece.",
       "fonte": "Referência de eventos do log de segurança do Windows",
       "tags": [
         "windows",

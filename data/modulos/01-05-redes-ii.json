@@ -1058,32 +1058,36 @@
       "objetivos": [
         2
       ],
-      "enunciado": "Ligue cada faixa de código de status HTTP ao seu significado.",
+      "enunciado": "Ligue cada código de status HTTP ao que ele diz a quem lê o log.",
       "pares": [
         [
-          "2xx",
-          "Sucesso: a requisição foi recebida, entendida e atendida"
+          "301",
+          "O recurso mudou de endereço em definitivo, e o cliente deve passar a pedir o novo"
         ],
         [
-          "3xx",
-          "Redirecionamento: é preciso outra ação para completar a requisição"
+          "401",
+          "Falta credencial: o servidor informa como se autenticar e admite nova tentativa"
         ],
         [
-          "4xx",
-          "Erro atribuído ao cliente, como recurso inexistente ou falta de autorização"
+          "403",
+          "A identificação foi aceita, e mesmo assim aquele recurso é negado"
         ],
         [
-          "5xx",
-          "Erro do servidor ao processar uma requisição aparentemente válida"
+          "429",
+          "O cliente passou do ritmo permitido e precisa esperar antes de repetir"
+        ],
+        [
+          "502",
+          "Um intermediário recebeu resposta inválida de quem está atrás dele"
         ]
       ],
       "dicas": [
-        "As faixas seguem uma progressão: sucesso, desvio, culpa do cliente, culpa do servidor.",
-        "404 e 403 pertencem à mesma faixa.",
-        "500 e 503 pertencem a outra."
+        "Dois dos cinco tratam de permissão, e a diferença entre eles está em quem já se identificou.",
+        "Um dos cinco não fala do servidor de destino, e sim de quem está no meio do caminho.",
+        "Um deles não é erro nem sucesso: é uma instrução para procurar em outro endereço."
       ],
-      "pergunta_socratica": "Antes de conferir: muitos códigos da terceira faixa vindos de uma única origem sugerem o quê?",
-      "explicacao": "2xx sucesso, 3xx redirecionamento, 4xx erro do cliente e 5xx erro do servidor. Em análise de log a distinção orienta a conclusão: sequência de 4xx de uma mesma origem costuma indicar varredura por caminhos, enquanto muitos 5xx apontam problema na aplicação — e um 200 no meio de uma sequência de 404 é justamente o que merece atenção.",
+      "pergunta_socratica": "Antes de conferir: numa sequência vinda de uma única origem, qual desses códigos você olharia primeiro?",
+      "explicacao": "A distinção entre 401 e 403 é a que mais muda a conclusão de uma análise: o primeiro diz que ninguém se identificou ainda, o segundo diz que alguém se identificou e mesmo assim não pode. Muitos 401 seguidos de um 200 desenham uma tentativa que deu certo; muitos 403 da mesma conta desenham alguém autenticado procurando o que não lhe cabe. O 429 é resposta de defesa, e não falha; o 502 aponta para o elo entre o intermediário e o servidor, e não para o cliente.",
       "fonte": "RFC 9110, seção 15",
       "tags": [
         "redes",

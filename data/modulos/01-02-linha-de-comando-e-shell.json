@@ -1220,16 +1220,8 @@
       "enunciado": "Ligue cada construção de redirecionamento ao seu efeito.",
       "pares": [
         [
-          "> arquivo",
-          "Envia a saída padrão para o arquivo, apagando o conteúdo anterior"
-        ],
-        [
-          ">> arquivo",
-          "Acrescenta a saída padrão ao final do arquivo"
-        ],
-        [
           "2> arquivo",
-          "Envia apenas a saída de erro para o arquivo"
+          "Grava apenas a saída de erro no arquivo e deixa a saída normal na tela"
         ],
         [
           "2>/dev/null",
@@ -1237,16 +1229,24 @@
         ],
         [
           "> arquivo 2>&1",
-          "Envia saída padrão e saída de erro para o mesmo arquivo"
+          "Manda os dois fluxos para o mesmo arquivo"
+        ],
+        [
+          "2>&1 > arquivo",
+          "Deixa o erro na tela e grava só o fluxo normal, porque a cópia acontece antes do desvio"
+        ],
+        [
+          "< arquivo",
+          "Alimenta a entrada do comando com o conteúdo do arquivo"
         ]
       ],
       "dicas": [
-        "O número 2 identifica o fluxo de erro.",
-        "Dois deles gravam a saída normal, e a diferença está em apagar ou acrescentar.",
-        "/dev/null é um destino que descarta tudo."
+        "O número 2 identifica o fluxo de erro; a ausência de número trata do fluxo normal.",
+        "Duas construções usam os mesmos símbolos em ordem trocada, e o resultado não é o mesmo.",
+        "Uma delas não escreve nada: ela lê."
       ],
       "pergunta_socratica": "Antes de conferir: qual dessas construções você usaria em um script que precisa registrar erros?",
-      "explicacao": "As cinco formas cobrem quase todo uso diário: sobrescrever, acrescentar, separar o erro, descartar o erro e juntar os dois no mesmo destino. Em script de produção, a combinação útil costuma ser gravar tudo em log com > arquivo 2>&1, porque descartar erro esconde a falha que você vai precisar investigar depois.",
+      "explicacao": "A ordem importa, e é onde quase todo mundo tropeça: 2>&1 copia para o fluxo de erro o destino que o fluxo normal tem naquele instante. Escrito depois do >, o destino já é o arquivo e os dois vão para lá; escrito antes, o destino ainda é a tela, e só o fluxo normal acaba no arquivo. Em script de produção a forma útil é > arquivo 2>&1, porque descartar erro esconde a falha que você vai precisar investigar depois.",
       "fonte": "POSIX shell; teoria 1.2.t1",
       "tags": [
         "shell",

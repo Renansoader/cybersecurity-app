@@ -204,23 +204,23 @@
       "id": "2.2.q6",
       "tipo": "pareamento",
       "dificuldade": 2,
-      "objetivos": [0, 1],
-      "enunciado": "Ligue cada objetivo à operação e à chave correspondente.",
+      "objetivos": [1],
+      "enunciado": "Ligue cada operação à propriedade que ela garante — e ao que ela deixa em aberto.",
       "pares": [
-        ["Enviar algo que só o destinatário leia", "Cifrar com a chave pública do destinatário"],
-        ["Provar que a mensagem é sua", "Assinar com a sua chave privada"],
-        ["Verificar a assinatura de alguém", "Usar a chave pública de quem assinou"],
-        ["Ler o que enviaram para você", "Decifrar com a sua chave privada"]
+        ["Cifrar para um destinatário", "Garante sigilo do conteúdo, e nada diz sobre quem escreveu"],
+        ["Assinar um documento", "Garante origem e integridade, e não esconde o conteúdo de ninguém"],
+        ["Verificar uma assinatura", "Confirma que o conteúdo não mudou desde o momento em que foi assinado"],
+        ["Decifrar uma mensagem recebida", "Revela o conteúdo, sem provar que o remetente é quem afirma ser"]
       ],
       "dicas": [
-        "Duas operações usam a chave privada; duas usam a pública.",
-        "Cifrar e verificar usam a pública de alguém.",
-        "Decifrar e assinar exigem a privada do próprio."
+        "Duas das quatro operações mexem no que se pode ler; as outras duas não escondem nada.",
+        "Sigilo e origem são propriedades independentes: dá para ter uma sem ter a outra.",
+        "Uma das quatro não prova nada sobre a pessoa do outro lado."
       ],
-      "pergunta_socratica": "Antes de conferir: para cada linha, pergunte quem precisa conseguir fazer aquilo — só uma pessoa, ou todo mundo?",
-      "explicacao": "A regra que organiza os quatro casos: o que só uma pessoa pode fazer usa a chave privada dela (decifrar e assinar); o que todo mundo pode fazer usa a chave pública (cifrar para alguém e verificar assinatura). Errar o par é o defeito de projeto mais comum em quem começa com criptografia assimétrica.",
+      "pergunta_socratica": "Antes de conferir: depois de cada operação, o que um adversário ainda consegue fazer?",
+      "explicacao": "Cifra e assinatura resolvem problemas diferentes, e é comum tratar uma como se implicasse a outra. Cifrar entrega sigilo e mais nada: qualquer pessoa de posse da chave pública do destinatário poderia ter escrito aquilo. Assinar entrega origem e integridade, e deixa o texto legível para todos. Mensagem que precisa das duas propriedades precisa das duas operações — daí a ordem usual de assinar primeiro e cifrar depois.",
       "fonte": "Crypto 101, cap. 9 e 12",
-      "tags": ["cripto", "assimetrica", "pareamento", "chaves"]
+      "tags": ["cripto", "assimetrica", "pareamento", "propriedades"]
     },
     {
       "id": "2.2.q7",

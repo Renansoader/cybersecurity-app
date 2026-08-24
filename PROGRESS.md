@@ -282,18 +282,13 @@ real de requisição.
   do commit `48f9dd7`.
 - **Dica que reescreve a alternativa correta** é o defeito recorrente do projeto:
   4 casos no 3.1, 6 no 3.2, 13 no 3.3 e 17 no 4.1, todos corrigidos na revisão.
-  As quatro regras do validador pegam a versão literal dele; a paráfrase, que é a
+  As regras do validador pegam a versão literal dele; a paráfrase, que é a
   maioria, continua dependendo de leitura. No 4.1 o defeito apareceu mesmo com a
   regra escrita no encargo do autor.
 - **Sete pares de questões que ensinam a mesma coisa**, achados pela regra 5 em
   22/08/2026 e ainda não tratados. Os mais fortes: `2.3.q31` × `2.4.q14` (90% do
   vocabulário em comum), `2.3.q9` × `2.4.q14` (80%) e `1.2.q6` × `1.6.q6` (77%).
   Decidir, em cada par, qual questão fica e para onde a outra é repontada.
-- **Seis pareamentos que entregam o gabarito de outra questão**, achados em
-  23/08/2026 quando a regra 5 passou a ler o campo `pares`: `1.5.q28` (88% com
-  `1.5.q13`), `0.3.q3` (80% com `0.3.q2`), `2.2.q6` (três pares, com `2.2.q2` e
-  `2.2.q3`), `1.2.q33`, `1.3.q12` e `4.1.q5`. Mesmo tratamento dos sete pares
-  acima: trocar o eixo do pareamento, e não apagar a questão.
 - **A dica que parafraseia o gabarito é o defeito mais teimoso do projeto.** O
   molde é sempre o mesmo — "Pergunte ⟨a pergunta cuja única resposta é o
   gabarito⟩" — e nenhuma ocorrência dispara nas regras 1 a 5, porque não repete
@@ -301,8 +296,8 @@ real de requisição.
   adversarial: `1958f9e` já havia reescrito a maior parte, e restavam 8. As 8
   foram reescritas, e a **regra 6** do validador passou a acusar o molde por
   forma — no começo da dica e no começo de qualquer frase dentro dela. Fica o
-  passivo dos outros módulos: **170 dicas em 15 módulos**, com 4.1 (29),
-  3.1 (25), 3.3 (20), 0.3 (17) e 3.2 (16) na frente. A regra é de forma e não
+  passivo dos outros módulos: **179 dicas em 15 módulos**, com 4.1 (30),
+  3.1 (26), 3.3 (22), 0.3 (18) e 3.2 (16) na frente. A regra é de forma e não
   alcança a paráfrase que dispensa o molde; a leitura humana continua sendo a
   rede que pega esses casos.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia

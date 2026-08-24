@@ -216,10 +216,6 @@
       "enunciado": "Ligue cada termo do vocabulário de endurecimento ao que ele nomeia.",
       "pares": [
         [
-          "linha de base",
-          "O estado de configuração aprovado, com dono e justificativa por item"
-        ],
-        [
           "desvio",
           "Diferença medida entre o que está em execução e o que foi declarado"
         ],
@@ -234,6 +230,10 @@
         [
           "benchmark",
           "Conjunto público de recomendações item a item para configurar uma tecnologia específica"
+        ],
+        [
+          "conformidade",
+          "A nota que diz quantos itens da lista foram atendidos, sem dizer se o risco caiu"
         ]
       ],
       "dicas": [
@@ -242,11 +242,11 @@
         "Só um dos cinco vem de fora da organização, escrito por terceiros."
       ],
       "pergunta_socratica": "Antes de conferir: dos termos que descrevem diferença, quais deles alguém assinou embaixo?",
-      "explicacao": "O vocabulário separa coisas que a conversa costuma juntar. A linha de base é a declaração; o desvio é a diferença medida contra ela; a exceção documentada é o desvio que alguém autorizou, com dono e prazo, e por isso é gerenciável. A deriva é o acúmulo silencioso de mudanças pequenas, sem evento que a explique, e é o motivo de a medição precisar ser periódica. O benchmark é insumo externo: a receita pronta que a organização adapta para escrever a própria linha de base.",
+      "explicacao": "O vocabulário separa coisas que a conversa costuma juntar. O desvio é a diferença medida contra o que foi declarado; a exceção documentada é o desvio que alguém autorizou, com dono e prazo, e por isso é gerenciável; a deriva é o acúmulo silencioso de mudanças pequenas, sem evento que a explique, e é o motivo de a medição precisar ser periódica. O benchmark é insumo externo, a receita pronta que a organização adapta. A conformidade é placar, e não postura: cem por cento de itens atendidos convive com risco intacto se a lista não cobria o que importava.",
       "fonte": "CIS Critical Security Controls v8.1 e CIS Benchmarks (cisecurity.org/controls); NIST SP 800-123, julho de 2008; vocabulário operacional declarado como conhecimento consolidado",
       "tags": [
         "vocabulario",
-        "linha-de-base",
+        "conformidade",
         "excecao",
         "deriva",
         "pareamento"

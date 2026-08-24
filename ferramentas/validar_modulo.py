@@ -188,6 +188,17 @@ def achar_gabarito_entregue(dados, avisos):
     """
     questoes = dados["questoes"]
 
+    # 6. dica no molde "Pergunte ⟨…⟩". Vale para todo tipo de questão, e não só
+    # para as que têm alternativas: pareamento e ordenação também têm dicas.
+    for questao in questoes:
+        for n, dica in enumerate(questao["dicas"], start=1):
+            achado = MOLDE_PERGUNTE.search(dica)
+            if achado and not _aceito(questao["id"], f"molde da dica {n}"):
+                avisos.append(
+                    f"{questao['id']}: a dica {n} usa o molde {achado.group(0).strip()!r} — formular "
+                    f"a pergunta cuja única resposta é o gabarito não é estreitar o raciocínio; "
+                    f"aponte onde olhar")
+
     for questao in questoes:
         ctx = questao["id"]
         alternativas = questao.get("alternativas")
@@ -203,15 +214,6 @@ def achar_gabarito_entregue(dados, avisos):
                     f"{ctx}: a dica {n} traz {medida[0]:.0%} das palavras que só a alternativa "
                     f"correta tem ({', '.join(medida[1])}) — a dica deve estreitar o "
                     f"raciocínio, não reescrever o gabarito")
-
-        # 6. dica no molde "Pergunte ⟨…⟩"
-        for n, dica in enumerate(questao["dicas"], start=1):
-            achado = MOLDE_PERGUNTE.search(dica)
-            if achado and not _aceito(ctx, f"molde da dica {n}"):
-                avisos.append(
-                    f"{ctx}: a dica {n} usa o molde {achado.group(0).strip()!r} — formular a "
-                    f"pergunta cuja única resposta é o gabarito não é estreitar o raciocínio; "
-                    f"aponte onde olhar")
 
         # 2. artefato ou trecho que carrega a resposta.
         # Em caça ao erro o gabarito aponta para um item do próprio trecho, então

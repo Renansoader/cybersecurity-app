@@ -139,40 +139,40 @@
       "objetivos": [
         0
       ],
-      "enunciado": "Ligue cada perfil de adversário à sua motivação predominante.",
+      "enunciado": "Ligue cada perfil de adversário ao recurso que ele tipicamente tem à disposição.",
       "pares": [
         [
           "Script kiddie",
-          "Curiosidade e status, com alvos escolhidos por oportunidade"
+          "Ferramenta pronta de terceiros, usada sem entender o que ela faz"
         ],
         [
           "Cibercriminoso",
-          "Lucro financeiro, com operação organizada como negócio"
+          "Infraestrutura alugada e divisão de trabalho entre especialistas contratados"
         ],
         [
           "Hacktivista",
-          "Repercussão pública em favor de uma causa"
+          "Mão de obra voluntária, reunida depressa e dispersa depois"
         ],
         [
           "Insider malicioso",
-          "Ganho pessoal ou retaliação contra a própria organização"
+          "O acesso que já lhe foi concedido e o mapa de onde o dado importante fica"
         ],
         [
           "Nação-estado",
-          "Vantagem estratégica: espionagem, propriedade intelectual, infraestrutura"
+          "Tempo, equipe dedicada e falha ainda desconhecida do fabricante"
         ]
       ],
       "dicas": [
-        "Pergunte de cada perfil: o que ele considera sucesso ao fim do ataque?",
-        "Dois perfis querem dinheiro, mas um deles já está dentro da organização.",
-        "Um dos perfis considera sucesso o fato de a imprensa noticiar."
+        "Separe os cinco em dois grupos: os que precisam construir o que usam e os que apenas pegam algo pronto.",
+        "Um dos cinco não precisa atravessar barreira nenhuma para chegar ao dado — ele já passou pela porta.",
+        "Só um dos cinco consegue sustentar meses de trabalho apoiado em algo que mais ninguém conhece."
       ],
-      "pergunta_socratica": "Antes de conferir: para cada perfil, qual seria o resultado que o faria considerar o ataque bem-sucedido?",
-      "explicacao": "Motivação é o eixo que melhor separa os perfis, porque ela determina alvo, método e o que conta como sucesso. O script kiddie quer o que estiver acessível; o cibercriminoso quer pagamento; o hacktivista quer visibilidade; o insider malicioso quer ganho ou retaliação; a nação-estado quer vantagem estratégica e, por isso, prefere não ser notada. Saber o que o adversário considera sucesso ajuda a prever o que ele fará depois de entrar.",
+      "pergunta_socratica": "Antes de conferir: para cada perfil, o que ele precisaria comprar, alugar ou pedir emprestado se não tivesse esse recurso?",
+      "explicacao": "Capacidade e motivação são eixos diferentes, e confundi-los leva a defesa desproporcional. O script kiddie depende do que outros publicaram; o cibercriminoso compra o que falta, porque opera como empresa; o hacktivista converte adesão à causa em mão de obra temporária; o insider dispensa qualquer ferramenta de invasão, porque o acesso já é dele; a nação-estado é a única que sustenta pesquisa própria e falha ainda desconhecida. Defesa proporcional se escolhe pela capacidade que se tem pela frente, e não pelo susto que o nome do perfil causa.",
       "fonte": "cyber security.pdf; Security Engineering, 3ª ed., cap. 2",
       "tags": [
         "adversarios",
-        "motivacao",
+        "capacidade",
         "pareamento",
         "fundamentos"
       ]
