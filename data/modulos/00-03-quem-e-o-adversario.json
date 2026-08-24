@@ -193,7 +193,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte o que o atacante ganha com o fato de todo mundo ver a ação.",
+        "O enunciado traz três fatos: o que foi trocado, o conteúdo que entrou no lugar e o que o grupo fez depois. Use os três, e não só o primeiro.",
         "Quem quer dinheiro costuma preferir permanecer invisível.",
         "A divulgação nas redes é parte do objetivo, não um descuido."
       ],
@@ -228,7 +228,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte o que muda no seu plano depois de classificar o adversário.",
+        "O eixo motivação responde por que alguém viria; o eixo capacidade, até onde conseguiria ir. Verifique o que cada opção faz com essas duas respostas.",
         "Higiene básica basta contra qual combinação? E contra qual não basta?",
         "Duas alternativas prometem precisão que o modelo não entrega."
       ],
@@ -263,7 +263,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem varre a internet inteira sem escolher a vítima.",
+        "O enunciado não diz nada de especial sobre essa empresa além do porte e do ramo. Repare no que cada opção assume que ele teria dito.",
         "Ransomware não pergunta o tamanho da empresa antes de cifrar.",
         "Cuidado com a alternativa que conclui que ninguém é alvo."
       ],
@@ -371,7 +371,7 @@
       "correta": 0,
       "dicas": [
         "Baixa capacidade individual multiplicada por escala gigantesca dá o quê?",
-        "Pergunte quanto tempo um servidor exposto e desatualizado leva para ser encontrado hoje.",
+        "Três das opções emprestam a esse perfil alguma coisa que pertence a outro perfil do módulo. Confira cada uma contra a definição de script kiddie.",
         "As outras três alternativas atribuem a esse perfil capacidades que ele não tem."
       ],
       "pergunta_socratica": "Antes de conferir: se você subisse um servidor sem atualização e exposto agora, quanto tempo até a primeira tentativa automatizada?",
@@ -405,7 +405,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte de cada um: ser descoberto atrapalha ou faz parte do plano?",
+        "Compare as quatro opções pelo critério que cada uma usa para separar os dois perfis: a vítima, a ferramenta, o tamanho do grupo, ou o que cada um quer no fim.",
         "Um deles precisa que a vítima saiba do ataque para receber o pagamento.",
         "Cuidado com alternativas que separam por tipo de vítima ou por ferramenta."
       ],
@@ -441,7 +441,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem teria motivo para atacar cada uma, e o que aconteceria se conseguisse.",
+        "Orçamento parecido não quer dizer prioridade parecida. Antes de olhar as opções, escreva o que de fato difere entre as duas empresas.",
         "Interrupção de operação pesa igual nos dois casos?",
         "Cuidado com alternativas que dispensam segurança em um dos lados."
       ],
@@ -478,7 +478,7 @@
       "dicas": [
         "Esse adversário encontra o que está exposto e desatualizado. O que remove essas duas condições?",
         "Três opções são caras e voltadas a adversários que já passaram pelo básico.",
-        "Pergunte qual medida elimina a categoria inteira de ataque automatizado."
+        "O enunciado fixa dois limites: o adversário é oportunista, e o critério inclui custo. Teste cada opção contra os dois, e não só contra o primeiro."
       ],
       "pergunta_socratica": "Antes de conferir: qual conjunto de medidas faz o ataque automatizado simplesmente não encontrar nada?",
       "explicacao": "Higiene básica elimina quase toda a categoria: atualizar remove a falha que a ferramenta pronta explora, não expor remove o alvo da varredura e múltiplo fator anula a credencial vazada. As outras três opções são úteis contra adversários determinados, custam muito mais e não fazem sentido antes do básico estar resolvido.",
@@ -512,7 +512,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte o que acontece quando o adversário tem meses para tentar.",
+        "A pergunta não afirma que a prevenção deixou de valer. Repare no que ela desloca: o que passa a ser medido.",
         "A diferença entre um incidente pequeno e um catastrófico costuma ser o tempo.",
         "Cuidado com a alternativa que declara a prevenção inútil."
       ],
@@ -654,7 +654,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte o que o ransomware alcança a partir do servidor que ele comprometeu.",
+        "Cinco linhas descrevem o plano, e quase todas foram escritas contra o adversário nomeado no topo. Leia uma a uma e teste se o controle continua de pé durante o ataque.",
         "Backup só vale como backup se o atacante não puder alcançá-lo.",
         "Três alternativas apontam incômodos operacionais; uma anula o controle principal."
       ],
@@ -691,7 +691,7 @@
       "correta": 0,
       "dicas": [
         "Três das opções atingem praticamente qualquer organização conectada.",
-        "Pergunte o que essa organização tem que interessa a alguém e não interessaria a um criminoso comum.",
+        "O enunciado contrasta duas organizações. Liste o que cada uma guarda, e veja qual das listas tem um item que a outra não tem.",
         "O ativo mais sensível ali pode ser a identidade das pessoas envolvidas."
       ],
       "pergunta_socratica": "Antes de conferir: qual é o dado cuja exposição causaria o maior dano nessa organização, e a quem?",
@@ -863,7 +863,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quantas pessoas precisam concordar para a fraude acontecer hoje.",
+        "A pergunta pede o controle que ataca a raiz, e não o que ajuda depois do fato. Separe as quatro opções nesses dois grupos antes de escolher.",
         "Uma das opções torna a fraude impossível para uma pessoa agindo sozinha.",
         "Log permite descobrir depois; a pergunta é sobre impedir."
       ],
@@ -900,7 +900,7 @@
       "dicas": [
         "Existe um caminho entre não fazer nada e inviabilizar o trabalho dos 30 dias.",
         "Menor privilégio se aplica também a quem está saindo.",
-        "Pergunte o que precisa estar pronto no dia do desligamento."
+        "O aviso prévio tem começo e fim. Verifique se cada opção trata os dois momentos ou só um deles."
       ],
       "pergunta_socratica": "Antes de conferir: de quais acessos essa pessoa realmente precisa para concluir o que falta?",
       "explicacao": "Reduzir ao necessário aplica menor privilégio sem impedir a entrega, ampliar auditoria dá visibilidade sem tratar a pessoa como suspeita, e ter a revogação planejada evita a conta órfã que é a falha mais comum em desligamentos. Revogar tudo de imediato inviabiliza o aviso prévio; não fazer nada ignora um momento de risco conhecido; monitorar em silêncio de forma ampla levanta questões legais e de privacidade sem reduzir o acesso.",
@@ -976,7 +976,7 @@
       "correta": 0,
       "dicas": [
         "Leia o escopo: ele restringe a política a quais casos?",
-        "Pergunte se antecedentes, termo e denúncia impedem um envio para o destinatário errado.",
+        "Compare o objetivo declarado no topo da política com a linha de escopo no rodapé. Os dois descrevem o mesmo conjunto de casos?",
         "O caso mais frequente dessa categoria não envolve má-fé nenhuma."
       ],
       "pergunta_socratica": "Antes de conferir: qual das três medidas teria evitado uma planilha enviada por engano para a lista errada?",
@@ -1011,7 +1011,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte quem é observado por esses controles.",
+        "A pergunta é sobre um equilíbrio, e não sobre um controle. Escreva os dois lados que precisam ser equilibrados antes de olhar as opções.",
         "Existe diferença entre reduzir privilégio e vigiar comportamento.",
         "Cuidado com alternativas absolutas: \"proíbe qualquer\", \"nenhum efeito\"."
       ],
@@ -1081,7 +1081,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte por que alguém gastaria uma vulnerabilidade inédita se um e-mail bem escrito resolve.",
+        "O enunciado chama as técnicas de banais e o grupo de avançado. Antes de tratar isso como contradição, verifique em que etapa do ataque cada uma aparece.",
         "Recursos caros são finitos e queimam quando usados.",
         "O que é avançado nesses grupos costuma ser o que vem depois da entrada."
       ],
@@ -1225,7 +1225,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte de quem é o servidor de onde o ataque partiu.",
+        "A pergunta é sobre dificuldade, e não sobre impossibilidade. Repare em quais opções afirmam que a informação não existe, e quais afirmam que ela existe mas não é confiável.",
         "Se dois grupos diferentes usam a mesma ferramenta, o que a ferramenta prova sobre a autoria?",
         "Existe interesse deliberado em parecer outro grupo."
       ],
