@@ -296,7 +296,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte qual problema o NAT foi criado para resolver.",
+        "Três das opções atribuem ao NAT uma função de segurança. Verifique, uma a uma, se o mecanismo faz aquilo.",
         "Ele olha para o conteúdo do tráfego?",
         "O que acontece quando a conexão parte de dentro?"
       ],
@@ -983,7 +983,7 @@
       ],
       "correta": 0,
       "dicas": [
-        "Pergunte até onde cada um dos dois consegue ser usado: até o roteador, ou além dele?",
+        "Duas das opções ligam um dos endereços a pessoas ou a um tipo de meio físico. Comece verificando se isso procede.",
         "As camadas são diferentes: rede e enlace.",
         "Nenhum dos dois identifica pessoas."
       ],
