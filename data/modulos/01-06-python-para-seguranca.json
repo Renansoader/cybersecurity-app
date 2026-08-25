@@ -67,14 +67,14 @@
       "objetivos": [0],
       "enunciado": "Qual é a diferença entre `sock.connect((host, porta))` e `sock.connect_ex((host, porta))`?",
       "alternativas": [
-        "connect levanta exceção quando falha; connect_ex devolve um código numérico, sendo 0 conexão estabelecida",
+        "connect levanta exceção; connect_ex devolve código numérico",
         "connect usa TCP e connect_ex usa UDP",
         "connect_ex é assíncrono e retorna antes de a conexão ser tentada",
         "connect_ex cifra a conexão e connect não"
       ],
       "correta": 0,
       "dicas": [
-        "O sufixo ex indica retorno de código de erro, em vez de exceção.",
+        "O sufixo ex do nome muda a forma como a falha chega até quem chamou.",
         "Em varredura de muitas portas, tratar exceção a cada tentativa é incômodo.",
         "Nenhum dos dois altera o protocolo nem cifra nada."
       ],
@@ -96,7 +96,7 @@
       "trecho": "import socket\n\ndef portas_abertas(host, inicio, fim):\n    abertas = []\n    for porta in range(inicio, fim):\n        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n        if s.connect_ex((host, porta)) == 0:\n            abertas.append(porta)\n        s.close()\n    return abertas\n\nprint(portas_abertas(\"10.0.0.5\", 20, 25))",
       "enunciado": "Este código tem dois defeitos que não geram mensagem de erro. Quais são?",
       "alternativas": [
-        "Não define tempo limite, então portas filtradas travam a execução; e range(inicio, fim) nunca testa a porta 25",
+        "Não define tempo limite, e range(inicio, fim) nunca testa a porta 25",
         "Usa connect_ex em vez de connect, o que impede detectar portas abertas",
         "Não fecha o socket, o que esgota os descritores do sistema",
         "Usa SOCK_STREAM, que só funciona para UDP"
@@ -153,7 +153,7 @@
       "trecho": "import socket\n\ndef testar(host, porta):\n    try:\n        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n        s.settimeout(1)\n        s.connect((host, porta))\n        s.close()\n        return True\n    except Exception:\n        pass\n    return False",
       "enunciado": "Qual é o problema mais grave do tratamento de erro deste código?",
       "alternativas": [
-        "Capturar Exception e silenciar tudo esconde erros de programação: um nome de variável errado devolveria False como se a porta estivesse fechada",
+        "Silenciar toda Exception esconde também erro de programação",
         "O tempo limite de 1 segundo é curto demais para qualquer rede",
         "O socket não deveria ser criado dentro do bloco try",
         "A função deveria retornar None em vez de False quando falha"
@@ -210,14 +210,14 @@
       "trecho": "# objetivo: extrair o IP de origem de cada linha de falha de autenticacao\nfor linha in open(\"auth.log\"):\n    if \"Failed password\" in linha:\n        print(linha.split()[10])\n\n# saida obtida:\n# admin\n# oracle\n# 198.51.100.7",
       "enunciado": "Por que a saída mistura nomes de usuário com endereços?",
       "alternativas": [
-        "Linhas com \"invalid user\" têm duas palavras a mais, então o índice fixo aponta para campos diferentes conforme a linha",
+        "Linhas com \"invalid user\" têm duas palavras a mais",
         "O método split não funciona corretamente com linhas longas",
         "O arquivo precisa ser lido com readlines para que os índices fiquem corretos",
         "O índice 10 está fora do intervalo e o Python devolve o último campo"
       ],
       "correta": 0,
       "dicas": [
-        "Compare palavra a palavra uma linha com \"invalid user\" e outra sem.",
+        "Compare palavra a palavra duas linhas de tipos diferentes do log.",
         "Índice fixo pressupõe que todas as linhas tenham o mesmo formato.",
         "Se o índice estivesse fora do intervalo, haveria exceção."
       ],
@@ -294,7 +294,7 @@
       "objetivos": [2],
       "enunciado": "Por que SHA-256 deve ser preferido a MD5 para verificar se um arquivo foi adulterado?",
       "alternativas": [
-        "Porque MD5 tem colisões conhecidas e práticas: é possível produzir dois conteúdos diferentes com o mesmo resumo",
+        "Porque MD5 tem colisões conhecidas e práticas há anos",
         "Porque MD5 produz um resumo maior e mais lento de calcular",
         "Porque MD5 não funciona com arquivos binários",
         "Porque MD5 depende de uma chave secreta que precisa ser distribuída"
@@ -350,7 +350,7 @@
       "objetivos": [2],
       "enunciado": "Por que comparar hashes com `hmac.compare_digest` em vez de `==`?",
       "alternativas": [
-        "Porque a comparação comum termina no primeiro byte diferente, e o tempo variável pode vazar informação sobre o valor esperado",
+        "Porque a comparação comum termina no primeiro byte diferente",
         "Porque o operador == não funciona com strings hexadecimais longas",
         "Porque compare_digest normaliza maiúsculas e minúsculas antes de comparar",
         "Porque compare_digest calcula o hash novamente antes de comparar"
@@ -379,7 +379,7 @@
       "trecho": "import subprocess\n\nnome = input(\"arquivo para analisar: \")\nsubprocess.run(f\"strings {nome} | head -20\", shell=True)",
       "enunciado": "Qual é a falha deste código, e o que a torna explorável?",
       "alternativas": [
-        "Com shell=True, a entrada do usuário é interpretada pelo shell: um valor como \"a.txt; comando\" executa o comando adicional",
+        "Com shell=True, a entrada do usuário é interpretada pelo shell",
         "O uso de f-string impede que o subprocess encontre o executável strings",
         "A função input não deveria ser usada em scripts, apenas em modo interativo",
         "O comando head não existe em todos os sistemas, o que causa erro"
@@ -435,7 +435,7 @@
       "objetivos": [3],
       "enunciado": "Por padrão, o que `subprocess.run` faz quando o programa executado termina com código diferente de zero?",
       "alternativas": [
-        "Nada de especial: devolve o resultado com o código em returncode, e o script segue normalmente",
+        "Nada de especial: o código de saída fica em returncode",
         "Levanta CalledProcessError imediatamente",
         "Encerra o script com o mesmo código de saída",
         "Repete a execução automaticamente até obter sucesso"
@@ -463,7 +463,7 @@
       "objetivos": [3],
       "enunciado": "Por que `eval` não deve ser usado para converter entrada do usuário em número?",
       "alternativas": [
-        "Porque eval executa qualquer expressão recebida, então uma entrada maliciosa vira código executado; int() valida e recusa o que não for número",
+        "Porque eval executa qualquer expressão que receber",
         "Porque eval é mais lento que int() em números grandes",
         "Porque eval não consegue converter strings em inteiros",
         "Porque eval só funciona dentro de funções"
@@ -491,7 +491,7 @@
       "objetivos": [2],
       "enunciado": "Por que o módulo `secrets` deve ser usado em vez de `random` para gerar tokens e senhas?",
       "alternativas": [
-        "Porque random é determinístico: com a mesma semente produz a mesma sequência, e é previsível para uso em segurança",
+        "Porque random é determinístico, e por isso previsível",
         "Porque random não consegue gerar números grandes o suficiente",
         "Porque secrets gera valores mais rapidamente que random",
         "Porque random só funciona com números inteiros"
@@ -519,7 +519,7 @@
       "objetivos": [0],
       "enunciado": "Um script de varredura de portas roda muito devagar em uma faixa de rede filtrada. Qual é a causa mais provável e a correção?",
       "alternativas": [
-        "O tempo limite está alto ou ausente: portas filtradas não respondem e cada tentativa espera até o limite; reduzir o tempo limite resolve",
+        "O tempo limite está alto ou ausente, e cada tentativa espera até o limite",
         "O Python é lento demais para varredura e a solução é reescrever em outra linguagem",
         "O sistema operacional limita o número de sockets e a solução é reiniciar a máquina",
         "A rede está com perda de pacotes e não há nada a fazer no script"
@@ -527,7 +527,7 @@
       "correta": 0,
       "dicas": [
         "O que acontece quando um firewall descarta o pacote em silêncio?",
-        "Quanto tempo o script espera por uma resposta que nunca vem?",
+        "Faça a conta: mil portas fechadas por um firewall silencioso, e o script parado em cada uma.",
         "A diferença entre porta fechada e filtrada aparece justamente aqui."
       ],
       "pergunta_socratica": "Antes de conferir: porta fechada responde rápido; porta filtrada responde o quê?",
@@ -547,7 +547,7 @@
       "objetivos": [1],
       "enunciado": "Por que iterar sobre o arquivo linha a linha é preferível a `arquivo.read()` ao processar logs grandes?",
       "alternativas": [
-        "Porque a iteração mantém o consumo de memória constante, enquanto read carrega o arquivo inteiro de uma vez",
+        "Porque a iteração mantém o consumo de memória constante",
         "Porque read não consegue ler arquivos com mais de mil linhas",
         "Porque a iteração processa as linhas em ordem alfabética",
         "Porque read remove as quebras de linha do conteúdo"
@@ -576,7 +576,7 @@
       "artefato": "$ python verificar.py instalador.bin\nSHA-256 calculado : 55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251\nSHA-256 publicado : 55a5e9e78207b4df8699d60886fa070079463547b095d1a05bc719bb4e6cd251\nResultado         : correspondem",
       "enunciado": "O que essa verificação prova, e o que ela não prova?",
       "alternativas": [
-        "Prova que o arquivo baixado é idêntico ao que gerou o valor publicado; não prova que o arquivo publicado é confiável nem que o site de origem não foi comprometido",
+        "Prova que o arquivo baixado é idêntico ao que gerou o valor publicado",
         "Prova que o arquivo está livre de código malicioso, já que os resumos coincidem",
         "Prova que o arquivo foi assinado digitalmente pelo fabricante",
         "Não prova nada, porque hashes coincidem por acaso com frequência"
@@ -604,7 +604,7 @@
       "objetivos": [3],
       "enunciado": "Um script recebe um nome de arquivo por parâmetro e o repassa a um comando externo. Qual defesa é mais robusta?",
       "alternativas": [
-        "Passar os argumentos como lista para o subprocess e validar o valor recebido contra uma lista de caminhos permitidos",
+        "Passar os argumentos como lista e validar o valor contra uma lista permitida",
         "Remover apenas o caractere de ponto e vírgula do valor recebido",
         "Aumentar as permissões do script para que ele consiga tratar qualquer caminho",
         "Executar o script como root, evitando erros de acesso"
@@ -712,7 +712,7 @@
       "objetivos": [0],
       "enunciado": "Por que chamar `s.settimeout(0.5)` antes de `s.connect_ex(...)` em uma varredura?",
       "alternativas": [
-        "Para que portas filtradas, que não respondem, não travem a execução até o limite do sistema",
+        "Para que portas filtradas não travem a execução do script",
         "Para reduzir o consumo de memória de cada socket criado",
         "Para permitir que o socket aceite conexões de entrada",
         "Para cifrar a conexão antes do envio dos dados"
@@ -740,7 +740,7 @@
       "objetivos": [3],
       "enunciado": "Um script de segurança precisa de uma biblioteca externa que faz algo já disponível na biblioteca padrão. Qual é o argumento contra adicionar a dependência?",
       "alternativas": [
-        "Cada dependência acrescenta código de terceiros ao seu programa, ampliando a superfície de cadeia de fornecimento e o esforço de manutenção",
+        "Cada dependência acrescenta código de terceiros ao seu programa",
         "Bibliotecas externas são sempre mais lentas que a biblioteca padrão",
         "O Python não permite instalar bibliotecas em ambientes de produção",
         "Bibliotecas externas não funcionam com scripts executados por cron"
@@ -796,7 +796,7 @@
       "objetivos": [1],
       "enunciado": "Qual é o risco de uma expressão regular frouxa como `\\d+\\.\\d+\\.\\d+\\.\\d+` para identificar endereços IP?",
       "alternativas": [
-        "Ela casa com sequências que não são endereços válidos, como 999.999.1.1, e pode capturar trechos indevidos da linha",
+        "Ela casa com sequências que não são endereços válidos",
         "Ela não consegue casar com endereços que comecem com 1",
         "Ela consome memória proporcional ao tamanho do arquivo inteiro",
         "Ela só funciona quando o endereço está no início da linha"
@@ -824,7 +824,7 @@
       "objetivos": [2],
       "enunciado": "Uma equipe quer detectar alteração não autorizada em arquivos de configuração de servidores. Qual abordagem funciona?",
       "alternativas": [
-        "Guardar o hash de cada arquivo em um local separado e comparar periodicamente, alertando sobre diferenças",
+        "Guardar o hash de cada arquivo à parte e comparar periodicamente",
         "Verificar a data de modificação dos arquivos a cada semana",
         "Guardar uma cópia dos arquivos no mesmo servidor e comparar por tamanho",
         "Registrar quem tem permissão de escrita nos arquivos e revisar anualmente"
@@ -852,7 +852,7 @@
       "objetivos": [3],
       "enunciado": "Por que credenciais não devem ser escritas diretamente no código de um script?",
       "alternativas": [
-        "Porque o código costuma ir para repositórios e ser compartilhado, e a credencial passa a existir em cópias e no histórico de versões",
+        "Porque o código costuma ir para repositórios e ser compartilhado",
         "Porque o Python não consegue processar strings longas com caracteres especiais",
         "Porque credenciais em código tornam o script mais lento ao iniciar",
         "Porque o interpretador exibe as variáveis do script em mensagens de erro"
@@ -904,7 +904,7 @@
       "objetivos": [3],
       "enunciado": "Por que carregar dados de fonte não confiável com `pickle` é perigoso?",
       "alternativas": [
-        "Porque a desserialização pode executar código embutido no dado, transformando o carregamento em execução arbitrária",
+        "Porque a desserialização pode executar código embutido no dado",
         "Porque pickle é mais lento que os formatos de texto e trava o script",
         "Porque pickle não preserva a estrutura dos objetos ao recarregar",
         "Porque pickle só funciona com objetos criados na mesma versão do Python"
@@ -932,7 +932,7 @@
       "objetivos": [0, 1],
       "enunciado": "Você precisa de um script que verifique diariamente se serviços críticos continuam respondendo em três servidores. Quais decisões de projeto são as mais importantes?",
       "alternativas": [
-        "Tempo limite curto por tentativa, tratamento de OSError sem engolir erros inesperados, registro de cada execução com resultado, e alerta quando o próprio script falhar",
+        "Tempo limite curto, OSError tratado sem engolir o resto, e registro de cada execução",
         "Executar como root e sem tempo limite, para garantir que nenhuma verificação seja perdida",
         "Usar shell=True para reaproveitar comandos de rede já existentes no sistema",
         "Capturar todas as exceções com except Exception e continuar, para o script nunca parar"
@@ -960,7 +960,7 @@
       "objetivos": [1],
       "enunciado": "Qual construção monta um caminho de arquivo de forma portátil entre sistemas?",
       "alternativas": [
-        "Path(\"/var/log\") / \"auth.log\", do módulo pathlib",
+        "Path(\"/var/log\") / \"auth.log\"",
         "\"/var/log\" + \"auth.log\"",
         "\"/var/log\" + \"\\\\\" + \"auth.log\"",
         "\"/var/log\".join(\"auth.log\")"
@@ -988,7 +988,7 @@
       "objetivos": [3],
       "enunciado": "Uma ferramenta de segurança escrita por você será usada por colegas. Qual prática mais reduz o risco de uso indevido?",
       "alternativas": [
-        "Deixar explícito no próprio programa que ele exige autorização, exigir confirmação do escopo e registrar o que foi executado e contra quais alvos",
+        "Deixar explícito que ele exige autorização e registrar a execução",
         "Distribuir o programa como binário, para que ninguém veja o código",
         "Remover todas as mensagens de saída, para não expor informação",
         "Permitir que o programa aceite qualquer alvo sem parâmetros obrigatórios"
@@ -1016,7 +1016,7 @@
       "objetivos": [0, 1, 2, 3],
       "enunciado": "Revisando um script de automação de segurança de um colega, quais quatro pontos você verificaria primeiro?",
       "alternativas": [
-        "Se há credencial no código, se a entrada externa chega a comandos ou a eval, se os erros esperados são tratados sem engolir os demais, e se a execução deixa registro",
+        "Se há credencial no código, se a entrada externa chega a comandos e se há log",
         "Se o código segue o estilo de formatação da equipe e tem comentários suficientes",
         "Se o script usa as bibliotecas mais recentes disponíveis no repositório de pacotes",
         "Se o script roda mais rápido que a versão anterior"
