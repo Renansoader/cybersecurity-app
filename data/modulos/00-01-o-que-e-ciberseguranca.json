@@ -483,7 +483,7 @@
       "trecho": "ESCOPO DA POLÍTICA — versão aprovada\nEsta Política de Segurança da Informação aplica-se a todos os sistemas, redes, aplicações e dispositivos eletrônicos da empresa.\nNão estão cobertos por esta política: documentos impressos, arquivos físicos, salas de reunião e comunicação verbal.",
       "enunciado": "Qual é o problema com o escopo declarado nesta política?",
       "alternativas": [
-        "A política se chama de Segurança da Informação, mas o escopo é o de uma política de cibersegurança — e as exclusões deixam de fora riscos reais de informação",
+        "Ela se chama de Segurança da Informação, mas o escopo é o de uma política de cibersegurança",
         "O escopo está correto; documentos impressos são responsabilidade do setor administrativo",
         "O problema é que a política deveria cobrir apenas dados de clientes, e não todos os sistemas",
         "O problema é a ausência de menção a dispositivos pessoais dos funcionários"
@@ -731,7 +731,7 @@
       "objetivos": [2],
       "enunciado": "Uma vulnerabilidade de gravidade alta é encontrada em um sistema interno que será desligado em três semanas e não tem acesso pela internet. O comitê decide registrar formalmente a aceitação do risco até o desligamento. Essa decisão é defensável?",
       "alternativas": [
-        "Sim: aceitar é uma das quatro respostas legítimas ao risco, desde que a decisão seja consciente, justificada e registrada por quem tem autoridade",
+        "Sim: aceitar é uma das quatro respostas legítimas ao risco, quando a decisão é registrada",
         "Não: vulnerabilidade de gravidade alta precisa ser corrigida em qualquer contexto",
         "Sim, mas apenas porque a gravidade é alta e não crítica",
         "Não: aceitar risco é sempre uma forma de negligência, e a empresa fica exposta juridicamente"
@@ -866,7 +866,7 @@
       "objetivos": [3],
       "enunciado": "Funcionários passaram a enviar planilhas de trabalho para o e-mail pessoal porque o compartilhamento interno exige três aprovações e demora dois dias. Qual é a leitura mais útil dessa situação?",
       "alternativas": [
-        "O controle é inviável na prática e por isso está sendo contornado; a correção começa por tornar o caminho seguro mais fácil que o inseguro",
+        "O controle é inviável na prática e por isso está sendo contornado",
         "Os funcionários agem de má-fé e devem ser advertidos formalmente",
         "O controle está correto e o problema é a falta de conscientização das equipes",
         "A empresa deve bloquear o acesso a webmail pessoal e considerar o problema resolvido"
@@ -922,7 +922,7 @@
       "objetivos": [3],
       "enunciado": "Um incidente foi possível porque um servidor de teste com dados reais estava exposto na internet, sem senha. O time responsável diz que \"era temporário e todo mundo sabia\". Qual é o diagnóstico mais preciso?",
       "alternativas": [
-        "Falha combinada: tecnologia (exposição sem autenticação) e processo (não existe regra que impeça dado real em ambiente de teste nem prazo para o temporário acabar)",
+        "Falha combinada: uma de tecnologia e outra de processo",
         "Falha exclusivamente de tecnologia: bastava ter configurado uma senha no servidor",
         "Falha exclusivamente de pessoas: quem subiu o servidor agiu com descuido",
         "Não houve falha relevante: ambientes de teste têm naturalmente menos controles"
