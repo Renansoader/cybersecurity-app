@@ -3,7 +3,7 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-25 · commit `4.3` · 2.768 testes passando
+Última atualização: 2026-08-25 · commit `60ecadd` · 2.768 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
