@@ -151,7 +151,7 @@
       "objetivos": [1],
       "enunciado": "Um documento assinado digitalmente é também um documento secreto?",
       "alternativas": [
-        "Não: a assinatura prova origem e integridade, e o conteúdo continua legível por qualquer um",
+        "Não: a assinatura prova origem e integridade, não sigilo",
         "Sim: assinar cifra o documento com a chave privada do autor",
         "Sim, desde que a chave privada tenha pelo menos 2048 bits",
         "Depende do formato do arquivo assinado"
@@ -257,7 +257,7 @@
       "objetivos": [2],
       "enunciado": "Por que uma chave de curva elíptica de 256 bits é considerada forte, enquanto uma chave RSA de 256 bits seria trivial de quebrar?",
       "alternativas": [
-        "Porque os dois esquemas se apoiam em problemas matemáticos diferentes; o número de bits só é comparável dentro da mesma família",
+        "Porque os dois esquemas se apoiam em problemas matemáticos diferentes",
         "Porque curvas elípticas usam cada bit duas vezes, dobrando a força efetiva",
         "Porque RSA é um algoritmo obsoleto e qualquer tamanho de chave é inseguro",
         "Porque chaves de curva elíptica são secretas e as de RSA são públicas"
@@ -285,7 +285,7 @@
       "objetivos": [2],
       "enunciado": "Qual é a vantagem prática das curvas elípticas sobre o RSA?",
       "alternativas": [
-        "Segurança equivalente com chaves e assinaturas muito menores, o que reduz tráfego e processamento",
+        "Segurança equivalente com chaves bem menores",
         "Dispensam a necessidade de chave privada",
         "Permitem cifrar volumes grandes de dados diretamente",
         "Eliminam a necessidade de certificados"
@@ -293,7 +293,7 @@
       "correta": 0,
       "dicas": [
         "Compare 256 bits com 3072 bits para segurança semelhante.",
-        "O que chaves menores significam em uma conexão TLS?",
+        "O que muda no handshake e no tráfego quando o material é mais compacto?",
         "As duas famílias continuam precisando de par de chaves e de certificados."
       ],
       "pergunta_socratica": "Antes de conferir: em um celular estabelecendo centenas de conexões, o que chaves menores economizam?",
@@ -365,7 +365,7 @@
       "objetivos": [3],
       "enunciado": "Qual é a consequência incômoda do modelo de autoridades certificadoras usado na web?",
       "alternativas": [
-        "Qualquer autoridade em que o sistema confia pode emitir certificado para qualquer domínio, então a segurança do conjunto é a da autoridade mais fraca",
+        "Qualquer autoridade confiada pode emitir certificado para qualquer domínio",
         "Cada domínio só pode ter um certificado válido por vez em todo o mundo",
         "As autoridades têm acesso à chave privada dos sites que certificam",
         "Certificados só podem ser emitidos por autoridades do mesmo país do domínio"
@@ -394,7 +394,7 @@
       "artefato": "Erro ao acessar https://api.parceiro.com.br\n\nDetalhes do certificado apresentado:\n  Emitido para . . : api.parceiro.com\n  Emitido por  . . : Autoridade Confiável Global R3\n  Válido de  . . . : 02/01/2026\n  Válido até . . . : 01/04/2026\n  Data de hoje . . : 15/03/2026\n  Cadeia . . . . . : completa até raiz confiável",
       "enunciado": "Qual é a causa do erro?",
       "alternativas": [
-        "O nome não confere: o certificado foi emitido para api.parceiro.com e o acesso é a api.parceiro.com.br",
+        "O nome não confere: o certificado é de outro domínio",
         "O certificado está expirado, pois hoje é 15/03/2026",
         "A cadeia está incompleta e falta o certificado intermediário",
         "A autoridade emissora não é reconhecida pelo sistema"
@@ -424,7 +424,7 @@
       "pares": [
         ["Certificado expirado", "Renovação esquecida pela equipe que opera o serviço"],
         ["Nome não confere", "Certificado emitido para outro domínio ou subdomínio"],
-        ["Cadeia incompleta", "O servidor não envia o certificado intermediário"],
+        ["Cadeia incompleta", "Falta um elo entre a folha e a raiz na resposta do servidor"],
         ["Autoridade desconhecida", "Certificado autoassinado ou emitido por autoridade interna não instalada"]
       ],
       "dicas": [
@@ -444,7 +444,7 @@
       "objetivos": [3, 1],
       "enunciado": "Uma empresa instala a própria autoridade certificadora em todas as máquinas para inspecionar o tráfego cifrado dos funcionários. Qual é a avaliação técnica?",
       "alternativas": [
-        "Funciona porque as máquinas passam a confiar em certificados emitidos por essa autoridade; em troca, a chave dela permite personificar qualquer site e precisa de proteção máxima",
+        "Funciona: as máquinas passam a confiar nessa autoridade, e a chave dela é alvo",
         "Não funciona: TLS impede qualquer forma de inspeção do tráfego",
         "Funciona e não cria risco novo, já que a autoridade é interna e controlada",
         "Funciona apenas para sites que aceitarem explicitamente a autoridade da empresa"
@@ -472,7 +472,7 @@
       "objetivos": [0, 2],
       "enunciado": "Por que o TLS usa criptografia assimétrica e simétrica na mesma conexão?",
       "alternativas": [
-        "A assimétrica autentica o servidor e estabelece a chave de sessão; a simétrica cifra o volume de dados, porque é muito mais rápida",
+        "A assimétrica autentica e estabelece a chave; a simétrica cifra o volume",
         "A assimétrica cifra o cabeçalho e a simétrica cifra o corpo da mensagem",
         "A simétrica é usada em conexões locais e a assimétrica em conexões pela internet",
         "As duas cifram o mesmo dado em sequência, dobrando a proteção"
@@ -501,7 +501,7 @@
       "trecho": "PROPOSTA — troca de arquivos entre parceiros\n\"Cada parceiro gera um par de chaves. Para enviar um arquivo confidencial, o\nremetente cifra o arquivo com a própria chave privada. O destinatário decifra\ncom a chave pública do remetente, o que garante ao mesmo tempo o sigilo e a\nautoria do arquivo.\"",
       "enunciado": "Qual é o erro desta proposta?",
       "alternativas": [
-        "Cifrar com a própria chave privada não dá sigilo nenhum: a chave pública é conhecida por todos, então qualquer um decifra",
+        "Cifrar com a própria chave privada não dá sigilo: a pública é conhecida por todos",
         "O erro é gerar um par de chaves por parceiro; deveria haver um par único compartilhado",
         "O erro é usar criptografia assimétrica para arquivos, que só funciona com texto",
         "Não há erro: a proposta descreve corretamente o funcionamento da assinatura digital"
@@ -557,7 +557,7 @@
       "objetivos": [3],
       "enunciado": "Por que os certificados de servidores web passaram a ter validade cada vez mais curta?",
       "alternativas": [
-        "Porque a revogação funciona de forma imperfeita: validade curta limita a janela em que um certificado comprometido continua sendo aceito",
+        "Porque a revogação funciona de forma imperfeita na prática",
         "Porque certificados longos ocupam mais espaço no handshake",
         "Porque as autoridades certificadoras cobram por período de validade",
         "Porque navegadores não conseguem processar datas distantes"
@@ -565,7 +565,7 @@
       "correta": 0,
       "dicas": [
         "O que deveria acontecer quando uma chave privada vaza?",
-        "Esse mecanismo funciona de forma confiável na prática?",
+        "Se a revogação chegasse instantânea a todo cliente, a validade curta ainda importaria?",
         "Validade curta é uma compensação para qual falha?"
       ],
       "pergunta_socratica": "Antes de conferir: se a revogação falhar, por quanto tempo um certificado comprometido continua sendo aceito?",
@@ -585,7 +585,7 @@
       "objetivos": [3],
       "enunciado": "Um serviço funciona no navegador, mas falha com erro de certificado quando acessado por um script. Qual é a causa mais provável?",
       "alternativas": [
-        "Cadeia incompleta: o servidor não envia o intermediário, e o navegador compensa buscando por conta própria enquanto o script não",
+        "Cadeia incompleta: o servidor não envia o intermediário",
         "O certificado está expirado, e o navegador ignora prazos",
         "O script está usando HTTP em vez de HTTPS",
         "O certificado foi emitido para outro domínio, e o navegador não valida nomes"
@@ -613,7 +613,7 @@
       "objetivos": [0],
       "enunciado": "O que acontece se a chave privada de um servidor vazar?",
       "alternativas": [
-        "Um atacante pode personificar o servidor e, dependendo do esquema usado, decifrar tráfego gravado anteriormente",
+        "Um atacante pode personificar o servidor e decifrar tráfego gravado",
         "Nada, desde que o certificado continue válido",
         "O certificado se torna automaticamente inválido em todos os clientes",
         "Apenas conexões futuras ficam em risco, nunca as passadas"
@@ -641,7 +641,7 @@
       "objetivos": [0, 2],
       "enunciado": "Por que a criptografia assimétrica não é usada para cifrar arquivos grandes diretamente?",
       "alternativas": [
-        "Porque é lenta e opera sobre blocos limitados pelo tamanho da chave; o padrão é cifrar o arquivo com chave simétrica e proteger essa chave com a assimétrica",
+        "Porque é lenta e opera sobre blocos limitados pelo tamanho da chave",
         "Porque a chave pública não consegue processar dados binários",
         "Porque o resultado ficaria menor que o original, causando perda de dados",
         "Porque arquivos grandes exigem assinatura em vez de cifra"
@@ -669,7 +669,7 @@
       "objetivos": [3],
       "enunciado": "Uma organização quer reduzir o risco de um certificado fraudulento ser emitido para o seu domínio. Qual medida ajuda?",
       "alternativas": [
-        "Monitorar os registros públicos de emissão de certificados e alertar quando surgir um certificado para o domínio que a organização não pediu",
+        "Monitorar os registros públicos de emissão e alertar no inesperado",
         "Aumentar o tamanho da chave privada do servidor para 8192 bits",
         "Trocar o certificado do servidor a cada semana",
         "Usar apenas certificados autoassinados, evitando autoridades externas"
@@ -697,7 +697,7 @@
       "objetivos": [1],
       "enunciado": "Qual é a diferença entre assinatura digital e HMAC?",
       "alternativas": [
-        "A assinatura usa par de chaves e permite verificação por qualquer um; o HMAC usa segredo compartilhado, então quem verifica também poderia forjar",
+        "A assinatura usa par de chaves; o HMAC usa segredo compartilhado",
         "A assinatura é reversível e o HMAC não é",
         "O HMAC protege sigilo e a assinatura protege integridade",
         "A assinatura funciona apenas em documentos e o HMAC apenas em mensagens de rede"
@@ -725,7 +725,7 @@
       "objetivos": [0, 1],
       "enunciado": "Dois sistemas precisam trocar mensagens com sigilo e prova de autoria. Qual desenho atende aos dois requisitos?",
       "alternativas": [
-        "Assinar com a chave privada do remetente e cifrar com a chave pública do destinatário, usando cifra híbrida para o conteúdo",
+        "Assinar com a privada do remetente e cifrar com a pública do destinatário",
         "Cifrar com a chave privada do remetente, o que garante as duas coisas de uma vez",
         "Calcular um resumo SHA-256 da mensagem e enviá-lo junto do texto em claro",
         "Compartilhar uma senha entre os dois sistemas e usá-la para cifrar e assinar"
@@ -753,7 +753,7 @@
       "objetivos": [3],
       "enunciado": "O que é um certificado autoassinado?",
       "alternativas": [
-        "Um certificado assinado pela própria chave privada que ele apresenta, sem autoridade externa atestando o vínculo",
+        "Um certificado assinado pela própria chave privada que ele apresenta",
         "Um certificado emitido gratuitamente por uma autoridade automatizada",
         "Um certificado cuja validade nunca expira",
         "Um certificado que dispensa chave privada"
@@ -782,7 +782,7 @@
       "trecho": "PROCEDIMENTO — resolver avisos de certificado\n1. Se o navegador exibir aviso de certificado, clicar em avançar.\n2. Em scripts internos, desabilitar a verificação de certificado para evitar\n   falhas de conexão.\n3. Se um certificado expirar em produção, emitir um autoassinado como solução\n   temporária.\n4. Registrar o chamado e seguir.",
       "enunciado": "Qual é o problema comum aos itens 1, 2 e 3?",
       "alternativas": [
-        "Todos removem a única verificação que detectaria interceptação, tratando o sintoma e criando exposição permanente",
+        "Todos removem a única verificação que detectaria interceptação",
         "Todos aumentam o custo operacional sem necessidade",
         "Todos exigem privilégio de administrador para serem executados",
         "Todos são incompatíveis com o TLS 1.3"
@@ -810,7 +810,7 @@
       "objetivos": [2],
       "enunciado": "Ao gerar um par de chaves para um servidor novo hoje, qual escolha é razoável?",
       "alternativas": [
-        "Curva elíptica de 256 bits, ou RSA de 2048 bits ou mais quando houver exigência de compatibilidade",
+        "Curva elíptica de 256 bits, ou RSA de 2048 bits ou mais",
         "RSA de 512 bits, suficiente para a maioria dos usos",
         "Curva elíptica de 64 bits, por ser mais rápida",
         "Chave simétrica de 256 bits, que serve para certificados"
@@ -838,7 +838,7 @@
       "objetivos": [1, 3],
       "enunciado": "Uma empresa distribui atualizações de software e quer garantir que ninguém consiga entregar uma versão adulterada aos clientes. Qual mecanismo resolve?",
       "alternativas": [
-        "Assinar cada pacote com uma chave privada guardada fora do servidor de distribuição, e fazer o cliente verificar com a chave pública embutida no programa",
+        "Assinar cada pacote com chave privada guardada fora do servidor",
         "Publicar o resumo SHA-256 de cada pacote ao lado do arquivo para download",
         "Cifrar o pacote com AES antes de publicá-lo no site",
         "Distribuir os pacotes apenas por HTTPS, o que garante a origem"
@@ -866,7 +866,7 @@
       "objetivos": [0, 3],
       "enunciado": "Por que a chave privada de uma autoridade certificadora raiz costuma ficar em equipamento dedicado e fora de rede?",
       "alternativas": [
-        "Porque com ela é possível emitir certificado válido para qualquer domínio, diante de todos os sistemas que confiam naquela raiz",
+        "Porque com ela é possível emitir certificado válido para qualquer domínio",
         "Porque chaves de raiz são grandes demais para caber em servidores comuns",
         "Porque a legislação exige armazenamento físico separado",
         "Porque raízes precisam ser acessadas todos os dias, e o equipamento dedicado é mais rápido"
@@ -894,7 +894,7 @@
       "objetivos": [0],
       "enunciado": "Por que a chave pública pode ser distribuída sem risco?",
       "alternativas": [
-        "Porque conhecer a pública não permite derivar a privada nem desfazer o que só a privada desfaz",
+        "Porque conhecer a pública não permite derivar a privada",
         "Porque ela é cifrada antes de ser distribuída",
         "Porque ela muda a cada uso, o que impede seu reaproveitamento",
         "Porque ela só funciona no computador onde foi gerada"
@@ -922,7 +922,7 @@
       "objetivos": [1, 3],
       "enunciado": "Uma aplicação móvel se comunica com um servidor próprio e a equipe quer impedir que o tráfego seja inspecionado por uma autoridade instalada no aparelho. Qual medida atende?",
       "alternativas": [
-        "Fixar no aplicativo a chave ou o certificado esperado do servidor, recusando qualquer outro mesmo que assinado por autoridade confiável",
+        "Fixar no aplicativo o certificado esperado do servidor",
         "Aumentar o tamanho da chave do servidor para 4096 bits",
         "Trocar o certificado do servidor com mais frequência",
         "Usar HTTP em vez de HTTPS para evitar a validação de certificados"
@@ -950,7 +950,7 @@
       "objetivos": [1],
       "enunciado": "O que significa não-repúdio em uma assinatura digital?",
       "alternativas": [
-        "Quem assinou tem dificuldade em negar depois, porque só ele detinha a chave privada usada",
+        "Quem assinou tem dificuldade em negar isso depois",
         "A mensagem não pode ser rejeitada pelo destinatário",
         "A assinatura não pode ser removida do documento",
         "O documento não pode ser encaminhado a terceiros"
@@ -978,7 +978,7 @@
       "objetivos": [2, 3],
       "enunciado": "Uma organização mantém sistemas antigos que só suportam RSA e quer planejar a modernização criptográfica. Qual abordagem é sensata?",
       "alternativas": [
-        "Manter RSA com tamanho adequado onde a compatibilidade exige, adotar curvas elípticas nos serviços novos, e inventariar onde cada esquema é usado",
+        "Manter RSA onde a compatibilidade exige e adotar curvas elípticas nos novos",
         "Substituir tudo por curvas elípticas imediatamente, aceitando que sistemas antigos parem de funcionar",
         "Manter tudo em RSA de 1024 bits, que é o denominador comum entre os sistemas",
         "Desabilitar a criptografia nos sistemas antigos e usá-la apenas nos novos"
@@ -1006,7 +1006,7 @@
       "objetivos": [0, 1, 2, 3],
       "enunciado": "Você revisa o uso de criptografia assimétrica em um sistema. Quais quatro verificações rendem mais?",
       "alternativas": [
-        "Se cada operação usa a chave correta para o objetivo, se os tamanhos de chave são adequados à família, onde as chaves privadas ficam guardadas, e se a validação de certificado está ativa em todos os clientes",
+        "Se cada operação usa a chave certa, se os tamanhos são adequados, e onde as privadas ficam",
         "Se o sistema usa RSA ou curvas elípticas, quantas chaves existem, quem as gerou e há quanto tempo",
         "Se a documentação descreve o esquema, se há diagramas atualizados e se o time recebeu treinamento",
         "Quantas operações por segundo o sistema suporta e qual o impacto no tempo de resposta"
