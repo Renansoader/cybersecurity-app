@@ -232,9 +232,12 @@ python ferramentas/validar_modulo.py data/modulos/03-01-metodologia-de-pentest.j
 
 O validador cobra o esquema, as regras de quantidade, a convenção de
 `analogia`/`erro_comum`, tags fora do padrão, alternativa repetida, enunciado
-duplicado e dado pessoal em artefato. Ele também **avisa** quando a alternativa
-correta é bem mais longa que as outras — sinal clássico de gabarito entregue de
-graça.
+duplicado e dado pessoal em artefato. Ele também **avisa** sobre o comprimento da
+alternativa correta, por dois caminhos: a **distribuição do módulo** — a correta
+não pode ser a mais longa em mais de 40% das questões de múltipla escolha, sendo
+25% o acaso — e o **caso isolado**, quando ela passa de 2,5x o maior distrator. A
+régua que importa é a primeira: "escolher a mais longa" é uma heurística que
+funciona sem nenhum outlier, basta a correta ser a mais longa com frequência.
 
 ### As seis regras de gabarito entregue
 
@@ -325,9 +328,15 @@ entra no teste sozinho, sem você mexer em nada.
 3. Não existe botão "ver resposta" nem como voltar e remarcar.
 4. Nenhuma questão pode ter mais de uma alternativa defensável. Distrator
    plausível, mas inequivocamente errado.
-5. Toda questão carrega `fonte`. Recomendação técnica citada é a **vigente** —
+5. **O distrator não pode entregar o gabarito pela forma.** Três tells, em ordem
+   de gravidade: só a correta tem o formato que o enunciado pede (quatro pontos,
+   um conjunto de medidas); o distrator é uma afirmação absoluta — curta por
+   natureza e autorrefutável; e a correta é sistematicamente a mais longa. O
+   validador mede o terceiro pela distribuição do módulo, com teto de 40%; os
+   dois primeiros dependem de leitura.
+6. Toda questão carrega `fonte`. Recomendação técnica citada é a **vigente** —
    conteúdo de segurança envelhece rápido.
-6. Nada de acesso à rede durante o estudo.
+7. Nada de acesso à rede durante o estudo.
 
 ---
 

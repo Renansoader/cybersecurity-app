@@ -36,6 +36,16 @@ sys.path.insert(0, str(RAIZ))
 from app import content  # noqa: E402
 
 MIN_QUESTOES, MAX_QUESTOES, MIN_TIPOS = 35, 60, 4
+
+# Comprimento da alternativa correta. A régua que vale é de DISTRIBUIÇÃO, e não de
+# caso isolado: "escolha a mais longa" é uma heurística que o aluno aplica sem ler,
+# e ela não precisa de nenhum outlier para funcionar — basta a correta ser a mais
+# longa com frequência. Mesma forma da trava de posição em test_pedagogy.py, que
+# exige que a correta não caia mais de 40% das vezes na mesma linha.
+# A régua de razão fica como aviso secundário, para o desequilíbrio isolado: 3x o
+# maior distrator não acusa nada no corpus de hoje, por isso o corte está em 2,5x.
+MAX_CORRETA_MAIS_LONGA = 0.40
+LIMIAR_CORRETA_LONGA = 2.5
 MIN_TEORIA, MAX_TEORIA = 4, content.MAX_BLOCOS_TEORIA
 
 # Dado pessoal não entra em artefato: saída real de ferramenta se anonimiza antes.
@@ -349,6 +359,23 @@ def validar(caminho, ids_conhecidos, esqueleto=False):
         if n > 1:
             falhas.append(f"enunciado repetido {n}x: {texto[:60]}")
 
+    # A correta não pode ser a mais longa com frequência: é o mesmo defeito da
+    # posição fixa, por outro canal. Vale só para o módulo inteiro, por isso fica
+    # fora do laço por questão — e fora do modo esqueleto, que tem poucas questões.
+    if not esqueleto:
+        com_alt = [q for q in questoes if q.get("alternativas")]
+        mais_longa = [q for q in com_alt
+                      if len(q["alternativas"][q["correta"]]) > max(
+                          len(a) for i, a in enumerate(q["alternativas"]) if i != q["correta"])]
+        if com_alt:
+            fracao = len(mais_longa) / len(com_alt)
+            if fracao > MAX_CORRETA_MAIS_LONGA:
+                avisos.append(
+                    f"a correta é a alternativa mais longa em {len(mais_longa)} de "
+                    f"{len(com_alt)} questões de múltipla escolha ({fracao:.0%}); o teto é "
+                    f"{MAX_CORRETA_MAIS_LONGA:.0%} e o acaso seria 25% — quem escolhe a mais "
+                    f"longa sem ler acerta {fracao:.0%} das vezes neste módulo")
+
     for q in questoes:
         ctx = q["id"]
         if not ctx.startswith(dados["id"] + "."):
@@ -371,8 +398,12 @@ def validar(caminho, ids_conhecidos, esqueleto=False):
                 falhas.append(f"{ctx}: alternativas repetidas")
             certa = alternativas[q["correta"]]
             outras = [a for i, a in enumerate(alternativas) if i != q["correta"]]
-            if outras and len(certa) > 1.6 * max(len(a) for a in outras):
-                avisos.append(f"{ctx}: alternativa correta muito mais longa que as outras")
+            if outras and len(certa) > LIMIAR_CORRETA_LONGA * max(len(a) for a in outras):
+                media = sum(len(a) for a in outras) / len(outras)
+                avisos.append(
+                    f"{ctx}: a alternativa correta tem {len(certa)/max(len(a) for a in outras):.1f}x "
+                    f"o tamanho do maior distrator e {len(certa)/media:.1f}x a média deles — "
+                    f"desequilíbrio isolado, some ou reescreva os distratores")
 
         if q["tipo"] == "pareamento":
             direita = [par[1] for par in q["pares"]]

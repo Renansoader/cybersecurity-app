@@ -374,7 +374,7 @@ abrir o app → commitar.
 
 ### O que segura a qualidade quando não há revisor
 
-Quatro hábitos, em ordem de retorno:
+Seis hábitos, em ordem de retorno:
 
 1. **Verifique o fato antes de escrever a questão.** Se dá para executar, execute
    e use a saída real como artefato. Se é norma, abra a norma e cite a seção.
@@ -384,7 +384,18 @@ Quatro hábitos, em ordem de retorno:
 3. **Leia cada questão perguntando "há duas respostas defensáveis aqui?"**. É o
    defeito mais comum e o mais fácil de não enxergar sozinho. Se houver, o
    problema é do distrator, não do aluno.
-4. **Nunca deixe a alternativa correta ser a mais longa.** O validador avisa.
+4. **Nunca deixe a alternativa correta ser a mais longa.** Não é sobre o caso
+   isolado: o validador mede a **distribuição** do módulo e reprova acima de 40%,
+   porque "escolher a mais longa" é uma heurística que funciona sem ler nada.
+5. **Os quatro distratores respeitam a forma que o enunciado pede.** Se a pergunta
+   pede quatro pontos, os quatro trazem quatro pontos; se pede um conjunto de
+   medidas, os quatro são conjuntos. Quando só a correta tem o formato de
+   resposta, o aluno acerta sem ler o conteúdo — e isso nenhuma régua de tamanho
+   pega.
+6. **Afirmação absoluta não serve de distrator.** "Proíbe qualquer forma", "não
+   tem efeito algum", "nunca acontece": é curta por natureza e autorrefutável,
+   dois sinais na mesma opção. Pior, o próprio conteúdo ensina a desconfiar de
+   absolutos, o que torna o distrator inútil.
 
 ### Manutenção do app
 
