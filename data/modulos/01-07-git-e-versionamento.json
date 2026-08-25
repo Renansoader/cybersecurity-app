@@ -95,7 +95,7 @@
       "objetivos": [1],
       "enunciado": "Você commitou por engano um arquivo com uma chave de API e, em seguida, removeu o arquivo com um novo commit. O que aconteceu com a chave?",
       "alternativas": [
-        "Ela continua no histórico e é recuperável por qualquer pessoa com acesso ao repositório",
+        "Ela continua no histórico e segue recuperável",
         "Ela foi apagada do repositório junto com o arquivo",
         "Ela permanece apenas na sua máquina local, e não nos clones",
         "Ela é automaticamente mascarada pelo Git em commits antigos"
@@ -265,7 +265,7 @@
       "trecho": "PROCEDIMENTO — segredo commitado por engano\n1. Remover o arquivo com git rm e fazer um novo commit.\n2. Adicionar o padrão do arquivo ao .gitignore.\n3. Enviar as alterações para o repositório remoto.\n4. Registrar o incidente e considerar o caso encerrado.",
       "enunciado": "O que falta neste procedimento?",
       "alternativas": [
-        "Rotacionar a credencial: nada nos quatro passos invalida o segredo, que continua recuperável no histórico e nos clones existentes",
+        "Rotacionar a credencial: nada nos quatro passos invalida o segredo",
         "Nada: os quatro passos resolvem completamente o problema",
         "Apenas comunicar a equipe sobre a remoção do arquivo",
         "Apenas verificar se o arquivo foi removido corretamente do diretório de trabalho"
@@ -349,7 +349,7 @@
       "objetivos": [3],
       "enunciado": "Qual é a forma mais confiável de manter credenciais fora de um repositório?",
       "alternativas": [
-        "Não escrevê-las em arquivo dentro do projeto: usar variável de ambiente, arquivo de configuração fora do controle de versão ou um cofre de segredos",
+        "Não escrevê-las no projeto: variável de ambiente ou cofre de segredos",
         "Escrevê-las em um arquivo separado e confiar no .gitignore para impedir o commit",
         "Escrevê-las em comentários no código, que não são interpretados",
         "Escrevê-las cifradas com uma senha guardada no mesmo repositório"
@@ -377,7 +377,7 @@
       "objetivos": [2],
       "enunciado": "Um segredo foi commitado em um repositório público e removido cinco minutos depois. Isso reduz o risco?",
       "alternativas": [
-        "Muito pouco: repositórios públicos são varridos continuamente por ferramentas automatizadas, e cinco minutos são suficientes para a coleta",
+        "Muito pouco: repositório público é varrido continuamente por automação",
         "Sim: cinco minutos é uma janela curta demais para que alguém encontre o segredo",
         "Sim, desde que o commit tenha sido feito fora do horário comercial",
         "Não faz diferença, porque segredos em repositórios públicos não são exploráveis"
@@ -429,7 +429,7 @@
       "objetivos": [0],
       "enunciado": "O que identifica um commit no Git?",
       "alternativas": [
-        "Um resumo criptográfico calculado sobre o conteúdo do commit e sobre o commit anterior",
+        "Um resumo do conteúdo do commit e do commit anterior",
         "Um número sequencial atribuído pelo repositório remoto",
         "A data e a hora em que o commit foi criado",
         "O nome do autor combinado com o nome do ramo"
@@ -457,7 +457,7 @@
       "objetivos": [3],
       "enunciado": "Uma equipe quer impedir que segredos cheguem ao repositório. Qual medida é a mais eficaz?",
       "alternativas": [
-        "Verificação automática que procura padrões de credencial e recusa o commit ou o envio antes de o segredo entrar",
+        "Verificação automática que recusa o commit com credencial",
         "Treinamento anual orientando os desenvolvedores a não commitar segredos",
         "Revisão manual de todos os commits por um segundo desenvolvedor",
         "Auditoria trimestral do histórico em busca de credenciais já commitadas"
@@ -485,7 +485,7 @@
       "objetivos": [3],
       "enunciado": "Por que é má prática usar `git add .` sem revisar as alterações?",
       "alternativas": [
-        "Porque adiciona tudo que estiver no diretório, incluindo arquivos de configuração local, credenciais e material que não deveria ser versionado",
+        "Porque adiciona tudo que estiver no diretório, sem você olhar",
         "Porque o comando é mais lento que adicionar arquivo por arquivo",
         "Porque ele impede a criação de ramos posteriormente",
         "Porque ele adiciona também os arquivos listados no .gitignore"
@@ -513,7 +513,7 @@
       "objetivos": [1, 2],
       "enunciado": "Ao auditar um repositório antigo, você encontra uma senha de banco de dados em um commit de dois anos atrás. O sistema ainda está em produção. Qual é a primeira pergunta a responder?",
       "alternativas": [
-        "Se aquela credencial ainda é válida hoje — porque, se for, ela está exposta há dois anos a todos que tiveram acesso ao repositório",
+        "Se aquela credencial ainda é válida hoje, dois anos depois",
         "Quem foi o autor do commit, para incluir no relatório disciplinar",
         "Se o commit pode ser removido do histórico sem afetar os demais",
         "Se o repositório tem cópia de segurança antes de qualquer alteração"
@@ -541,7 +541,7 @@
       "objetivos": [3],
       "enunciado": "Por que expor o diretório de controle de versão em um servidor web é um risco?",
       "alternativas": [
-        "Porque permite reconstruir o código e o histórico do projeto a partir da internet, incluindo segredos esquecidos",
+        "Porque permite reconstruir o código e o histórico pela internet",
         "Porque faz o servidor web consumir mais memória ao processar requisições",
         "Porque impede que o site seja indexado por mecanismos de busca",
         "Porque quebra o funcionamento do repositório para a equipe de desenvolvimento"
@@ -592,7 +592,7 @@
       "objetivos": [1, 2],
       "enunciado": "Reescrever o histórico para remover um segredo resolve o problema?",
       "alternativas": [
-        "Parcialmente: limpa o repositório dali em diante, mas não alcança clones já feitos nem backups, então a rotação da credencial continua obrigatória",
+        "Parcialmente: a reescrita não alcança clones já feitos nem backups",
         "Sim: depois da reescrita, o segredo deixa de existir em qualquer cópia",
         "Não tem efeito algum, porque o Git impede a alteração de commits antigos",
         "Sim, desde que todos os desenvolvedores façam um novo clone em seguida"
@@ -677,7 +677,7 @@
       "trecho": "# .gitignore do projeto\n*.log\n__pycache__/\nnode_modules/\n\n# arquivos presentes no repositório:\n# app.py\n# config.py          <- contém a senha do banco de produção\n# .env.example\n# docs/manual.pdf",
       "enunciado": "Qual é o problema mais grave desta configuração de repositório?",
       "alternativas": [
-        "config.py está versionado com a senha de produção, e nenhum padrão do .gitignore o cobre — ele já está no histórico",
+        "config.py está versionado com a senha de produção",
         "O arquivo .env.example não deveria existir no repositório",
         "Faltam padrões para arquivos temporários do editor de texto",
         "O manual em PDF ocupa espaço desnecessário no repositório"
@@ -705,7 +705,7 @@
       "objetivos": [3, 2],
       "enunciado": "Uma empresa quer reduzir o impacto de um repositório interno eventualmente vazar. Qual medida ajuda mais?",
       "alternativas": [
-        "Garantir que nenhum segredo esteja no código e que credenciais tenham escopo mínimo e possam ser rotacionadas rapidamente",
+        "Nenhum segredo no código, e credencial com escopo mínimo e rotacionável",
         "Aumentar o tamanho das chaves usadas pelos sistemas da empresa",
         "Restringir o acesso ao repositório apenas a gerentes e líderes técnicos",
         "Manter o repositório apenas em servidores locais, sem serviço externo"
@@ -733,7 +733,7 @@
       "objetivos": [0],
       "enunciado": "Qual é a diferença entre um repositório local e um repositório remoto?",
       "alternativas": [
-        "O local fica na sua máquina e o remoto é uma cópia compartilhada, sincronizada por operações explícitas de envio e recebimento",
+        "O local fica na sua máquina; o remoto é uma cópia compartilhada",
         "O local guarda apenas a versão atual e o remoto guarda o histórico completo",
         "O local é temporário e é apagado ao fim de cada sessão de trabalho",
         "O remoto é somente leitura e não aceita novos commits"
@@ -761,7 +761,7 @@
       "objetivos": [2, 3],
       "enunciado": "Você percebeu que commitou um segredo, mas ainda não enviou para o repositório remoto. O que muda?",
       "alternativas": [
-        "A situação é bem melhor: o segredo ainda não se espalhou, e dá para corrigir o histórico local antes do envio — mas se a credencial for de produção e já existir em algum backup, a rotação continua sendo a decisão prudente",
+        "Bem melhor: o segredo ainda não se espalhou e dá para corrigir antes do envio",
         "Nada muda: o segredo já está comprometido do mesmo jeito",
         "O problema desaparece assim que você fizer um novo commit removendo o arquivo",
         "Basta enviar assim mesmo e remover no repositório remoto depois"
@@ -789,7 +789,7 @@
       "objetivos": [1],
       "enunciado": "Por que a mensagem de commit merece atenção do ponto de vista de segurança?",
       "alternativas": [
-        "Porque ela é permanente e pode conter informação sensível, como endereços internos, nomes de sistemas ou descrição detalhada de uma vulnerabilidade ainda não corrigida",
+        "Porque a mensagem é permanente e pode conter informação sensível",
         "Porque mensagens longas aumentam o tamanho do repositório de forma significativa",
         "Porque o Git rejeita commits com mensagens que contenham caracteres especiais",
         "Porque a mensagem é usada para calcular a permissão de acesso ao commit"
@@ -817,7 +817,7 @@
       "objetivos": [3],
       "enunciado": "Uma equipe usa um repositório com dependências externas declaradas em arquivo. Qual cuidado de segurança é o mais relevante?",
       "alternativas": [
-        "Fixar versões e revisar as atualizações, porque cada dependência é código de terceiro que passa a rodar dentro do seu programa",
+        "Fixar as versões e revisar cada atualização antes de aplicá-la",
         "Reduzir o número de linhas do arquivo de dependências para acelerar a instalação",
         "Manter sempre a versão mais recente de tudo, automaticamente e sem revisão",
         "Copiar o código das dependências para dentro do repositório, sem registro de origem"
@@ -845,7 +845,7 @@
       "objetivos": [3],
       "enunciado": "Por que revisar quem tem permissão de escrita em um repositório é uma prática de segurança?",
       "alternativas": [
-        "Porque quem escreve no repositório pode introduzir código que será executado em produção, e permissões costumam se acumular ao longo do tempo",
+        "Porque quem escreve no repositório alcança a produção",
         "Porque muitos colaboradores tornam o repositório mais lento",
         "Porque o Git limita o número de pessoas com permissão de escrita",
         "Porque apenas o autor original deve poder alterar o código"
@@ -902,7 +902,7 @@
       "objetivos": [0, 3],
       "enunciado": "Por que trabalhar em ramos separados e revisar antes de integrar é relevante para segurança?",
       "alternativas": [
-        "Porque cria um ponto natural de revisão, em que outra pessoa pode notar segredo commitado, dependência nova ou alteração indevida antes de o código chegar à linha principal",
+        "Porque abre um ponto em que outra pessoa olha o que vai entrar",
         "Porque ramos separados cifram o código até a integração",
         "Porque o Git recusa integrar ramos que contenham credenciais",
         "Porque ramos reduzem o tamanho do repositório"
@@ -930,7 +930,7 @@
       "objetivos": [2, 1],
       "enunciado": "Durante a resposta a um segredo vazado, alguém sugere apenas trocar o valor da credencial no arquivo e commitar. Por que isso é insuficiente?",
       "alternativas": [
-        "Porque o valor antigo continua no histórico e continua válido no sistema que o emitiu — trocar no arquivo não revoga nada",
+        "Porque o valor antigo não deixa de valer só por sair do arquivo",
         "Porque o Git recusa commits que alterem valores de credenciais",
         "Porque o novo valor também será exposto imediatamente",
         "Porque a alteração precisa ser feita em um ramo separado para valer"
@@ -980,7 +980,7 @@
       "objetivos": [3],
       "enunciado": "O que deve entrar no .gitignore de um projeto, do ponto de vista de segurança?",
       "alternativas": [
-        "Arquivos de configuração local com credenciais, bancos de dados locais, material de terceiros e qualquer artefato gerado que possa conter dado sensível",
+        "Configuração local com credenciais e artefatos gerados",
         "Todos os arquivos de código-fonte que ainda estão em desenvolvimento",
         "Os arquivos de documentação, que não fazem parte do produto",
         "Os arquivos de teste, que não vão para produção"
@@ -1008,7 +1008,7 @@
       "objetivos": [0, 1, 2, 3],
       "enunciado": "Você foi chamado para revisar as práticas de repositório de uma equipe pequena. Quais quatro verificações rendem mais?",
       "alternativas": [
-        "Procurar segredos no histórico, conferir se há credencial em arquivo versionado hoje, revisar quem tem permissão de escrita, e verificar se existe .gitignore adequado desde o início",
+        "Procurar segredos no histórico e revisar quem tem permissão de escrita",
         "Conferir se as mensagens de commit seguem um padrão de formatação definido",
         "Verificar se o número de ramos ativos está dentro de um limite razoável",
         "Medir o tamanho do repositório e propor a remoção de arquivos grandes"
