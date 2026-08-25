@@ -180,7 +180,7 @@
       "trecho": "AUTORIZAÇÃO DE TESTE DE SEGURANÇA\nA empresa autoriza a realização de testes de segurança em sua infraestrutura.\nPeríodo: a combinar.\nResponsável pela autorização: equipe de TI.\nObservação: quaisquer sistemas podem ser testados, a critério técnico do contratado.",
       "enunciado": "Qual é o problema mais grave deste documento?",
       "alternativas": [
-        "Ele não delimita alvos, janela nem técnicas, e não identifica quem autorizou — o que deixa o teste sem escopo e sem responsável",
+        "Ele não delimita alvos, janela nem técnicas, e não diz quem autorizou",
         "Ele não informa o valor do contrato de prestação de serviço",
         "Ele não exige que o contratado tenha certificação profissional específica",
         "Ele não define o formato do relatório a ser entregue ao final"
@@ -208,7 +208,7 @@
       "objetivos": [0],
       "enunciado": "Por que engenharia social envolvendo terceiros costuma ser tratada com cuidado especial no escopo de um teste?",
       "alternativas": [
-        "Porque atinge pessoas que não consentiram com o teste, com impactos legais e humanos que vão além do sistema testado",
+        "Porque atinge pessoas que não consentiram com o teste",
         "Porque é tecnicamente mais difícil de executar do que ataques a sistemas",
         "Porque nenhuma empresa pode autorizar testes de engenharia social no Brasil",
         "Porque exige ferramentas específicas que a maioria dos contratados não possui"
@@ -236,7 +236,7 @@
       "objetivos": [0, 2],
       "enunciado": "Durante um teste autorizado em uma aplicação web, você consegue acessar registros com dados pessoais reais de clientes. O escopo não menciona tratamento de dados. Como proceder?",
       "alternativas": [
-        "Interromper a extração, registrar apenas a evidência mínima de que o acesso é possível, comunicar imediatamente e acordar por escrito o tratamento desses dados",
+        "Interromper a extração, registrar a evidência mínima e comunicar de imediato",
         "Baixar uma amostra representativa dos registros para anexar ao relatório final",
         "Continuar o teste normalmente, pois o acesso ocorreu dentro do escopo autorizado",
         "Encerrar o teste imediatamente e devolver o contrato ao cliente"
@@ -288,7 +288,7 @@
       "objetivos": [0],
       "enunciado": "Uma empresa contrata um teste em um sistema hospedado em um provedor de nuvem. Por que o escopo precisa considerar o contrato com esse provedor?",
       "alternativas": [
-        "Porque a infraestrutura é compartilhada e o provedor tem regras próprias sobre testes, cujo descumprimento pode violar contrato e afetar terceiros",
+        "Porque a infraestrutura é compartilhada e o provedor tem regras próprias",
         "Porque o provedor precisa aprovar tecnicamente cada ferramenta utilizada no teste",
         "Porque testes em nuvem são proibidos por todos os provedores do mercado",
         "Porque a responsabilidade pela segurança em nuvem é integralmente do provedor"
@@ -316,7 +316,7 @@
       "objetivos": [0],
       "enunciado": "Um estudante quer praticar habilidades ofensivas e considera testar o site de uma empresa local \"só para ver se está seguro\", com intenção de avisar depois. Qual orientação é correta?",
       "alternativas": [
-        "Não fazer: sem autorização prévia, a prática é ilícita mesmo com intenção de avisar; existem laboratórios e programas próprios para isso",
+        "Não fazer: sem autorização prévia, a prática é ilícita mesmo com intenção de avisar",
         "Pode fazer, desde que não cause dano e comunique a empresa em seguida",
         "Pode fazer, desde que limite a atividade a varredura de portas, que não é considerada invasão",
         "Pode fazer, desde que a empresa não tenha aviso proibindo testes em seu site"
@@ -344,7 +344,7 @@
       "objetivos": [1],
       "enunciado": "O que é um programa de recompensa por vulnerabilidades (bug bounty)?",
       "alternativas": [
-        "Uma autorização pública e permanente para testar alvos definidos, com regras próprias e pagamento por achados válidos",
+        "Uma autorização pública e permanente para testar alvos definidos",
         "Um contrato individual de teste de intrusão com prazo e equipe definidos",
         "Um seguro que cobre prejuízos causados por vulnerabilidades exploradas",
         "Um serviço em que a empresa paga para não ser atacada por determinado grupo"
@@ -429,7 +429,7 @@
       "enunciado": "Ligue cada situação à sua classificação correta.",
       "pares": [
         ["Teste de intrusão contratado", "Contrato individual, com equipe, prazo, escopo e janela definidos"],
-        ["Programa de recompensa", "Autorização pública e permanente, com regras e alvos publicados"],
+        ["Programa de recompensa", "Convite aberto e por tempo indeterminado, com pagamento por achado válido"],
         ["Divulgação responsável", "Comunicação da falha ao responsável, com prazo para correção antes de publicar"],
         ["Pesquisa não autorizada", "Teste em sistema alheio sem qualquer autorização prévia, mesmo com boa intenção"]
       ],
@@ -478,7 +478,7 @@
       "objetivos": [1],
       "enunciado": "Você reportou uma falha grave a uma empresa que não tem programa de recompensa. Passados 90 dias e três lembretes, não houve correção nem resposta. Qual conduta é a mais defensável?",
       "alternativas": [
-        "Comunicar a intenção de divulgar, dar um prazo final e publicar informação suficiente para os usuários se protegerem, sem entregar exploração pronta",
+        "Comunicar a intenção de divulgar, dar prazo final e publicar sem exploração pronta",
         "Publicar imediatamente todos os detalhes técnicos e o código de exploração completo",
         "Desistir e manter a falha em sigilo permanente, já que a empresa não respondeu",
         "Explorar a falha em produção para forçar a empresa a reconhecer o problema"
@@ -507,7 +507,7 @@
       "trecho": "REGRAS DO PROGRAMA DE RECOMPENSA — rascunho\nAlvos: todos os sistemas da empresa.\nTécnicas: qualquer uma, desde que o pesquisador seja cuidadoso.\nDados: em caso de acesso a dados de clientes, o pesquisador deve baixar uma amostra como prova.\nPagamento: a critério exclusivo da empresa, sem faixa divulgada.",
       "enunciado": "Qual item deste rascunho cria o risco mais grave para as duas partes?",
       "alternativas": [
-        "Instruir o pesquisador a baixar dados de clientes como prova, o que transforma o programa em fonte de vazamento",
+        "Instruir o pesquisador a baixar dados de clientes como prova",
         "Não divulgar a faixa de pagamento por severidade",
         "Definir todos os sistemas da empresa como alvo do programa",
         "Não exigir identificação civil dos participantes do programa"
@@ -535,7 +535,7 @@
       "objetivos": [1, 0],
       "enunciado": "Um pesquisador diz que sua atuação é legítima porque \"nunca causou dano e sempre avisou as empresas\". Qual avaliação é correta?",
       "alternativas": [
-        "Ausência de dano e aviso posterior não substituem autorização prévia; a conduta continua sendo acesso não autorizado",
+        "Ausência de dano e aviso posterior não substituem a autorização prévia",
         "A conduta é plenamente legítima, já que a intenção era colaborativa",
         "A conduta é legítima apenas se a empresa não tiver política proibindo testes",
         "A conduta é legítima desde que o pesquisador não receba pagamento pelos relatos"
@@ -647,7 +647,7 @@
       "objetivos": [2],
       "enunciado": "Uma empresa sofre vazamento de uma base com nome, CPF e endereço de 50 mil clientes. Qual é a obrigação prevista na LGPD?",
       "alternativas": [
-        "Comunicar à ANPD e aos titulares afetados em até 3 dias úteis da ciência, quando houver risco ou dano relevante",
+        "Comunicar à ANPD e aos titulares afetados em até 3 dias úteis da ciência",
         "Comunicar apenas à ANPD, que decide se os titulares devem ser informados",
         "Não há obrigação de comunicar, desde que a empresa corrija a falha rapidamente",
         "Comunicar apenas se o vazamento envolver dados pessoais sensíveis"
@@ -675,7 +675,7 @@
       "objetivos": [2],
       "enunciado": "Por que é incorreto afirmar que \"a LGPD exige criptografia\" de forma absoluta?",
       "alternativas": [
-        "Porque a lei exige medidas técnicas e administrativas adequadas ao risco, sem determinar tecnologias específicas",
+        "Porque a lei exige medidas adequadas ao risco, sem fixar tecnologia",
         "Porque a lei proíbe expressamente o uso de criptografia em dados pessoais",
         "Porque criptografia é exigida apenas para dados pessoais sensíveis",
         "Porque a exigência de criptografia consta do Marco Civil, e não da LGPD"
@@ -754,7 +754,7 @@
       "trecho": "PROCEDIMENTO INTERNO — resposta a incidentes com dados pessoais\n1. Conter o incidente e corrigir a falha técnica.\n2. Avaliar internamente a extensão do vazamento.\n3. Se a imprensa noticiar o caso, preparar comunicado público.\n4. Comunicar a ANPD apenas se houver determinação judicial nesse sentido.",
       "enunciado": "Qual item deste procedimento contraria a LGPD?",
       "alternativas": [
-        "O item 4: a comunicação à ANPD decorre da própria lei quando há risco relevante, e não depende de ordem judicial",
+        "O item 4: a comunicação à ANPD não depende de ordem judicial",
         "O item 1: conter o incidente não deveria ser a primeira ação do procedimento",
         "O item 2: a avaliação da extensão deveria ser feita por empresa externa",
         "O item 3: comunicados públicos não devem ser preparados por equipes internas"
@@ -782,7 +782,7 @@
       "objetivos": [2, 0],
       "enunciado": "Uma empresa contrata uma ferramenta em nuvem que processará dados de clientes. Do ponto de vista da LGPD, o que precisa ser observado?",
       "alternativas": [
-        "A empresa segue como controladora e responde pelas escolhas: cabe verificar as medidas de segurança do operador, definir finalidade e limites em contrato e prever o que ocorre em caso de incidente",
+        "A empresa segue como controladora e responde pelas escolhas que fizer",
         "A responsabilidade passa integralmente ao fornecedor, que se torna controlador dos dados",
         "Nada muda, já que a LGPD se aplica apenas a dados armazenados em território nacional",
         "Basta obter novo consentimento dos titulares para o uso da ferramenta"
@@ -838,7 +838,7 @@
       "objetivos": [3],
       "enunciado": "A Lei 14.155/2021 alterou o art. 154-A do Código Penal, entre outras mudanças, retirando a exigência de que a invasão ocorresse mediante violação de mecanismo de segurança. Qual é a consequência prática mais relevante dessa alteração?",
       "alternativas": [
-        "Acessar sem autorização um sistema que não tem senha continua sendo conduta típica: ausência de proteção técnica não equivale a autorização",
+        "Acessar sem autorização um sistema sem senha continua sendo conduta típica",
         "Sistemas sem mecanismo de segurança deixaram de ser protegidos pela lei penal",
         "Passou a ser exigida autorização judicial para qualquer teste de segurança",
         "A alteração restringiu a aplicação da lei apenas a dispositivos conectados à internet"
@@ -894,15 +894,15 @@
       "objetivos": [3],
       "enunciado": "Durante a investigação de um incidente, um gestor pede que a equipe de segurança leia o conteúdo das mensagens privadas trocadas por um funcionário em um aplicativo pessoal, a partir de dados capturados na rede corporativa. Qual é a orientação correta?",
       "alternativas": [
-        "Não fazer: o sigilo das comunicações privadas é protegido e o acesso ao conteúdo depende de ordem judicial; a investigação deve se apoiar em registros corporativos legítimos",
+        "Não fazer: o acesso ao conteúdo de comunicação privada depende de ordem judicial",
         "Fazer, desde que o funcionário esteja usando a rede corporativa, o que dispensa qualquer autorização",
         "Fazer, desde que a leitura seja registrada em ata e comunicada ao funcionário depois",
         "Fazer apenas se o gestor formalizar o pedido por e-mail, o que transfere a responsabilidade"
       ],
       "correta": 0,
       "dicas": [
-        "Existe diferença entre metadados de uso corporativo e conteúdo de comunicação privada.",
-        "Quem pode autorizar acesso a conteúdo de comunicação privada?",
+        "Existe diferença entre o registro de uso da rede corporativa e o que foi escrito na mensagem.",
+        "Quem pode autorizar a leitura do que foi escrito: o gestor, a empresa, ou alguém de fora dela?",
         "Formalizar internamente um ato ilícito o torna lícito?"
       ],
       "pergunta_socratica": "Antes de conferir: usar a rede da empresa transfere para a empresa o direito de ler conversas privadas?",
@@ -943,7 +943,7 @@
       "objetivos": [3, 2],
       "enunciado": "Um incidente envolveu invasão de um servidor e vazamento de dados de clientes. Qual afirmação sobre o enquadramento é correta?",
       "alternativas": [
-        "As normas se somam: há conduta tipificada penalmente e, ao mesmo tempo, deveres administrativos de proteção de dados a cumprir",
+        "As normas se somam: há crime tipificado e deveres de proteção de dados",
         "Aplica-se apenas a LGPD, já que o objeto do incidente foram dados pessoais",
         "Aplica-se apenas a lei penal, já que houve invasão de dispositivo informático",
         "Nenhuma norma se aplica enquanto a autoria do ataque não for identificada"
@@ -972,7 +972,7 @@
       "trecho": "POLÍTICA DE LOGS — versão 1\nObjetivo: apoiar investigações de segurança.\nRetenção: registros mantidos por tempo indeterminado, para máxima capacidade de investigação.\nAcesso: qualquer analista da equipe de TI pode consultar registros de qualquer usuário, a qualquer momento.\nConteúdo: registros incluem endereços acessados e trechos de conteúdo de mensagens corporativas.",
       "enunciado": "Quais problemas esta política apresenta?",
       "alternativas": [
-        "Retenção sem prazo e sem justificativa, acesso irrestrito sem controle de finalidade, e coleta de conteúdo de comunicação sem base adequada",
+        "Retenção sem prazo, acesso irrestrito sem controle de finalidade e coleta de conteúdo",
         "Apenas a retenção indeterminada, já que os demais itens são práticas normais de operação",
         "Apenas o acesso irrestrito, já que retenção longa e coleta de conteúdo são recomendadas",
         "Nenhum: a política é adequada, pois o objetivo declarado é apoiar investigações de segurança"
@@ -1000,7 +1000,7 @@
       "objetivos": [0, 1, 2, 3],
       "enunciado": "Você foi contratado para o primeiro teste de segurança de uma empresa que trata dados de saúde de pacientes. Quais cuidados são indispensáveis antes de começar?",
       "alternativas": [
-        "Autorização escrita de quem tem alçada, escopo com alvos e técnicas vedadas, regra explícita de não extrair dados de pacientes e acordo sobre tratamento e descarte de qualquer evidência",
+        "Autorização escrita de quem tem alçada, escopo com técnicas vedadas e regra de não extrair dados de pacientes",
         "Autorização escrita e escopo definido, sendo o tratamento de dados uma preocupação apenas da empresa contratante",
         "Contrato comercial assinado e cronograma acordado, já que o escopo pode ser ajustado durante a execução",
         "Aprovação prévia da ANPD para realizar testes em ambientes que tratam dados sensíveis"
