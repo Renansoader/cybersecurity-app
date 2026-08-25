@@ -3,7 +3,7 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-24 · commit `2394256` · 2.656 testes passando
+Última atualização: 2026-08-25 · commit `6d17132` · 2.656 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -301,6 +301,33 @@ real de requisição.
   forma e **não alcança a paráfrase que dispensa o molde** — a leitura humana
   continua sendo a única rede para esses casos, e o passivo deles é
   desconhecido.
+- **Comprimento da alternativa correta: varrido só até o nível 2.** A régua de
+  distribuição entrou em `a21ca56` e a varredura de classe (a) — cortar da
+  correta a justificativa que a explicação já carrega — cobriu os níveis 0, 1 e
+  os módulos 2.1 a 2.4. No corpus, "a correta é a mais longa" caiu de **76% para
+  39%**; o acaso é 25%. O que ficou:
+
+  - **20 questões de classe (b)**, em que a correta não tem gordura e o que falta
+    é especificidade no distrator. Reescrevê-las é trabalho de conteúdo, não de
+    faxina: é preciso escrever um erro plausível com a mesma densidade da
+    resposta certa. Níveis 0 e 1: `0.1.q24` `0.1.q31` `0.2.q1` `0.2.q15`
+    `0.2.q20` `0.4.q3` `0.4.q21` `0.4.q28` `1.2.q21` `1.4.q22` `1.6.q10`.
+    Nível 2: `2.1.q9` e `2.1.q17`. Três subtipos: definição sem gordura contra
+    distrator vago; lista em que cada item é parte da resposta; e comando ou
+    bloco de código em que a resposta certa tem mais estágios.
+  - **Oito módulos não varridos**, todos entre 38% e 75%: 2.6 (75%), 4.2 (62%),
+    2.7 (56%), 3.1 (48%), 3.3 (47%), 3.2 (41%), 4.1 (41%) e 2.5 (38%). Ficaram
+    de fora por decisão de prioridade: já estavam perto ou dentro do teto, e o
+    retorno não pagava mais uma sessão.
+  - **A zona cinzenta e os empates técnicos, deliberadamente não tocados.** Das
+    288 questões em que a correta ainda é a mais longa, **174 são empate técnico**
+    (razão abaixo de 1,2×, diferença de poucos caracteres) e **96 estão entre
+    1,2× e 1,4×**. Mexer nelas produz churn sem reduzir sinal: a amostra mostrou
+    que abaixo de 1,4× não há o que cortar.
+
+  A regra dos 40% segue como **aviso**, e não como teste. Ela vira `assert` em
+  `tests/` quando o corpus estiver abaixo do teto — antes disso deixaria a suíte
+  vermelha em 22 módulos, o que não ajuda ninguém.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
   existir `.venv` na pasta, o atalho continuará usando o Python global; o
   `run.bat` é quem prefere a `.venv`.
@@ -387,6 +414,9 @@ Seis hábitos, em ordem de retorno:
 4. **Nunca deixe a alternativa correta ser a mais longa.** Não é sobre o caso
    isolado: o validador mede a **distribuição** do módulo e reprova acima de 40%,
    porque "escolher a mais longa" é uma heurística que funciona sem ler nada.
+   **O objetivo não é minimizar "mais longa" e sim não deixar sinal nenhum** —
+   medir os dois lados, porque cortar demais faz "escolher a mais curta" virar o
+   novo atalho. Mire o meio da faixa dos distratores, não o mínimo.
 5. **Os quatro distratores respeitam a forma que o enunciado pede.** Se a pergunta
    pede quatro pontos, os quatro trazem quatro pontos; se pede um conjunto de
    medidas, os quatro são conjuntos. Quando só a correta tem o formato de
