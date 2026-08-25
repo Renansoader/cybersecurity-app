@@ -112,7 +112,7 @@
       ],
       "enunciado": "Em qual camada do modelo OSI atua um firewall que filtra por endereço IP e por porta?",
       "alternativas": [
-        "Camadas 3 e 4: rede e transporte",
+        "Camadas 3 e 4",
         "Camada 1: física",
         "Camada 7: aplicação",
         "Camada 2: enlace"
@@ -324,7 +324,7 @@
       ],
       "enunciado": "Uma empresa afirma estar protegida porque todas as estações estão atrás de NAT. Quais riscos permanecem?",
       "alternativas": [
-        "Phishing, download de código malicioso, conexões de saída para servidores de controle e ataques entre máquinas da mesma rede interna",
+        "Phishing, código malicioso, conexões de saída e ataques na rede interna",
         "Nenhum: com NAT, máquinas internas não são alcançáveis nem afetadas",
         "Apenas ataques de negação de serviço contra o endereço público da empresa",
         "Apenas ataques que explorem falhas do próprio equipamento de NAT"
@@ -510,7 +510,7 @@
       ],
       "enunciado": "Um atacante conecta um servidor DHCP não autorizado à rede interna. Qual é o risco principal?",
       "alternativas": [
-        "Ele pode entregar às máquinas um roteador padrão e um servidor DNS sob seu controle, colocando-se no meio do tráfego sem explorar nenhuma falha",
+        "Ele pode entregar roteador padrão e servidor de DNS sob o controle dele",
         "Ele consegue apagar as configurações de rede das máquinas, deixando-as sem acesso",
         "Ele consegue ler diretamente os arquivos das máquinas que receberem endereço",
         "Ele consegue alterar as senhas dos usuários que se conectarem à rede"
@@ -581,7 +581,7 @@
       ],
       "enunciado": "Por que registrar as consultas de DNS é considerado uma das fontes de detecção mais valiosas de uma rede?",
       "alternativas": [
-        "Porque quase toda comunicação começa com uma consulta de nome, então o registro revela tentativas de contato antes mesmo de a conexão acontecer",
+        "Porque quase toda comunicação começa com uma consulta de nome",
         "Porque o DNS registra o conteúdo das conexões que a máquina realiza",
         "Porque a consulta de DNS contém as credenciais usadas pelo usuário",
         "Porque o DNS substitui a necessidade de registrar conexões de rede"
@@ -652,7 +652,7 @@
       ],
       "enunciado": "Qual é a diferença entre o modelo OSI e o modelo TCP/IP?",
       "alternativas": [
-        "OSI é um modelo de referência com sete camadas; TCP/IP é a arquitetura efetivamente usada, com quatro camadas",
+        "OSI é modelo de referência; TCP/IP é a arquitetura em uso",
         "OSI é usado em redes locais e TCP/IP em redes de longa distância",
         "OSI é mais recente e substituiu o TCP/IP na internet atual",
         "São o mesmo modelo, com nomes diferentes conforme o fabricante"
@@ -689,7 +689,7 @@
       "artefato": "Interface: eth0\n  Endereço IPv4 . . . . : 192.168.10.100\n  Máscara . . . . . . . : 255.255.255.192\n  Gateway padrão. . . . : 192.168.10.1\n  Servidor DNS. . . . . : 192.168.10.10",
       "enunciado": "Qual problema esta configuração apresenta?",
       "alternativas": [
-        "O gateway padrão está fora da rede da estação: com /26, a máquina está em 192.168.10.64/26, que vai de .64 a .127, e o .1 não pertence a ela",
+        "O gateway padrão está fora da rede em que a máscara coloca a estação",
         "A máscara está incorreta, pois /26 não é um prefixo válido para redes privadas",
         "O servidor DNS não pode estar na mesma rede que a estação",
         "O endereço 192.168.10.100 não é válido por ser terminado em número redondo"
@@ -726,7 +726,7 @@
       ],
       "enunciado": "Por que endereços privados não podem ser usados diretamente na internet?",
       "alternativas": [
-        "Porque não são únicos globalmente: a mesma faixa é usada por incontáveis redes, então não haveria como rotear a resposta de volta",
+        "Porque não são únicos globalmente: a mesma faixa se repete em muitas redes",
         "Porque são bloqueados por acordo comercial entre os provedores de acesso",
         "Porque são reservados para equipamentos de rede e não para computadores",
         "Porque usam um formato de endereço incompatível com o IPv4 público"
@@ -796,7 +796,7 @@
       ],
       "enunciado": "Um usuário relata que \"a internet não funciona\". A máquina tem endereço válido e alcança o gateway, mas não abre nenhum site pelo nome. Endereços numéricos funcionam. Qual é a hipótese mais provável?",
       "alternativas": [
-        "Problema de resolução de nomes: o servidor DNS configurado está inacessível ou respondendo errado",
+        "Problema de resolução de nomes",
         "Cabo de rede desconectado ou porta do switch com defeito",
         "Endereço IP duplicado na rede local",
         "Falha no roteamento até a internet"
@@ -904,7 +904,7 @@
       "trecho": "PROJETO DE REDE — filial\n1. Toda a filial em uma única rede plana 10.0.0.0/16, sem segmentação interna.\n2. Servidores e estações compartilham a mesma faixa de endereços.\n3. Segurança garantida pelo NAT do roteador de borda.\n4. Servidor DNS interno aceita consultas de qualquer origem, inclusive da internet.",
       "enunciado": "Quais problemas de segurança este projeto apresenta?",
       "alternativas": [
-        "Rede plana sem segmentação permite movimento lateral livre, NAT não é controle de segurança, e o DNS aberto pode ser usado para amplificar ataques contra terceiros",
+        "A rede plana, o NAT tratado como controle e o resolvedor de DNS aberto",
         "Apenas o item 1, já que redes planas dificultam a administração",
         "Apenas o item 4, já que os demais são decisões normais de projeto",
         "Nenhum: o projeto é adequado para uma filial de pequeno porte"
@@ -1048,7 +1048,7 @@
       ],
       "enunciado": "Uma rede tem servidores e estações na mesma faixa. Qual mudança reduz mais o alcance de uma estação comprometida?",
       "alternativas": [
-        "Separar servidores e estações em sub-redes distintas e filtrar explicitamente o tráfego permitido entre elas",
+        "Separar em sub-redes e filtrar o tráfego entre elas",
         "Trocar a faixa de endereços privados usada pela rede",
         "Aumentar o prefixo da rede para comportar mais endereços",
         "Configurar endereços fixos em todas as estações"
@@ -1083,7 +1083,7 @@
       ],
       "enunciado": "Por que um servidor de DNS que responde consultas de qualquer origem na internet é um problema, mesmo sem dados sensíveis?",
       "alternativas": [
-        "Ele pode ser usado por terceiros para amplificar ataques de negação de serviço contra outras vítimas",
+        "Ele pode ser usado para amplificar ataques contra terceiros",
         "Ele expõe a lista de nomes internos da empresa a qualquer consulta",
         "Ele consome toda a banda disponível ao responder consultas legítimas",
         "Ele impede que as máquinas internas resolvam nomes corretamente"
@@ -1166,7 +1166,7 @@
       ],
       "enunciado": "Por que um firewall que filtra apenas por endereço e porta não detecta um ataque contra uma aplicação web?",
       "alternativas": [
-        "Porque o ataque trafega dentro de requisições legítimas na porta permitida; o problema está no conteúdo, que esse filtro não inspeciona",
+        "Porque o ataque trafega dentro de requisições legítimas na porta permitida",
         "Porque aplicações web não usam portas fixas, o que impede qualquer filtragem",
         "Porque firewalls não conseguem processar tráfego cifrado de nenhuma forma",
         "Porque o ataque ocorre na camada física, fora do alcance do firewall"
@@ -1203,7 +1203,7 @@
       ],
       "enunciado": "Ao investigar uma máquina suspeita, você quer saber com quais servidores ela tentou se comunicar nos últimos dias. Qual fonte responde melhor?",
       "alternativas": [
-        "Os registros de consultas de DNS da rede, que mostram os nomes procurados mesmo quando a conexão falhou",
+        "Os registros de consultas de DNS feitos pela rede",
         "A lista de programas instalados na máquina",
         "O histórico de atualizações do sistema operacional",
         "A tabela de endereços físicos do switch mais próximo"
@@ -1238,14 +1238,14 @@
       ],
       "enunciado": "O que significa dizer que o NAT quebra a comunicação fim a fim?",
       "alternativas": [
-        "O endereço visto pelo destino não é o da máquina de origem, o que dificulta conexões iniciadas de fora e alguns protocolos",
+        "O endereço visto pelo destino não é o da máquina de origem",
         "O NAT interrompe conexões que ultrapassam um limite de tempo definido",
         "O NAT descarta pacotes cujo conteúdo não puder ser inspecionado",
         "O NAT divide cada conexão em duas conexões independentes e cifradas"
       ],
       "correta": 0,
       "dicas": [
-        "Qual endereço o servidor de destino enxerga quando você acessa um site?",
+        "O que o servidor do outro lado registra no log dele quando você acessa um site?",
         "Como alguém de fora alcançaria uma máquina interna específica?",
         "O NAT inspeciona conteúdo?"
       ],
@@ -1275,7 +1275,7 @@
       "artefato": "Registro do resolvedor interno — estação 192.168.30.44\n09:14:02  consulta A   atualizacoes.fabricante.com\n09:14:02  consulta A   api.servico-legitimo.com\n09:31:47  consulta A   k7x2p9.dominio-desconhecido.top\n09:32:47  consulta A   m4b8t1.dominio-desconhecido.top\n09:33:47  consulta A   q9c3v7.dominio-desconhecido.top\n09:34:47  consulta A   z2n6h4.dominio-desconhecido.top",
       "enunciado": "O que este registro sugere?",
       "alternativas": [
-        "Consultas periódicas a subdomínios sempre diferentes de um mesmo domínio, em intervalo regular de um minuto — padrão compatível com comunicação de código malicioso com servidor de controle",
+        "Consultas a subdomínios sempre diferentes do mesmo domínio, em intervalo regular",
         "Comportamento normal de atualização automática de software, que consulta vários servidores",
         "Falha do resolvedor interno, que está repetindo consultas por não obter resposta",
         "Ataque de negação de serviço contra a estação 192.168.30.44"
@@ -1283,7 +1283,7 @@
       "correta": 0,
       "dicas": [
         "Compare os horários das quatro últimas linhas.",
-        "Os nomes consultados se repetem ou são sempre diferentes?",
+        "Compare os nomes consultados linha a linha: eles se repetem ou cada um aparece uma vez só?",
         "As duas primeiras linhas parecem com quê, comparadas às demais?"
       ],
       "pergunta_socratica": "Antes de conferir: o que explica um intervalo tão exato de um minuto entre consultas?",
@@ -1314,7 +1314,7 @@
       ],
       "enunciado": "Você vai projetar a rede de um escritório novo com 60 estações, 6 servidores e rede sem fio para visitantes. Quais decisões de rede mais reduzem risco?",
       "alternativas": [
-        "Sub-redes separadas para estações, servidores e visitantes, com filtragem explícita entre elas, DHCP restrito a portas confiáveis e registro das consultas de DNS",
+        "Sub-redes separadas para estações, servidores e visitantes, com filtragem entre elas",
         "Uma única rede plana com endereçamento privado amplo, protegida pelo NAT do roteador de borda",
         "Endereços públicos para os servidores, para evitar a complexidade de tradução de endereços",
         "Rede única com endereços fixos em todas as máquinas e sem servidor de DHCP"
