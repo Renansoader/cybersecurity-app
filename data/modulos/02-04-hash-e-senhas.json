@@ -396,7 +396,7 @@
       "trecho": "import hashlib\n\nSAL = \"s4lt0-d4-4plic4c40\"   # sal fixo da aplicacao\n\ndef guardar_senha(senha: str) -> str:\n    return hashlib.sha256((SAL + senha).encode()).hexdigest()\n\ndef conferir(senha: str, guardado: str) -> bool:\n    return guardar_senha(senha) == guardado",
       "enunciado": "Quantos problemas de segurança este código tem?",
       "alternativas": [
-        "Três: o algoritmo, o sal fixo e a comparação",
+        "Três: o algoritmo escolhido, o sal fixo e a comparação",
         "Um: apenas o sal fixo, que deveria ser único por usuário",
         "Dois: SHA-256 e o sal fixo; a comparação está adequada",
         "Nenhum: a função usa sal e um algoritmo de hash forte"
@@ -503,7 +503,7 @@
       ],
       "enunciado": "Um site publica o SHA-256 de um instalador ao lado do link de download. Contra o que essa conferência protege?",
       "alternativas": [
-        "Contra corrupção no download e contra troca no caminho",
+        "Contra corrupção no download e contra a troca do arquivo no caminho",
         "Contra qualquer adulteração, inclusive por quem controla o servidor",
         "Contra a presença de código malicioso no instalador original",
         "Contra a instalação em máquinas que não atendem aos requisitos"
@@ -861,7 +861,7 @@
       ],
       "enunciado": "Uma equipe precisa migrar senhas de SHA-256 sem sal para Argon2id sem forçar todos os usuários a redefinir imediatamente. Qual abordagem funciona?",
       "alternativas": [
-        "Recalcular com Argon2id na próxima autenticação bem-sucedida",
+        "Recalcular com Argon2id na próxima autenticação bem-sucedida de cada conta",
         "Aplicar Argon2id sobre os resumos SHA-256 existentes, migrando toda a base de uma vez",
         "Copiar os resumos para o novo campo e passar a usar Argon2id apenas para senhas novas",
         "Reverter os resumos SHA-256 para obter as senhas e recalculá-las com Argon2id"
@@ -1079,7 +1079,7 @@
       ],
       "enunciado": "Uma equipe monitora integridade de arquivos de configuração comparando resumos SHA-256 guardados em um arquivo no mesmo servidor. Qual é a limitação?",
       "alternativas": [
-        "Quem obtiver privilégio altera o arquivo e a referência juntos",
+        "Quem obtiver privilégio no servidor altera o arquivo e a referência juntos",
         "SHA-256 é inadequado para arquivos de texto e deveria ser substituído por MD5",
         "A comparação de resumos consome muito processamento em verificações frequentes",
         "Arquivos de configuração mudam com frequência, o que torna a verificação inútil"
