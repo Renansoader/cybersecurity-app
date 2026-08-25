@@ -213,7 +213,7 @@
       ],
       "enunciado": "Por que SHA-256 é inadequado para armazenar senhas, apesar de ser uma função de hash forte?",
       "alternativas": [
-        "Porque é rápido demais: quem obtém a base testa bilhões de senhas offline a um custo desprezível",
+        "Porque é rápido demais para senha, e o teste offline sai barato",
         "Porque tem colisões práticas conhecidas, como MD5",
         "Porque produz saída de tamanho fixo, o que limita o espaço de senhas",
         "Porque não funciona com senhas que contenham caracteres acentuados"
@@ -325,7 +325,7 @@
       ],
       "enunciado": "Para que serve o sal no armazenamento de senhas?",
       "alternativas": [
-        "Garantir que usuários com a mesma senha tenham resumos diferentes, impedindo o reaproveitamento de esforço entre alvos",
+        "Garantir que usuários com a mesma senha tenham resumos diferentes",
         "Manter a senha secreta caso o banco de dados vaze",
         "Tornar o cálculo do hash mais rápido, compensando o custo da função",
         "Permitir recuperar a senha original quando o usuário esquecer"
@@ -360,7 +360,7 @@
       ],
       "enunciado": "Por que o sal não precisa ser secreto?",
       "alternativas": [
-        "Porque a função dele é impedir o reaproveitamento de esforço entre alvos, e isso funciona mesmo com o sal conhecido",
+        "Porque a função dele funciona mesmo com o sal conhecido",
         "Porque o sal é descartado após o cálculo e não fica armazenado",
         "Porque o sal é gerado a partir do nome de usuário, que já é público",
         "Porque manter o sal em segredo tornaria impossível verificar a senha"
@@ -396,7 +396,7 @@
       "trecho": "import hashlib\n\nSAL = \"s4lt0-d4-4plic4c40\"   # sal fixo da aplicacao\n\ndef guardar_senha(senha: str) -> str:\n    return hashlib.sha256((SAL + senha).encode()).hexdigest()\n\ndef conferir(senha: str, guardado: str) -> bool:\n    return guardar_senha(senha) == guardado",
       "enunciado": "Quantos problemas de segurança este código tem?",
       "alternativas": [
-        "Três: SHA-256 é rápido demais para senha, o sal é fixo para todos os usuários, e a comparação com == vaza tempo",
+        "Três: o algoritmo, o sal fixo e a comparação",
         "Um: apenas o sal fixo, que deveria ser único por usuário",
         "Dois: SHA-256 e o sal fixo; a comparação está adequada",
         "Nenhum: a função usa sal e um algoritmo de hash forte"
@@ -432,7 +432,7 @@
       ],
       "enunciado": "O que caracteriza um ataque offline contra uma base de senhas?",
       "alternativas": [
-        "O atacante tem os resumos em mãos e testa candidatos na própria máquina, sem limite de tentativas e sem gerar registro no servidor",
+        "O atacante tem os resumos e testa candidatos na própria máquina",
         "O atacante tenta senhas diretamente na tela de login, uma por vez",
         "O atacante intercepta a senha durante o envio pela rede",
         "O atacante engana o usuário para que revele a senha"
@@ -467,7 +467,7 @@
       ],
       "enunciado": "Por que Argon2id é preferido a PBKDF2 quando não há exigência de conformidade?",
       "alternativas": [
-        "Porque o custo em memória dificulta ataques com hardware paralelo especializado, que aceleram com facilidade funções que só custam processamento",
+        "Porque o custo em memória atrapalha o hardware paralelo especializado",
         "Porque Argon2id produz resumos maiores, mais difíceis de quebrar",
         "Porque PBKDF2 tem colisões práticas conhecidas",
         "Porque Argon2id é reversível, permitindo recuperar a senha quando necessário"
@@ -503,7 +503,7 @@
       ],
       "enunciado": "Um site publica o SHA-256 de um instalador ao lado do link de download. Contra o que essa conferência protege?",
       "alternativas": [
-        "Contra corrupção no download e contra troca do arquivo no caminho — não contra comprometimento do próprio site",
+        "Contra corrupção no download e contra troca no caminho",
         "Contra qualquer adulteração, inclusive por quem controla o servidor",
         "Contra a presença de código malicioso no instalador original",
         "Contra a instalação em máquinas que não atendem aos requisitos"
@@ -538,7 +538,7 @@
       ],
       "enunciado": "Por que a comparação de um resumo calculado com um valor esperado deve usar comparação em tempo constante?",
       "alternativas": [
-        "Porque a comparação comum retorna na primeira diferença, e o tempo revela quantos caracteres iniciais estão corretos",
+        "Porque a comparação comum retorna na primeira diferença",
         "Porque a comparação comum não funciona com strings hexadecimais longas",
         "Porque a comparação em tempo constante é mais rápida",
         "Porque a comparação comum diferencia maiúsculas e minúsculas"
@@ -573,7 +573,7 @@
       ],
       "enunciado": "Uma base de senhas armazenadas com SHA-256 sem sal vazou. Qual é a avaliação e a resposta?",
       "alternativas": [
-        "Considerar todas as senhas comprometidas, forçar redefinição, e migrar o armazenamento para Argon2id com sal por usuário",
+        "Considerar todas as senhas comprometidas e migrar para Argon2id",
         "Apenas as senhas fracas estão em risco; basta notificar esses usuários",
         "Nenhuma ação é necessária, pois SHA-256 não é reversível",
         "Trocar o algoritmo para SHA-512 e manter os resumos existentes"
@@ -609,7 +609,7 @@
       ],
       "enunciado": "O que é a pimenta no armazenamento de senhas, e o que ela acrescenta?",
       "alternativas": [
-        "Um segredo adicional, igual para toda a base e guardado fora do banco; protege no caso de o banco vazar sem o segredo",
+        "Um segredo adicional, igual para a base e fora do banco",
         "Um sal aleatório gerado a cada verificação de senha",
         "Um segundo hash aplicado sobre o resultado do primeiro",
         "Um substituto do sal, com a vantagem de ocupar menos espaço"
@@ -646,7 +646,7 @@
       ],
       "enunciado": "Qual é a diferença entre hash e HMAC na verificação de integridade?",
       "alternativas": [
-        "O hash detecta corrupção acidental; o HMAC usa chave secreta e detecta também alteração deliberada",
+        "O hash detecta corrupção acidental; o HMAC usa chave secreta",
         "O hash é mais seguro, por não depender de nenhum segredo",
         "O HMAC é reversível e permite recuperar a mensagem",
         "O hash funciona com arquivos e o HMAC apenas com mensagens de rede"
@@ -682,7 +682,7 @@
       ],
       "enunciado": "Um sistema legado usa MD5 para verificar a integridade de arquivos recebidos de parceiros externos. Qual é o risco?",
       "alternativas": [
-        "Um parceiro comprometido pode entregar um arquivo diferente com o mesmo resumo, e a verificação passa",
+        "Um parceiro pode entregar arquivo diferente com o mesmo resumo",
         "Nenhum: MD5 continua adequado para verificação de integridade",
         "O risco é apenas de desempenho, já que MD5 é lento para arquivos grandes",
         "O risco é de colisão acidental entre arquivos legítimos"
@@ -718,7 +718,7 @@
       ],
       "enunciado": "Por que os parâmetros recomendados para funções de senha aumentam ao longo dos anos?",
       "alternativas": [
-        "Porque o hardware fica mais rápido, e o custo por tentativa precisa acompanhar para manter o ataque inviável",
+        "Porque o hardware fica mais rápido, e o custo acompanha",
         "Porque as funções perdem segurança matemática com o tempo",
         "Porque as senhas dos usuários ficam mais curtas a cada ano",
         "Porque os padrões exigem revisão anual obrigatória dos valores"
@@ -755,7 +755,7 @@
       "trecho": "POLÍTICA DE ARMAZENAMENTO DE CREDENCIAIS — v2\n1. Senhas são armazenadas com hash SHA-256 e sal único por usuário.\n2. O sal é gerado com o gerador aleatório padrão da linguagem.\n3. Em caso de esquecimento, a senha original é recuperada e enviada por e-mail.\n4. A comparação do hash é feita com o operador de igualdade da linguagem.",
       "enunciado": "Qual item revela que a política não está apenas desatualizada, mas descreve algo tecnicamente impossível?",
       "alternativas": [
-        "O item 3: hash não é reversível, então recuperar a senha original só seria possível se ela estivesse armazenada de outra forma — o que contradiz o item 1",
+        "O item 3: hash não é reversível, e ele promete recuperar a senha",
         "O item 1, porque SHA-256 não aceita sal",
         "O item 2, porque geradores aleatórios não produzem sais válidos",
         "O item 4, porque o operador de igualdade não funciona com hashes"
@@ -791,7 +791,7 @@
       ],
       "enunciado": "O que deve acontecer quando um usuário esquece a senha, em um sistema que armazena senhas corretamente?",
       "alternativas": [
-        "Um processo de redefinição com token temporário e de uso único, porque a senha original não pode ser recuperada",
+        "Um processo de redefinição com token temporário e de uso único",
         "O envio da senha original por e-mail, após confirmação de identidade",
         "A exibição da senha na tela após responder a uma pergunta secreta",
         "A geração de uma senha idêntica à anterior a partir do resumo armazenado"
@@ -826,7 +826,7 @@
       ],
       "enunciado": "Qual é a diferença entre resistência de segunda pré-imagem e resistência a colisão?",
       "alternativas": [
-        "Na segunda pré-imagem a entrada é dada e o atacante precisa achar outra com o mesmo resumo; na colisão ele pode escolher as duas livremente",
+        "Na segunda pré-imagem a entrada é dada; na colisão ele escolhe as duas",
         "Segunda pré-imagem trata de resumos duplicados e colisão trata de entradas duplicadas",
         "São o mesmo conceito, com nomes usados por comunidades diferentes",
         "Colisão só ocorre em funções com saída pequena; segunda pré-imagem ocorre em qualquer função"
@@ -861,7 +861,7 @@
       ],
       "enunciado": "Uma equipe precisa migrar senhas de SHA-256 sem sal para Argon2id sem forçar todos os usuários a redefinir imediatamente. Qual abordagem funciona?",
       "alternativas": [
-        "Recalcular com Argon2id na próxima autenticação bem-sucedida, quando a senha em claro está disponível, marcando quais registros já foram migrados",
+        "Recalcular com Argon2id na próxima autenticação bem-sucedida",
         "Aplicar Argon2id sobre os resumos SHA-256 existentes, migrando toda a base de uma vez",
         "Copiar os resumos para o novo campo e passar a usar Argon2id apenas para senhas novas",
         "Reverter os resumos SHA-256 para obter as senhas e recalculá-las com Argon2id"
@@ -898,7 +898,7 @@
       ],
       "enunciado": "Em qual situação MD5 ainda pode ser usado sem problema de segurança?",
       "alternativas": [
-        "Como verificação de corrupção acidental, onde não há adversário escolhendo o conteúdo — ainda assim, sem razão para preferi-lo a SHA-256",
+        "Como verificação de corrupção acidental, sem adversário",
         "Para armazenar senhas, desde que com sal único por usuário",
         "Para assinar documentos, desde que a chave seja de 4096 bits",
         "Para verificar arquivos recebidos de terceiros pela internet"
@@ -1006,7 +1006,7 @@
       ],
       "enunciado": "Um sistema aplica bcrypt em senhas e não trata o limite de tamanho da função. Qual é a consequência?",
       "alternativas": [
-        "Senhas longas são truncadas em 72 bytes: tudo além disso é ignorado, e senhas com o mesmo prefixo passam a ser equivalentes",
+        "Senhas longas são truncadas em 72 bytes, e o resto é ignorado",
         "Senhas longas causam erro de execução e impedem o cadastro",
         "Senhas longas ficam mais fracas porque o bcrypt reduz o fator de trabalho",
         "Nenhuma: o bcrypt aceita entradas de qualquer tamanho"
@@ -1043,7 +1043,7 @@
       ],
       "enunciado": "Por que armazenar senhas cifradas, em vez de resumidas, é considerado errado?",
       "alternativas": [
-        "Porque cifra tem volta: quem obtiver a chave recupera todas as senhas em claro, e o sistema não precisa dessa capacidade",
+        "Porque cifra tem volta, e o sistema não precisa disso",
         "Porque cifrar é mais lento que resumir",
         "Porque cifras modernas não aceitam entradas curtas como senhas",
         "Porque a senha cifrada ocupa mais espaço no banco"
@@ -1079,7 +1079,7 @@
       ],
       "enunciado": "Uma equipe monitora integridade de arquivos de configuração comparando resumos SHA-256 guardados em um arquivo no mesmo servidor. Qual é a limitação?",
       "alternativas": [
-        "Quem obtiver privilégio no servidor altera o arquivo e o resumo de referência juntos; a referência precisa ficar fora do alcance de quem foi comprometido",
+        "Quem obtiver privilégio altera o arquivo e a referência juntos",
         "SHA-256 é inadequado para arquivos de texto e deveria ser substituído por MD5",
         "A comparação de resumos consome muito processamento em verificações frequentes",
         "Arquivos de configuração mudam com frequência, o que torna a verificação inútil"
@@ -1114,7 +1114,7 @@
       ],
       "enunciado": "Por que o controle de taxa e o bloqueio de conta não substituem o armazenamento adequado de senhas?",
       "alternativas": [
-        "Porque eles só atuam no ataque online; se a base vazar, o atacante testa candidatos offline sem passar pelo servidor",
+        "Porque eles só atuam no ataque online, e o offline dispensa o servidor",
         "Porque bloqueio de conta é proibido pelas recomendações atuais",
         "Porque controle de taxa reduz a velocidade do sistema para usuários legítimos",
         "Porque essas medidas só funcionam em sistemas com múltiplo fator"
@@ -1150,7 +1150,7 @@
       ],
       "enunciado": "Por que a resistência a colisão é a propriedade que mais importa em assinatura digital?",
       "alternativas": [
-        "Porque a assinatura é calculada sobre o resumo: se o atacante produz dois documentos com o mesmo resumo, a assinatura de um vale para o outro",
+        "Porque a assinatura é calculada sobre o resumo, e não sobre o documento",
         "Porque a assinatura precisa que o resumo seja reversível para ser verificada",
         "Porque a resistência de pré-imagem não se aplica a documentos assinados",
         "Porque assinaturas usam resumos de tamanho variável"
@@ -1187,7 +1187,7 @@
       ],
       "enunciado": "Uma aplicação nova precisa autenticar usuários por senha. Qual conjunto de decisões é o mais defensável?",
       "alternativas": [
-        "Argon2id com os parâmetros mínimos recomendados, sal gerado pela própria biblioteca, verificação em tempo constante, controle de taxa e múltiplo fator disponível",
+        "Argon2id com os parâmetros mínimos, sal da biblioteca e verificação em tempo constante",
         "SHA-512 com sal único, controle de taxa agressivo e troca obrigatória de senha a cada 60 dias",
         "bcrypt com fator 4 para não impactar o tempo de resposta, e sal fixo da aplicação",
         "Cifrar as senhas com AES-GCM, guardando a chave em variável de ambiente"
@@ -1297,7 +1297,7 @@
       ],
       "enunciado": "Um sistema usa MD5 sem sal para senhas, e a equipe tem orçamento para uma única mudança neste trimestre. O que priorizar?",
       "alternativas": [
-        "Migrar o armazenamento para Argon2id com sal por usuário, recalculando na próxima autenticação — é o que protege quando a base vazar",
+        "Migrar para Argon2id com sal por usuário, recalculando na próxima autenticação",
         "Trocar MD5 por SHA-256, mantendo a ausência de sal, por ser a alteração mais simples",
         "Implantar múltiplo fator, mantendo o armazenamento em MD5 sem sal",
         "Adicionar controle de taxa no login, deixando o armazenamento para o próximo trimestre"
