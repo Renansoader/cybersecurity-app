@@ -72,7 +72,7 @@
       ],
       "enunciado": "Na prática, onde a criptografia de sistemas reais costuma falhar?",
       "alternativas": [
-        "No uso: modo inadequado, nonce repetido, chave previsível ou mal guardada, e ausência de verificação de integridade",
+        "No uso: modo inadequado, nonce repetido e chave mal guardada",
         "No algoritmo: AES e RSA têm falhas matemáticas exploradas com frequência",
         "No tamanho da chave, quase sempre pequeno demais nos sistemas atuais",
         "Na velocidade de processamento, que obriga a enfraquecer a cifra"
@@ -108,7 +108,7 @@
       ],
       "enunciado": "Por que dizer \"o sistema usa AES-256\" não permite avaliar a segurança dele?",
       "alternativas": [
-        "Porque falta o modo de operação, de onde vem o nonce e como a chave é gerenciada — é aí que as falhas moram",
+        "Porque faltam o modo, o nonce e o gerenciamento da chave",
         "Porque AES-256 é mais fraco que AES-128 em alguns modos",
         "Porque o número 256 se refere ao tamanho do bloco, e não da chave",
         "Porque AES foi descontinuado e substituído por outro padrão"
@@ -143,7 +143,7 @@
       ],
       "enunciado": "O que acontece quando o mesmo nonce é usado duas vezes com a mesma chave em AES-GCM?",
       "alternativas": [
-        "Falha catastrófica: o sigilo das duas mensagens é comprometido e a subchave de autenticação pode ser recuperada, permitindo forjar mensagens válidas",
+        "Falha catastrófica: o sigilo cai e dá para forjar mensagens válidas",
         "Nada relevante: o nonce é público e pode se repetir sem consequência",
         "A cifra fica mais lenta, porque o algoritmo precisa recalcular o fluxo",
         "A segunda mensagem simplesmente não é cifrada"
@@ -178,7 +178,7 @@
       ],
       "enunciado": "Qual é a diferença entre os requisitos de IV em CBC e de nonce em CTR ou GCM?",
       "alternativas": [
-        "Em CBC o IV precisa ser imprevisível; em CTR e GCM o nonce precisa ser único, e a repetição é catastrófica",
+        "Em CBC o IV precisa ser imprevisível; em CTR e GCM, único",
         "Em CBC o IV precisa ser secreto; em CTR e GCM ele pode ser público",
         "Em CBC o IV é opcional; em CTR e GCM ele é obrigatório",
         "Não há diferença: ambos exigem apenas que o valor seja aleatório"
@@ -216,7 +216,7 @@
       "trecho": "IV = b\"0000000000000000\"   # fixo, para simplificar a implantacao\n\ndef cifrar(chave, mensagem):\n    return aes_cbc_encrypt(chave, IV, mensagem)\n\ndef decifrar(chave, texto_cifrado):\n    return aes_cbc_decrypt(chave, IV, texto_cifrado)",
       "enunciado": "Qual é a consequência do IV fixo neste código?",
       "alternativas": [
-        "Mensagens iguais produzem textos cifrados iguais, e mensagens com início igual produzem blocos iniciais iguais — a estrutura do dado vaza",
+        "Mensagens iguais produzem textos cifrados iguais — a estrutura vaza",
         "O código não funciona: CBC não aceita IV constante",
         "A cifra fica mais lenta, porque o IV precisa ser recalculado a cada bloco",
         "Nenhuma: como o IV não é secreto, o valor dele é irrelevante"
@@ -252,7 +252,7 @@
       ],
       "enunciado": "O que caracteriza um ataque de oráculo de preenchimento?",
       "alternativas": [
-        "O sistema reage de forma distinguível a preenchimento inválido, e o atacante usa essas respostas para decifrar a mensagem sem descobrir a chave",
+        "O sistema reage de forma distinguível ao preenchimento inválido, e isso basta",
         "O atacante descobre a chave testando todas as combinações possíveis",
         "O atacante substitui o algoritmo de preenchimento por um mais fraco",
         "O sistema aceita mensagens sem preenchimento, o que permite injetar blocos extras"
@@ -287,7 +287,7 @@
       ],
       "enunciado": "Por que responder com mensagens de erro diferentes para \"preenchimento inválido\" e \"assinatura inválida\" é perigoso?",
       "alternativas": [
-        "Porque a diferença entre as respostas é informação útil ao atacante, e é exatamente ela que viabiliza o oráculo",
+        "Porque a diferença entre as respostas é informação útil ao atacante",
         "Porque mensagens longas consomem mais banda do servidor",
         "Porque usuários legítimos podem se confundir com a terminologia técnica",
         "Porque mensagens diferentes exigem mais código de tratamento de erro"
@@ -322,7 +322,7 @@
       ],
       "enunciado": "O que é um canal lateral em criptografia?",
       "alternativas": [
-        "Informação que vaza pelo comportamento do sistema — tempo, consumo, mensagens de erro — e não pelo texto cifrado",
+        "Informação que vaza pelo comportamento, e não pelo texto cifrado",
         "Um canal de comunicação secundário usado para transmitir a chave",
         "Uma vulnerabilidade no algoritmo que permite reduzir o espaço de chaves",
         "Um modo de operação alternativo usado quando o principal falha"
@@ -358,7 +358,7 @@
       "trecho": "def token_valido(recebido: str, esperado: str) -> bool:\n    if len(recebido) != len(esperado):\n        return False\n    for a, b in zip(recebido, esperado):\n        if a != b:\n            return False\n    return True",
       "enunciado": "Qual é a falha desta comparação?",
       "alternativas": [
-        "Ela retorna assim que encontra a primeira diferença, então o tempo de execução revela quantos caracteres iniciais estão corretos",
+        "Ela retorna assim que encontra a primeira diferença de caractere",
         "Ela não trata o caso de os tokens serem vazios",
         "O uso de zip é ineficiente e deveria ser substituído por índices",
         "A comparação deveria ser feita sobre bytes, e não sobre str"
@@ -394,7 +394,7 @@
       ],
       "enunciado": "Por que gerar chaves com o gerador de números aleatórios padrão de uma linguagem é inadequado?",
       "alternativas": [
-        "Porque esses geradores são determinísticos e previsíveis a partir de poucas saídas; material criptográfico exige a fonte aleatória do sistema operacional",
+        "Porque esses geradores são determinísticos e previsíveis",
         "Porque eles são lentos demais para gerar chaves longas",
         "Porque eles só produzem números inteiros pequenos",
         "Porque eles exigem uma semente informada manualmente a cada uso"
@@ -430,7 +430,7 @@
       ],
       "enunciado": "Um sistema gera tokens de recuperação de senha usando o horário atual como semente do gerador aleatório. Qual é o risco?",
       "alternativas": [
-        "O espaço de possibilidades cai ao número de instantes plausíveis: quem sabe aproximadamente quando o token foi gerado consegue reproduzi-lo",
+        "O espaço de possibilidades cai ao número de instantes plausíveis",
         "Nenhum, desde que o token tenha pelo menos 32 caracteres",
         "O risco é apenas de colisão entre dois tokens gerados no mesmo segundo",
         "O risco é de desempenho, porque consultar o relógio é uma operação cara"
@@ -472,7 +472,7 @@
         ],
         [
           "Nonce repetido em GCM",
-          "Sigilo comprometido e possibilidade de forjar mensagens válidas"
+          "Duas mensagens abertas de uma vez, e a etiqueta deixa de valer"
         ],
         [
           "IV previsível em CBC",
@@ -511,7 +511,7 @@
       ],
       "enunciado": "Por que implementar por conta própria um algoritmo padrão, como o AES, é desaconselhado mesmo com a especificação pública?",
       "alternativas": [
-        "Porque produzir a saída correta é a parte fácil; não vazar por tempo, cache ou tratamento de erro é o trabalho que as bibliotecas maduras concentram",
+        "Porque produzir a saída correta é a parte fácil; não vazar por tempo ou erro é o trabalho",
         "Porque a especificação do AES é protegida por patente e não pode ser implementada livremente",
         "Porque implementações próprias sempre produzem resultados incompatíveis com as bibliotecas",
         "Porque o AES exige instruções de processador que só bibliotecas conseguem acessar"
@@ -547,7 +547,7 @@
       ],
       "enunciado": "Uma equipe criou um esquema próprio: cifra o dado com AES-CBC e depois calcula um SHA-256 do texto cifrado, guardando os dois. Os testes passam. Qual é a avaliação?",
       "alternativas": [
-        "O resumo sem chave não protege: quem altera o texto cifrado recalcula o resumo; a construção correta é cifra autenticada ou MAC com chave",
+        "O resumo sem chave não protege: quem altera o cifrado recalcula o resumo",
         "O esquema é adequado, já que SHA-256 detecta qualquer alteração",
         "O problema é a ordem: o resumo deveria ser calculado antes da cifra",
         "O problema é o uso de SHA-256, que deveria ser SHA-512 para acompanhar o AES"
@@ -656,7 +656,7 @@
       ],
       "enunciado": "Por que a cifra autenticada elimina a classe de ataque do oráculo de preenchimento?",
       "alternativas": [
-        "Porque a etiqueta de autenticação é verificada antes de qualquer processamento, e a falha é sempre a mesma, sem revelar o motivo",
+        "Porque a etiqueta é verificada antes de qualquer processamento",
         "Porque ela não usa preenchimento em nenhuma circunstância",
         "Porque ela cifra a mensagem duas vezes, mascarando o padrão",
         "Porque ela impede que o atacante envie mensagens modificadas ao servidor"
@@ -692,7 +692,7 @@
       "artefato": "Registros cifrados na tabela `clientes` (coluna `cpf_cifrado`, hex, truncado):\n\nid=1041  8f2a91c4e7b30d55...\nid=1188  3c7e02aa19f4b6d1...\nid=1263  8f2a91c4e7b30d55...\nid=1402  d5b1478e2c09f3aa...\nid=1517  8f2a91c4e7b30d55...",
       "enunciado": "O que esta amostra revela sobre o esquema de cifra usado?",
       "alternativas": [
-        "Valores iguais produzem textos cifrados iguais, o que indica cifra determinística — ECB ou IV fixo — e permite agrupar registros que compartilham o mesmo CPF",
+        "Valores iguais produzem cifrados iguais: a cifra é determinística",
         "Os registros estão corrompidos, já que textos cifrados nunca se repetem",
         "A chave foi trocada entre os registros 1188 e 1263",
         "O algoritmo usado é assimétrico, o que explica a repetição"
@@ -730,7 +730,7 @@
       ],
       "enunciado": "Por que testes automatizados raramente detectam falhas criptográficas de uso?",
       "alternativas": [
-        "Porque eles verificam que cifrar e decifrar funcionam, e as falhas estão no que vaza para um adversário — algo que o teste não observa",
+        "Porque eles verificam que cifrar e decifrar funcionam, e a falha está no que vaza",
         "Porque bibliotecas criptográficas não podem ser testadas automaticamente",
         "Porque os testes só rodam em ambiente de desenvolvimento, onde a criptografia é desabilitada",
         "Porque falhas criptográficas só aparecem com volume alto de dados"
@@ -766,7 +766,7 @@
       ],
       "enunciado": "Uma equipe precisa cifrar milhões de registros com a mesma chave. Qual estratégia de nonce é segura?",
       "alternativas": [
-        "Nonce único por registro, vindo de contador persistido ou de fonte aleatória com espaço grande o bastante, armazenado junto do texto cifrado",
+        "Nonce único por registro, de contador ou de fonte aleatória",
         "Nonce derivado do identificador do registro, que já é único no banco",
         "Nonce fixo, já que a chave é a mesma para todos os registros",
         "Nonce derivado do conteúdo do registro, garantindo unicidade por dado"
@@ -802,7 +802,7 @@
       ],
       "enunciado": "Ao usar uma biblioteca criptográfica, qual interface deve ser preferida?",
       "alternativas": [
-        "A de mais alto nível que resolva o problema, porque ela decide modo, nonce e integridade por você e reduz a chance de erro",
+        "A de mais alto nível que resolva o problema, que decide o modo por você",
         "A de mais baixo nível, para ter controle total sobre cada parâmetro",
         "Aquela que permitir escolher o modo ECB, por ser a mais simples de depurar",
         "Aquela que aceitar chaves em formato de texto, facilitando a configuração"
@@ -912,7 +912,7 @@
       "trecho": "PROPOSTA — proteção de dados no aplicativo\n\"Vamos criar nosso próprio esquema: embaralhar os bytes com uma permutação\nsecreta, aplicar XOR com uma chave repetida ao longo da mensagem e codificar o\nresultado em Base64. Como ninguém conhece a permutação, é seguro. Os testes de\nida e volta já passam.\"",
       "enunciado": "Quantos problemas distintos esta proposta tem?",
       "alternativas": [
-        "Quatro: esquema caseiro, segurança apoiada no sigilo do método, XOR com chave repetida — que é quebrável por análise estatística — e Base64 tratado como camada de proteção",
+        "Quatro: esquema caseiro, sigilo do método, XOR repetido e Base64",
         "Um: apenas o uso de Base64, que deveria ser substituído por AES",
         "Dois: o esquema caseiro e a ausência de testes de segurança",
         "Nenhum: como os testes passam e o método é secreto, o esquema atende"
@@ -920,7 +920,7 @@
       "correta": 0,
       "dicas": [
         "Conte as afirmações e teste cada uma contra o que o módulo mostrou.",
-        "XOR com chave repetida tem nome e tem ataque conhecido há mais de um século.",
+        "Um dos quatro problemas tem nome próprio e ataque conhecido há mais de um século.",
         "\"Os testes passam\" prova o quê?"
       ],
       "pergunta_socratica": "Antes de conferir: quanto tempo o método permanece secreto depois que o aplicativo é publicado?",
@@ -985,7 +985,7 @@
       ],
       "enunciado": "Você foi chamado para revisar o uso de criptografia em um sistema em produção. Por onde começar?",
       "alternativas": [
-        "Levantar onde há cifra, qual algoritmo e modo em cada ponto, de onde vêm nonces e chaves, e se a integridade é verificada",
+        "Levantar onde há cifra, qual algoritmo e modo, e de onde vêm nonces e chaves",
         "Medir o tempo de resposta das operações criptográficas e otimizar as mais lentas",
         "Substituir imediatamente todos os algoritmos pelos mais recentes disponíveis",
         "Aumentar o tamanho de todas as chaves para o máximo suportado pelas bibliotecas"
@@ -1021,7 +1021,7 @@
       ],
       "enunciado": "Por que a cifra de fluxo exige cuidado especial com a reutilização de material?",
       "alternativas": [
-        "Porque ela combina a mensagem com um fluxo de chave; reutilizar o mesmo fluxo em duas mensagens permite eliminá-lo combinando os dois textos cifrados",
+        "Porque ela apenas combina a mensagem com um fluxo de chave",
         "Porque ela só funciona com mensagens de tamanho fixo",
         "Porque ela exige que a chave seja maior que a mensagem",
         "Porque ela não pode ser usada com verificação de integridade"
@@ -1096,7 +1096,7 @@
       ],
       "enunciado": "Um desenvolvedor argumenta que seu esquema criptográfico é seguro porque \"ninguém nunca conseguiu quebrar\". Qual é a objeção?",
       "alternativas": [
-        "Ninguém tentou: ausência de ataque conhecido em um esquema que nunca foi analisado não é evidência de segurança",
+        "Ninguém tentou: ausência de ataque conhecido não é evidência de segurança",
         "A objeção é que todo esquema é quebrável, então a afirmação é sempre falsa",
         "A objeção é que a afirmação precisa de certificação formal para valer",
         "Não há objeção: resistência observada é a melhor medida de segurança"
@@ -1132,7 +1132,7 @@
       ],
       "enunciado": "Uma equipe descobre que usou nonce fixo em AES-GCM por seis meses em produção. Qual é a resposta correta?",
       "alternativas": [
-        "Tratar os dados cifrados nesse período como comprometidos, trocar a chave, recifrar com nonce único e avaliar se houve acesso ao material",
+        "Tratar os dados desse período como comprometidos, trocar a chave e recifrar",
         "Corrigir o código para gerar nonce único e manter os dados já cifrados como estão",
         "Aumentar o tamanho da chave, o que compensa o nonce repetido",
         "Registrar o achado como dívida técnica e corrigir na próxima refatoração"
@@ -1168,7 +1168,7 @@
       ],
       "enunciado": "Por que a comparação de valores sensíveis deve ser feita em tempo constante?",
       "alternativas": [
-        "Porque comparação que retorna na primeira diferença revela, pelo tempo, quantos caracteres iniciais estão corretos",
+        "Porque a comparação que retorna na primeira diferença revela pelo tempo",
         "Porque comparações comuns podem produzir resultado incorreto com strings longas",
         "Porque tempo constante é mais rápido do que a comparação padrão",
         "Porque a comparação padrão não funciona com valores hexadecimais"
@@ -1205,7 +1205,7 @@
       ],
       "enunciado": "Um sistema decifra um token recebido do cliente e, se a decifra falhar, responde \"token corrompido\"; se decifrar mas o conteúdo for inválido, responde \"token inválido\". Qual é a avaliação?",
       "alternativas": [
-        "As duas respostas distinguíveis formam um oráculo; a resposta deve ser única para qualquer falha, com o detalhe apenas no log",
+        "As duas respostas distinguíveis formam um oráculo; unifique a resposta",
         "O desenho é adequado, pois ajuda a depurar problemas de integração",
         "O problema é apenas de usabilidade: as mensagens são técnicas demais",
         "O problema é decifrar no servidor; a validação deveria ocorrer no cliente"
@@ -1277,7 +1277,7 @@
       ],
       "enunciado": "Uma equipe quer reduzir o risco de canais laterais em um serviço de autenticação. Qual conjunto de medidas ajuda mais?",
       "alternativas": [
-        "Comparar segredos em tempo constante, responder de forma uniforme a qualquer falha, e fazer o caminho de usuário inexistente custar o mesmo do caminho normal",
+        "Comparar segredos em tempo constante e responder de forma uniforme",
         "Aumentar o tamanho das chaves e trocar o algoritmo por um mais recente",
         "Adicionar um atraso aleatório em todas as respostas do serviço",
         "Registrar em log o tempo de cada operação para análise posterior"
@@ -1316,7 +1316,7 @@
       ],
       "enunciado": "Você tem duas horas para avaliar o risco criptográfico de uma aplicação que você não conhece. Qual roteiro rende mais?",
       "alternativas": [
-        "Localizar todos os pontos de cifra, anotar algoritmo e modo de cada um, rastrear a origem de nonces e chaves, e verificar como o sistema responde quando a decifra falha",
+        "Localizar os pontos de cifra, anotar algoritmo e modo, e rastrear nonces e chaves",
         "Ler a documentação de segurança e conferir se ela menciona os algoritmos recomendados",
         "Executar uma ferramenta de varredura e reportar os achados de configuração de TLS",
         "Medir o desempenho das rotinas criptográficas e comparar com valores de referência"
