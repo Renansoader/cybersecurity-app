@@ -139,7 +139,7 @@
       ],
       "enunciado": "Por que se diz que a superfície de ataque de uma empresa cresce sozinha?",
       "alternativas": [
-        "Porque ela aumenta como efeito colateral do trabalho normal: integrações, contas, ambientes temporários e ferramentas contratadas por cada área",
+        "Porque ela aumenta como efeito colateral do trabalho normal de cada área",
         "Porque atacantes descobrem continuamente novas vulnerabilidades nos sistemas existentes",
         "Porque o volume de dados armazenados aumenta a cada ano",
         "Porque fornecedores lançam versões novas de software com mais funcionalidades"
@@ -174,7 +174,7 @@
       "trecho": "RELATÓRIO DE SUPERFÍCIE DE ATAQUE — 1º semestre\nEscopo analisado: servidores do datacenter próprio.\nResultado: 14 serviços expostos, 3 com vulnerabilidade conhecida.\nConclusão: a superfície de ataque da empresa está mapeada e sob controle.",
       "enunciado": "Qual é o problema com a conclusão deste relatório?",
       "alternativas": [
-        "O escopo cobre só os servidores próprios: nuvem, estações, celulares, aplicações de terceiros e contas de usuário ficaram fora do mapa",
+        "O escopo cobre só os servidores próprios, e a conclusão fala da empresa inteira",
         "O relatório deveria informar a nota de gravidade de cada vulnerabilidade encontrada",
         "Quatorze serviços expostos é um número alto demais para qualquer empresa",
         "O relatório deveria ser trimestral em vez de semestral"
@@ -210,14 +210,14 @@
       ],
       "enunciado": "Duas empresas têm o mesmo número de servidores. Na primeira, 40 serviços estão expostos à internet; na segunda, 6. Qual conclusão é sustentável?",
       "alternativas": [
-        "A segunda tem superfície de ataque menor, o que reduz o número de caminhos que precisam ser corrigidos, monitorados e testados",
+        "A segunda tem superfície de ataque menor, que não é o mesmo que ser mais segura",
         "A segunda é necessariamente mais segura que a primeira em todos os aspectos",
         "As duas têm a mesma segurança, já que o número de servidores é igual",
         "A primeira é mais segura, porque expor mais serviços indica maior maturidade de operação"
       ],
       "correta": 0,
       "dicas": [
-        "Superfície menor é uma vantagem concreta, mas ela garante ausência de falhas?",
+        "Seis pontos de contato em vez de quarenta é uma vantagem concreta, mas ela garante ausência de falhas?",
         "Cuidado com a palavra \"necessariamente\".",
         "Quantidade de servidores diz pouco; o que importa é quanto está exposto."
       ],
@@ -244,7 +244,7 @@
       ],
       "enunciado": "Uma equipe sobe um ambiente de demonstração na nuvem, com cópia dos dados de produção, para uma apresentação comercial. A apresentação acontece e ninguém desliga o ambiente. Por que este é um caso clássico de crescimento de superfície?",
       "alternativas": [
-        "Porque o ambiente continua exposto sem dono, sem monitoramento e sem entrar em nenhuma rotina de correção, carregando dados reais",
+        "Porque o ambiente continua exposto, com dado real e sem dono",
         "Porque ambientes em nuvem são inerentemente menos seguros que ambientes próprios",
         "Porque a apresentação comercial não deveria usar dados, e sim capturas de tela",
         "Porque o custo do ambiente continuará sendo cobrado pelo provedor"
@@ -280,7 +280,7 @@
       ],
       "enunciado": "Uma empresa quer reduzir a chance de ser atingida por um ataque automatizado que varre a internet procurando serviços administrativos abertos. Qual medida ataca a exposição na raiz?",
       "alternativas": [
-        "Restringir o acesso administrativo a uma rede interna ou a uma conexão privada, deixando de expor o serviço à internet",
+        "Tirar o painel administrativo da internet e deixar só na rede interna",
         "Manter uma senha longa e única no painel administrativo exposto",
         "Configurar bloqueio de conta após dez tentativas de login malsucedidas",
         "Renomear o painel administrativo para um endereço menos óbvio"
@@ -394,7 +394,7 @@
       ],
       "enunciado": "Um celular pessoal com o e-mail corporativo configurado pertence a qual domínio da superfície de ataque da empresa?",
       "alternativas": [
-        "Dispositivos: ele é um ponto de acesso a dados corporativos, mesmo não sendo propriedade da empresa",
+        "Dispositivos: ele é um ponto de acesso a dados corporativos",
         "Nenhum: por ser pessoal, está fora da superfície de ataque da empresa",
         "Redes: o que importa é a conexão usada pelo aparelho",
         "Pessoas: o risco está no comportamento do funcionário, não no aparelho"
@@ -429,7 +429,7 @@
       ],
       "enunciado": "Uma empresa descobre que 30 planilhas com dados de clientes estão espalhadas por pastas compartilhadas, cada uma com permissões diferentes. Em qual domínio está a falha principal, e por quê?",
       "alternativas": [
-        "Dados: a informação está armazenada em lugares não previstos, com permissões amplas e sem controle de cópia",
+        "Dados: a informação está em lugares não previstos e sem controle",
         "Redes: as pastas compartilhadas trafegam em uma rede sem segmentação",
         "Dispositivos: as estações que criaram as planilhas estão desatualizadas",
         "Aplicações: o sistema que gerou os relatórios permitiu a exportação"
@@ -500,7 +500,7 @@
       ],
       "enunciado": "Em uma investigação, descobre-se que o atacante entrou por uma estação infectada por anexo malicioso e, de lá, alcançou o servidor de arquivos usando uma credencial encontrada na própria máquina. Quais domínios estão envolvidos?",
       "alternativas": [
-        "Pessoas (abertura do anexo), dispositivos (estação infectada) e dados (credencial armazenada de forma acessível na máquina)",
+        "Pessoas, dispositivos e dados, nessa ordem",
         "Apenas aplicações, porque o anexo explorou um leitor de documentos",
         "Apenas redes, porque o acesso ao servidor de arquivos passou pela rede interna",
         "Apenas dispositivos, porque tudo começou e terminou em equipamentos"
@@ -676,7 +676,7 @@
       ],
       "enunciado": "Por que se afirma que a superfície de um fornecedor passa a fazer parte da superfície da empresa que o contrata?",
       "alternativas": [
-        "Porque o acesso concedido ao fornecedor cria um caminho até os dados da empresa, e o comprometimento dele se transforma em caminho de entrada",
+        "Porque o acesso concedido ao fornecedor cria um caminho até os dados da empresa",
         "Porque a empresa contratante passa a ser legalmente responsável pela infraestrutura do fornecedor",
         "Porque contratos de tecnologia sempre preveem responsabilidade solidária por incidentes",
         "Porque fornecedores costumam ter menos maturidade de segurança que seus clientes"
@@ -964,7 +964,7 @@
       "trecho": "REGISTRO DE INCIDENTE — encerramento\nVetor identificado: exploração de vulnerabilidade em servidor web exposto.\nPonto de entrada: servidor WEB-03.\nAções tomadas: servidor WEB-03 atualizado e reiniciado.\nStatus: encerrado. Movimento lateral: não investigado, pois o servidor foi corrigido.",
       "enunciado": "Qual é a falha mais grave neste encerramento?",
       "alternativas": [
-        "Dar o movimento lateral por descartado com base na correção do ponto de entrada, que são coisas independentes",
+        "Dar o movimento lateral por descartado por causa da correção da entrada",
         "Não registrar o número da vulnerabilidade explorada no servidor",
         "Reiniciar o servidor, o que pode ter apagado evidências da memória",
         "Não informar quanto tempo o servidor ficou indisponível durante a correção"
@@ -999,7 +999,7 @@
       ],
       "enunciado": "Um atacante obteve acesso a uma conta de e-mail corporativo e, a partir dela, enviou mensagens internas pedindo alterações de cadastro a outros setores. Como classificar essa segunda etapa?",
       "alternativas": [
-        "Movimento lateral com vetor de engenharia social: o acesso obtido é usado para alcançar outras pessoas e sistemas",
+        "Movimento lateral com vetor de engenharia social",
         "Acesso inicial, porque cada e-mail enviado é uma nova tentativa de entrada",
         "Exfiltração, porque informação corporativa está sendo transmitida",
         "Persistência, porque o atacante mantém a conta sob controle"
@@ -1103,7 +1103,7 @@
       ],
       "enunciado": "Um levantamento aponta 120 contas ativas em um sistema que tem 70 usuários atuais. Qual é a leitura e a ação mais adequadas?",
       "alternativas": [
-        "As 50 contas excedentes são superfície desnecessária e devem ser revisadas e desativadas, com processo que impeça a reincidência",
+        "As 50 contas excedentes são superfície desnecessária e devem ser desativadas",
         "A diferença é normal e não representa risco, já que contas inativas não são usadas",
         "As contas devem ser mantidas para preservar o histórico de ações de cada usuário",
         "O problema é apenas de custo de licenciamento do sistema"
@@ -1176,7 +1176,7 @@
       "trecho": "PLANO DE REDUÇÃO DE SUPERFÍCIE — proposta\n1. Contratar ferramenta de descoberta de ativos expostos na internet.\n2. Contratar solução de monitoramento contínuo para todos os ativos descobertos.\n3. Contratar serviço de resposta gerenciada para tratar os alertas gerados.\nMeta: cobertura de 100% dos ativos expostos com monitoramento em 12 meses.",
       "enunciado": "O plano se chama de redução de superfície, mas faz outra coisa. Qual é o problema?",
       "alternativas": [
-        "Ele monitora e defende toda a superfície existente, sem prever nenhuma etapa de desligar ou restringir o que é desnecessário",
+        "Ele monitora e defende a superfície inteira, sem nenhuma etapa de redução",
         "Ele deveria começar pelo serviço de resposta gerenciada, e não pela descoberta de ativos",
         "A meta de 12 meses é curta demais para uma empresa de qualquer porte",
         "Ele não especifica quais fornecedores serão avaliados em cada uma das três contratações"
@@ -1212,7 +1212,7 @@
       ],
       "enunciado": "O que significa, na prática, aplicar o princípio do menor privilégio na redução de superfície?",
       "alternativas": [
-        "Conceder a cada usuário, sistema ou integração apenas as permissões necessárias para a função, e revisar isso periodicamente",
+        "Conceder a usuário, sistema e integração só as permissões que a função exige",
         "Reduzir ao mínimo o número de usuários com acesso a qualquer sistema da empresa",
         "Conceder permissões amplas apenas a quem tem cargo de gestão",
         "Substituir permissões individuais por uma única permissão comum a toda a empresa"
@@ -1247,7 +1247,7 @@
       ],
       "enunciado": "O time de segurança tem dois meses e precisa escolher entre monitorar 200 serviços expostos ou reduzir esse número antes de monitorar. Qual argumento sustenta melhor a segunda opção?",
       "alternativas": [
-        "Monitorar 200 serviços custa mais, gera mais alerta e mais ponto cego do que monitorar os que sobrarem depois da redução",
+        "Monitorar 200 serviços custa mais do que monitorar o que sobrar",
         "Monitoramento é ineficaz como controle e não deveria ser adotado",
         "Reduzir serviços é sempre mais rápido do que configurar monitoramento",
         "Serviços expostos não precisam de monitoramento se estiverem atualizados"
@@ -1284,7 +1284,7 @@
       ],
       "enunciado": "Você recebeu a tarefa de mapear a superfície de ataque de uma empresa de 200 pessoas em duas semanas. Qual abordagem produz o resultado mais útil no prazo?",
       "alternativas": [
-        "Cobrir os cinco domínios em profundidade rasa: o que está exposto na internet, quais sistemas guardam dado crítico, quais contas existem, quais terceiros têm acesso e quais dispositivos alcançam dados",
+        "Cobrir os cinco domínios em profundidade rasa, e aprofundar depois com base no que o mapa mostrar",
         "Mapear em profundidade apenas os servidores do datacenter, que é onde estão os sistemas críticos",
         "Executar um teste de intrusão completo para descobrir a superfície a partir das falhas encontradas",
         "Listar todas as vulnerabilidades conhecidas do ambiente e ordená-las por gravidade"
