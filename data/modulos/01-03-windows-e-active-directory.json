@@ -71,7 +71,7 @@
       ],
       "enunciado": "Qual é a diferença entre uma conta local e uma conta de domínio no Windows?",
       "alternativas": [
-        "A conta local existe e vale apenas naquela máquina; a de domínio é gerenciada centralmente e vale nas máquinas que confiam no domínio",
+        "A conta local vale apenas naquela máquina; a de domínio é gerenciada centralmente",
         "A conta local pertence ao usuário e a de domínio pertence ao administrador da máquina",
         "A conta local não tem senha e a de domínio exige autenticação",
         "A conta local é temporária e a de domínio é permanente"
@@ -141,7 +141,7 @@
       ],
       "enunciado": "Qual é a função do Controle de Conta de Usuário (UAC) no Windows?",
       "alternativas": [
-        "Fazer com que contas administrativas operem com privilégio reduzido no uso comum, elevando apenas mediante confirmação",
+        "Fazer contas administrativas operarem com privilégio reduzido no uso comum",
         "Impedir que usuários sem privilégio administrativo façam login na máquina",
         "Criptografar os arquivos do usuário durante a sessão",
         "Registrar em log todas as ações realizadas pelo usuário"
@@ -176,7 +176,7 @@
       ],
       "enunciado": "Uma equipe desabilita o UAC em todas as estações para \"parar de ser incomodada com confirmações\". Qual é a consequência?",
       "alternativas": [
-        "Processos iniciados pela conta administrativa passam a rodar com privilégio total desde o começo, inclusive código malicioso executado por engano",
+        "Processos passam a rodar com privilégio total desde o começo",
         "Os usuários deixam de conseguir instalar programas na máquina",
         "As estações passam a exigir senha de administrador a cada ação privilegiada",
         "Nada muda em termos de segurança: o UAC é apenas um aviso visual"
@@ -211,7 +211,7 @@
       ],
       "enunciado": "Por que a revisão de segurança em ambientes Windows precisa olhar os privilégios especiais, e não só a pertinência ao grupo de administradores?",
       "alternativas": [
-        "Porque alguns privilégios, como depurar processos ou fazer backup de qualquer arquivo, equivalem na prática a controle total da máquina",
+        "Porque alguns privilégios equivalem na prática a controle total da máquina",
         "Porque privilégios especiais substituem a necessidade de senha para o usuário",
         "Porque a pertinência a grupos não é registrada em log pelo Windows",
         "Porque privilégios especiais expiram sozinhos e precisam ser renovados"
@@ -282,7 +282,7 @@
       ],
       "enunciado": "Após limpar um malware de uma estação Windows, ele volta a cada reinicialização. Onde procurar primeiro?",
       "alternativas": [
-        "Nas chaves de execução automática do registro, nas tarefas agendadas e nos serviços configurados para iniciar com o sistema",
+        "Nas chaves de execução automática, tarefas agendadas e serviços",
         "Na pasta de downloads do usuário, onde o arquivo original foi baixado",
         "No histórico do navegador, para identificar o site de origem",
         "Nas permissões dos arquivos do sistema, que podem estar incorretas"
@@ -390,7 +390,7 @@
       "artefato": "22:41:03  4625  Conta: j.almeida  Tipo de logon: 3  Origem: 10.20.4.87  Status: senha incorreta\n22:41:05  4625  Conta: m.souza    Tipo de logon: 3  Origem: 10.20.4.87  Status: senha incorreta\n22:41:07  4625  Conta: adm.rede   Tipo de logon: 3  Origem: 10.20.4.87  Status: senha incorreta\n22:43:19  4624  Conta: adm.rede   Tipo de logon: 3  Origem: 10.20.4.87\n22:43:24  4672  Conta: adm.rede   Privilégios especiais atribuídos ao novo logon",
       "enunciado": "Qual é a leitura correta desta sequência do log de segurança?",
       "alternativas": [
-        "Tentativas contra várias contas a partir de uma mesma estação interna terminam em logon bem-sucedido de uma conta administrativa, com privilégios especiais atribuídos",
+        "Tentativas contra várias contas terminam em logon administrativo bem-sucedido",
         "Um usuário legítimo esqueceu a senha e conseguiu entrar na quarta tentativa",
         "O evento 4672 indica falha na atribuição de privilégios, o que impediu o acesso",
         "A origem interna descarta a hipótese de ataque, pois só endereços externos são suspeitos"
@@ -426,7 +426,7 @@
       ],
       "enunciado": "O que o evento 4672 registra, e por que ele é relevante para monitoramento?",
       "alternativas": [
-        "Privilégios especiais atribuídos a um novo logon, o que sinaliza acesso com poder administrativo",
+        "Privilégios especiais atribuídos a um novo logon",
         "Uma tentativa de logon bloqueada por política de segurança",
         "A criação de uma nova conta de usuário no domínio",
         "A expiração da senha de uma conta privilegiada"
@@ -577,7 +577,7 @@
       ],
       "enunciado": "Por que o Active Directory costuma ser o objetivo do movimento lateral, e não o ponto de entrada?",
       "alternativas": [
-        "Porque o controlador de domínio raramente é acessível de fora, mas concentra o controle de toda a rede — o atacante entra pelo elo fraco e caminha até ele",
+        "Porque o controlador raramente é acessível de fora, mas concentra o controle da rede",
         "Porque o Active Directory não tem vulnerabilidades conhecidas que permitam acesso direto",
         "Porque atacantes preferem alvos com menos proteção e desistem do domínio",
         "Porque o controlador de domínio não guarda credenciais, apenas nomes de usuário"
@@ -613,7 +613,7 @@
       ],
       "enunciado": "Uma equipe usa a mesma conta de administrador de domínio para fazer login em estações comuns durante o suporte. Qual medida corrige o risco na raiz?",
       "alternativas": [
-        "Separar contas: uso diário sem privilégio, conta administrativa distinta e restrição de onde credenciais privilegiadas podem ser usadas",
+        "Separar contas: uso diário sem privilégio e conta administrativa distinta",
         "Trocar a senha da conta de administrador de domínio semanalmente",
         "Registrar em planilha todas as estações em que a conta administrativa foi utilizada",
         "Exigir que o suporte use somente conexões por área de trabalho remota"
@@ -722,7 +722,7 @@
       ],
       "enunciado": "Uma empresa usa a mesma senha de administrador local em todas as 300 estações. Qual é o risco principal?",
       "alternativas": [
-        "Comprometer uma estação entrega acesso administrativo às outras 299, facilitando movimento lateral por toda a rede",
+        "Comprometer uma estação entrega acesso administrativo às outras 299",
         "As estações ficam mais lentas por compartilharem a mesma credencial",
         "O Active Directory recusa autenticações duplicadas e bloqueia as contas",
         "Não há risco relevante, já que contas locais não são contas de domínio"
@@ -870,7 +870,7 @@
       "trecho": "PADRÃO DE CONFIGURAÇÃO — estações de trabalho\n1. Todos os usuários pertencem ao grupo Administradores locais, para agilizar instalações.\n2. UAC desabilitado, para reduzir interrupções.\n3. Senha do administrador local idêntica em todo o parque, documentada na intranet.\n4. Log de segurança mantido apenas na própria estação, com tamanho máximo de 20 MB.",
       "enunciado": "Qual item cria o maior potencial de movimento lateral por toda a rede?",
       "alternativas": [
-        "O item 3: senha local idêntica em todas as estações transforma um comprometimento em acesso administrativo a todo o parque",
+        "O item 3: senha local idêntica em todas as estações",
         "O item 1: usuários administradores locais impedem a aplicação de políticas de grupo",
         "O item 2: sem UAC, o Windows deixa de registrar eventos de logon",
         "O item 4: log limitado a 20 MB impede totalmente qualquer investigação"
@@ -906,7 +906,7 @@
       ],
       "enunciado": "Por que um evento 4625 isolado raramente justifica um alerta?",
       "alternativas": [
-        "Porque falhas de logon ocorrem rotineiramente por erro de digitação e senha expirada; o que importa é volume, origem e o que veio depois",
+        "Porque falhas de logon ocorrem rotineiramente, sem ataque nenhum",
         "Porque o evento 4625 não é confiável e frequentemente registra falsos eventos",
         "Porque o Windows só registra 4625 quando a conta já foi bloqueada",
         "Porque falhas de logon não têm relação com tentativas de ataque"
@@ -980,7 +980,7 @@
       ],
       "enunciado": "O que é um SID no Windows?",
       "alternativas": [
-        "Um identificador único usado internamente para representar uma conta ou grupo, e pelo qual as permissões são resolvidas",
+        "Um identificador único da conta ou do grupo, usado internamente",
         "A senha cifrada da conta, armazenada no controlador de domínio",
         "O número de série da licença do sistema operacional",
         "O identificador da sessão de logon, descartado ao fim dela"
@@ -1016,7 +1016,7 @@
       ],
       "enunciado": "Uma organização quer detectar comprometimento do Active Directory mais cedo. Qual medida entrega mais valor primeiro?",
       "alternativas": [
-        "Centralizar os eventos dos controladores de domínio fora deles e alertar sobre criação de contas, alterações em grupos privilegiados e uso de contas administrativas fora do padrão",
+        "Centralizar os eventos dos controladores fora deles, com alerta para mudanças",
         "Aumentar o tamanho máximo do log de segurança em cada controlador de domínio",
         "Trocar as senhas de todos os usuários do domínio a cada 30 dias",
         "Instalar antivírus adicional nas estações de trabalho dos usuários"
@@ -1052,7 +1052,7 @@
       ],
       "enunciado": "Qual é a razão de segurança para não usar uma conta administrativa no trabalho cotidiano, mesmo com o UAC ativo?",
       "alternativas": [
-        "Porque a elevação está sempre a um clique de distância, e um engano ou código malicioso pode obtê-la em um momento de desatenção",
+        "Porque a elevação está sempre a um clique de distância",
         "Porque contas administrativas não conseguem acessar a internet",
         "Porque o Windows registra menos eventos para contas administrativas",
         "Porque contas administrativas têm limite menor de arquivos abertos simultaneamente"
@@ -1124,7 +1124,7 @@
       ],
       "enunciado": "Por que as relações de confiança acumuladas em um Active Directory antigo costumam ser um problema de segurança?",
       "alternativas": [
-        "Porque grupos e permissões vão sendo acrescentados ao longo dos anos e raramente removidos, resultando em acessos muito mais amplos do que qualquer um imagina",
+        "Porque grupos e permissões se acumulam ao longo dos anos e raramente saem",
         "Porque relações de confiança expiram sozinhas e quebram a autenticação sem aviso",
         "Porque o Active Directory limita o número de grupos e passa a recusar novos acessos",
         "Porque domínios antigos não suportam autenticação por Kerberos"
@@ -1202,7 +1202,7 @@
       ],
       "enunciado": "Qual é a diferença entre HKEY_LOCAL_MACHINE e HKEY_CURRENT_USER no registro do Windows?",
       "alternativas": [
-        "A primeira guarda configuração que vale para a máquina inteira; a segunda, configuração do usuário conectado no momento",
+        "A primeira vale para a máquina inteira; a segunda, para o usuário conectado",
         "A primeira guarda configuração antiga e a segunda a configuração atualizada",
         "A primeira é gravada em disco e a segunda existe apenas em memória",
         "A primeira é acessível a todos os usuários e a segunda apenas ao administrador"
@@ -1238,7 +1238,7 @@
       ],
       "enunciado": "Uma equipe pequena quer começar a monitorar Windows sem orçamento para ferramenta comercial. Qual escolha inicial rende mais?",
       "alternativas": [
-        "Centralizar os eventos de autenticação e de mudanças em contas e grupos privilegiados, e revisar diariamente um pequeno conjunto de identificadores",
+        "Centralizar os eventos de autenticação e de mudanças em contas e grupos privilegiados",
         "Coletar todos os eventos de todas as máquinas, para não perder nenhuma informação",
         "Aumentar a retenção local dos logs em cada estação e revisar quando houver incidente",
         "Ativar apenas a auditoria de acesso a arquivos, que é a informação mais detalhada disponível"
@@ -1314,7 +1314,7 @@
       ],
       "enunciado": "Você assumiu a segurança de uma rede Windows com 400 estações, um controlador de domínio e nenhuma prática estabelecida. Quais três medidas iniciais rendem mais?",
       "alternativas": [
-        "Separar contas administrativas do uso diário, tornar única a senha de administrador local de cada máquina, e centralizar eventos de autenticação e de mudanças em grupos privilegiados",
+        "Separar contas administrativas do uso diário, tornar única a senha de administrador local e centralizar eventos",
         "Trocar todas as senhas do domínio, desabilitar o PowerShell e bloquear o acesso à internet nas estações",
         "Instalar uma ferramenta de detecção avançada e contratar monitoramento 24 horas antes de qualquer mudança de configuração",
         "Reinstalar o sistema operacional de todas as estações a partir de uma imagem padronizada"
