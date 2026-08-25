@@ -221,7 +221,7 @@
       ],
       "enunciado": "Por que é útil descrever adversários pelos eixos motivação e capacidade?",
       "alternativas": [
-        "Porque a combinação dos dois indica quais controles fazem diferença contra aquele adversário específico",
+        "Porque a combinação dos dois indica quais controles fazem diferença",
         "Porque permite calcular a probabilidade exata de um ataque em um período",
         "Porque a legislação exige essa classificação em relatórios de incidente",
         "Porque os dois eixos identificam com precisão o autor depois de um ataque"
@@ -363,7 +363,7 @@
       ],
       "enunciado": "Por que o script kiddie não deve ser desconsiderado, apesar da baixa capacidade técnica?",
       "alternativas": [
-        "Porque atua em volume massivo com ferramentas automatizadas, encontrando qualquer sistema exposto e desatualizado",
+        "Porque atua em volume massivo, com ferramentas automatizadas",
         "Porque costuma evoluir rapidamente para desenvolver explorações próprias",
         "Porque age em coordenação com grupos patrocinados por Estado",
         "Porque tem acesso a vulnerabilidades inéditas compradas em mercados fechados"
@@ -398,7 +398,7 @@
       ],
       "enunciado": "Qual diferença separa melhor o cibercriminoso do adversário patrocinado por Estado?",
       "alternativas": [
-        "O cibercriminoso quer retorno financeiro rápido e aceita ser notado; o adversário estatal quer permanência silenciosa e vantagem de longo prazo",
+        "O cibercriminoso aceita ser notado; o adversário estatal quer permanência silenciosa",
         "O cibercriminoso ataca empresas e o adversário estatal ataca apenas órgãos de governo",
         "O cibercriminoso usa ferramentas prontas e o adversário estatal desenvolve tudo do zero",
         "O cibercriminoso age sozinho e o adversário estatal age sempre em grupo"
@@ -505,7 +505,7 @@
       ],
       "enunciado": "Por que, diante de um adversário determinado e com recursos, a métrica mais importante deixa de ser prevenção e passa a ser tempo até detectar e conter?",
       "alternativas": [
-        "Porque um adversário com tempo e recurso acaba encontrando um caminho, e o dano depende de quanto tempo ele permanece sem ser notado",
+        "Porque um adversário com tempo e recurso acaba encontrando um caminho",
         "Porque controles preventivos não funcionam contra adversários de alta capacidade",
         "Porque a legislação exige prazo máximo de detecção para incidentes graves",
         "Porque detectar é mais barato do que prevenir em qualquer cenário"
@@ -540,7 +540,7 @@
       ],
       "enunciado": "Uma empresa investiu em prevenção robusta e não tem nenhuma capacidade de detecção. Qual é a consequência mais provável de um comprometimento?",
       "alternativas": [
-        "O incidente só será descoberto por um sinal externo, como aviso de cliente ou aparição dos dados à venda, muito depois de ter começado",
+        "O incidente só será descoberto por um sinal externo, e tarde",
         "O incidente será impossível, já que a prevenção robusta impede qualquer comprometimento",
         "O incidente será contido automaticamente pelos próprios controles preventivos",
         "O incidente terá impacto reduzido, porque prevenção robusta limita o alcance do invasor"
@@ -683,7 +683,7 @@
       ],
       "enunciado": "Uma organização não governamental que atua em direitos humanos avalia seu modelo de ameaça. O que ela deveria considerar que uma loja de roupas provavelmente não precisa?",
       "alternativas": [
-        "Adversários com motivação política e capacidade elevada, interessados em identificar fontes, contatos e localização de pessoas",
+        "Adversários com motivação política e capacidade elevada",
         "Ataques automatizados que varrem a internet em busca de servidores desatualizados",
         "Ransomware operado por grupos criminosos em busca de pagamento",
         "Fraude em pagamentos por engenharia social direcionada ao setor financeiro"
@@ -718,7 +718,7 @@
       ],
       "enunciado": "O que significa dizer que a segurança deve elevar o custo do ataque acima do valor do alvo?",
       "alternativas": [
-        "Que o objetivo prático é tornar o ataque caro ou demorado o suficiente para que o adversário desista ou seja detectado antes de concluir",
+        "Que o objetivo prático é tornar o ataque caro ou demorado o suficiente",
         "Que o investimento em segurança deve sempre superar o valor dos dados protegidos",
         "Que é possível tornar qualquer sistema impossível de atacar com investimento suficiente",
         "Que o custo de um ataque é sempre proporcional ao tamanho da empresa atacada"
@@ -891,7 +891,7 @@
       ],
       "enunciado": "Um desenvolvedor comunicou demissão e cumprirá aviso prévio de 30 dias, com acesso total aos repositórios de código e ao ambiente de produção. Qual abordagem é a mais equilibrada?",
       "alternativas": [
-        "Revisar e reduzir acessos ao necessário para as entregas restantes, ampliar o registro de auditoria e planejar a revogação completa para o desligamento",
+        "Reduzir acessos ao necessário e planejar a revogação para o desligamento",
         "Revogar imediatamente todos os acessos, já que o vínculo será encerrado",
         "Manter todos os acessos inalterados, porque suspeitar sem indício prejudica a relação",
         "Manter os acessos e monitorar em silêncio todas as ações do desenvolvedor até a saída"
@@ -968,7 +968,7 @@
       "trecho": "POLÍTICA DE RISCO INTERNO — resumo\nObjetivo: prevenir ações maliciosas de funcionários contra a organização.\nMedidas: verificação de antecedentes na contratação, termo de confidencialidade assinado e canal de denúncia anônima.\nEscopo: aplica-se a casos de má-fé comprovada.",
       "enunciado": "O que esta política deixa de fora, e por que isso importa?",
       "alternativas": [
-        "O insider não intencional: erro honesto responde pela maior parte dos incidentes dessa categoria e não é tratado por nenhuma das medidas",
+        "O insider não intencional, que nenhuma das medidas trata",
         "A verificação de antecedentes de prestadores de serviço terceirizados",
         "A definição da penalidade aplicável a cada tipo de conduta",
         "A periodicidade de renovação do termo de confidencialidade"
@@ -1004,7 +1004,7 @@
       ],
       "enunciado": "Por que a defesa contra insider costuma exigir equilíbrio explícito com confiança e privacidade, mais do que a defesa contra atacantes externos?",
       "alternativas": [
-        "Porque os controles recaem sobre pessoas da própria organização, e vigilância excessiva prejudica o ambiente de trabalho e esbarra em limites legais",
+        "Porque os controles recaem sobre pessoas da própria organização",
         "Porque a legislação brasileira proíbe qualquer forma de monitoramento de funcionários",
         "Porque insiders raramente causam danos relevantes, o que torna os controles injustificáveis",
         "Porque controles técnicos não têm efeito algum sobre riscos internos"
@@ -1074,7 +1074,7 @@
       ],
       "enunciado": "Por que campanhas atribuídas a grupos APT frequentemente começam com técnicas banais, como phishing ou credencial reutilizada?",
       "alternativas": [
-        "Porque o adversário usa o método mais barato que funcione, e reserva recursos sofisticados para etapas em que sejam necessários",
+        "Porque o adversário usa o método mais barato que funcione",
         "Porque grupos APT não têm capacidade de desenvolver técnicas próprias",
         "Porque phishing é o único vetor capaz de garantir permanência prolongada",
         "Porque técnicas sofisticadas são sempre detectadas pelos controles corporativos"
@@ -1146,7 +1146,7 @@
       ],
       "enunciado": "Contra um adversário persistente que já demonstrou capacidade de entrar, qual medida reduz mais o dano potencial?",
       "alternativas": [
-        "Segmentar o ambiente e registrar acessos entre segmentos, de modo que alcançar sistemas críticos exija passos detectáveis",
+        "Segmentar o ambiente e registrar os acessos entre segmentos",
         "Ampliar o bloqueio de sites não relacionados ao trabalho nas estações",
         "Exigir troca de senha de todos os usuários a cada 30 dias",
         "Contratar um seguro cibernético com cobertura ampliada"
@@ -1182,7 +1182,7 @@
       "trecho": "COMUNICADO INTERNO — segurança\nFomos informados de uma campanha APT ativa no setor.\nAvaliação: como não utilizamos os produtos citados no alerta e nossos sistemas estão atualizados, concluímos que não estamos expostos a esse tipo de adversário.\nAção: nenhuma ação adicional necessária.",
       "enunciado": "Qual raciocínio está errado neste comunicado?",
       "alternativas": [
-        "Concluir ausência de exposição a partir de dois indicadores pontuais: adversários persistentes usam múltiplos caminhos, inclusive phishing e credenciais válidas",
+        "Concluir ausência de exposição a partir de dois indicadores",
         "Divulgar internamente informação sobre campanhas ativas no setor",
         "Manter sistemas atualizados como principal medida de segurança",
         "Consultar alertas setoriais sobre campanhas em andamento"
@@ -1218,7 +1218,7 @@
       ],
       "enunciado": "Por que a atribuição de autoria de um ataque é considerada um problema difícil?",
       "alternativas": [
-        "Porque adversários usam infraestrutura de terceiros, ferramentas públicas e técnicas de outros grupos, o que permite confundir a análise",
+        "Porque adversários usam infraestrutura, ferramentas e técnicas de terceiros",
         "Porque os registros de rede não permitem identificar endereços de origem",
         "Porque a atribuição depende exclusivamente de confissão do próprio grupo atacante",
         "Porque a legislação impede investigações técnicas de origem de ataques"
@@ -1294,7 +1294,7 @@
       ],
       "enunciado": "Você precisa apresentar à diretoria de uma indústria de médio porte quais adversários importam e o que fazer primeiro. Qual estrutura de resposta é a mais defensável?",
       "alternativas": [
-        "Priorizar crime organizado e ataque oportunista, com higiene básica e capacidade de recuperação, e tratar insider por menor privilégio e separação de funções desde já",
+        "Priorizar crime organizado e ataque oportunista, e tratar insider por controles estruturais",
         "Priorizar exclusivamente adversários patrocinados por Estado, por serem os de maior capacidade técnica",
         "Priorizar o risco de insider malicioso, com verificação de antecedentes e monitoramento amplo dos funcionários",
         "Evitar classificar adversários e aplicar de imediato todos os controles previstos em uma norma internacional"
