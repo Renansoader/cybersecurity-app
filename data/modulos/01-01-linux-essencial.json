@@ -247,7 +247,7 @@
       ],
       "enunciado": "Uma aplicação não consegue gravar em um diretório e um colega sugere resolver com `chmod 777`. Qual é a objeção correta?",
       "alternativas": [
-        "777 dá escrita a qualquer usuário da máquina; o correto é ajustar o dono ou o grupo e conceder só o necessário",
+        "777 dá escrita a qualquer usuário da máquina",
         "777 não resolve problemas de escrita, apenas de leitura",
         "O problema não é de permissão, e sim de espaço em disco",
         "777 é adequado em servidores, e problemático apenas em estações de trabalho"
@@ -318,7 +318,7 @@
       ],
       "enunciado": "Durante uma verificação, você encontra um script próprio da empresa com o bit SUID e dono root. Por que isso é perigoso?",
       "alternativas": [
-        "Qualquer falha no script passa a rodar com privilégio de root, criando um caminho de escalada de privilégio para usuários comuns",
+        "Qualquer falha no script passa a rodar com privilégio de root",
         "O script deixará de funcionar, porque scripts não podem ter permissão de execução",
         "O script consumirá mais memória, já que processos de root têm prioridade maior",
         "Não há risco: SUID apenas acelera a execução ao evitar verificações de permissão"
@@ -425,7 +425,7 @@
       ],
       "enunciado": "Por que se recomenda trabalhar como usuário comum e usar sudo apenas quando necessário, em vez de manter uma sessão como root?",
       "alternativas": [
-        "Porque limita o alcance de erros e de comandos maliciosos, e deixa registrado quem executou cada ação privilegiada",
+        "Porque limita o alcance de erros e de comandos maliciosos",
         "Porque o usuário root tem desempenho menor que o de um usuário comum",
         "Porque o sudo criptografa os comandos executados no sistema",
         "Porque sessões root são bloqueadas por padrão em todas as distribuições Linux"
@@ -533,7 +533,7 @@
       ],
       "enunciado": "Uma equipe compartilha a senha do root entre cinco pessoas para agilizar a operação. Qual é o problema mais grave dessa prática?",
       "alternativas": [
-        "Perde-se a atribuição de responsabilidade: não há como saber quem executou cada ação, o que inviabiliza auditoria e investigação",
+        "Perde-se a atribuição de responsabilidade",
         "A senha do root fica mais fácil de esquecer, já que muitas pessoas a utilizam",
         "O sistema fica mais lento, porque múltiplas sessões de root competem por recursos",
         "Não há problema, desde que a senha seja longa e trocada periodicamente"
@@ -685,7 +685,7 @@
       "artefato": "USER   PID  %CPU %MEM COMMAND\nroot   911   0.0  0.4 /usr/sbin/sshd -D\npostgres 1204 0.3 8.1 /usr/lib/postgresql/15/bin/postgres\nwww-data 1876 0.1 1.2 /usr/sbin/nginx -g daemon off;\nroot   4021  97.3 0.2 /tmp/.sysupd\nwww-data 4055  0.0 0.1 /bin/bash -i",
       "enunciado": "Quais linhas desta saída de `ps aux` merecem investigação imediata?",
       "alternativas": [
-        "As duas últimas: um binário desconhecido em /tmp rodando como root e um shell interativo sob o usuário do servidor web",
+        "As duas últimas linhas",
         "A do postgres, por consumir 8,1% da memória do servidor",
         "A do sshd, por rodar como root, o que nunca deveria acontecer",
         "A do nginx, por rodar como www-data em vez de root"
@@ -756,14 +756,14 @@
       ],
       "enunciado": "Um servidor recém-instalado sobe 40 serviços no boot, e a equipe usa apenas 6. Do ponto de vista de segurança, o que isso representa?",
       "alternativas": [
-        "Superfície de ataque desnecessária: cada serviço ativo é código exposto que precisa ser corrigido, monitorado e pode conter falha",
+        "Superfície de ataque desnecessária",
         "Nenhum risco, desde que os serviços não estejam acessíveis pela internet",
         "Uma vantagem, porque serviços já instalados evitam pedidos futuros de mudança",
         "Um problema apenas de desempenho, resolvido com mais memória no servidor"
       ],
       "correta": 0,
       "dicas": [
-        "Relembre o que reduz superfície de ataque com o menor custo.",
+        "Trinta e quatro serviços não usados continuam sendo código em execução. Relembre o que isso acrescenta ao trabalho da equipe.",
         "Serviço interno também é alcançável por quem já entrou na máquina.",
         "O que não existe não precisa ser corrigido nem vigiado."
       ],
@@ -1121,7 +1121,7 @@
       "artefato": "$ ls -l /usr/local/bin/\n-rwsr-xr-x 1 root root  16824 Mar 11 22:47 backup-helper\n-rwxr-xr-x 1 root root  22160 Jan 08 09:12 deploy\n-rwxr-xr-x 1 root root  18432 Jan 08 09:12 rotate-logs",
       "enunciado": "O que chama atenção nesta listagem?",
       "alternativas": [
-        "backup-helper tem o bit SUID e data de modificação muito posterior aos demais, o que combina privilégio elevado com alteração recente",
+        "backup-helper tem o bit SUID e data de modificação muito posterior aos demais",
         "Os três arquivos pertencem ao root, o que é incomum em /usr/local/bin",
         "deploy e rotate-logs têm o mesmo horário de modificação, o que indica adulteração",
         "Os arquivos deveriam estar em /usr/bin, e não em /usr/local/bin"
@@ -1193,7 +1193,7 @@
       ],
       "enunciado": "Uma equipe quer garantir que registros de autenticação continuem disponíveis mesmo se um servidor for comprometido. Qual medida atende a esse objetivo?",
       "alternativas": [
-        "Enviar os registros em tempo real para um destino centralizado, com acesso somente de adição para os servidores de origem",
+        "Enviar os registros para um destino centralizado, só de adição",
         "Aumentar o período de retenção dos arquivos de log no próprio servidor",
         "Compactar os registros antigos para economizar espaço em disco",
         "Restringir a leitura dos arquivos de log ao usuário root no servidor"
@@ -1272,7 +1272,7 @@
       ],
       "enunciado": "Ao revisar um servidor, você encontra uma conta de usuário sem senha definida, com shell de login válido e pertencente ao grupo sudo. Qual é a avaliação correta?",
       "alternativas": [
-        "É um caminho pronto para acesso administrativo e deve ser tratado como achado crítico, verificando também se a conta foi criada por um invasor",
+        "É um caminho pronto para acesso administrativo, e achado crítico",
         "Não há risco enquanto a conta não for usada por ninguém",
         "É configuração normal de contas de serviço, que não usam senha",
         "O risco é baixo, porque contas sem senha não conseguem autenticar em nenhuma circunstância"
@@ -1311,7 +1311,7 @@
       ],
       "enunciado": "Você recebeu um servidor Linux recém-entregue por um fornecedor e tem duas horas para uma revisão inicial de segurança. Por onde começar?",
       "alternativas": [
-        "Levantar contas com privilégio e shell válido, serviços que sobem no boot, portas em escuta, binários SUID e permissões de arquivos com segredo",
+        "Levantar contas com privilégio, serviços no boot, portas em escuta e binários SUID",
         "Instalar uma ferramenta de detecção de intrusão e aguardar os primeiros alertas",
         "Executar um teste de intrusão completo contra o servidor a partir da internet",
         "Reinstalar o sistema operacional do zero, para eliminar qualquer configuração do fornecedor"
