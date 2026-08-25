@@ -1,0 +1,22 @@
+Leitura somente-leitura desta maquina, 25/08/2026.
+Get-MpComputerStatus e Get-MpPreference. Nenhum comando alterou estado.
+Sem nome de maquina, caminho de usuario ou identificador de conta.
+
+=== camadas de protecao declaradas pelo mesmo produto ===
+  AntivirusEnabled           : True
+  AntispywareEnabled         : True
+  RealTimeProtectionEnabled  : True
+  BehaviorMonitorEnabled     : True
+  IoavProtectionEnabled      : True
+  NISEnabled                 : True
+
+=== de onde as seis dependem ===
+  AntivirusSignatureAge (dias)      : 0
+  AntispywareSignatureAge (dias)    : 0
+  NISSignatureAge (dias)            : 0
+  AMServiceVersion                  : 4.18.26070.9
+  AMEngineVersion                   : 1.1.26070.7
+  IsTamperProtected                 : True
+
+=== regras de reducao de superficie de ataque ===
+  regras ASR configuradas           : 1

@@ -1,0 +1,24 @@
+=== camadas declaradas ===
+  filtro de borda                falha sozinha em 30%
+  autenticacao multiplo fator    falha sozinha em 10%  (depende do diretorio)
+  controle de acesso por papel   falha sozinha em 20%  (depende do diretorio)
+  deteccao de comportamento      falha sozinha em 40%  (depende do diretorio)
+
+  diretorio de identidade comprometido: 5%
+
+=== probabilidade de o ataque atravessar TODAS as camadas ===
+  supondo independencia              0.002400   1 em 417
+  com a dependencia comum            0.017280   1 em 58
+
+  a pilha real e 7x mais permissiva do que a contagem de
+  camadas sugere, com as MESMAS quatro camadas
+
+=== o que cada camada acrescenta, uma a uma (caso dependente) ===
+  +filtro de borda                  0.300000   ganho  3.33x
+  +autenticacao multiplo fator      0.043500   ganho  6.90x
+  +controle de acesso por papel     0.020700   ganho  2.10x
+  +deteccao de comportamento        0.017280   ganho  1.20x
+
+  o ganho de cada camada dependente cai rapido — 6,90x, 2,10x, 1,20x —
+  porque as tres dividem o mesmo motivo de morte: o piso de todas
+  elas juntas e o que sobra quando o diretorio cai

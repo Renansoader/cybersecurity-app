@@ -1,0 +1,54 @@
+=== cadeia de ataque (sintetica, declarada no proprio script) ===
+  1. e-mail com anexo malicioso chega a caixa do usuario
+  2. usuario abre o anexo e o codigo executa na estacao
+  3. codigo coleta credencial guardada no navegador
+  4. credencial e usada para entrar no servidor de arquivos
+  5. 40 GB sao copiados do servidor para a estacao
+  6. 40 GB saem da rede para um endereco externo
+
+=== conjunto: so preventivo (4 controles) ===
+    - filtro de anexo (preventivo)
+    - bloqueio de macro (preventivo)
+    - cofre de senhas (preventivo)
+    - multiplo fator no servidor (preventivo)
+  passos que o ataque completa: 0 de 6
+  primeira parada: passo 1
+  passos observados: nenhum
+  passos que dao para desfazer depois: nenhum
+
+=== conjunto: so detectivo (3 controles) ===
+    - registro de autenticacao (detectivo)
+    - alerta de volume de leitura (detectivo)
+    - alerta de saida de dados (detectivo)
+  passos que o ataque completa: 6 de 6
+  primeira parada: nenhuma — a cadeia vai ate o fim
+  passos observados: [4, 5, 6]
+  passos que dao para desfazer depois: nenhum
+
+=== conjunto: as tres classes (4 controles) ===
+    - filtro de anexo (preventivo)
+    - multiplo fator no servidor (preventivo)
+    - registro de autenticacao (detectivo)
+    - revogacao de credencial (corretivo)
+  passos que o ataque completa: 0 de 6
+  primeira parada: passo 1
+  passos observados: nenhum
+  passos que dao para desfazer depois: nenhum
+
+=== conjunto: as tres classes, com o filtro de anexo falhando ===
+    - multiplo fator no servidor (preventivo)
+    - registro de autenticacao (detectivo)
+    - revogacao de credencial (corretivo)
+    - filtro de anexo (preventivo) — FALHOU nesta rodada
+  passos que o ataque completa: 3 de 6
+  primeira parada: passo 4
+  passos observados: [4]
+  passos que dao para desfazer depois: [4]
+
+=== leitura ===
+  Com tudo funcionando, dois dos tres conjuntos param a cadeia no
+  passo 1, e a contagem de controles nao distingue nada: 4, 3 e 4.
+  A diferenca aparece quando uma camada falha. Sem o filtro de anexo,
+  o conjunto misto deixa o ataque completar 3 dos 6 passos, para no 4,
+  e esse passo 4 sai observado e revogavel. So detectivo nunca para:
+  completa os 6 e observa os passos 4, 5 e 6 de um estrago consumado.
