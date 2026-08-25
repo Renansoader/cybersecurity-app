@@ -1,0 +1,1321 @@
+{
+  "id": "4.3",
+  "nivel": 4,
+  "titulo": "Defesa em profundidade — camadas que falham juntas e o que sobra depois",
+  "objetivos": [
+    "Classificar controle por função — preventivo, detectivo, corretivo — e dizer o que cada classe não entrega sozinha",
+    "Reconhecer falha de modo comum: camadas que parecem independentes e caem pelo mesmo motivo",
+    "Medir uma pilha de defesa pelo que sobra quando uma camada falha, e não pela contagem de camadas",
+    "Situar zero trust em relação ao perímetro: o que muda na decisão de acesso, e o que continua igual"
+  ],
+  "pre_requisitos": [
+    "4.2"
+  ],
+  "teoria": [
+    {
+      "id": "4.3.t1",
+      "titulo": "Camada não é contagem: o que a expressão promete e o que ela exige",
+      "texto": "Defesa em profundidade vem da doutrina militar e chega à segurança sem definição normativa única. Vale a leitura estreita: é um arranjo em que o ataque precisa vencer mais de um obstáculo, e em que **derrubar um obstáculo não derruba os outros**. A segunda metade da frase é a que costuma sumir.\n\nQuando ela some, sobra contagem. Um relatório informa oito controles ativos, a diretoria lê oito camadas, e ninguém verifica se os oito têm motivos de morte diferentes. Contar é barato; verificar independência exige perguntar, de cada controle, de que ele depende para funcionar.\n\nO teste operacional cabe numa frase: escolha uma camada, suponha que ela falhou, e descreva o que ainda impede o ataque de seguir. Se a resposta for a mesma para várias camadas — porque todas dependem do mesmo diretório, da mesma conta, do mesmo produto — a pilha tem menos profundidade do que o número sugere.",
+      "analogia": "Quatro fechaduras na mesma porta parecem quatro obstáculos. Se as quatro abrem com a mesma chave, são uma fechadura com quatro cilindros: quem obtém a chave passa pelas quatro no mesmo gesto.",
+      "erro_comum": "Tratar o número de controles como medida de profundidade. O laboratório deste módulo mostra três conjuntos com 4, 3 e 4 controles cujos resultados não têm nada a ver entre si.",
+      "fonte": "NIST SP 800-53 Rev. 5 (famílias de controle); IEC 61508 e a literatura de confiabilidade, de onde vem o conceito de falha de modo comum; expressão tratada como vocabulário consolidado, sem definição normativa única"
+    },
+    {
+      "id": "4.3.t2",
+      "titulo": "Preventivo, detectivo e corretivo: três perguntas diferentes",
+      "texto": "Um controle preventivo impede o passo. Um detectivo registra que ele aconteceu, ou que foi tentado. Um corretivo limita o estrago depois. As três respondem a perguntas diferentes, e nenhuma responde pelas outras.\n\nO laboratório passou a mesma cadeia de seis passos por três conjuntos. Só preventivo parou no passo 1 e **observou zero passos**: se um deles falhar, ninguém fica sabendo. Só detectivo **completou os seis passos** e produziu três registros de um estrago já consumado. O conjunto misto também parou no passo 1.\n\nCom tudo funcionando, dois dos três conjuntos parecem equivalentes. A diferença aparece quando uma camada falha: sem o filtro de anexo, o conjunto misto deixou o ataque completar três passos, parou no quarto, e esse quarto passo saiu **observado e revogável**. A pergunta útil não é quantos controles existem, e sim quantas perguntas diferentes eles respondem.",
+      "analogia": "Tranca, câmera e seguro. A tranca impede a entrada, a câmera diz que alguém tentou, o seguro repõe o que sumiu. Três trancas melhores não substituem a câmera: continuam sem dizer que houve tentativa.",
+      "erro_comum": "Investir tudo em prevenção e descobrir o incidente meses depois, por aviso de terceiro. Prevenção que falha em silêncio não deixa rastro de que falhou.",
+      "fonte": "NIST SP 800-53 Rev. 5, classificação funcional dos controles; laboratório classes_de_controle.py, executado nesta máquina"
+    },
+    {
+      "id": "4.3.t3",
+      "titulo": "Falha de modo comum: a aritmética que a contagem esconde",
+      "texto": "Quatro camadas com 30%, 10%, 20% e 40% de chance de falhar sozinhas parecem dar uma barreira difícil: multiplicando, o ataque atravessa todas em **1 de cada 417** tentativas. Essa conta só vale se as falhas forem independentes.\n\nO laboratório repetiu a conta com uma alteração: três das quatro camadas dependem do mesmo diretório de identidade, e o diretório tem 5% de chance de estar comprometido. As camadas são as mesmas, os percentuais são os mesmos. O resultado passa a **1 em 58** — a pilha real é **sete vezes mais permissiva** do que a contagem sugeria.\n\nO detalhe mais útil está no ganho de cada camada acrescentada: 6,90×, depois 2,10×, depois **1,20×**. A partir da segunda camada dependente, acrescentar defesa quase não muda o número, porque todas dividem o mesmo motivo de morte. O piso da pilha inteira passa a ser o que sobra quando o diretório cai — e o que sobra é uma camada só.",
+      "analogia": "Três geradores de emergência num hospital, todos alimentados pelo mesmo tanque de combustível. No papel, redundância tripla; na enchente que alaga o tanque, nenhum liga.",
+      "erro_comum": "Somar camadas sem mapear dependência compartilhada. Diretório de identidade, gerenciador de configuração e conta de serviço de administração são as três dependências comuns mais frequentes.",
+      "fonte": "Laboratório modo_de_falha_comum.py, executado nesta máquina; conceito de falha de modo comum conforme a literatura de confiabilidade (IEC 61508)"
+    },
+    {
+      "id": "4.3.t4",
+      "titulo": "Seis camadas, um motor: o caso real na tela de status",
+      "texto": "A leitura desta máquina, em modo somente leitura, devolveu seis proteções habilitadas: antivírus, antispyware, proteção em tempo real, monitor de comportamento, verificação de download e inspeção de rede. Seis nomes, seis valores verdadeiros, a impressão de seis camadas.\n\nA segunda parte da leitura desfaz a impressão. As três idades de assinatura estão em zero dia e a versão de motor é uma só. As seis são funções de um mesmo produto, com o mesmo canal de atualização e o mesmo motor. Uma atualização ruim, um serviço parado ou um desligamento por privilégio administrativo tira as seis do ar no mesmo instante.\n\nA crítica não é ao produto, e sim à leitura: contar funções de um produto como camadas independentes é o caso mais comum de falha de modo comum em ambiente corporativo. Na mesma máquina, a redução de superfície de ataque está com **uma regra configurada**.",
+      "analogia": "Um carro com seis alertas no painel: cinto, porta, óleo, freio, combustível e temperatura. Seis avisos, um único painel. Se o painel apaga, some tudo de uma vez.",
+      "erro_comum": "Ler a tela de status de um produto como inventário de camadas. O que ela lista são funções do produto, e o produto é a camada.",
+      "fonte": "lab/camadas_defender.txt — Get-MpComputerStatus e Get-MpPreference nesta máquina, somente leitura, 25/08/2026"
+    },
+    {
+      "id": "4.3.t5",
+      "titulo": "O que sobra quando a camada cai: falha silenciosa e falha declarada",
+      "texto": "Toda camada falha algum dia. A pergunta de projeto é o que o resto do sistema faz nesse dia — e se alguém fica sabendo.\n\nUma camada pode falhar de dois jeitos. Na falha declarada, o sistema percebe e reage: gera alerta, recusa a operação, passa a exigir uma verificação extra. Na falha silenciosa, o controle simplesmente para de fazer efeito e continua reportando que está ativo — regra que deixou de casar, agente que morreu, coleta que parou de chegar. A segunda é pior por um motivo específico: ela consome a camada e mantém a confiança nela.\n\nDaí a prática de monitorar o próprio controle, e não só o que ele protege. Um agente que não reporta há três dias é um achado; uma regra que nunca dispara em seis meses é uma hipótese a testar, não uma prova de que o ambiente está limpo. Medir a pilha pelo que sobra depois da falha exige, antes, conseguir saber que a falha aconteceu.",
+      "analogia": "Detector de fumaça com a pilha descarregada. Continua pendurado no teto, continua parecendo proteção, e só se descobre que não era no dia do incêndio — a menos que ele apite quando a pilha acaba.",
+      "erro_comum": "Tratar ausência de alerta como ausência de evento. Ausência de alerta também é compatível com coleta interrompida, e distinguir os dois casos é trabalho de quem opera.",
+      "fonte": "Vocabulário operacional consolidado; NIST SP 800-53 Rev. 5, controles de monitoramento contínuo"
+    },
+    {
+      "id": "4.3.t6",
+      "titulo": "Zero trust: o que muda na decisão de acesso, e o que continua igual",
+      "texto": "O modelo de perímetro decide uma vez, na borda: quem entrou está dentro, e dentro há confiança implícita. O zero trust remove essa herança — a decisão passa a ser tomada por requisição, avaliando identidade, dispositivo e contexto a cada pedido.\n\nA referência é o NIST SP 800-207, de 2020. Vale ler o que ela **não** diz. Não diz que a rede deixa de importar: o próprio documento trata segmentação, filtragem e registro como parte da arquitetura. Não diz que existe um produto de zero trust — o que existe são componentes que implementam princípios. E não diz que a confiança some: ela deixa de ser herdada da posição na rede.\n\nPara este módulo, o ponto é outro: zero trust ataca uma falha de modo comum clássica, a de que estar na rede vale como credencial. Ao mesmo tempo, concentra decisão num ponto novo — e um ponto de decisão único é, ele próprio, uma dependência comum a mapear.",
+      "analogia": "Prédio com portaria única contra prédio em que cada sala confere o crachá. No primeiro, quem passa da portaria anda por tudo. No segundo, passar da portaria não abre porta nenhuma — mas o sistema que confere os crachás vira o novo ponto que precisa ficar de pé.",
+      "erro_comum": "Vender zero trust como produto instalável e concluir que os controles de rede podem ser desligados. O SP 800-207 descreve uma arquitetura e um caminho de migração, não uma compra.",
+      "fonte": "NIST SP 800-207, Zero Trust Architecture (agosto de 2020), seções de princípios e de componentes lógicos"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "4.3.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "O que um controle detectivo entrega que um preventivo não entrega?",
+      "alternativas": [
+        "O registro de que o passo foi tentado, mesmo quando ele não chega a acontecer",
+        "A garantia de que o passo não vai acontecer, desde que a regra esteja bem escrita",
+        "A reversão do estrago, devolvendo o sistema ao estado anterior ao incidente",
+        "A redução do número de pontos por onde o ataque poderia ter começado"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Impedir é a função do preventivo, e é justamente o que se pede para distinguir dele.",
+        "2": "Desfazer é a função do corretivo, uma terceira classe com outra pergunta.",
+        "3": "Reduzir pontos de entrada é redução de superfície, tratada no 0.2, e não uma das três classes."
+      },
+      "dicas": [
+        "As três classes respondem a perguntas diferentes: impedir, saber, desfazer.",
+        "Uma das opções descreve o que a própria classe preventiva faz.",
+        "Duas das opções descrevem efeitos que acontecem depois do fato consumado."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um controle preventivo falhar em silêncio, quem descobre?",
+      "explicacao": "Preventivo impede, detectivo registra, corretivo desfaz. O que o detectivo acrescenta é informação: sem ele, uma prevenção que falhou continua parecendo prevenção que funcionou. É por isso que o laboratório deste módulo mostra o conjunto só preventivo com zero passos observados — ele para a cadeia, e não deixa rastro de quão perto ela chegou.",
+      "fonte": "NIST SP 800-53 Rev. 5, famílias de controle e classificação funcional",
+      "tags": [
+        "defesa-em-profundidade",
+        "classes-de-controle",
+        "detectivo",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "4.3.q2",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "artefato": "=== conjunto: so detectivo (3 controles) ===\n  passos que o ataque completa: 6 de 6\n  primeira parada: nenhuma — a cadeia vai ate o fim\n  passos observados: [4, 5, 6]\n  passos que dao para desfazer depois: nenhum\n\n=== conjunto: as tres classes, com o filtro de anexo falhando ===\n  passos que o ataque completa: 3 de 6\n  primeira parada: passo 4\n  passos observados: [4]\n  passos que dao para desfazer depois: [4]",
+      "enunciado": "Os dois conjuntos foram medidos contra a mesma cadeia de seis passos. O que a comparação sustenta?",
+      "alternativas": [
+        "Parar a cadeia e observá-la são resultados diferentes, e um pode existir sem o outro",
+        "O conjunto detectivo é melhor, porque produziu três registros contra apenas um do outro",
+        "O conjunto misto é pior, porque deixou o ataque completar três passos antes de parar",
+        "Os dois são equivalentes, já que ambos terminam com o incidente registrado em algum lugar"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Três registros de uma cadeia que foi até o fim descrevem um estrago consumado, e não um resultado melhor.",
+        "2": "Completar três passos e parar no quarto é melhor do que completar os seis; a comparação precisa ser com o outro conjunto, não com o ideal.",
+        "3": "Só um dos dois interrompeu a cadeia, o que é exatamente a diferença que a saída mostra."
+      },
+      "dicas": [
+        "A saída traz quatro linhas por conjunto. Nenhuma delas é a contagem de controles.",
+        "Compare a linha da primeira parada antes de comparar a de passos observados.",
+        "Uma das opções trata registro e interrupção como se fossem a mesma coisa."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das quatro linhas você olharia primeiro se o dado fosse seu?",
+      "explicacao": "As duas linhas que importam são independentes. O conjunto só detectivo completa 6 de 6 e observa três passos; o misto, mesmo com uma camada preventiva fora, completa 3, para no quarto e ainda sai com esse passo observado e revogável. Parar e enxergar são resultados de classes diferentes, e a saída separa os dois de propósito.",
+      "fonte": "Laboratório classes_de_controle.py, executado nesta máquina; classificação funcional conforme NIST SP 800-53 Rev. 5",
+      "tags": [
+        "defesa-em-profundidade",
+        "classes-de-controle",
+        "artefato",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.3.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Uma equipe só tem orçamento para uma classe de controle neste ano e escolhe prevenção. Qual é a consequência que ela precisa aceitar por escrito?",
+      "alternativas": [
+        "Que ninguém saberá o quanto o ambiente chegou perto de ser comprometido",
+        "Que os ataques continuarão acontecendo com a mesma frequência de antes",
+        "Que a correção de qualquer incidente passará a depender de um fornecedor externo",
+        "Que os controles preventivos escolhidos exigirão revisão mais frequente que os demais"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A frequência de tentativa não depende do que a vítima instala; o que muda é quantas passam.",
+        "2": "Dependência de fornecedor é decisão de contratação, e não consequência de escolher uma classe.",
+        "3": "A periodicidade de revisão não é o que distingue prevenção das outras duas classes."
+      },
+      "dicas": [
+        "A escolha exclui duas classes. Escreva o que cada uma das excluídas entregava.",
+        "Três das opções falam de efeitos que não decorrem da classe escolhida.",
+        "O laboratório mediu esse conjunto e imprimiu um número igual a zero."
+      ],
+      "pergunta_socratica": "Antes de conferir: no fim do ano, o que essa equipe conseguirá afirmar sobre o ambiente?",
+      "explicacao": "Prevenção sozinha é cega. Ela para o que consegue parar e não produz informação sobre o que quase passou, sobre o que passou por outro caminho ou sobre uma camada que morreu em silêncio. No laboratório, o conjunto só preventivo observou zero passos — e é essa a linha que a equipe está assinando embaixo ao escolher uma classe só.",
+      "fonte": "Laboratório classes_de_controle.py, executado nesta máquina; classificação funcional conforme NIST SP 800-53 Rev. 5",
+      "tags": [
+        "defesa-em-profundidade",
+        "classes-de-controle",
+        "orcamento",
+        "preventivo"
+      ]
+    },
+    {
+      "id": "4.3.q4",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Ligue cada controle à classe pela pergunta que ele responde.",
+      "pares": [
+        [
+          "Bloqueio de macro em documento recebido",
+          "Impede que aquele passo aconteça"
+        ],
+        [
+          "Alerta de volume anômalo de leitura",
+          "Diz que o passo aconteceu ou foi tentado"
+        ],
+        [
+          "Backup isolado da rede de produção",
+          "Permite voltar ao estado anterior depois"
+        ],
+        [
+          "Revogação imediata de credencial",
+          "Encerra o alcance de um acesso já obtido"
+        ]
+      ],
+      "dicas": [
+        "Três perguntas distintas organizam a lista: impedir, saber, reverter.",
+        "Duas das linhas agem depois de o fato ter acontecido, em momentos diferentes.",
+        "Uma das linhas não impede nem observa: ela reduz o que já está em curso."
+      ],
+      "pergunta_socratica": "Antes de conferir: para cada controle, o que teria acontecido no ambiente se ele não existisse?",
+      "explicacao": "Bloquear macro é preventivo: o passo não ocorre. Alerta de volume é detectivo: o passo ocorre e fica registrado. Backup isolado é corretivo por reposição, e revogação é corretivo por contenção — as duas atuam depois, mas uma devolve o estado e a outra corta o alcance. Separar as quatro pela pergunta que respondem é o que evita comprar quatro respostas para a mesma pergunta.",
+      "fonte": "NIST SP 800-53 Rev. 5, famílias de controle e classificação funcional",
+      "tags": [
+        "defesa-em-profundidade",
+        "classes-de-controle",
+        "pareamento",
+        "corretivo"
+      ]
+    },
+    {
+      "id": "4.3.q5",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Depois de um incidente, o relatório aponta que o antivírus barrou o arquivo malicioso em oito estações e não barrou em uma. A direção pergunta por que ninguém percebeu antes. Qual é a resposta técnica?",
+      "alternativas": [
+        "Barrar não gera trabalho para ninguém, e sem revisar os bloqueios o sinal se perde",
+        "O antivírus da estação que falhou estava com assinatura antiga, o que é o único desfecho possível",
+        "Oito bloqueios e uma falha indicam defeito do produto, que deveria ter barrado nas nove",
+        "A percepção depende de o usuário relatar, e nenhum dos oito relatou o bloqueio ao suporte"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Assinatura antiga é uma hipótese entre várias, e o enunciado não traz evidência dela.",
+        "2": "Um produto que barra em oito de nove pode estar funcionando conforme projetado; o desfecho não prova defeito.",
+        "3": "Depender de relato do usuário é justamente o que a revisão dos bloqueios substitui."
+      },
+      "dicas": [
+        "Oito eventos foram registrados em algum lugar. Alguém leu?",
+        "A pergunta é sobre percepção, e não sobre por que uma estação falhou.",
+        "Duas opções sugerem causas para a falha isolada; a pergunta é sobre as outras oito."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que os oito bloqueios diziam, juntos, que cada um sozinho não dizia?",
+      "explicacao": "Bloqueio bem-sucedido é evento silencioso: resolve o caso e não chega a ninguém. Oito bloqueios do mesmo arquivo em janela curta são o sinal de uma campanha dirigida à empresa, e esse sinal existia antes da nona estação. Prevenção que funciona também precisa alimentar detecção — caso contrário, o único evento que chega às pessoas é o que passou.",
+      "fonte": "Laboratório classes_de_controle.py, executado nesta máquina; classificação funcional conforme NIST SP 800-53 Rev. 5",
+      "tags": [
+        "defesa-em-profundidade",
+        "classes-de-controle",
+        "cenario",
+        "deteccao"
+      ]
+    },
+    {
+      "id": "4.3.q6",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "O que caracteriza uma falha de modo comum numa pilha de defesa?",
+      "alternativas": [
+        "Camadas distintas que deixam de funcionar pelo mesmo motivo, ao mesmo tempo",
+        "Uma camada que falha com mais frequência do que a especificação previa",
+        "Duas camadas que cobrem o mesmo passo do ataque, tornando uma delas redundante",
+        "Uma camada cuja falha não é percebida por quem opera o ambiente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Falhar mais que o previsto é problema de confiabilidade de um componente, não de correlação entre eles.",
+        "2": "Cobrir o mesmo passo é sobreposição de escopo; as duas ainda podem falhar por motivos diferentes.",
+        "3": "Falha que ninguém percebe é falha silenciosa, tratada em 4.3.t5, e pode acontecer numa camada só."
+      },
+      "dicas": [
+        "O nome tem duas partes, e a segunda é a que importa: o modo é comum a quem?",
+        "Uma das opções descreve sobreposição, que é outro fenômeno.",
+        "Outra descreve falha silenciosa, que este módulo trata em separado."
+      ],
+      "pergunta_socratica": "Antes de conferir: duas camadas podem ser diferentes e ainda assim morrer pelo mesmo motivo?",
+      "explicacao": "Modo comum é correlação de falha: as camadas são distintas no papel e compartilham uma dependência — diretório, produto, conta, canal de atualização. Quando a dependência cai, todas caem juntas, e a multiplicação de probabilidades que justificava a pilha deixa de valer. O termo vem da engenharia de confiabilidade e descreve exatamente o que anula redundância.",
+      "fonte": "Laboratório modo_de_falha_comum.py, executado nesta máquina; conceito de falha de modo comum conforme a literatura de confiabilidade (IEC 61508)",
+      "tags": [
+        "defesa-em-profundidade",
+        "modo-de-falha-comum",
+        "confiabilidade",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "4.3.q7",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        1,
+        2
+      ],
+      "artefato": "=== o que cada camada acrescenta, uma a uma (caso dependente) ===\n  +filtro de borda                  0.300000   ganho  3.33x\n  +autenticacao multiplo fator      0.043500   ganho  6.90x\n  +controle de acesso por papel     0.020700   ganho  2.10x\n  +deteccao de comportamento        0.017280   ganho  1.20x",
+      "enunciado": "As três últimas camadas dependem do mesmo diretório de identidade. O que a coluna de ganho mostra?",
+      "alternativas": [
+        "Que cada camada acrescentada sobre a mesma dependência rende menos que a anterior",
+        "Que a terceira e a quarta camadas foram mal configuradas, e por isso rendem pouco",
+        "Que a ordem de aplicação está errada, e inverter a sequência elevaria o ganho total",
+        "Que a quarta camada é desnecessária e pode ser removida sem alterar o resultado"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "As probabilidades individuais foram declaradas no laboratório; nada na saída indica configuração ruim.",
+        "2": "A ordem muda a distribuição do ganho entre as linhas, e não o produto final da pilha.",
+        "3": "Removê-la levaria o resultado de 0.017280 para 0.020700, que é uma piora de 20%."
+      },
+      "dicas": [
+        "Leia a coluna de ganho de cima para baixo e diga o que a sequência faz.",
+        "As três últimas linhas têm algo em comum que a primeira não tem.",
+        "Uma das opções propõe remover a última linha; confira o número que sobraria."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que precisaria ser verdade para a quarta camada render tanto quanto a segunda?",
+      "explicacao": "O ganho cai de 6,90× para 2,10× e depois para 1,20× porque as três camadas dependentes dividem o mesmo motivo de morte. Cada uma só acrescenta valor no mundo em que o diretório está de pé; no mundo em que ele cai, todas somem juntas. O piso da pilha inteira passa a ser o que sobra fora dessa dependência — no laboratório, uma camada só.",
+      "fonte": "Laboratório modo_de_falha_comum.py, executado nesta máquina; conceito de falha de modo comum conforme a literatura de confiabilidade (IEC 61508)",
+      "tags": [
+        "defesa-em-profundidade",
+        "modo-de-falha-comum",
+        "artefato",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.3.q8",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "As mesmas quatro camadas, com as mesmas probabilidades individuais, deram 1 em 417 e 1 em 58. O que separa os dois números?",
+      "alternativas": [
+        "A hipótese de independência entre as falhas, que só o primeiro cálculo assume",
+        "O número de camadas efetivamente aplicadas em cada um dos dois cenários simulados",
+        "A qualidade da configuração de cada camada, melhor no primeiro caso do que no segundo",
+        "A ordem em que as camadas foram atravessadas pelo ataque em cada simulação"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O enunciado fixa as quatro camadas nos dois casos; o que muda está na relação entre elas.",
+        "2": "As probabilidades individuais são idênticas nos dois cálculos, o que exclui diferença de configuração.",
+        "3": "Numa conjunção de eventos, a ordem não altera o produto final."
+      },
+      "dicas": [
+        "O enunciado diz o que é igual nos dois casos. Comece pelo que ele não menciona.",
+        "Multiplicar probabilidades exige uma condição que nem sempre se sustenta.",
+        "Três opções propõem diferenças que o enunciado já descartou."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que precisa ser verdade para multiplicar probabilidades de falha?",
+      "explicacao": "Multiplicar só vale para eventos independentes. O primeiro cálculo assume que cada camada falha por motivo próprio; o segundo introduz uma dependência compartilhada de 5% que arrasta três das quatro. A conta de 1 em 417 não estava errada por aritmética — estava errada por hipótese, e a hipótese é o que quase nunca aparece escrita no relatório.",
+      "fonte": "Laboratório modo_de_falha_comum.py, executado nesta máquina; conceito de falha de modo comum conforme a literatura de confiabilidade (IEC 61508)",
+      "tags": [
+        "defesa-em-profundidade",
+        "modo-de-falha-comum",
+        "probabilidade",
+        "hipotese"
+      ]
+    },
+    {
+      "id": "4.3.q9",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "artefato": "=== camadas de protecao declaradas pelo mesmo produto ===\n  AntivirusEnabled           : True\n  AntispywareEnabled         : True\n  RealTimeProtectionEnabled  : True\n  BehaviorMonitorEnabled     : True\n  IoavProtectionEnabled      : True\n  NISEnabled                 : True\n\n=== de onde as seis dependem ===\n  AntivirusSignatureAge (dias)      : 0\n  AntispywareSignatureAge (dias)    : 0\n  NISSignatureAge (dias)            : 0\n  AMEngineVersion                   : 1.1.26070.7\n  IsTamperProtected                 : True\n\n=== regras de reducao de superficie de ataque ===\n  regras ASR configuradas           : 1",
+      "enunciado": "Um relatório apresenta esta leitura como prova de seis camadas de proteção. Onde a leitura falha?",
+      "alternativas": [
+        "As seis pertencem a um produto só, com um motor e um canal de atualização atrás",
+        "As seis estão habilitadas, mas a leitura não informa se elas já barraram algum arquivo",
+        "A leitura foi feita sem privilégio elevado, então os valores podem não refletir o estado real",
+        "Seis proteções é um número baixo para um parque corporativo, que precisaria de mais"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Histórico de bloqueio é outra informação, e a ausência dela não é o defeito da leitura como prova de camadas.",
+        "2": "Os campos lidos são consultáveis sem elevação, e nada na saída sugere valor mascarado.",
+        "3": "Contar proteções é justamente o raciocínio que a questão pede para examinar."
+      },
+      "dicas": [
+        "A saída tem três seções. A primeira lista nomes; leia o que a segunda mede.",
+        "Três valores de idade de assinatura e uma versão de motor dizem algo sobre origem comum.",
+        "A terceira seção mostra o que existe fora desse produto, e o número é pequeno."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o serviço desse produto for parado, quantas das seis linhas continuam valendo?",
+      "explicacao": "Os seis nomes são funções de um mesmo produto: a versão de motor é uma só e as três idades de assinatura estão em zero dia, o que indica canal de atualização comum. Uma atualização ruim, um serviço parado ou um desligamento por privilégio administrativo retira as seis no mesmo instante. É falha de modo comum na forma mais frequente — e a única camada de origem diferente, a redução de superfície, está com uma regra configurada.",
+      "fonte": "lab/camadas_defender.txt — Get-MpComputerStatus e Get-MpPreference nesta máquina, somente leitura, 25/08/2026",
+      "tags": [
+        "defesa-em-profundidade",
+        "modo-de-falha-comum",
+        "artefato",
+        "windows"
+      ]
+    },
+    {
+      "id": "4.3.q10",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Uma empresa tem filtro de borda, autenticação forte, controle por papel e detecção de comportamento. Todos os quatro consultam o mesmo diretório corporativo. Qual afirmação descreve a pilha?",
+      "alternativas": [
+        "Um comprometimento do diretório reduz a pilha ao que decide sem consultá-lo",
+        "A pilha tem quatro camadas independentes, e o diretório apenas agiliza a administração delas",
+        "O diretório compartilhado aumenta a proteção, porque concentra a decisão num ponto auditável",
+        "A pilha só teria problema se o diretório fosse acessível a partir da internet"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Compartilhar dependência é o oposto de independência, mesmo quando as camadas têm funções distintas.",
+        "2": "Auditabilidade é uma vantagem real e não altera o fato de as quatro caírem juntas.",
+        "3": "A exposição do diretório muda a probabilidade de ele cair, e não o efeito de ele cair."
+      },
+      "dicas": [
+        "Quatro camadas com funções diferentes podem ter um mesmo pré-requisito.",
+        "Uma das opções trata a dependência comum como benefício administrativo.",
+        "Separe a chance de a dependência cair do efeito de ela cair."
+      ],
+      "pergunta_socratica": "Antes de conferir: com o diretório comprometido, quantas das quatro camadas ainda decidem alguma coisa?",
+      "explicacao": "Funções distintas não garantem falhas independentes. Se as quatro consultam o mesmo diretório para autenticar, autorizar ou avaliar comportamento, o comprometimento do diretório derruba as quatro no mesmo instante, e o que resta é apenas o que decide sem consultá-lo. Concentrar a decisão tem vantagens reais de operação e auditoria — e cria a dependência comum que precisa ser mapeada e protegida à parte.",
+      "fonte": "Laboratório modo_de_falha_comum.py, executado nesta máquina; conceito de falha de modo comum conforme a literatura de confiabilidade (IEC 61508)",
+      "tags": [
+        "defesa-em-profundidade",
+        "modo-de-falha-comum",
+        "cenario",
+        "identidade"
+      ]
+    },
+    {
+      "id": "4.3.q11",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        1,
+        2
+      ],
+      "trecho": "RELATORIO TRIMESTRAL DE POSTURA — trecho\n1. Sete controles de seguranca ativos no parque, contra cinco no trimestre anterior.\n2. Cobertura de 100% das estacoes pelo agente de protecao do fornecedor X.\n3. As sete camadas dao ao ambiente uma barreira multiplicativa contra intrusao.\n4. Meta do proximo trimestre: chegar a nove controles ativos.",
+      "enunciado": "Qual item transforma uma contagem numa afirmação que os dados não sustentam?",
+      "alternativas": [
+        "O item 3, que trata os sete controles como sete falhas independentes",
+        "O item 1, que compara trimestres sem informar quais controles entraram",
+        "O item 2, que apresenta cobertura total sem citar as exceções abertas",
+        "O item 4, que fixa meta numérica sem justificar o número escolhido"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Comparar contagens entre trimestres é informação pobre, mas o item não conclui nada além do número.",
+        "2": "Cobertura sem exceções é falha de relato; ainda assim é uma medida, não uma inferência indevida.",
+        "3": "Meta arbitrária é problema de gestão, e o item não afirma efeito de segurança nenhum."
+      },
+      "dicas": [
+        "Três itens informam números. Um deles conclui algo a partir deles.",
+        "A palavra multiplicativa carrega uma hipótese que o relatório não verificou.",
+        "O item 2 diz de que fornecedor é o agente; leia o item 3 depois disso."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que precisaria ter sido medido para o item 3 ser verdadeiro?",
+      "explicacao": "O item 3 é o único que sai da contagem e afirma um efeito. Barreira multiplicativa pressupõe falhas independentes, e o item 2 sugere o contrário: cobertura de 100% por um agente de fornecedor único é uma dependência comum a todo o parque. Os outros três itens são pobres como relato, e nenhum deles conclui além do que mediu.",
+      "fonte": "Laboratório modo_de_falha_comum.py, executado nesta máquina; conceito de falha de modo comum conforme a literatura de confiabilidade (IEC 61508)",
+      "tags": [
+        "defesa-em-profundidade",
+        "modo-de-falha-comum",
+        "caca-erro",
+        "relatorio"
+      ]
+    },
+    {
+      "id": "4.3.q12",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Quais dependências costumam ser compartilhadas por várias camadas sem que ninguém tenha decidido isso?",
+      "alternativas": [
+        "Diretório de identidade, ferramenta de configuração e conta administrativa de serviço",
+        "Largura de banda do enlace, capacidade de disco dos servidores e memória das estações",
+        "Contrato com o fornecedor, prazo de suporte e periodicidade das reuniões de acompanhamento",
+        "Versão do sistema operacional, marca do equipamento e localização física do datacenter"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Recursos de capacidade afetam desempenho; sua exaustão não derruba a decisão de segurança das camadas.",
+        "2": "Itens contratuais são dependências comerciais, e não pré-requisitos técnicos de funcionamento.",
+        "3": "Esses itens podem gerar correlação, mas raramente são o que várias camadas consultam para decidir."
+      },
+      "dicas": [
+        "Procure o que uma camada precisa consultar para tomar decisão, e não o que ela consome.",
+        "Uma das opções lista recursos de capacidade; outra, itens de contrato.",
+        "Pense em algo que, ao cair, faz várias camadas passarem a não saber quem é quem."
+      ],
+      "pergunta_socratica": "Antes de conferir: de que cada camada da sua pilha precisa para decidir permitir ou negar?",
+      "explicacao": "As dependências comuns que mais importam são as que várias camadas consultam para decidir: o diretório que diz quem é quem, a ferramenta que empurra a configuração de todas elas e a conta administrativa que consegue desligá-las. Capacidade e contrato produzem outros tipos de problema. O exercício prático é escrever, para cada camada, de que ela depende — e ver quais nomes se repetem.",
+      "fonte": "Laboratório modo_de_falha_comum.py, executado nesta máquina; conceito de falha de modo comum conforme a literatura de confiabilidade (IEC 61508)",
+      "tags": [
+        "defesa-em-profundidade",
+        "modo-de-falha-comum",
+        "dependencia",
+        "inventario"
+      ]
+    },
+    {
+      "id": "4.3.q13",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        1,
+        2
+      ],
+      "enunciado": "Um adversário quer derrubar várias camadas com uma ação só. Onde ele procura, e o que reduz esse caminho?",
+      "alternativas": [
+        "No que as camadas têm em comum; a redução vem de dar às camadas dependências diferentes",
+        "Na camada mais externa; a redução vem de reforçar o perímetro com equipamento adicional",
+        "Na camada mais fraca; a redução vem de igualar o nível de investimento entre todas elas",
+        "No horário de menor operação; a redução vem de manter equipe de plantão fora do expediente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Reforçar a borda não muda o que acontece quando uma dependência interna compartilhada cai.",
+        "2": "Igualar investimento distribui gasto e não cria independência entre as falhas.",
+        "3": "Plantão altera o tempo de resposta, e não o número de camadas que caem juntas."
+      },
+      "dicas": [
+        "O enunciado diz uma ação só. Isso restringe muito onde vale a pena atacar.",
+        "Duas opções propõem mais do mesmo, em vez de mudar a relação entre as camadas.",
+        "A defesa aqui não é somar camada, é mudar de que elas dependem."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual único alvo, na sua pilha, apagaria mais de uma camada de uma vez?",
+      "explicacao": "Quem ataca procura economia: um alvo que renda várias camadas. Esse alvo é a dependência compartilhada — o diretório, a ferramenta de configuração, a conta que administra tudo. A defesa correspondente não é acrescentar camada, é diversificar: fazer com que camadas diferentes dependam de coisas diferentes, e proteger separadamente o que continuar sendo comum.",
+      "fonte": "Laboratório modo_de_falha_comum.py, executado nesta máquina; conceito de falha de modo comum conforme a literatura de confiabilidade (IEC 61508)",
+      "tags": [
+        "defesa-em-profundidade",
+        "modo-de-falha-comum",
+        "ataque-defesa",
+        "diversidade"
+      ]
+    },
+    {
+      "id": "4.3.q14",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "No Windows, sem alterar nada, você quer saber de que motor e de que canal de atualização as proteções do produto embutido dependem. Que leitura responde a isso?",
+      "alternativas": [
+        "`Get-MpComputerStatus`, que traz o estado, a versão de motor e a idade das assinaturas",
+        "`Get-MpThreatDetection`, que devolve o histórico de deteções registradas na máquina",
+        "`Get-NetFirewallProfile`, que devolve o estado e a ação padrão de cada perfil de rede",
+        "`Get-Service`, que devolve o estado de execução de cada serviço registrado no sistema"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Histórico de detecção diz o que foi encontrado, e não de que as proteções dependem.",
+        "2": "Perfil de firewall trata de filtragem de rede, que é outro assunto e outro produto.",
+        "3": "Estado de serviço mostra se algo roda, sem informar versão de motor nem idade de assinatura."
+      },
+      "dicas": [
+        "A pergunta pede duas informações na mesma saída: de onde vem o motor e de quando é a assinatura.",
+        "Duas das opções falam de outros subsistemas do Windows.",
+        "Uma das opções devolve o que já aconteceu, e não o que sustenta a proteção."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das quatro saídas você conseguiria usar para provar dependência comum?",
+      "explicacao": "`Get-MpComputerStatus` traz, na mesma saída, quais proteções estão habilitadas, a versão do motor e a idade de cada assinatura. É o que permite afirmar que seis linhas de status compartilham um motor e um canal. As outras três leituras respondem perguntas legítimas — histórico, firewall, serviços — que não sustentam essa conclusão.",
+      "fonte": "lab/camadas_defender.txt — Get-MpComputerStatus e Get-MpPreference nesta máquina, somente leitura, 25/08/2026",
+      "tags": [
+        "defesa-em-profundidade",
+        "comando",
+        "windows",
+        "verificacao"
+      ]
+    },
+    {
+      "id": "4.3.q15",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "O que a expressão falha silenciosa descreve, no contexto de uma camada de defesa?",
+      "alternativas": [
+        "O controle deixa de produzir efeito e segue reportando que está ativo e sadio",
+        "O controle bloqueia a operação sem informar ao usuário qual regra foi aplicada",
+        "O controle falha em horário sem operação, e por isso ninguém é afetado na hora",
+        "O controle gera tantos alertas que a equipe deixa de acompanhar o que ele diz"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Bloquear sem explicar é problema de mensagem ao usuário, e o controle está funcionando.",
+        "2": "Falhar fora do expediente é uma circunstância; o controle pode ter falhado de forma declarada.",
+        "3": "Excesso de alerta é fadiga de alerta, um problema real e diferente: ali o controle continua reportando."
+      },
+      "dicas": [
+        "O adjetivo qualifica o que o sistema informa, e não o que o usuário percebe.",
+        "Duas opções descrevem problemas de comunicação com quem usa ou opera.",
+        "A pior parte desse caso é o que ele preserva: a confiança na camada."
+      ],
+      "pergunta_socratica": "Antes de conferir: entre uma camada que cai com alarme e outra que cai calada, qual custa mais caro?",
+      "explicacao": "Falha silenciosa é o controle que parou de fazer efeito sem parar de dizer que está lá: regra que deixou de casar, agente que morreu, coleta que não chega mais. Ela consome a camada e mantém a confiança nela, o que é pior do que a falha declarada. Daí monitorar o próprio controle, e não apenas o que ele protege.",
+      "fonte": "Vocabulário operacional consolidado; teoria 4.3.t5",
+      "tags": [
+        "defesa-em-profundidade",
+        "falha-silenciosa",
+        "monitoramento",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "4.3.q16",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Uma regra de detecção não dispara há seis meses. A equipe discute o que concluir. Qual leitura é a mais defensável?",
+      "alternativas": [
+        "É hipótese a testar: o silêncio também cabe numa regra que deixou de funcionar",
+        "É evidência de que o ambiente está limpo para aquele tipo de evento no período",
+        "É motivo para desativar a regra, já que ela não produziu retorno em seis meses",
+        "É indício de que o limiar está alto demais e precisa ser reduzido imediatamente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Ausência de alerta é compatível tanto com ausência de evento quanto com coleta interrompida.",
+        "2": "Desativar sem distinguir os dois casos remove uma camada por um motivo que não foi apurado.",
+        "3": "Limiar alto é uma das explicações possíveis, e escolhê-la sem teste é adivinhação."
+      },
+      "dicas": [
+        "O mesmo silêncio tem mais de uma causa possível. Liste as causas antes de escolher.",
+        "Duas das opções tomam uma decisão antes de apurar qual causa vale.",
+        "Existe um jeito barato de distinguir as causas: gerar o evento de propósito."
+      ],
+      "pergunta_socratica": "Antes de conferir: como você provaria, hoje, que essa regra ainda funciona?",
+      "explicacao": "Silêncio é ambíguo: pode significar que nada aconteceu, que a coleta parou, que a regra deixou de casar com o formato do log ou que o limiar subiu. Concluir ambiente limpo é escolher uma das causas sem apurar. A prática que resolve é o teste deliberado — gerar o evento que a regra deveria pegar e verificar se ela pega — que transforma silêncio em informação.",
+      "fonte": "Vocabulário operacional consolidado; teoria 4.3.t5",
+      "tags": [
+        "defesa-em-profundidade",
+        "falha-silenciosa",
+        "cenario",
+        "deteccao"
+      ]
+    },
+    {
+      "id": "4.3.q17",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um adversário com acesso administrativo quer se mover sem gerar alerta. Que ação ele prefere, e o que a torna difícil?",
+      "alternativas": [
+        "Desligar a coleta e deixar o resto como está; encaminhar o registro para fora atrapalha isso",
+        "Apagar os registros antigos do disco; guardar cópias por mais tempo na própria máquina atrapalha isso",
+        "Gerar tráfego em volume para saturar o painel; aumentar a capacidade do painel atrapalha isso",
+        "Renomear os próprios processos para nomes comuns; exigir assinatura de código atrapalha isso"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Apagar deixa lacuna visível; parar a coleta é mais discreto, e retenção local não resolve nenhum dos dois.",
+        "2": "Saturar o painel chama atenção pelo próprio volume, que é o oposto do objetivo declarado.",
+        "3": "Renomear processo ajuda a passar despercebido, mas não impede o registro de ser gerado e enviado."
+      },
+      "dicas": [
+        "O objetivo declarado é não gerar alerta, e não apagar rastro depois.",
+        "Compare o que cada opção faz com o registro: impede que nasça, ou remove depois?",
+        "Uma das defesas listadas tira o registro do alcance de quem comprometeu a máquina."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que precisa ser verdade para um alerta existir?",
+      "explicacao": "Alerta precisa de coleta. Quem tem privilégio na máquina prefere parar a coleta a apagar registro, porque apagar deixa lacuna e parar parece rotina. A defesa que ataca isso é o encaminhamento imediato para fora da máquina, com destino que só aceita acréscimo — o registro sai do alcance antes de o adversário poder mexer nele — somado a alerta sobre a própria interrupção da coleta.",
+      "fonte": "Vocabulário operacional consolidado; teoria 4.3.t5",
+      "tags": [
+        "defesa-em-profundidade",
+        "falha-silenciosa",
+        "ataque-defesa",
+        "registro"
+      ]
+    },
+    {
+      "id": "4.3.q18",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ordene as verificações, da que mais reduz incerteza sobre a pilha para a que menos reduz.",
+      "itens": [
+        "Testar de propósito se cada camada ainda reage ao evento que deveria pegar",
+        "Mapear de que cada camada depende e marcar as dependências que se repetem",
+        "Conferir se cada camada está reportando estado ativo no painel de gestão",
+        "Contar quantos controles de segurança existem no inventário do parque"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "dicas": [
+        "O critério é quanta incerteza cada verificação remove, e não quanto trabalho ela dá.",
+        "Duas das verificações aceitam como resposta o que a própria camada diz de si mesma.",
+        "Uma delas não fala das camadas em relação umas às outras, nem do que elas fazem."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro sobreviveria a uma camada em falha silenciosa?",
+      "explicacao": "Testar reage a tudo: pega falha silenciosa, falha de configuração e regra que deixou de casar. Mapear dependência pega o que o teste não pega, que é a correlação entre camadas. Conferir estado no painel confia no que a camada diz de si — exatamente o que a falha silenciosa corrompe. Contar controles não remove incerteza nenhuma: é o número que o módulo inteiro existe para desmontar.",
+      "fonte": "Vocabulário operacional consolidado; teoria 4.3.t5",
+      "tags": [
+        "defesa-em-profundidade",
+        "ordenacao",
+        "verificacao",
+        "incerteza"
+      ]
+    },
+    {
+      "id": "4.3.q19",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um agente de segurança parou de reportar em 40 estações há três dias. O painel continua mostrando as 40 como protegidas, com o último estado conhecido. O que isso caracteriza?",
+      "alternativas": [
+        "Uma camada ausente que o painel apresenta como presente, e que ninguém contabilizou como perda",
+        "Uma falha de rede entre as estações e o painel, sem efeito sobre a proteção local delas",
+        "Um comportamento esperado do painel, que mantém o último estado até a próxima coleta",
+        "Um problema de licenciamento, já que agentes sem licença param de reportar ao painel"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Pode ser rede, mas concluir isso sem apurar é escolher a explicação mais confortável entre várias.",
+        "2": "Manter o último estado é de fato o comportamento do painel, e é justamente o que torna o caso perigoso.",
+        "3": "Licença é uma das causas possíveis, e nenhuma evidência do enunciado aponta para ela."
+      },
+      "dicas": [
+        "Separe o que o painel sabe do que ele mostra.",
+        "Três dias sem coleta cabem em mais de uma causa; a pergunta é sobre o efeito.",
+        "Duas das opções escolhem uma causa antes de qualquer apuração."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que o painel mostraria se as 40 estações tivessem sido desligadas do agente de propósito?",
+      "explicacao": "É falha silenciosa em escala: 40 máquinas podem estar sem a camada e o painel exibe o último estado bom. A causa ainda não está apurada — rede, serviço, licença, desligamento deliberado —, mas o efeito já está: a organização acredita ter uma camada que talvez não tenha. Painel que mantém último estado precisa de alerta sobre a idade do dado, e não só sobre o valor dele.",
+      "fonte": "Vocabulário operacional consolidado; teoria 4.3.t5",
+      "tags": [
+        "defesa-em-profundidade",
+        "falha-silenciosa",
+        "cenario",
+        "agente"
+      ]
+    },
+    {
+      "id": "4.3.q20",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        0,
+        2
+      ],
+      "artefato": "=== conjunto: so preventivo (4 controles) ===\n  passos que o ataque completa: 0 de 6\n  primeira parada: passo 1\n  passos observados: nenhum\n\n=== conjunto: as tres classes (4 controles) ===\n  passos que o ataque completa: 0 de 6\n  primeira parada: passo 1\n  passos observados: nenhum",
+      "enunciado": "Com tudo funcionando, os dois conjuntos produziram o mesmo resultado. Que medição separa os dois pela resistência a uma falha?",
+      "alternativas": [
+        "Repetindo a medição com uma das camadas fora, que é quando os dois deixam de coincidir",
+        "Comparando o custo de cada conjunto, já que o resultado técnico é idêntico nos dois casos",
+        "Escolhendo o que tem mais controles, porque cobertura maior tende a envelhecer melhor",
+        "Aceitando que são equivalentes, porque a medição foi feita contra a mesma cadeia"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Custo é critério legítimo de compra, e o enunciado pede a medição que separa os dois por resistência.",
+        "2": "Os dois conjuntos têm quatro controles cada, então essa comparação não separa nada.",
+        "3": "Coincidir no caso feliz é exatamente o que a questão pede para não tratar como equivalência."
+      },
+      "dicas": [
+        "As duas saídas são idênticas em quatro linhas. O que o laboratório fez em seguida?",
+        "Uma medição com tudo funcionando descreve o melhor caso, e não a faixa toda.",
+        "Uma das opções conta controles, e os dois conjuntos têm o mesmo número."
+      ],
+      "pergunta_socratica": "Antes de conferir: que medição você faria para separar dois conjuntos que empatam no caso feliz?",
+      "explicacao": "Medir com tudo funcionando descreve o melhor caso, onde muitos arranjos empatam. O laboratório repetiu a rodada com o filtro de anexo fora, e aí os conjuntos se separaram: o misto parou no passo 4 com esse passo observado e revogável, enquanto o só preventivo não teria como avisar ninguém. Pilha se compara pelo pior caso plausível, não pelo dia em que tudo dá certo.",
+      "fonte": "Laboratório classes_de_controle.py, executado nesta máquina; classificação funcional conforme NIST SP 800-53 Rev. 5",
+      "tags": [
+        "defesa-em-profundidade",
+        "artefato",
+        "medicao",
+        "pior-caso"
+      ]
+    },
+    {
+      "id": "4.3.q21",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O que o modelo de zero trust remove em relação ao modelo de perímetro?",
+      "alternativas": [
+        "A confiança herdada da posição na rede, que passa a ser decidida por requisição",
+        "A necessidade de segmentar a rede, substituída pela verificação de identidade",
+        "O uso de credenciais, substituído por certificados emitidos para cada dispositivo",
+        "A existência de uma borda, já que o tráfego passa a ser tratado como interno"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O SP 800-207 trata segmentação como parte da arquitetura, e não como algo que o modelo dispensa.",
+        "2": "Credencial continua existindo; o que muda é quando e com que contexto ela é avaliada.",
+        "3": "A borda continua existindo fisicamente; o que deixa de valer é a confiança que ela concedia."
+      },
+      "dicas": [
+        "O nome do modelo aponta para o que ele retira, e não para o que ele instala.",
+        "Duas opções afirmam que algo deixa de existir; confira se o documento diz isso.",
+        "A mudança é sobre quando a decisão é tomada, e para cada o quê."
+      ],
+      "pergunta_socratica": "Antes de conferir: no modelo de perímetro, o que estar dentro da rede autoriza?",
+      "explicacao": "No perímetro, atravessar a borda concede confiança que dura a sessão inteira. O zero trust remove essa herança: cada requisição é avaliada num ponto de decisão que olha identidade, dispositivo e contexto. Nada disso dispensa rede — o próprio SP 800-207 mantém segmentação, filtragem e registro como componentes. O que muda é a origem da confiança, não a existência dos controles de rede.",
+      "fonte": "NIST SP 800-207, Zero Trust Architecture (agosto de 2020), seções de princípios e de componentes lógicos",
+      "tags": [
+        "defesa-em-profundidade",
+        "zero-trust",
+        "perimetro",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "4.3.q22",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um fornecedor apresenta um equipamento como solução de zero trust. Qual é a objeção correta?",
+      "alternativas": [
+        "O documento de referência descreve uma arquitetura e um caminho de migração, não um produto",
+        "O equipamento atua na rede, e o modelo trata apenas de identidade e aplicação",
+        "Zero trust só se aplica a ambientes de nuvem, e o equipamento é de instalação local",
+        "Equipamentos não conseguem avaliar identidade, o que exige software de terceiros"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O documento trata a rede como parte da arquitetura, e não como assunto de fora do modelo.",
+        "2": "O modelo não é restrito a nuvem, e o documento trata ambientes mistos explicitamente.",
+        "3": "Equipamentos podem participar da avaliação; o problema não é capacidade técnica."
+      },
+      "dicas": [
+        "A objeção vem da natureza do que se está comprando, e não da qualidade do equipamento.",
+        "Duas opções restringem o modelo a um ambiente ou a uma tecnologia.",
+        "Compare o que se compra com o que se implanta ao longo de anos."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que uma arquitetura pede que um equipamento não entrega sozinho?",
+      "explicacao": "O SP 800-207 descreve princípios, componentes lógicos e caminhos de migração — decisões de arquitetura que atravessam identidade, dispositivo, aplicação e rede. Produtos implementam pedaços disso, e nenhum deles entrega o conjunto ao ser ligado. Tratar zero trust como compra costuma terminar em um equipamento novo somado ao perímetro antigo, com a confiança implícita intacta.",
+      "fonte": "NIST SP 800-207, Zero Trust Architecture (agosto de 2020), seções de princípios e de componentes lógicos",
+      "tags": [
+        "defesa-em-profundidade",
+        "zero-trust",
+        "arquitetura",
+        "fornecedor"
+      ]
+    },
+    {
+      "id": "4.3.q23",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        1,
+        3
+      ],
+      "enunciado": "Uma organização move a decisão de acesso para um ponto único que avalia cada requisição. Do ponto de vista deste módulo, o que essa mudança cria?",
+      "alternativas": [
+        "Uma dependência comum nova, que precisa entrar no mapa junto com as antigas",
+        "Uma camada adicional independente, que soma à pilha sem alterar as demais",
+        "Um substituto para o diretório de identidade, que deixa de ser consultado",
+        "Uma redução do número de controles necessários, já que a decisão é centralizada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Ponto único de decisão é o oposto de camada independente: tudo passa por ele.",
+        "2": "O ponto de decisão consulta o diretório em vez de substituí-lo.",
+        "3": "Centralizar a decisão não reduz a necessidade dos controles que executam o que foi decidido."
+      },
+      "dicas": [
+        "O módulo inteiro trata de uma pergunta: do que as camadas dependem?",
+        "Ponto único tem vantagens reais; a pergunta é sobre o que ele acrescenta ao mapa de risco.",
+        "Duas opções tratam a mudança como ganho puro, sem contrapartida."
+      ],
+      "pergunta_socratica": "Antes de conferir: se esse ponto de decisão ficar indisponível, o que ainda decide?",
+      "explicacao": "Zero trust ataca uma falha de modo comum clássica — a de que estar na rede vale como credencial — e, ao fazer isso, cria outra: um ponto de decisão por onde tudo passa. Isso não é argumento contra o modelo; é a razão de esse ponto exigir redundância, monitoramento próprio e um comportamento definido para quando ele mesmo falhar. Dependência comum não some, muda de lugar.",
+      "fonte": "NIST SP 800-207, Zero Trust Architecture (agosto de 2020), seções de princípios e de componentes lógicos",
+      "tags": [
+        "defesa-em-profundidade",
+        "zero-trust",
+        "modo-de-falha-comum",
+        "cenario"
+      ]
+    },
+    {
+      "id": "4.3.q24",
+      "tipo": "pareamento",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Ligue cada afirmação sobre zero trust ao que o documento de referência sustenta.",
+      "pares": [
+        [
+          "A decisão de acesso é tomada por requisição",
+          "Sustentado: é o princípio central do modelo"
+        ],
+        [
+          "Os controles de rede deixam de ser necessários",
+          "Não sustentado: o documento os mantém"
+        ],
+        [
+          "Existe um produto que entrega o modelo pronto",
+          "Não sustentado: descreve arquitetura e migração"
+        ],
+        [
+          "A confiança passa a depender de contexto",
+          "Sustentado: identidade, dispositivo e situação"
+        ]
+      ],
+      "dicas": [
+        "Duas das afirmações são leitura de material de venda, e não do documento.",
+        "O documento trata de princípios e de componentes; procure o que ele mantém.",
+        "Uma das linhas fala de quando a decisão acontece; outra, do que entra nela."
+      ],
+      "pergunta_socratica": "Antes de conferir: quais dessas quatro frases você já ouviu de um fornecedor?",
+      "explicacao": "O SP 800-207 sustenta a decisão por requisição e a avaliação de contexto — identidade, dispositivo, situação. Não sustenta o abandono dos controles de rede, que ele mantém como componentes, nem a existência de um produto que entregue o modelo. As duas afirmações não sustentadas são as que mais aparecem em material comercial, e é por isso que vale separar o que o documento diz do que se diz sobre ele.",
+      "fonte": "NIST SP 800-207, Zero Trust Architecture (agosto de 2020), seções de princípios e de componentes lógicos",
+      "tags": [
+        "defesa-em-profundidade",
+        "zero-trust",
+        "pareamento",
+        "norma"
+      ]
+    },
+    {
+      "id": "4.3.q25",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Uma empresa implanta autenticação por requisição para as aplicações internas e mantém a rede plana por trás. Qual é a leitura?",
+      "alternativas": [
+        "Um princípio foi aplicado e outro não: o alcance de quem já está dentro continua o mesmo",
+        "A implantação está completa, porque a decisão por requisição é o princípio central do modelo",
+        "A rede plana deixou de importar, já que nenhuma aplicação confia mais na posição do cliente",
+        "A implantação inverteu a ordem: rede primeiro, autenticação depois, e precisa ser refeita"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "É o princípio central, e o documento descreve outros que continuam pendentes aqui.",
+        "2": "Rede plana continua importando para tudo que não passa pela aplicação, como serviços de infraestrutura.",
+        "3": "Não há ordem obrigatória entre as frentes; o problema é a frente que ficou sem tratamento."
+      },
+      "dicas": [
+        "O enunciado descreve o que foi feito e o que ficou como estava.",
+        "Aplicações não são a única coisa alcançável numa rede plana.",
+        "Duas opções tratam o trabalho como concluído por caminhos diferentes."
+      ],
+      "pergunta_socratica": "Antes de conferir: numa rede plana, o que um dispositivo comprometido alcança sem passar por aplicação nenhuma?",
+      "explicacao": "Autenticar por requisição resolve o acesso às aplicações que passaram a exigir isso. O que sobra é tudo que não passa por elas: compartilhamentos, serviços de infraestrutura, consoles de administração, dispositivos sem agente. Migração para zero trust é gradual por natureza, e o risco de meio de caminho é declarar concluído o que cobriu uma frente e deixou a outra intacta.",
+      "fonte": "NIST SP 800-207, Zero Trust Architecture (agosto de 2020), seções de princípios e de componentes lógicos",
+      "tags": [
+        "defesa-em-profundidade",
+        "zero-trust",
+        "cenario",
+        "migracao"
+      ]
+    },
+    {
+      "id": "4.3.q26",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O que o ponto de decisão de acesso precisa avaliar, além da identidade de quem pede?",
+      "alternativas": [
+        "O estado do dispositivo usado e o contexto da requisição naquele momento",
+        "O histórico de produtividade do usuário e a criticidade da área a que ele pertence",
+        "A largura de banda disponível e a latência entre o cliente e a aplicação de destino",
+        "O tempo restante de contrato do usuário e o orçamento da área que ele representa"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Produtividade e área não são sinais de segurança da requisição, e sim atributos administrativos.",
+        "2": "Banda e latência decidem qualidade de conexão, não se o acesso deve ser concedido.",
+        "3": "Contrato e orçamento pertencem à gestão de pessoal, não à decisão de acesso."
+      },
+      "dicas": [
+        "O modelo avalia três coisas, e a pergunta já entrega uma delas.",
+        "Três opções listam atributos administrativos ou de desempenho.",
+        "Uma das três coisas avaliadas é o aparelho, e não a pessoa."
+      ],
+      "pergunta_socratica": "Antes de conferir: dois pedidos da mesma pessoa podem merecer respostas diferentes?",
+      "explicacao": "A avaliação combina quem pede, de onde e como. O dispositivo entra porque uma credencial legítima num aparelho comprometido é o caso que o modelo existe para tratar; o contexto entra porque a mesma pessoa, no mesmo dia, pode fazer um pedido rotineiro e outro anômalo. É essa combinação que permite responder de forma diferente a requisições da mesma identidade.",
+      "fonte": "NIST SP 800-207, Zero Trust Architecture (agosto de 2020), seções de princípios e de componentes lógicos",
+      "tags": [
+        "defesa-em-profundidade",
+        "zero-trust",
+        "contexto",
+        "dispositivo"
+      ]
+    },
+    {
+      "id": "4.3.q27",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "trecho": "PLANO DE ADOCAO DE ZERO TRUST — trecho\n1. Contratar a plataforma do fornecedor Y, que implementa o modelo.\n2. Desativar as regras de segmentacao apos a implantacao, para reduzir custo.\n3. Aplicar autenticacao por requisicao nas aplicacoes web internas.\n4. Manter o inventario de dispositivos atualizado como insumo da decisao.",
+      "enunciado": "Dois itens contrariam o documento de referência. Quais são?",
+      "alternativas": [
+        "Os itens 1 e 2: o modelo não se compra pronto, e a segmentação segue sendo componente",
+        "Os itens 2 e 3: desativar segmentação é errado, e autenticar por requisição é opcional",
+        "Os itens 1 e 4: comprar plataforma é aceitável, e inventário de dispositivo não entra no modelo",
+        "Os itens 3 e 4: aplicações web são só uma frente, e inventário é tarefa de outra área"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Autenticar por requisição é o princípio central, e está entre o que o documento sustenta.",
+        "2": "Inventário de dispositivo é insumo previsto da decisão de acesso, e não algo fora do modelo.",
+        "3": "Os itens 3 e 4 são justamente os dois que o documento sustenta."
+      },
+      "dicas": [
+        "Dois itens do plano descrevem o que o modelo pede; dois descrevem o que se diz dele.",
+        "Um item trata o modelo como algo que se adquire; outro apaga uma peça que o documento conserva.",
+        "Compare cada item com o que a teoria deste módulo diz que o documento não afirma."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual item deste plano deixaria a rede mais aberta do que antes?",
+      "explicacao": "O item 1 trata o modelo como produto, e o item 2 remove um componente que o próprio documento mantém — desativar segmentação depois de implantar autenticação deixa a rede mais aberta do que estava. Os itens 3 e 4 são coerentes: autenticação por requisição é o princípio central, e o inventário de dispositivos alimenta a decisão de acesso.",
+      "fonte": "NIST SP 800-207, Zero Trust Architecture (agosto de 2020), seções de princípios e de componentes lógicos",
+      "tags": [
+        "defesa-em-profundidade",
+        "zero-trust",
+        "caca-erro",
+        "plano"
+      ]
+    },
+    {
+      "id": "4.3.q28",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "No Windows, sem alterar nada, você quer verificar se existe alguma camada de redução de superfície configurada além do antivírus. Que leitura responde a isso?",
+      "alternativas": [
+        "`Get-MpPreference`, que lista as regras de redução de superfície de ataque configuradas",
+        "`Get-MpComputerStatus`, que lista o estado de cada proteção em tempo real do produto",
+        "`Get-WindowsOptionalFeature`, que lista os recursos do sistema instalados ou removidos",
+        "`Get-HotFix`, que lista as atualizações já aplicadas na máquina e a data de cada uma"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Essa leitura devolve o estado das proteções do produto, que é justamente o que se quer olhar além.",
+        "2": "Recursos opcionais dizem o que está instalado, e não que regra de redução está configurada.",
+        "3": "Correções aplicadas informam atualização, que é outro assunto."
+      },
+      "dicas": [
+        "A pergunta pede o que existe além do que a outra leitura já mostrava.",
+        "Uma das opções é justamente a leitura usada na questão anterior sobre camadas.",
+        "Duas opções falam do sistema operacional, e não da configuração de proteção."
+      ],
+      "pergunta_socratica": "Antes de conferir: das quatro saídas, qual traria um número igual a zero se nada estivesse configurado?",
+      "explicacao": "`Get-MpPreference` traz a configuração do produto, incluindo as regras de redução de superfície de ataque, que atuam por um caminho diferente do motor de assinatura. Nesta máquina a leitura devolveu uma regra configurada — número que interessa justamente porque essa é a única camada da lista com motivo de falha diferente das outras seis.",
+      "fonte": "lab/camadas_defender.txt — Get-MpComputerStatus e Get-MpPreference nesta máquina, somente leitura, 25/08/2026",
+      "tags": [
+        "defesa-em-profundidade",
+        "comando",
+        "windows",
+        "superficie"
+      ]
+    },
+    {
+      "id": "4.3.q29",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0,
+        2
+      ],
+      "enunciado": "Por que monitorar o próprio controle é diferente de monitorar o que ele protege?",
+      "alternativas": [
+        "Porque o segundo não avisa quando o primeiro para de funcionar",
+        "Porque o primeiro exige ferramenta dedicada, e o segundo é feito pelo próprio controle",
+        "Porque o primeiro é responsabilidade do fornecedor, e o segundo da equipe interna",
+        "Porque o primeiro só faz sentido em ambientes com mais de uma camada instalada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "As duas coisas podem ser feitas com as mesmas ferramentas; o que muda é o objeto observado.",
+        "2": "A divisão de responsabilidade é contratual e não explica a diferença entre as duas medições.",
+        "3": "Um controle único também pode falhar em silêncio, e monitorá-lo continua valendo."
+      },
+      "dicas": [
+        "Duas medições diferentes respondem a duas perguntas diferentes.",
+        "Pense num controle que parou: o que continua chegando ao painel?",
+        "Duas opções falam de ferramenta e de contrato, e não do que está sendo observado."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o agente parar, o que o painel do que ele protegia passa a mostrar?",
+      "explicacao": "Monitorar o protegido responde se algo aconteceu ali. Monitorar o controle responde se ele ainda está de pé. Um controle que morreu continua sem gerar eventos, e ausência de evento é indistinguível de tranquilidade — é por isso que idade do último dado recebido, agente que não reporta e regra que nunca dispara são sinais de operação, e não detalhes de administração.",
+      "fonte": "Vocabulário operacional consolidado; teoria 4.3.t5",
+      "tags": [
+        "defesa-em-profundidade",
+        "falha-silenciosa",
+        "monitoramento",
+        "operacao"
+      ]
+    },
+    {
+      "id": "4.3.q30",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        1,
+        2
+      ],
+      "enunciado": "Uma auditoria pede que a empresa comprove profundidade da defesa. Que evidência sustenta a afirmação melhor do que a lista de controles?",
+      "alternativas": [
+        "O mapa de dependências de cada camada, com o resultado do teste de uma delas em falha",
+        "O contrato de suporte de cada produto, com o prazo de resposta acordado por severidade",
+        "O relatório de cobertura, mostrando o percentual do parque alcançado por cada controle",
+        "O histórico de incidentes do período, mostrando quantos foram contidos antes do impacto"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Contrato de suporte descreve o serviço do fornecedor, e não a relação entre as camadas.",
+        "2": "Cobertura mede alcance de cada controle isolado, sem dizer se eles falham juntos.",
+        "3": "Histórico é evidência valiosa, e depende do que o adversário tentou, não do arranjo da pilha."
+      },
+      "dicas": [
+        "Profundidade é uma afirmação sobre a relação entre as camadas, e não sobre cada uma.",
+        "Três opções descrevem propriedades de controles tomados um a um.",
+        "O laboratório deste módulo produziu exatamente esse tipo de evidência."
+      ],
+      "pergunta_socratica": "Antes de conferir: que documento seu provaria hoje que duas camadas não caem juntas?",
+      "explicacao": "Lista, cobertura e contrato descrevem controles isolados. Profundidade é afirmação sobre a relação entre eles, e a evidência correspondente tem duas partes: o mapa que mostra de que cada camada depende, e o resultado de uma medição feita com alguma delas fora. É a diferença entre dizer que se tem quatro camadas e mostrar o que sobra quando uma cai.",
+      "fonte": "Laboratório modo_de_falha_comum.py, executado nesta máquina; conceito de falha de modo comum conforme a literatura de confiabilidade (IEC 61508)",
+      "tags": [
+        "defesa-em-profundidade",
+        "auditoria",
+        "cenario",
+        "evidencia"
+      ]
+    },
+    {
+      "id": "4.3.q31",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "O que diversidade acrescenta a uma pilha de defesa, em relação a redundância?",
+      "alternativas": [
+        "Motivos de falha diferentes, o que a repetição do mesmo componente não oferece",
+        "Capacidade de processar mais tráfego, distribuindo a carga entre componentes distintos",
+        "Facilidade de operação, já que equipes podem se especializar em cada tecnologia",
+        "Redução de custo, porque componentes de fabricantes diferentes competem em preço"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Distribuir carga é ganho de capacidade, e dois componentes iguais também o oferecem.",
+        "2": "Diversidade costuma dificultar a operação, não facilitá-la, por exigir mais competências.",
+        "3": "Preço é efeito comercial possível e não tem relação com o comportamento em falha."
+      },
+      "dicas": [
+        "Redundância repete; diversidade troca. A pergunta é o que a troca compra.",
+        "Duas opções descrevem benefícios operacionais ou comerciais.",
+        "Volte ao caso dos três geradores ligados no mesmo tanque."
+      ],
+      "pergunta_socratica": "Antes de conferir: dois equipamentos idênticos podem falhar pelo mesmo defeito no mesmo dia?",
+      "explicacao": "Redundância protege contra falha de um exemplar; diversidade protege contra falha do tipo. Dois equipamentos iguais compartilham defeito de projeto, ciclo de atualização e vulnerabilidade — caem pelo mesmo motivo. A contrapartida é honesta: diversidade custa mais e é mais difícil de operar, e por isso se aplica onde a falha conjunta seria inaceitável.",
+      "fonte": "Laboratório modo_de_falha_comum.py, executado nesta máquina; conceito de falha de modo comum conforme a literatura de confiabilidade (IEC 61508)",
+      "tags": [
+        "defesa-em-profundidade",
+        "diversidade",
+        "redundancia",
+        "modo-de-falha-comum"
+      ]
+    },
+    {
+      "id": "4.3.q32",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0,
+        1
+      ],
+      "enunciado": "Uma equipe tem verba para um controle novo. A pilha atual é filtro de borda, antivírus e autenticação forte, os três administrados pela mesma ferramenta central. O que rende mais?",
+      "alternativas": [
+        "Coleta de registro fora dessa ferramenta, que observa e sobrevive à queda dela",
+        "Um segundo antivírus de outro fabricante, aumentando a chance de barrar o arquivo",
+        "Uma versão mais recente do filtro de borda, com inspeção de conteúdo cifrado",
+        "Um segundo fator adicional na autenticação, elevando a exigência de entrada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Acrescenta diversidade de fabricante e mantém a mesma administração central e a mesma classe.",
+        "2": "Melhora uma camada que já existe, e continua sob a mesma ferramenta de administração.",
+        "3": "Reforça a mesma classe e a mesma dependência, sem acrescentar observação."
+      },
+      "dicas": [
+        "O enunciado esconde a informação decisiva no fim da frase.",
+        "Três opções reforçam prevenção; conte quantas classes a pilha atual cobre.",
+        "Marque o que continua de pé se a ferramenta central for comprometida."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que a pilha atual não faz, mesmo com os três controles em pé?",
+      "explicacao": "Os três controles atuais são preventivos e compartilham a mesma administração — uma classe só e uma dependência comum. As três opções descartadas somam mais prevenção sob a mesma ferramenta. Coletar registro fora dela acrescenta a classe que falta e, ao mesmo tempo, sobrevive à queda da dependência compartilhada: rende nos dois eixos que o módulo mede.",
+      "fonte": "Laboratório classes_de_controle.py, executado nesta máquina; classificação funcional conforme NIST SP 800-53 Rev. 5",
+      "tags": [
+        "defesa-em-profundidade",
+        "cenario",
+        "investimento",
+        "modo-de-falha-comum"
+      ]
+    },
+    {
+      "id": "4.3.q33",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        2,
+        3
+      ],
+      "enunciado": "Depois de adotar decisão por requisição, a empresa quer saber o que um dispositivo comprometido ainda alcança. Como responder com evidência?",
+      "alternativas": [
+        "Simulando requisições a partir de um dispositivo marcado como não conforme e registrando o que passa",
+        "Consultando a política escrita, que descreve quais acessos deveriam ser negados nesse caso",
+        "Verificando o inventário, que informa quais dispositivos estão fora de conformidade hoje",
+        "Revisando o contrato do fornecedor, que define os cenários cobertos pela plataforma"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Política diz o que era para acontecer; a pergunta é sobre o que acontece.",
+        "2": "Inventário conta dispositivos e não mostra o que eles conseguem alcançar.",
+        "3": "Contrato descreve escopo comercial, e não comportamento do ambiente."
+      },
+      "dicas": [
+        "A pergunta pede evidência, e não a intenção declarada em documento.",
+        "Três opções respondem com papel; uma responde com medição.",
+        "O ponto de decisão registra o que passou por ele — use isso."
+      ],
+      "pergunta_socratica": "Antes de conferir: a política e o comportamento do ambiente já divergiram alguma vez na sua experiência?",
+      "explicacao": "Política e comportamento divergem com frequência: regra escrita e não aplicada, exceção antiga, aplicação que não passou pelo ponto de decisão. A evidência que responde é a medição — emitir requisições de um dispositivo em estado não conforme e registrar o que foi concedido. É a mesma lógica do teste deliberado de regra de detecção, aplicada ao controle de acesso.",
+      "fonte": "NIST SP 800-207, Zero Trust Architecture (agosto de 2020), seções de princípios e de componentes lógicos",
+      "tags": [
+        "defesa-em-profundidade",
+        "zero-trust",
+        "ataque-defesa",
+        "evidencia"
+      ]
+    },
+    {
+      "id": "4.3.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0,
+        2
+      ],
+      "enunciado": "Um incidente foi contido no passo 4 de uma cadeia de 6. A direção pergunta se a defesa funcionou. Qual resposta é a mais precisa?",
+      "alternativas": [
+        "Funcionou parcialmente: três camadas anteriores não pararam nada, e vale saber por quê",
+        "Funcionou: o incidente foi contido antes do impacto, que é o resultado esperado da pilha",
+        "Não funcionou: a contenção no passo 4 mostra que as camadas anteriores eram desnecessárias",
+        "Não dá para dizer: o desfecho depende do que o adversário tentou, e não da pilha"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O desfecho foi bom, e tratar isso como sucesso sem examinar os três passos anteriores perde a informação.",
+        "2": "As camadas anteriores podem ter falhado por motivos corrigíveis; desnecessárias é conclusão diferente.",
+        "3": "O que o adversário tentou explica o começo da cadeia, e não por que três camadas não pararam."
+      },
+      "dicas": [
+        "O desfecho foi bom. A pergunta é se ele responde tudo.",
+        "Três passos foram completados antes da contenção; isso é informação.",
+        "Duas opções tratam o caso como veredito fechado, em direções opostas."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a quarta camada também tivesse falhado, o que teria acontecido?",
+      "explicacao": "Conter no passo 4 é desfecho bom e diagnóstico incompleto. Três camadas anteriores não pararam a cadeia, e cada uma tem uma explicação possível: não cobria aquele caminho, cobria e falhou, ou falhou em silêncio. Sem examinar os três, a organização aprende que teve sorte na quarta — e continua sem saber quanto de margem sobrou.",
+      "fonte": "Laboratório classes_de_controle.py, executado nesta máquina; classificação funcional conforme NIST SP 800-53 Rev. 5",
+      "tags": [
+        "defesa-em-profundidade",
+        "cenario",
+        "incidente",
+        "diagnostico"
+      ]
+    },
+    {
+      "id": "4.3.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        1,
+        2,
+        3
+      ],
+      "enunciado": "Você recebeu duas semanas para avaliar a profundidade real da defesa de uma empresa. O que produz o resultado mais útil no prazo?",
+      "alternativas": [
+        "Mapear de que cada camada depende, testar duas em falha e registrar o que sobrou",
+        "Levantar o inventário completo de controles e classificar cada um por fabricante e versão",
+        "Executar um teste de intrusão externo, que mede a pilha inteira de uma vez pela borda",
+        "Aplicar um questionário de maturidade e comparar a nota com a média do setor"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Inventário é insumo e descreve controles isolados, que é justamente o que não mede profundidade.",
+        "2": "Teste externo mede o caminho da borda e diz pouco sobre correlação entre camadas internas.",
+        "3": "Questionário compara declarações e não observa comportamento nenhum do ambiente."
+      },
+      "dicas": [
+        "O prazo é curto: escolha o que produz evidência, e não o que produz documento.",
+        "Profundidade é afirmação sobre relação entre camadas.",
+        "Duas opções entregam comparação com terceiros ou com um catálogo."
+      ],
+      "pergunta_socratica": "Antes de conferir: ao fim das duas semanas, que frase você quer poder dizer com prova na mão?",
+      "explicacao": "Profundidade não se mede por catálogo nem por nota comparada. Em duas semanas cabe o que importa: escrever de que cada camada depende, marcar as dependências repetidas, derrubar duas camadas de propósito e registrar o que continuou impedindo o ataque. O produto é uma frase com prova — o que sobra quando cai — que nenhuma das outras três abordagens entrega.",
+      "fonte": "Laboratório modo_de_falha_comum.py, executado nesta máquina; conceito de falha de modo comum conforme a literatura de confiabilidade (IEC 61508)",
+      "tags": [
+        "defesa-em-profundidade",
+        "cenario",
+        "avaliacao",
+        "prioridade"
+      ]
+    }
+  ]
+}

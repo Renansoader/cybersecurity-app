@@ -3,7 +3,7 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-25 · commit `6d17132` · 2.656 testes passando
+Última atualização: 2026-08-25 · commit `4.3` · 2.768 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -13,18 +13,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 23 de 41 |
-| Questões | 806 |
-| Blocos de teoria | 140 |
-| Tags distintas | 735 |
-| Testes automatizados | 2.656 |
+| Módulos de conteúdo escritos | 24 de 41 |
+| Questões | 841 |
+| Blocos de teoria | 146 |
+| Tags distintas | 755 |
+| Testes automatizados | 2.768 |
 | Linhas de código Python | ~2.280 no app · ~3.830 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 70 (2 de 8 módulos).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 105 (3 de 8 módulos).
 
-Tipos de questão em uso: conceitual 358, cenário 163, ataque→defesa 61,
-caça ao erro 59, comando 49, pareamento 44, artefato 42, ordenação 30.
+Tipos de questão em uso: conceitual 369, cenário 173, ataque→defesa 64,
+caça ao erro 61, comando 51, pareamento 46, artefato 46, ordenação 31.
 
 ---
 
@@ -50,7 +50,7 @@ C:\Dev\cybersecurity-app\
 │                            desafio, glossario, ferramentas (stubs)
 ├── data/
 │   ├── niveis.json          6 níveis e regras de desbloqueio
-│   ├── modulos/*.json       23 módulos (00-01 … 04-02)
+│   ├── modulos/*.json       24 módulos (00-01 … 04-03)
 │   └── rascunhos/            laboratórios, fontes e relatórios de procedência
 ├── exemplo/
 │   └── modulo-minimo.json   modelo comentado, um exemplo de cada tipo de questão
@@ -199,7 +199,7 @@ C:\Dev\cybersecurity-app\
 | 4 | Conteúdo dos níveis 0 e 1 (11 módulos) | pronta |
 | 5 | Telas de sessão, trilha, home, módulo e progresso | pronta (antecipada) |
 | 6 | Nível 2 + glossário + ferramentas | parcial: nível 2 completo; glossário e ferramentas pendentes |
-| 7 | Níveis 3 e 4 + desafios práticos | em andamento: 3.1–3.3, 4.1 e 4.2 prontos |
+| 7 | Níveis 3 e 4 + desafios práticos | em andamento: 3.1–3.3 e 4.1–4.3 prontos |
 | 8 | Nível 5 + simulado + trilha de 90 dias | pendente |
 | 9 | Ícone, atalho, README, publicação | pronta |
 
@@ -214,8 +214,8 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
-**Nível 4 — Defensivo** (70 questões, 2 de 8)
-4.1 Hardening · 4.2 Segurança de rede
+**Nível 4 — Defensivo** (105 questões, 3 de 8)
+4.1 Hardening · 4.2 Segurança de rede · 4.3 Defesa em profundidade
 
 **Nível 3 — Ofensivo** (105 questões, 3 de 9)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
@@ -239,12 +239,12 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 18 módulos
+### Conteúdo — 17 módulos
 
 - **Nível 3 — Ofensivo** (6 restantes): Web I/II/III, OWASP Top 10, quebra de
   senhas, engenharia social e redes sem fio
-- **Nível 4 — Defensivo** (6 restantes): defesa em profundidade, malware, SIEM,
-  MITRE ATT&CK, resposta a incidentes, forense
+- **Nível 4 — Defensivo** (5 restantes): malware, SIEM, MITRE ATT&CK, resposta a
+  incidentes, forense
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
 
