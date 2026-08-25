@@ -71,7 +71,7 @@
       ],
       "enunciado": "Qual é a diferença fundamental entre TCP e UDP?",
       "alternativas": [
-        "TCP estabelece conexão e garante entrega ordenada e confiável; UDP envia sem estabelecer conexão e sem essas garantias",
+        "TCP tem conexão e garante entrega ordenada; UDP não tem nem garante",
         "TCP cifra o conteúdo transmitido e UDP transmite em texto claro",
         "TCP é usado em redes locais e UDP em redes de longa distância",
         "TCP funciona apenas com endereços públicos e UDP com endereços privados"
@@ -141,7 +141,7 @@
       ],
       "enunciado": "Por que ataques de amplificação costumam usar UDP, e não TCP?",
       "alternativas": [
-        "Porque UDP não tem estabelecimento de conexão, então o endereço de origem pode ser forjado e a resposta vai para a vítima escolhida",
+        "Porque UDP não tem conexão, e a origem do pacote pode ser forjada",
         "Porque UDP transmite dados maiores que o TCP em cada pacote",
         "Porque servidores UDP respondem mais rápido que servidores TCP",
         "Porque o TCP proíbe respostas maiores que a requisição"
@@ -176,7 +176,7 @@
       ],
       "enunciado": "Em uma conexão TCP, o que normalmente indica um segmento com o sinalizador RST?",
       "alternativas": [
-        "Interrupção abrupta da conexão, como resposta a uma tentativa de acesso a uma porta sem serviço escutando",
+        "Interrupção abrupta da conexão, sem serviço escutando na porta",
         "Encerramento negociado da conexão, após ambos os lados concordarem",
         "Confirmação de recebimento de todos os segmentos anteriores",
         "Pedido de retransmissão de um segmento perdido"
@@ -211,7 +211,7 @@
       ],
       "enunciado": "O que uma porta aberta em um servidor efetivamente indica?",
       "alternativas": [
-        "Que há um processo escutando naquela porta — sem dizer se ele está atualizado, se exige autenticação ou se deveria existir ali",
+        "Que há um processo escutando naquela porta, e nada além disso",
         "Que o serviço correspondente está vulnerável e pode ser explorado",
         "Que qualquer pessoa na internet consegue acessar os dados daquele serviço",
         "Que o firewall da máquina está desabilitado"
@@ -292,7 +292,7 @@
       ],
       "enunciado": "O que HTTPS acrescenta ao HTTP?",
       "alternativas": [
-        "Cifra o conteúdo, permite verificar a integridade e apresenta um certificado que prova o controle sobre o domínio",
+        "Cifra o conteúdo, verifica integridade e prova o domínio",
         "Torna o site mais rápido ao comprimir as respostas do servidor",
         "Garante que o conteúdo publicado no site é verdadeiro e confiável",
         "Impede que o site colete dados pessoais do visitante"
@@ -327,7 +327,7 @@
       ],
       "enunciado": "Um usuário recebe um link, abre a página, vê o cadeado no navegador e conclui que o site é confiável para digitar a senha do banco. Qual é o erro?",
       "alternativas": [
-        "O cadeado indica que a conexão é cifrada e que o servidor controla aquele domínio — não que o site seja legítimo; sites de phishing usam HTTPS válido rotineiramente",
+        "O cadeado indica conexão cifrada e controle do domínio, não legitimidade",
         "O cadeado só aparece em sites legítimos, então a conclusão está correta",
         "O erro é que o cadeado só é confiável em conexões feitas por rede cabeada",
         "O erro é que o cadeado indica apenas que o site aceita cartões de crédito"
@@ -335,7 +335,7 @@
       "correta": 0,
       "dicas": [
         "Quem consegue emitir um certificado hoje, e em quanto tempo?",
-        "O certificado prova controle sobre o domínio. Qual domínio?",
+        "Releia o endereço que aparece na barra, letra por letra.",
         "Um golpista consegue controlar um domínio que ele mesmo registrou?"
       ],
       "pergunta_socratica": "Antes de conferir: se o golpista registrou o domínio, ele consegue obter um certificado válido para ele?",
@@ -440,7 +440,7 @@
       ],
       "enunciado": "O que foi removido no TLS 1.3 em relação ao TLS 1.2?",
       "alternativas": [
-        "A troca de chave por RSA, as suítes sem sigilo futuro, a renegociação, a compressão e as cifras que não são autenticadas",
+        "Troca de chave por RSA, renegociação, compressão e cifra sem autenticação",
         "O uso de certificados, substituídos por chaves compartilhadas previamente",
         "A verificação de integridade das mensagens, que passou a ser opcional",
         "O suporte a conexões pela porta 443, migrada para uma porta própria"
@@ -476,7 +476,7 @@
       ],
       "enunciado": "O que significa sigilo futuro (forward secrecy) em uma conexão TLS?",
       "alternativas": [
-        "Que o comprometimento posterior da chave privada do servidor não permite decifrar tráfego gravado anteriormente",
+        "Que a chave privada comprometida depois não decifra tráfego gravado antes",
         "Que a conexão passa a usar uma cifra mais forte a cada nova sessão estabelecida",
         "Que o certificado do servidor é renovado automaticamente antes de expirar",
         "Que o cliente pode continuar a sessão em outra rede sem refazer o handshake"
@@ -511,7 +511,7 @@
       ],
       "enunciado": "O que uma faixa de código de status HTTP 4xx indica?",
       "alternativas": [
-        "Erro atribuído à requisição do cliente, como recurso inexistente ou falta de autorização",
+        "Erro atribuído à requisição do cliente, e não ao processamento do servidor",
         "Erro interno do servidor ao processar uma requisição válida",
         "Redirecionamento para outro endereço",
         "Sucesso no processamento da requisição"
@@ -548,7 +548,7 @@
       "artefato": "203.0.113.45 - - [12/Mar/2026:03:12:41] \"GET /admin HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:41] \"GET /wp-admin HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:42] \"GET /.git/config HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:42] \"GET /backup.zip HTTP/1.1\" 404 162\n203.0.113.45 - - [12/Mar/2026:03:12:43] \"GET /.env HTTP/1.1\" 200 419",
       "enunciado": "Qual é a leitura mais preocupante deste trecho de log de servidor web?",
       "alternativas": [
-        "Uma varredura por caminhos comuns termina em 200 no /.env — um arquivo de configuração que costuma conter credenciais foi entregue com sucesso",
+        "Uma varredura por caminhos comuns termina em 200 no /.env, que foi entregue",
         "O servidor está sobrecarregado, já que respondeu a cinco requisições em três segundos",
         "Os códigos 404 indicam falha da aplicação e devem ser corrigidos com prioridade",
         "O endereço de origem é interno, o que descarta a hipótese de ataque externo"
@@ -621,7 +621,7 @@
       ],
       "enunciado": "Um site interno apresenta aviso de certificado inválido e a equipe orienta os usuários a \"clicar em avançar e continuar\". Qual é o problema dessa orientação?",
       "alternativas": [
-        "Treina os usuários a ignorar o único sinal que os avisaria de uma interceptação real, inclusive fora da empresa",
+        "Treina os usuários a ignorar o único sinal que avisaria de interceptação",
         "Nenhum: avisos de certificado em sites internos são sempre falsos positivos",
         "O problema é apenas estético, já que o aviso deixa a navegação mais lenta",
         "O problema é que o aviso impede o funcionamento de formulários na página"
@@ -694,7 +694,7 @@
       ],
       "enunciado": "Por que o DNS usa UDP para consultas comuns e TCP em algumas situações?",
       "alternativas": [
-        "UDP é mais leve e basta para consultas e respostas curtas; TCP entra quando a resposta é grande ou em transferência de zona",
+        "UDP basta para consultas curtas; TCP entra quando a resposta é grande",
         "UDP é usado por clientes e TCP exclusivamente por servidores raiz",
         "UDP é usado quando o servidor está na mesma rede e TCP quando está na internet",
         "UDP é usado para consultas cifradas e TCP para consultas em texto claro"
@@ -732,7 +732,7 @@
       "trecho": "GUIA DE SEGURANÇA PARA USUÁRIOS — versão 2\n1. Antes de digitar sua senha, confira se o site tem o cadeado no navegador.\n2. Site com cadeado é site seguro e pode receber seus dados.\n3. Se aparecer aviso de certificado, clique em avançar; costuma ser problema do navegador.\n4. Prefira redes sem fio abertas apenas para navegação, nunca para acessar o banco.",
       "enunciado": "Quais itens deste guia orientam mal o usuário?",
       "alternativas": [
-        "Os itens 1, 2 e 3: o cadeado prova cifra e controle do domínio, não idoneidade, e ensinar a ignorar avisos de certificado remove o único sinal de interceptação",
+        "Os itens 1, 2 e 3, sobre o cadeado e sobre ignorar avisos",
         "Apenas o item 4, pois redes abertas não devem ser usadas nem para navegação",
         "Apenas o item 3, já que os itens 1 e 2 estão corretos",
         "Nenhum: o guia reflete as boas práticas atuais de orientação a usuários"
@@ -804,7 +804,7 @@
       ],
       "enunciado": "Por que estudar o handshake do TLS 1.2 como se fosse o atual pode levar a conclusões erradas?",
       "alternativas": [
-        "Porque etapas e mecanismos daquele modelo, como a troca de chave por RSA, foram removidos no 1.3, e o número de idas e voltas mudou",
+        "Porque mecanismos daquele modelo saíram no 1.3, e as idas e voltas mudaram",
         "Porque o TLS 1.2 nunca foi usado em produção, tendo sido apenas uma proposta",
         "Porque o TLS 1.2 e o 1.3 usam portas diferentes, o que muda a configuração de firewall",
         "Porque o TLS 1.3 não usa certificados, tornando todo o modelo anterior irrelevante"
@@ -812,7 +812,7 @@
       "correta": 0,
       "dicas": [
         "O que foi removido muda o que se deve procurar em uma análise.",
-        "O número de idas e voltas do handshake é o mesmo nas duas versões?",
+        "Conte quantas vezes cliente e servidor se falam antes de trocar dados, em cada versão.",
         "Certificados continuam existindo no 1.3."
       ],
       "pergunta_socratica": "Antes de conferir: se você procurar por uma mensagem que não existe mais, o que conclui ao não encontrá-la?",
@@ -841,7 +841,7 @@
       ],
       "enunciado": "Uma varredura mostra a porta 3389 aberta em um servidor acessível pela internet. Qual é a avaliação e a ação correta?",
       "alternativas": [
-        "Área de trabalho remota exposta é um dos caminhos de entrada mais explorados; a ação é retirar da internet e exigir acesso por rede privada ou canal intermediário controlado",
+        "Área de trabalho remota exposta é caminho de entrada; tire-a da internet",
         "Porta 3389 é usada por servidores web e não representa risco adicional",
         "A porta pode permanecer aberta desde que a senha do administrador seja longa",
         "A ação correta é trocar a porta para um número alto, o que resolve a exposição"
@@ -877,7 +877,7 @@
       ],
       "enunciado": "Por que equipamentos de rede conseguem acompanhar o estado de conexões TCP, mas não de tráfego UDP da mesma forma?",
       "alternativas": [
-        "Porque o TCP tem estabelecimento e encerramento explícitos, o que define começo e fim de uma conexão; o UDP não tem esse conceito",
+        "Porque o TCP tem começo e fim explícitos, e o UDP não tem esse conceito",
         "Porque o UDP é cifrado por padrão e o equipamento não consegue inspecioná-lo",
         "Porque o UDP usa portas dinâmicas e o TCP usa portas fixas",
         "Porque o TCP transmite menos dados e é mais fácil de acompanhar"
@@ -913,7 +913,7 @@
       ],
       "enunciado": "Qual é a diferença prática entre os métodos GET e POST em HTTP?",
       "alternativas": [
-        "GET pede um recurso e seus parâmetros costumam ir na própria URL; POST envia dados no corpo da requisição",
+        "GET costuma levar os parâmetros na URL; POST envia no corpo da requisição",
         "GET é cifrado e POST trafega em texto claro",
         "GET só funciona em HTTPS e POST só funciona em HTTP",
         "GET envia dados ao servidor e POST apenas recupera informação"
@@ -1024,7 +1024,7 @@
       ],
       "enunciado": "Um servidor de banco de dados interno aparece com a porta de administração acessível a partir de toda a rede da empresa. Qual é a leitura correta?",
       "alternativas": [
-        "É superfície desnecessária: o acesso deveria ser restrito às máquinas que realmente precisam, mesmo dentro da rede interna",
+        "É superfície desnecessária: o acesso deveria ser restrito a quem precisa",
         "Não há risco, porque a porta não está exposta à internet",
         "É a configuração recomendada, pois facilita o trabalho da equipe de suporte",
         "O risco só existe se o banco de dados não tiver senha configurada"
@@ -1106,7 +1106,7 @@
       ],
       "enunciado": "O TLS 1.3 permite retomar sessões anteriores e enviar dados já na primeira mensagem, sem esperar o handshake completo. Qual é o cuidado associado a esse recurso?",
       "alternativas": [
-        "Os dados enviados antes da conclusão do handshake podem ser reenviados por um atacante, então não devem disparar operações que causem efeito ao serem repetidas",
+        "Os dados enviados antes do fim do handshake podem ser reenviados",
         "O recurso desabilita a verificação do certificado do servidor",
         "O recurso só funciona em conexões sem cifra",
         "O recurso impede o uso de sigilo futuro em todas as conexões seguintes"
@@ -1143,7 +1143,7 @@
       "artefato": "Certificado apresentado por: pagamento-banc0-seguro.com\nEmitido para . . . : pagamento-banc0-seguro.com\nEmitido por. . . . : autoridade certificadora automatizada e gratuita\nVálido de . . . . : 12/03/2026\nVálido até . . . . : 10/06/2026\nStatus da conexão. : cifrada, certificado válido",
       "enunciado": "O usuário chegou a esta página por um link recebido por mensagem. O que este certificado permite concluir?",
       "alternativas": [
-        "Apenas que a conexão está cifrada e que quem responde controla esse domínio; o nome do domínio, com zero no lugar da letra o, é o indício que importa",
+        "Apenas que a conexão está cifrada e que quem responde controla esse domínio",
         "Que o site pertence ao banco, já que o certificado é válido e a conexão está cifrada",
         "Que o certificado é falso, pois autoridades gratuitas não emitem certificados válidos",
         "Que o site é seguro para digitar a senha, pois o certificado ainda está dentro da validade"
@@ -1180,7 +1180,7 @@
       ],
       "enunciado": "Em uma varredura de portas, o que costuma diferenciar uma porta filtrada de uma porta fechada?",
       "alternativas": [
-        "A porta fechada responde com RST; a filtrada normalmente não responde nada, porque um equipamento descartou o pacote",
+        "A porta fechada responde com RST; a filtrada não responde nada",
         "A porta filtrada responde mais devagar, mas sempre responde",
         "A porta fechada não responde e a filtrada responde com RST",
         "Não há diferença observável entre as duas situações"
@@ -1217,7 +1217,7 @@
       ],
       "enunciado": "Uma aplicação interna usa HTTPS com um certificado assinado por uma autoridade própria da empresa, instalada em todas as máquinas corporativas. Isso é aceitável?",
       "alternativas": [
-        "Sim: a autoridade própria é confiável para as máquinas que a reconhecem, e o cuidado central passa a ser proteger a chave privada dessa autoridade",
+        "Sim, para as máquinas que reconhecem essa autoridade, e a chave dela vira o ponto crítico",
         "Não: certificados só são válidos se emitidos por autoridades públicas reconhecidas pelos navegadores",
         "Sim, e sem cuidados adicionais, pois certificados internos não podem ser usados para interceptação",
         "Não: autoridades próprias não conseguem emitir certificados compatíveis com TLS 1.3"
@@ -1253,7 +1253,7 @@
       ],
       "enunciado": "Por que serviços de administração devem ficar fora da internet mesmo quando exigem autenticação forte?",
       "alternativas": [
-        "Porque a autenticação só protege se o serviço estiver íntegro: uma falha no próprio serviço é explorável antes de qualquer login",
+        "Porque a autenticação só protege se o serviço estiver íntegro",
         "Porque autenticação forte torna o acesso lento demais para uso remoto",
         "Porque serviços de administração não funcionam corretamente sobre a internet",
         "Porque a autenticação forte só funciona em redes internas"
@@ -1290,7 +1290,7 @@
       ],
       "enunciado": "Uma organização quer reduzir o risco de os usuários caírem em páginas de phishing com HTTPS válido. Qual conjunto de medidas ajuda mais?",
       "alternativas": [
-        "Múltiplo fator resistente a phishing, filtro de domínios recém-registrados e treinamento que ensine a ler o domínio em vez de procurar o cadeado",
+        "Múltiplo fator resistente a phishing e filtro de domínios recém-registrados",
         "Orientar os usuários a verificar sempre o cadeado antes de digitar credenciais",
         "Bloquear todo tráfego HTTPS que não venha de sites conhecidos da empresa",
         "Exigir que os usuários troquem a senha semanalmente"
@@ -1329,7 +1329,7 @@
       ],
       "enunciado": "Você vai revisar a exposição de rede de uma aplicação web corporativa. Quais verificações rendem mais nas primeiras horas?",
       "alternativas": [
-        "Quais portas estão realmente acessíveis de fora, se o HTTP redireciona para HTTPS com política de transporte estrito, qual versão de TLS é aceita, e se serviços administrativos estão expostos",
+        "Quais portas estão acessíveis de fora, se há redirecionamento e qual TLS",
         "Qual é a marca do firewall utilizado e se existe contrato de suporte vigente",
         "Se a aplicação usa GET ou POST nos formulários de login",
         "Se o certificado foi emitido por autoridade gratuita ou paga"
