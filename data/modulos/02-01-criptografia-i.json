@@ -67,7 +67,7 @@
       "objetivos": [0],
       "enunciado": "Um sistema guarda senhas em Base64. Qual é o problema?",
       "alternativas": [
-        "Base64 é reversível por qualquer pessoa, sem chave nenhuma; na prática as senhas estão em texto claro",
+        "Base64 é reversível por qualquer pessoa, sem chave nenhuma",
         "Base64 é lento demais para ser usado com senhas",
         "Base64 só funciona com caracteres ASCII e corromperia senhas com acentos",
         "Nenhum, desde que a chave usada na codificação seja longa"
@@ -173,7 +173,7 @@
       "objetivos": [2],
       "enunciado": "Por que dizer que um sistema \"usa AES\" não informa nada sobre a segurança dele?",
       "alternativas": [
-        "Porque o modo de operação decide se o resultado é seguro: AES-ECB vaza a estrutura do dado, e AES-GCM cifra e autentica",
+        "Porque o modo de operação decide se o resultado é seguro, e ele não foi dito",
         "Porque AES foi quebrado e não deve mais ser usado",
         "Porque o tamanho da chave não é informado, e só chaves de 512 bits são seguras",
         "Porque AES só é seguro quando implementado em hardware dedicado"
@@ -201,7 +201,7 @@
       "objetivos": [2],
       "enunciado": "O que o modo ECB faz de errado?",
       "alternativas": [
-        "Cifra cada bloco de forma independente, então blocos de conteúdo igual produzem saídas iguais e a estrutura do dado fica visível",
+        "Cifra cada bloco de forma independente; blocos iguais saem iguais",
         "Usa uma chave diferente para cada bloco, o que impossibilita decifrar",
         "Aplica o algoritmo duas vezes, o que dobra o tempo de processamento",
         "Não funciona com mensagens maiores que um bloco"
@@ -229,7 +229,7 @@
       "objetivos": [2, 1],
       "enunciado": "Uma equipe cifra fotos de documentos com AES-ECB e argumenta que, com chave de 256 bits, o resultado é seguro. Qual é a resposta correta?",
       "alternativas": [
-        "O tamanho da chave não corrige o modo: em ECB, regiões iguais da imagem produzem blocos cifrados iguais e o desenho continua reconhecível",
+        "O tamanho da chave não corrige o modo: em ECB o desenho continua reconhecível",
         "Está correto: com 256 bits a chave é inquebrável, então o modo é irrelevante",
         "O problema é o AES, que não deve ser usado em imagens; o correto seria usar um algoritmo de fluxo",
         "O problema é que fotos precisam ser comprimidas antes de cifradas, e não o modo escolhido"
@@ -257,7 +257,7 @@
       "objetivos": [3],
       "enunciado": "O que uma cifra autenticada acrescenta em relação a uma cifra comum?",
       "alternativas": [
-        "Uma etiqueta de autenticação que permite detectar qualquer alteração no texto cifrado antes de usá-lo",
+        "Uma etiqueta que permite detectar alteração no texto cifrado",
         "Uma segunda camada de cifra, aplicada com outra chave",
         "A garantia de que a chave não pode ser descoberta por força bruta",
         "A compressão do texto cifrado, reduzindo o espaço ocupado"
@@ -314,7 +314,7 @@
       "trecho": "DOCUMENTAÇÃO DE SEGURANÇA — API interna\n\"Os dados sensíveis trafegam protegidos: o corpo da requisição é codificado em\nBase64 antes do envio e o token de acesso é armazenado com hash MD5. Os\narquivos em repouso usam criptografia AES.\"",
       "enunciado": "Quantos problemas distintos há nesta descrição?",
       "alternativas": [
-        "Três: Base64 não é proteção, MD5 não serve para segurança, e \"AES\" sem o modo não diz se a cifra em repouso é segura",
+        "Três: Base64, MD5, e AES sem o modo declarado",
         "Um: apenas o uso de MD5, que deveria ser SHA-256",
         "Dois: Base64 e MD5; a parte de AES está adequada",
         "Nenhum: a descrição cobre trânsito, tokens e repouso"
@@ -342,7 +342,7 @@
       "objetivos": [1, 3],
       "enunciado": "Por que a criptografia simétrica é usada para o volume de dados, mesmo existindo a assimétrica?",
       "alternativas": [
-        "Porque é muito mais rápida; a assimétrica é usada para estabelecer a chave simétrica e para assinar",
+        "Porque é muito mais rápida em volume de dados grande",
         "Porque a assimétrica não consegue cifrar dados binários",
         "Porque a simétrica é a única que garante integridade",
         "Porque a assimétrica exige hardware dedicado para funcionar"
@@ -398,7 +398,7 @@
       "objetivos": [1],
       "enunciado": "Um desenvolvedor propõe criar o próprio algoritmo de cifra, argumentando que ninguém conhecerá o método. Qual é a objeção decisiva?",
       "alternativas": [
-        "Segurança que depende de o método permanecer desconhecido cai na primeira análise séria; algoritmos públicos resistem porque foram atacados por décadas",
+        "Segurança que depende do método secreto cai na primeira análise séria",
         "Criar algoritmos próprios é proibido por lei em vários países",
         "Algoritmos próprios são sempre mais lentos que os padrões de mercado",
         "Não há objeção: se o algoritmo for suficientemente complexo, ele é seguro"
@@ -475,7 +475,7 @@
       "objetivos": [2, 3],
       "enunciado": "Por que cifrar sem autenticar é considerado inseguro em projeto novo?",
       "alternativas": [
-        "Porque um atacante pode alterar o texto cifrado, e o receptor processa o resultado como se fosse legítimo",
+        "Porque um atacante pode alterar o texto cifrado sem que se perceba",
         "Porque a cifra sem autenticação consome mais processamento",
         "Porque o texto cifrado fica maior do que o original",
         "Porque sem autenticação a chave precisa ser trocada a cada mensagem"
@@ -560,7 +560,7 @@
       "trecho": "import base64\n\ndef proteger(dado: str) -> str:\n    \"\"\"Protege o dado antes de gravar no banco.\"\"\"\n    return base64.b64encode(dado.encode()).decode()\n\ndef recuperar(protegido: str) -> str:\n    return base64.b64decode(protegido).decode()",
       "enunciado": "Qual é o problema deste código?",
       "alternativas": [
-        "Não há proteção nenhuma: Base64 é codificação reversível sem chave, e o nome da função afirma uma garantia que o código não entrega",
+        "Não há proteção nenhuma: Base64 é codificação reversível sem chave",
         "O código está correto, mas deveria tratar exceções de decodificação",
         "O problema é usar str em vez de bytes na assinatura das funções",
         "O problema é que base64 não funciona com textos acentuados"
@@ -588,7 +588,7 @@
       "objetivos": [2],
       "enunciado": "Para que serve o vetor de inicialização (IV) em modos como CBC e CTR?",
       "alternativas": [
-        "Fazer com que a mesma mensagem, cifrada duas vezes com a mesma chave, produza textos cifrados diferentes",
+        "Fazer a mesma mensagem produzir cifrados diferentes",
         "Aumentar o tamanho efetivo da chave usada na cifra",
         "Servir como senha secundária, guardada junto da chave",
         "Comprimir a mensagem antes de cifrar"
@@ -616,7 +616,7 @@
       "objetivos": [1, 3],
       "enunciado": "Por que a gestão de chaves costuma ser o ponto mais frágil de um sistema criptográfico?",
       "alternativas": [
-        "Porque o algoritmo é público e testado, enquanto a chave precisa ser gerada, guardada, distribuída, rotacionada e descartada — cada etapa é uma chance de erro",
+        "Porque o algoritmo é público e testado, e a chave precisa ser gerenciada",
         "Porque as chaves precisam ser trocadas a cada uso, o que é operacionalmente inviável",
         "Porque não existem ferramentas capazes de armazenar chaves com segurança",
         "Porque chaves longas são difíceis de digitar corretamente"
@@ -644,7 +644,7 @@
       "objetivos": [0],
       "enunciado": "Durante uma análise, você encontra em um arquivo de configuração a string \"cGFzc3dvcmQxMjM=\". Qual é a conclusão?",
       "alternativas": [
-        "É Base64 e pode ser decodificado imediatamente; trate o valor como um segredo exposto em texto claro",
+        "É Base64 e pode ser decodificado na hora; trate como exposto",
         "É um hash e não pode ser revertido; nenhuma ação é necessária",
         "É texto cifrado e exige a chave para ser lido",
         "É um identificador aleatório sem valor de segurança"
@@ -672,7 +672,7 @@
       "objetivos": [2, 3],
       "enunciado": "Qual afirmação sobre ChaCha20-Poly1305 é correta?",
       "alternativas": [
-        "É uma cifra autenticada, alternativa ao AES-GCM, frequentemente preferida onde não há aceleração de AES em hardware",
+        "É uma cifra autenticada, alternativa ao AES-GCM em software",
         "É uma função de resumo criptográfico, alternativa ao SHA-256",
         "É um algoritmo assimétrico, alternativa ao RSA",
         "É um modo de operação do AES, alternativa ao GCM"
@@ -724,7 +724,7 @@
       "objetivos": [0],
       "enunciado": "Por que uma função de resumo criptográfico não serve para guardar um dado que precisa ser recuperado depois?",
       "alternativas": [
-        "Porque ela não é reversível: o resumo tem tamanho fixo e descarta informação, então não existe caminho de volta",
+        "Porque ela não é reversível: o resumo é fixo e descarta informação",
         "Porque o resumo ocupa mais espaço que o dado original",
         "Porque o resumo muda a cada execução, mesmo para a mesma entrada",
         "Porque funções de resumo exigem uma chave que precisa ser guardada à parte"
@@ -752,7 +752,7 @@
       "objetivos": [3, 2],
       "enunciado": "Um sistema cifra mensagens com AES-CBC e envia o texto cifrado junto de um resumo SHA-256 do texto original, para verificação. Qual é a avaliação?",
       "alternativas": [
-        "O resumo não protege: quem altera o texto cifrado também pode recalcular e substituir o resumo, já que ele não depende de nenhum segredo",
+        "O resumo não protege: quem altera o texto cifrado recalcula o resumo",
         "O desenho é adequado: SHA-256 garante que qualquer alteração será detectada",
         "O problema é usar SHA-256, que deveria ser SHA-512 para acompanhar a chave do AES",
         "O problema é enviar o resumo junto; ele deveria viajar em outra conexão"
@@ -780,7 +780,7 @@
       "objetivos": [1, 3],
       "enunciado": "Por que \"criptografia de nível militar\" não é uma afirmação técnica útil?",
       "alternativas": [
-        "Porque não corresponde a nenhuma especificação: não diz algoritmo, modo, tamanho de chave nem como a chave é gerenciada",
+        "Porque não corresponde a nenhuma especificação: não diz algoritmo nem modo",
         "Porque algoritmos militares são secretos e não podem ser usados em produtos civis",
         "Porque criptografia militar é mais fraca que a comercial por exigência regulatória",
         "Porque a expressão só se aplica a comunicações por rádio"
@@ -808,7 +808,7 @@
       "objetivos": [3, 2],
       "enunciado": "Uma equipe vai começar um sistema novo que precisa cifrar registros no banco. Qual escolha é a mais defensável?",
       "alternativas": [
-        "Usar uma biblioteca consolidada com AES-GCM ou ChaCha20-Poly1305, com chave em cofre de segredos e nonce único por registro",
+        "Usar biblioteca consolidada com AES-GCM, com nonce único por registro",
         "Implementar AES-CBC manualmente, para ter controle total sobre o processo",
         "Cifrar com AES-ECB e compensar com um resumo SHA-256 de cada registro",
         "Codificar em Base64 e restringir o acesso ao banco por permissões"
@@ -864,7 +864,7 @@
       "objetivos": [3],
       "enunciado": "Um serviço afirma que \"os dados são criptografados de ponta a ponta\". O que é preciso perguntar para saber se isso significa algo?",
       "alternativas": [
-        "Quais são as duas pontas e quem controla as chaves — se o servidor consegue decifrar, não é ponta a ponta no sentido forte do termo",
+        "Quais são exatamente as duas pontas e quem fica com as chaves capazes de decifrar",
         "Qual é o tamanho da chave usada, já que abaixo de 4096 bits a proteção é insuficiente",
         "Se a conexão usa a porta 443, que é a única porta segura para tráfego cifrado",
         "Se o serviço tem certificação internacional, que é o que valida a afirmação"
@@ -921,7 +921,7 @@
       "trecho": "REQUISITO DE SEGURANÇA — proposta de arquitetura\n\"Todo dado sensível será cifrado com AES-256. A chave será derivada do nome do\nambiente (producao, homologacao) para simplificar a implantação, e ficará\ndefinida como constante no código da aplicação.\"",
       "enunciado": "Quais problemas esta proposta apresenta?",
       "alternativas": [
-        "Falta o modo de operação, a chave é previsível por ser derivada de um valor conhecido, e fica no código — onde qualquer pessoa com acesso ao repositório a obtém",
+        "Falta o modo de operação; a chave é derivada de valor conhecido e fica no código",
         "Apenas a ausência do modo de operação; a derivação da chave é uma prática aceitável",
         "Apenas a chave no código; derivar do nome do ambiente é uma boa forma de separar ambientes",
         "Nenhum: AES-256 é suficiente para atender ao requisito"
@@ -949,7 +949,7 @@
       "objetivos": [0, 3],
       "enunciado": "Em que situação usar uma função de resumo é a escolha certa, e não cifra?",
       "alternativas": [
-        "Quando você precisa comparar ou verificar sem nunca recuperar o valor original, como conferir integridade de um arquivo",
+        "Quando você precisa verificar sem nunca recuperar o valor original",
         "Quando o dado precisa ser lido de volta apenas por quem tem a chave",
         "Quando o dado precisa trafegar por um canal que aceita apenas texto",
         "Quando o dado precisa ser comprimido para ocupar menos espaço"
