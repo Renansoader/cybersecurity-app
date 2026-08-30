@@ -1,0 +1,9 @@
+=== EventID mais frequentes no log System, últimas 24h ===
+  EventID 28    : 58 ocorrências
+  EventID 6     : 45 ocorrências
+  EventID 112   : 42 ocorrências
+  EventID 55    : 36 ocorrências
+  EventID 29    : 33 ocorrências
+  EventID 16    : 22 ocorrências
+  EventID 10016 : 19 ocorrências
+  EventID 1     : 16 ocorrências

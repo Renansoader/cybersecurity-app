@@ -1,0 +1,16 @@
+=== medido nesta máquina, últimas 24h ===
+  System       eventos/24h=642    bytes_medio/evento=814
+  Application  eventos/24h=140    bytes_medio/evento=779
+
+  total: 782 eventos/24h, 807 bytes/evento em média
+  (Security ficou de fora: exige elevação. Costuma pesar mais que os dois somados.)
+
+=== projeção para um parque de máquinas, com este perfil ===
+      1 máquina(s):     0.001 GB/dia · 90 dias =       0.1 GB · 1 ano =       0.2 GB (razão 4.06×)
+    100 máquina(s):     0.059 GB/dia · 90 dias =       5.3 GB · 1 ano =      21.5 GB (razão 4.06×)
+    500 máquina(s):     0.294 GB/dia · 90 dias =      26.5 GB · 1 ano =     107.3 GB (razão 4.06×)
+   2000 máquina(s):     1.176 GB/dia · 90 dias =     105.9 GB · 1 ano =     429.3 GB (razão 4.06×)
+
+  A razão 1 ano / 90 dias é sempre ~4,06× — é aritmética de calendário,
+  não depende de fornecedor. O que muda de fornecedor para fornecedor é
+  o preço por GB, não essa proporção.

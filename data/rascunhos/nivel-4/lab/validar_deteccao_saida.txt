@@ -1,0 +1,7 @@
+regra escrita, nunca testada: nenhuma evidência de que dispara
+evento provocado em: t=0,000s
+detectado em:        t=0.023s, na varredura número 1
+arquivo:             artefato_suspeito.txt
+
+sem provocar o evento, a única coisa que se sabe sobre a regra é que ela
+foi escrita — não que ela detecta o que promete detectar.
