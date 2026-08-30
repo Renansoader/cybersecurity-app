@@ -1,0 +1,1030 @@
+{
+  "id": "4.5",
+  "nivel": 4,
+  "titulo": "SIEM e monitoramento — o que coletar, o que custa e o que vale como alerta",
+  "objetivos": [
+    "Decidir o que coletar e avaliar o custo de reter — por fonte, por dia, por prazo — como decisão de orçamento antes de ser decisão de segurança",
+    "Normalizar eventos de fontes e formatos diferentes para um campo comum, sem o qual não existe correlação possível",
+    "Formular a pergunta de detecção antes de escrever a regra de correlação, e tratar fadiga de alerta como defeito de engenharia do alerta — não de disciplina de quem o lê",
+    "Validar uma detecção provocando o evento de propósito, e medir o monitoramento pelo tempo até detectar — não pela contagem de alertas nem de regras"
+  ],
+  "pre_requisitos": ["1.1", "1.2", "1.3", "4.1", "4.3"],
+  "teoria": [
+    {
+      "id": "4.5.t1",
+      "titulo": "\"Logar tudo\" é decisão de orçamento vestida de decisão de segurança",
+      "texto": "Toda fonte de log tem um custo antes de ter um valor: eventos por segundo, tamanho médio do evento e por quantos dias ele fica retido. Multiplicar esses três números decide quanto espaço uma fonte ocupa — e espaço tem preço, seja em disco próprio, seja em ferramenta que cobra por volume ingerido.\n\n\"Logar tudo\" parece a escolha mais segura, mas é uma escolha de orçamento disfarçada de escolha de segurança: cada fonte a mais, cada dia a mais de retenção, compete pelo mesmo orçamento do próximo analista contratado ou da próxima licença assinada. A pergunta que separa quem opera de quem só empilha log é: o que esta fonte, retida por este prazo, me permite responder que eu não conseguiria responder sem ela?\n\nRetenção maior não é sempre a resposta certa. Noventa dias cobrem a maioria dos incidentes descobertos a tempo; um ano custa proporcionalmente mais e serve a um caso mais raro — reconstituir um incidente descoberto tarde. A escolha certa depende do que a organização já perdeu no passado por faltar registro, não de um número redondo copiado de outro lugar.",
+      "analogia": "É como decidir quantas câmeras instalar e por quantos meses guardar a gravação: mais câmera e mais tempo de fita sempre ajudam alguma investigação, mas o orçamento de armazenamento não é infinito, e a pergunta certa é qual câmera e qual prazo pagam a própria conta.",
+      "erro_comum": "Justificar \"coletar tudo\" como prudência, sem nunca perguntar quanto isso custa em armazenamento nem quem vai olhar o que foi coletado.",
+      "fonte": "Mecanismo de custo de log management, medido no laboratório volume_de_eventos.py (execução real nesta máquina); NIST SP 800-92, Guide to Computer Security Log Management (2006), como origem documental do enquadramento — sem número de revisão como resposta certa."
+    },
+    {
+      "id": "4.5.t2",
+      "titulo": "O mesmo evento, três roupas diferentes",
+      "texto": "Uma tentativa de autenticação que falha chega em roupas diferentes, dependendo de onde nasceu. O Windows escreve um evento 4625 com campos nomeados — Account Name, Source Network Address, Failure Reason. Um servidor Linux escreve uma linha de texto livre em /var/log/auth.log, com o endereço solto no meio da frase. Um provedor de nuvem escreve um objeto JSON, com os mesmos fatos sob chaves como sourceIPAddress e responseElements.\n\nNenhuma das três fontes está errada: cada uma segue a convenção da plataforma que a gerou. O problema aparece na hora de correlacionar. Uma regra escrita para procurar texto em auth.log não enxerga nada no JSON da nuvem, mesmo que os dois descrevam a mesma tentativa vinda do mesmo endereço. Sem mapear timestamp, usuário, endereço de origem e resultado para um campo comum antes de qualquer regra, a correlação fica cega para duas das três fontes.\n\nÉ esse o problema que frameworks como OCSF, o Elastic Common Schema e o Splunk CIM tentam resolver: um vocabulário comum de campo, para que a regra seja escrita uma vez e enxergue o fato, não o formato da fonte que o registrou.",
+      "analogia": "Três boletins do mesmo acidente, um em português, um em inglês, um em código de trânsito: sem traduzir data, placa e local para as mesmas colunas, ninguém percebe que os três descrevem o mesmo carro.",
+      "erro_comum": "Escrever a regra de correlação em cima do formato bruto da primeira fonte testada, e descobrir só depois que ela não enxerga nada vindo de qualquer outra fonte.",
+      "fonte": "OCSF (Open Cybersecurity Schema Framework), Elastic Common Schema e Splunk Common Information Model — vocabulário consolidado da indústria, conferido nesta sessão; campos do evento 4625 documentados publicamente pela Microsoft."
+    },
+    {
+      "id": "4.5.t3",
+      "titulo": "Escreva a pergunta antes da regra",
+      "texto": "Uma regra de correlação nasce de uma pergunta, mesmo quando quem escreve não formula essa pergunta em voz alta. \"Alertar quando um endereço externo falhar autenticação mais de 50 vezes em um dia\" só funciona porque alguém decidiu, antes, que a pergunta era \"há uma tentativa de força bruta em andamento?\" — e o limiar de 50 é uma resposta a essa pergunta, não um número escolhido por parecer redondo.\n\nQuem escreve a regra primeiro, olhando para o dado disponível — um campo, uma contagem fácil de somar —, sem antes escrever a pergunta que ela deveria responder, tende a produzir uma regra que dispara em cima de qualquer coincidência que toque aquele campo. É o caminho mais curto até a fadiga de alerta: a regra existe, mas ninguém sabe dizer, olhando para um disparo dela, se aquilo é o comportamento que interessava ou só o campo que estava disponível.\n\nFormular a pergunta primeiro também é o que permite testar a regra depois: dá para verificar se ela responde à pergunta, e não apenas se ela compila e dispara em algo.",
+      "analogia": "Escrever a busca antes de saber o que procura é vasculhar uma caixa de documentos sem lista: você acha coisa, mas não sabe dizer se achou o que precisava.",
+      "erro_comum": "Justificar uma regra pelo campo que estava disponível no log, e não pelo comportamento do adversário que ela deveria capturar.",
+      "fonte": "Prática de engenharia de detecção, consolidada na literatura de operação de SOC; exemplo de regra por limiar já em uso no corpus deste projeto (1.2.q35)."
+    },
+    {
+      "id": "4.5.t4",
+      "titulo": "Fadiga de alerta é defeito de quem escreveu o alerta",
+      "texto": "Fadiga de alerta costuma ser descrita como problema do analista: cansado, sobrecarregado, deixa de prestar atenção. A descrição erra o alvo. Um alerta que dispara em falso na maioria das vezes ensina, de forma correta e racional, que ignorá-lo custa menos do que investigar — e é exatamente isso que quem o recebe aprende a fazer. O defeito está na regra que gera o alerta, não em quem o lê.\n\nTratar fadiga de alerta como falha de disciplina leva à resposta errada: pedir mais atenção, mais treinamento, um lembrete na reunião semanal. Nenhuma dessas ações muda a taxa de falso positivo da regra. A resposta que funciona é de engenharia: apertar a condição, acrescentar contexto que separe o caso raro do rotineiro, suprimir o padrão já conhecido como benigno — e medir, depois da mudança, se a taxa de disparo útil melhorou.\n\nUma equipe que mede fadiga de alerta perguntando \"quantos alertas por dia\" está medindo o sintoma. A pergunta que aponta para a causa é \"que fração dos disparos desta regra levou a uma ação real?\".",
+      "analogia": "Um alarme de carro que dispara com o vento não ensina o vizinho a prestar mais atenção: ensina o vizinho a ignorar aquele carro. O defeito é do sensor, não de quem mora ao lado.",
+      "erro_comum": "Responder a uma onda de alertas ruins pedindo mais cuidado ao analista, deixando a regra que produz o ruído exatamente como estava.",
+      "fonte": "Vocabulário operacional consolidado de detecção e resposta; enquadramento generaliza casos já publicados no corpus (3.3.q30 e 4.2.q12) em princípio."
+    },
+    {
+      "id": "4.5.t5",
+      "titulo": "Regra nunca testada é regra que não existe",
+      "texto": "Uma regra de correlação que nunca disparou pode significar duas coisas: que o comportamento que ela procura nunca aconteceu, ou que a regra parou de funcionar — um campo mudou de nome numa atualização, uma fonte parou de encaminhar, um filtro ficou restritivo demais. De fora, as duas situações são indistinguíveis, e o silêncio da regra não ajuda a escolher entre elas.\n\nA única forma de encerrar essa dúvida é provocar de propósito o evento que a regra deveria capturar, e confirmar que o alerta nasce, chega e é lido por alguém — do início ao fim da cadeia, não só até o log. É o mesmo raciocínio de testar um extintor puxando o pino, não relendo o manual: a regra escrita e nunca disparada de propósito é uma regra sobre a qual existe opinião, não evidência.\n\nEssa prática iguala dois defeitos que parecem diferentes: uma regra nunca testada e um alerta que ninguém lê. Nos dois casos, ninguém sabe, de fato, se a detecção funciona — só que ela existe no papel.",
+      "analogia": "Um extintor pendurado na parede há dez anos, nunca puxado: ninguém sabe se ele ainda solta espuma, só que ele está lá.",
+      "erro_comum": "Confiar que uma regra funciona porque foi escrita com cuidado, sem nunca observar o alerta nascer de um evento real e provocado de propósito.",
+      "fonte": "Prática de validação de detecção, consolidada na engenharia de detecção; mecanismo demonstrado no laboratório validar_deteccao.py desta sessão."
+    },
+    {
+      "id": "4.5.t6",
+      "titulo": "A métrica é tempo até detectar, não quantas regras ou quantos alertas",
+      "texto": "Duas equipes de monitoramento podem ter o mesmo número de regras e o mesmo volume diário de alertas e estar em situações opostas: uma percebe um comprometimento em minutos, a outra demora semanas. Contar regra e contar alerta mede esforço de configuração, não resultado — e mais regra ou mais alerta pode até piorar o resultado, se o volume adicional afogar o sinal que importava.\n\nA métrica que reflete se o monitoramento funciona é o tempo entre o evento acontecer e uma pessoa perceber — o tempo até detectar. Reduzir esse tempo é o que justifica cada decisão dos outros cinco pontos deste módulo: coletar a fonte certa, normalizar para poder correlacionar, formular a pergunta antes da regra, tratar fadiga de alerta como defeito de engenharia e validar a detecção provocando o evento. Nenhum desses pontos vale por si — vale pelo efeito que tem nesse tempo.\n\nMedir esse tempo exige o mesmo cuidado do eixo anterior: só dá para conhecê-lo provocando o evento de propósito e cronometrando a cadeia inteira, do disparo até a tela de quem responde.",
+      "analogia": "Um pronto-socorro não mede a própria qualidade pelo número de alarmes que os monitores emitem, mas pelo tempo entre a piora do paciente e a equipe chegar à cama.",
+      "erro_comum": "Reportar \"temos 200 regras\" ou \"processamos 5 milhões de eventos por dia\" como evidência de monitoramento eficaz, sem nunca medir quanto tempo uma detecção real levou.",
+      "fonte": "Tempo até detectar (mean time to detect) como métrica consolidada de operação de SOC; mecanismo de medição demonstrado no laboratório validar_deteccao.py."
+    }
+  ],
+  "questoes": [
+    {
+      "id": "4.5.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Por que decidir \"logar tudo\" costuma ser, na prática, uma decisão de orçamento e não uma decisão de segurança?",
+      "alternativas": [
+        "Porque cada fonte a mais e cada dia a mais de retenção competem pelo mesmo orçamento de armazenamento e de pessoal",
+        "Porque logar tudo é proibido por norma técnica na maioria dos setores regulados",
+        "Porque o volume de log coletado por dia não guarda nenhuma relação direta com o espaço de armazenamento que será efetivamente necessário para retê-lo",
+        "Porque ferramentas de SIEM descartam automaticamente o excesso sem custo para a organização"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe proibição normativa geral contra logar mais; o limite real é de recurso, não de regra.",
+        "2": "Volume determina diretamente o espaço ocupado; a relação é a base do cálculo de custo.",
+        "3": "Descarte automático de excesso não é comportamento padrão de ferramenta de SIEM, e não elimina o custo do que já foi ingerido."
+      },
+      "dicas": [
+        "Pense no que compete pelo mesmo orçamento quando uma fonte nova é ligada.",
+        "A pergunta não é se logar mais ajuda — quase sempre ajuda um pouco. É se compensa o que custa.",
+        "Três das opções tratam volume como algo sem custo real."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o orçamento de armazenamento fosse infinito, a decisão de coletar deixaria de ser uma decisão?",
+      "explicacao": "Volume por segundo, tamanho médio do evento e prazo de retenção multiplicados decidem quanto espaço uma fonte ocupa, e espaço tem preço. Tratar \"logar tudo\" como neutro esconde essa conta, disfarçando escolha de orçamento de escolha de segurança.",
+      "fonte": "Mecanismo de custo de log management; volume_de_eventos.py",
+      "tags": ["siem", "custo", "volume", "retencao"]
+    },
+    {
+      "id": "4.5.q2",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Uma empresa de 300 pessoas tem orçamento para ingerir e reter apenas uma fração das fontes disponíveis. Qual pergunta deveria orientar a escolha de qual fonte entra primeiro?",
+      "alternativas": [
+        "O que esta fonte, retida por este prazo, permite responder que nenhuma outra fonte já coletada permite?",
+        "Qual fonte gera o menor volume de eventos por segundo, de modo a caber com folga dentro do orçamento de armazenamento já aprovado para este ano?",
+        "Qual fonte o fornecedor de SIEM recomenda como padrão de mercado para qualquer empresa?",
+        "Qual fonte é mais fácil de configurar tecnicamente na ferramenta já contratada?"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Menor volume reduz custo, mas uma fonte barata e sem valor de resposta não paga a própria coleta.",
+        "2": "Recomendação genérica de fornecedor ignora o que esta empresa específica já perdeu no passado por falta de registro.",
+        "3": "Facilidade de configuração é custo de engenharia, não critério de valor da fonte para responder a um incidente."
+      },
+      "dicas": [
+        "A pergunta certa compara o que a fonte entrega com o que já existe, não com o que é barato ou fácil.",
+        "Duas opções escolhem pelo custo de implantar, não pelo valor de responder.",
+        "Pense no que aconteceria numa investigação sem esta fonte especificamente."
+      ],
+      "pergunta_socratica": "Antes de conferir: se duas fontes custam o mesmo para coletar, o que deveria decidir qual entra primeiro?",
+      "explicacao": "A pergunta que separa coleta com propósito de acúmulo sem critério é o que a fonte permite responder que nenhuma outra já cobre. Volume baixo, recomendação de mercado e facilidade técnica são fatores secundários, não o critério inicial.",
+      "fonte": "Mecanismo de priorização de fonte, 4.5.t1",
+      "tags": ["siem", "priorizacao", "custo", "cenario"]
+    },
+    {
+      "id": "4.5.q3",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "artefato": "=== medido nesta máquina, últimas 24h ===\n  System       eventos/24h=642    bytes_medio/evento=814\n  Application  eventos/24h=140    bytes_medio/evento=779\n\n  total: 782 eventos/24h, 807 bytes/evento em média\n  (Security ficou de fora: exige elevação. Costuma pesar mais que os dois somados.)\n\n=== projeção para um parque de máquinas, com este perfil ===\n      1 máquina(s):     0.001 GB/dia · 90 dias =       0.1 GB · 1 ano =       0.2 GB (razão 4.06×)\n    500 máquina(s):     0.294 GB/dia · 90 dias =      26.5 GB · 1 ano =     107.3 GB (razão 4.06×)\n   2000 máquina(s):     1.176 GB/dia · 90 dias =     105.9 GB · 1 ano =     429.3 GB (razão 4.06×)",
+      "enunciado": "Esta saída vem de uma máquina real, contando só dois logs do Windows. O que ela sustenta sobre o argumento \"reter 1 ano custa proporcionalmente mais do que reter 90 dias\"?",
+      "alternativas": [
+        "A razão entre reter 1 ano e reter 90 dias é sempre por volta de 4,06×, porque é aritmética de calendário, não de fornecedor",
+        "O custo de reter 1 ano é imprevisível, porque depende inteiramente do preço cobrado por cada fornecedor de SIEM, que varia de contrato para contrato sem nenhum padrão fixo de mercado entre eles",
+        "Reter 1 ano custa o mesmo que reter 90 dias, porque a maior parte dos eventos é redundante e comprime igual",
+        "A razão de 4,06× só vale para esta máquina específica, e mudaria de proporção com mais máquinas no parque"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O preço por GB varia por fornecedor, mas a razão entre os dois prazos de retenção não depende de preço — é 365/90.",
+        "2": "A saída mostra volume crescendo linearmente com dias retidos; nada nela sugere compressão que anule essa diferença.",
+        "3": "A tabela mostra a mesma razão 4,06× em 1, 500 e 2000 máquinas — o número de máquinas multiplica os dois lados igualmente."
+      },
+      "dicas": [
+        "Compare a razão mostrada nas três linhas da projeção.",
+        "A pergunta separa o que é matemática de calendário do que é preço de mercado.",
+        "Duas opções tratam como incerto algo que a tabela já mostra estável."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que a razão 4,06× aparece igual em 1, 500 e 2000 máquinas na mesma tabela?",
+      "explicacao": "A razão 365/90 ≈ 4,06 é uma constante de calendário: multiplicar o número de máquinas multiplica os dois lados da conta igualmente, sem mudar a proporção entre eles. O que varia por fornecedor é o preço por GB, não essa razão.",
+      "fonte": "Saída real de data/rascunhos/nivel-4/lab/volume_de_eventos.py, executado nesta máquina em 30/08/2026",
+      "tags": ["siem", "artefato", "retencao", "custo"]
+    },
+    {
+      "id": "4.5.q4",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que \"reter por mais tempo é sempre a escolha mais segura\" não é uma conclusão válida?",
+      "alternativas": [
+        "Porque o custo cresce proporcionalmente ao prazo, e o benefício adicional cobre só o caso raro de incidente descoberto tarde",
+        "Porque reter por mais tempo é proibido pela legislação brasileira de proteção de dados, independentemente da finalidade declarada",
+        "Porque dado retido por mais de 90 dias perde integridade técnica de forma progressiva, tornando-se pouco confiável como evidência numa investigação",
+        "Porque nenhum incidente real é descoberto depois de 90 dias do evento que o originou"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe proibição legal genérica de reter por mais tempo; a lei costuma limitar finalidade e exigir prazo definido, não vetar prazo longo.",
+        "2": "Retenção prolongada não corrompe dado por si; é questão de custo de armazenamento, não de integridade técnica.",
+        "3": "Incidentes descobertos após 90 dias existem e são justamente o caso que retenção mais longa cobre — são raros, não inexistentes."
+      },
+      "dicas": [
+        "A questão não nega que reter mais ajude — pergunta se \"mais é sempre melhor\" é a conclusão certa.",
+        "Pense em como as duas curvas se comportam quando o prazo dobra — uma sobe direto, a outra não.",
+        "Duas opções tratam retenção longa como se fosse tecnicamente impossível ou ilegal, o que não é o argumento do módulo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se reter mais sempre ajudasse sem custo, por que qualquer organização reteria só 90 dias?",
+      "explicacao": "Retenção maior cresce o custo linearmente e cobre um caso mais raro — o incidente que só aparece depois de meses. Isso não torna reter mais tempo errado; torna \"sempre reter mais\" uma conclusão que ignora que o benefício marginal cai enquanto o custo continua subindo.",
+      "fonte": "4.5.t1",
+      "tags": ["siem", "retencao", "custo", "raciocinio"]
+    },
+    {
+      "id": "4.5.q5",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "trecho": "Plano de coleta proposto:\n1. Ativar log verboso em todos os servidores, sem exceção.\n2. Reter cada fonte por 2 anos, para \"nunca perder nada\".\n3. Revisar o plano quando o orçamento de armazenamento estourar.\n4. Não documentar qual pergunta cada fonte deveria responder.",
+      "enunciado": "Qual item deste plano de coleta é o defeito mais grave, e por quê?",
+      "alternativas": [
+        "O item 4: sem saber que pergunta cada fonte responde, não há como priorizar quando o orçamento apertar",
+        "O item 1: log verboso é tecnicamente impossível de ativar simultaneamente em mais de um servidor sem uma ferramenta de gestão centralizada",
+        "O item 2: reter por 2 anos é sempre ilegal, independentemente do tipo de dado coletado",
+        "O item 3: revisar o plano é desnecessário se o orçamento de armazenamento for generoso"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Ativar log verboso em vários servidores é rotina de administração, sem limite técnico que o impeça.",
+        "2": "Retenção de 2 anos não é ilegal por si; depende do tipo de dado e da finalidade declarada.",
+        "3": "Mesmo com orçamento generoso, um plano sem critério de priorização vai estourar mais cedo ou mais tarde."
+      },
+      "dicas": [
+        "Três dos quatro itens descrevem sintomas de \"logar tudo sem critério\"; um deles é a causa que torna os outros perigosos.",
+        "Pense em qual item, sozinho, já garantiria que o plano vai colapsar quando o orçamento apertar.",
+        "Pense em qual dos quatro itens, se resolvido sozinho, mudaria a gravidade dos outros três."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o orçamento estourasse amanhã, qual item deste plano diz o que cortar primeiro?",
+      "explicacao": "Sem documentar a pergunta que cada fonte responde, revisar o plano quando o orçamento estourar (item 3) vira decisão às cegas — não há critério para saber o que cortar sem perder valor. O item 4 é a causa; os outros três são consequência de não tê-lo resolvido antes.",
+      "fonte": "4.5.t1",
+      "tags": ["siem", "caca-erro", "planejamento", "custo"]
+    },
+    {
+      "id": "4.5.q6",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "Um corte de orçamento obriga a reduzir de 365 para 90 dias de retenção em todas as fontes. Qual efeito colateral desse corte precisa ser comunicado antes de ser aplicado?",
+      "alternativas": [
+        "Qualquer incidente descoberto depois de 90 dias do evento original perde a possibilidade de reconstituição pela fonte cortada",
+        "Nenhum, porque 90 dias é o prazo padrão usado por toda a indústria de monitoramento",
+        "O volume diário de eventos coletados cai, o que reduz automaticamente o custo por evento",
+        "A qualidade da normalização dos eventos melhora bastante, porque um volume menor de dado retido facilita o mapeamento de campo entre fontes diferentes"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe padrão único de indústria; 90 dias é uma escolha, não um valor universal que dispensa aviso.",
+        "2": "O corte muda o prazo de retenção, não o volume diário coletado; o custo por evento coletado não muda com isso.",
+        "3": "Normalização depende do formato da fonte, não do prazo de retenção; cortar retenção não afeta o mapeamento de campo."
+      },
+      "dicas": [
+        "O efeito colateral está em quando um incidente é descoberto, não em quanto ele custa para investigar dentro do prazo.",
+        "Pense no que já não estará mais disponível para consulta depois do corte.",
+        "Duas opções confundem retenção com volume ou com normalização, que são eixos independentes."
+      ],
+      "pergunta_socratica": "Antes de conferir: um incidente que só aparece no dia 120 depois do evento original — o que o corte de retenção faz com ele?",
+      "explicacao": "Reduzir retenção para 90 dias descarta a possibilidade de reconstituir qualquer incidente descoberto depois desse prazo pela fonte cortada. É um efeito colateral concreto, e não comunicá-lo antes do corte transforma uma decisão de orçamento em uma surpresa na próxima investigação tardia.",
+      "fonte": "4.5.t1",
+      "tags": ["siem", "cenario", "retencao", "custo"]
+    },
+    {
+      "id": "4.5.q7",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Qual comando permite contar, sem elevação administrativa, quantos eventos o log System do Windows recebeu nas últimas 24 horas?",
+      "alternativas": [
+        "Get-WinEvent -FilterHashtable @{LogName='System'; StartTime=(Get-Date).AddHours(-24)}",
+        "Get-WinEvent -LogName Security -MaxEvents 24 -ErrorAction SilentlyContinue",
+        "wevtutil qe System /c:100 /rd:true /f:text | findstr Date",
+        "Get-EventLog -LogName System -After (Get-Date).AddDays(-1) -ComputerName remoto"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O log Security normalmente exige elevação, e -MaxEvents 24 conta eventos, não horas — não filtra por janela de tempo.",
+        "2": "/c:100 limita a saída a 100 eventos, não a uma janela de 24 horas — conta uma quantidade fixa de linhas, independente de quando cada evento ocorreu.",
+        "3": "Get-EventLog contra um computador remoto depende de acesso de rede e de permissão adicional — não é o caminho mais direto para a própria máquina."
+      },
+      "dicas": [
+        "A resposta certa filtra por um intervalo de tempo, não por uma quantidade fixa de eventos.",
+        "Duas opções miram o log errado ou contam uma quantidade fixa de eventos, não uma janela de tempo.",
+        "Pense em qual log deste conjunto de opções não exige privilégio elevado para ser lido."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das opções realmente define uma janela de 24 horas, em vez de um número fixo de eventos?",
+      "explicacao": "Get-WinEvent com -FilterHashtable e StartTime define exatamente a janela das últimas 24 horas sobre o log System, que não exige elevação — foi assim que o laboratório volume_de_eventos.py mediu os números usados neste módulo.",
+      "fonte": "data/rascunhos/nivel-4/lab/volume_de_eventos.py",
+      "tags": ["siem", "comando", "powershell", "volume"]
+    },
+    {
+      "id": "4.5.q8",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Ordene os passos para decidir o que uma nova fonte de log deve coletar, do primeiro ao último.",
+      "itens": [
+        "Escrever a pergunta que esta fonte deveria permitir responder",
+        "Verificar se alguma fonte já coletada responde a mesma pergunta",
+        "Estimar volume, tamanho médio de evento e custo de retenção da fonte",
+        "Decidir o prazo de retenção com base no custo estimado e no valor da resposta"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "Uma das quatro etapas só faz sentido depois que se sabe o que a fonte deveria responder.",
+        "Verificar redundância com o que já existe evita pagar duas vezes pela mesma resposta.",
+        "O prazo de retenção depende de um número que ainda não existe nas etapas mais cedo da lista."
+      ],
+      "pergunta_socratica": "Antes de conferir: faz sentido estimar custo de uma fonte antes de saber o que ela responde?",
+      "explicacao": "Sem a pergunta declarada primeiro, não há como avaliar se a fonte é redundante nem qual custo ela justifica. A ordem estimar-custo-antes-da-pergunta é o próprio erro que leva a \"logar tudo\" sem critério.",
+      "fonte": "4.5.t1",
+      "tags": ["siem", "ordenacao", "planejamento", "custo"]
+    },
+    {
+      "id": "4.5.q9",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "O que a razão 365/90 ≈ 4,06× representa no cálculo de custo de retenção?",
+      "alternativas": [
+        "Quanto mais armazenamento reter 1 ano exige em relação a reter 90 dias, mantendo o mesmo volume diário",
+        "Quantas vezes mais rápido um SIEM consegue processar 1 ano inteiro de dados armazenados, comparado a apenas 90 dias",
+        "Quantas vezes mais fontes de log uma organização precisa adicionar ao passar de 90 dias para 1 ano",
+        "O fator de compressão que qualquer ferramenta de armazenamento aplica automaticamente após 90 dias"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Velocidade de processamento depende de hardware e ferramenta, não da razão entre dois prazos de retenção.",
+        "2": "A razão não diz nada sobre número de fontes; ela compara volume armazenado no mesmo conjunto de fontes.",
+        "3": "Não existe fator de compressão automático e universal amarrado a esse número; ele vem de calendário, não de armazenamento."
+      },
+      "dicas": [
+        "Pense em dias, não em fontes nem em velocidade de processamento.",
+        "O número 4,06 é 365 dividido por 90 — um cálculo de calendário.",
+        "Duas opções trocam \"volume armazenado\" por conceitos que a razão não descreve."
+      ],
+      "pergunta_socratica": "Antes de conferir: de onde vem exatamente o número 4,06?",
+      "explicacao": "365 dividido por 90 é aproximadamente 4,06 — mantendo o mesmo volume diário de eventos, reter um ano ocupa cerca de 4,06 vezes o espaço de reter 90 dias. É pura aritmética de calendário, independente de fornecedor ou ferramenta.",
+      "fonte": "data/rascunhos/nivel-4/lab/volume_de_eventos.py",
+      "tags": ["siem", "retencao", "custo", "conceitual"]
+    },
+    {
+      "id": "4.5.q10",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [1],
+      "enunciado": "O que \"normalizar\" eventos de fontes diferentes significa, no contexto de um SIEM?",
+      "alternativas": [
+        "Mapear os fatos de um evento — horário, usuário, endereço de origem — para um campo comum, independente do formato de origem",
+        "Reduzir o volume de eventos coletados de uma fonte até que ele caiba dentro do orçamento de armazenamento já disponível este ano",
+        "Traduzir o conteúdo textual dos logs para um único idioma antes de armazená-los",
+        "Aplicar um algoritmo de compressão sobre os arquivos de log já armazenados, para ocupar bem menos espaço em disco"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Reduzir volume é decisão de custo (eixo do 4.5.t1), não de normalização — os dois problemas são independentes.",
+        "2": "Idioma do texto livre de um log não é o que a normalização resolve; o problema é estrutura de campo, não língua.",
+        "3": "Compressão reduz espaço ocupado, mas não resolve a diferença de esquema entre fontes distintas."
+      },
+      "dicas": [
+        "O problema que a normalização resolve aparece na hora de correlacionar duas fontes diferentes.",
+        "Pense no evento de autenticação falha chegando em três formatos: o que precisa virar igual entre eles?",
+        "Duas opções confundem normalização com custo ou com armazenamento, que são eixos separados deste módulo."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma regra que procura texto em auth.log enxergaria o mesmo fato vindo de um JSON de nuvem?",
+      "explicacao": "Normalizar é mapear timestamp, usuário, endereço de origem e resultado — os fatos que importam — para um campo comum, para que uma regra escrita uma vez enxergue o evento venha ele de onde vier. Sem isso, a mesma correlação precisaria ser reescrita para cada formato de fonte.",
+      "fonte": "4.5.t2",
+      "tags": ["siem", "normalizacao", "conceitual"]
+    },
+    {
+      "id": "4.5.q11",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "artefato": "Fonte 1 — Windows Security (evento 4625, campos nomeados):\nAccount Name: ana.silva | Account Domain: CONTOSO | Logon Type: 3\nFailure Reason: Unknown user name or bad password\nSource Network Address: 203.0.113.44 | Source Port: 51422\nTimeCreated: 2026-08-30T03:22:41.000Z\n\nFonte 2 — Linux auth.log (texto livre):\nAug 30 03:22:41 web01 sshd[19233]: Failed password for invalid user ana.silva from 203.0.113.44 port 51422 ssh2\n\nFonte 3 — API de nuvem (JSON):\n{\"eventTime\":\"2026-08-30T03:22:41Z\",\"eventName\":\"ConsoleLogin\",\"sourceIPAddress\":\"203.0.113.44\",\"userIdentity\":{\"userName\":\"ana.silva\"},\"responseElements\":{\"ConsoleLogin\":\"Failure\"}}",
+      "enunciado": "As três fontes descrevem o mesmo fato. Para escrever UMA regra de correlação que reconheça esse fato em qualquer uma das três, qual conjunto de campos precisa ser mapeado para um nome comum primeiro?",
+      "alternativas": [
+        "Horário, endereço de origem, nome de usuário e resultado — os fatos que cada fonte representa em formato e posição diferentes",
+        "Apenas o nome do processo (sshd), porque é o único identificador comum às três fontes",
+        "O nome da porta de origem, porque é o único valor que aparece escrito de forma idêntica nas três fontes",
+        "Guardar o texto completo da linha ou do objeto, palavra por palavra, para preservar cada fonte de origem sem nenhuma perda de informação bruta"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O nome do processo (sshd) aparece só na fonte Linux; Windows e o JSON de nuvem não trazem esse campo — não é comum às três, e mesmo se fosse, não identificaria o fato do login sozinho.",
+        "2": "A porta aparece igual, mas sozinha não identifica o evento; endereço, usuário, horário e resultado juntos é que caracterizam a tentativa.",
+        "3": "Guardar o texto inteiro preserva a fonte original, mas não resolve o problema de uma regra de correlação não saber onde, em cada formato, está cada fato."
+      },
+      "dicas": [
+        "Pense nos quatro fatos que aparecem nas três fontes, só que em posições e nomes diferentes.",
+        "A pergunta não é sobre o que falta em uma fonte, mas sobre o que muda de nome entre elas.",
+        "Duas opções miram um único campo secundário, que sozinho não identifica o evento."
+      ],
+      "pergunta_socratica": "Antes de conferir: se uma regra procurasse por \"Source Network Address\", ela encontraria o mesmo fato na linha do auth.log?",
+      "explicacao": "As três fontes concordam nos fatos — horário, endereço de origem, usuário e resultado — mas usam nomes e formatos diferentes para eles (campo nomeado, texto livre, chave JSON). Mapear esses quatro para um nome comum é o que permite escrever a regra uma vez e ela reconhecer o evento vindo de qualquer uma das três fontes.",
+      "fonte": "4.5.t2; formato do evento 4625 documentado pela Microsoft; formato de auth.log consistente com o já usado em 1.1.q12",
+      "tags": ["siem", "artefato", "normalizacao", "correlacao"]
+    },
+    {
+      "id": "4.5.q12",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma equipe escreveu uma regra de correlação testando apenas contra o Windows Security, e ela funcionou perfeitamente em testes. Ao ligar a mesma regra sobre um provedor de nuvem, ela nunca dispara — mesmo com tentativas de login falhando lá. Qual é a explicação mais provável?",
+      "alternativas": [
+        "A regra foi escrita em cima dos nomes de campo do Windows, e o provedor de nuvem representa os mesmos fatos sob chaves diferentes",
+        "O provedor de nuvem não gera nenhum registro de tentativa de login com falha",
+        "A regra está correta, e a ausência de disparo prova que não há tentativas de login com falha na nuvem",
+        "Regras de correlação, por padrão de mercado, só conseguem funcionar dentro do mesmo fornecedor de infraestrutura onde foram originalmente escritas"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Provedores de nuvem registram tentativas de login com falha rotineiramente; a ausência de disparo não indica ausência do evento.",
+        "2": "A regra não testada em outra fonte não constitui prova de nada sobre a fonte nova — essa leitura confunde silêncio com evidência.",
+        "3": "Não existe essa limitação técnica geral; o problema descrito é de campo mapeado, não de fronteira de fornecedor."
+      },
+      "dicas": [
+        "A regra funcionava numa fonte e não funciona em outra — o que muda entre as duas não é o evento, é a representação dele.",
+        "Pense no exemplo dos três formatos de login já mostrado antes neste módulo, e no que muda entre eles.",
+        "Duas opções tratam a ausência de disparo como prova de algo, quando ela só mostra que a regra não alcança aquela fonte."
+      ],
+      "pergunta_socratica": "Antes de conferir: a regra foi escrita olhando para o nome de qual campo, de qual fonte?",
+      "explicacao": "Regra escrita sobre o nome de campo específico de uma fonte não reconhece o mesmo fato representado sob outro nome em outra fonte — exatamente o problema que a normalização resolve. O silêncio da regra na nuvem não é evidência de ausência de tentativas de login.",
+      "fonte": "4.5.t2",
+      "tags": ["siem", "cenario", "normalizacao", "correlacao"]
+    },
+    {
+      "id": "4.5.q13",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Ligue cada framework ou formato ao problema que ele resolve ou representa.",
+      "pares": [
+        ["OCSF / ECS / Splunk CIM", "Vocabulário comum de campo entre fontes de fornecedores diferentes"],
+        ["Evento 4625 do Windows", "Campos nomeados, específicos da plataforma que os gerou"],
+        ["Linha de /var/log/auth.log", "Texto livre, com os fatos soltos na frase, sem chave nomeada"],
+        ["Objeto JSON de API de nuvem", "Fatos sob chaves estruturadas, próprias daquele provedor"]
+      ],
+      "dicas": [
+        "Três dos quatro itens são formatos nativos de uma fonte específica; um deles é a solução para o problema que os outros três criam juntos.",
+        "Pense em qual item aparece quando você abre cada fonte sem nenhum processamento aplicado a ela.",
+        "O vocabulário comum não nasce em nenhuma fonte específica — ele é construído para ligar todas."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual destes quatro não é o formato nativo de nenhuma fonte, e sim uma tradução entre elas?",
+      "explicacao": "Cada fonte representa o mesmo tipo de fato do seu próprio jeito — campo nomeado, texto livre ou chave JSON. Frameworks como OCSF, ECS e Splunk CIM existem para dar um nome comum a esses fatos, independente de qual das três formas os originou.",
+      "fonte": "4.5.t2",
+      "tags": ["siem", "pareamento", "normalizacao"]
+    },
+    {
+      "id": "4.5.q14",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "def detectar_forca_bruta(linha_de_log):\n    # regra escrita e testada só contra linhas de /var/log/auth.log\n    if \"Failed password\" in linha_de_log:\n        endereco = linha_de_log.split(\"from \")[1].split(\" \")[0]\n        registrar_tentativa(endereco)\n\n# a mesma funcao e chamada tambem sobre eventos JSON de login da nuvem,\n# sem nenhuma adaptacao antes da chamada",
+      "enunciado": "Por que esta regra de detecção de força bruta não vai capturar nada quando aplicada aos eventos JSON de login da nuvem?",
+      "alternativas": [
+        "Porque ela procura o texto literal \"Failed password\" e extrai o endereço por posição de string — nada disso existe no formato JSON",
+        "Porque a nuvem nunca gera eventos de login com falha, então não há nada para a regra capturar",
+        "Porque a função registrar_tentativa só aceita endereços IPv4, e a nuvem usa outro formato de endereço",
+        "Porque o operador \"in\" da linguagem Python simplesmente não funciona sobre strings vindas de fontes de dados diferentes do sistema operacional local"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Provedores de nuvem geram login com falha rotineiramente; o problema não é ausência do evento, é a forma como a regra procura por ele.",
+        "2": "Nada no trecho indica essa restrição de formato de endereço; o problema descrito é de estrutura do log, não de tipo de dado do endereço.",
+        "3": "O operador \"in\" funciona normalmente sobre qualquer string Python, independente da fonte que a originou."
+      },
+      "dicas": [
+        "Repare em como a função localiza e recorta o dado dentro da linha — isso pressupõe um jeito específico de a informação estar escrita.",
+        "Pense no que aconteceria se a expressão que a função procura simplesmente não existir naquele formato de destino.",
+        "Duas opções inventam uma limitação técnica que o trecho não sustenta."
+      ],
+      "pergunta_socratica": "Antes de conferir: a string \"Failed password\" aparece em algum lugar de um objeto JSON com a chave responseElements?",
+      "explicacao": "A regra foi escrita para o formato de texto livre do auth.log — busca literal e corte por posição de string. O JSON de nuvem representa o mesmo fato sob chaves como responseElements e sourceIPAddress, sem o texto \"Failed password\" em lugar nenhum, então a regra nunca casa com nada ali.",
+      "fonte": "4.5.t2",
+      "tags": ["siem", "caca-erro", "normalizacao", "correlacao"]
+    },
+    {
+      "id": "4.5.q15",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual é o papel de frameworks como OCSF, Elastic Common Schema e Splunk CIM na correlação entre fontes?",
+      "alternativas": [
+        "Definir um conjunto comum de nomes de campo, para que a mesma regra reconheça o mesmo fato em fontes de formatos diferentes",
+        "Substituir por completo a necessidade de coletar log de mais de uma fonte, unificando toda a coleta sob um único fornecedor de plataforma",
+        "Determinar por quantos dias cada tipo de evento deve ser retido antes de ser descartado",
+        "Garantir que nenhuma regra de correlação dispare mais de uma vez para o mesmo evento"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Esses frameworks não eliminam a necessidade de múltiplas fontes; eles resolvem o problema de correlacionar entre elas.",
+        "2": "Prazo de retenção é decisão de custo e política (4.5.t1), não algo que um esquema de normalização de campo defina.",
+        "3": "Deduplicação de disparo é um problema de engenharia de regra, separado do que um vocabulário comum de campo resolve."
+      },
+      "dicas": [
+        "O problema que motivou a criação desses frameworks já apareceu antes neste módulo, com o exemplo do evento de login.",
+        "Pense no que eles têm em comum: nenhum é fornecedor único de log, nenhum decide retenção.",
+        "Duas opções atribuem a eles decisões que pertencem a outros eixos deste módulo."
+      ],
+      "pergunta_socratica": "Antes de conferir: esses frameworks decidem o que coletar, ou decidem como nomear o que já foi coletado?",
+      "explicacao": "OCSF, ECS e Splunk CIM padronizam nomes de campo — como timestamp, usuário e endereço de origem — para que a mesma lógica de correlação funcione sobre fontes de formatos nativos diferentes, sem precisar ser reescrita para cada uma.",
+      "fonte": "4.5.t2",
+      "tags": ["siem", "normalizacao", "conceitual"]
+    },
+    {
+      "id": "4.5.q16",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um adversário move-se entre um servidor Linux e um serviço de nuvem, sabendo que a organização não normalizou os dois conjuntos de logs para um campo comum. Como isso ajuda o adversário, e o que resolve o problema do lado da defesa?",
+      "alternativas": [
+        "A movimentação aparece fragmentada em fontes que nenhuma regra une; a defesa resolve mapeando os fatos das duas fontes para os mesmos campos antes de correlacionar",
+        "O adversário explora uma falha de criptografia presente em ambas as fontes; a defesa resolve trocando o algoritmo de cifra usado no transporte dos logs entre os dois ambientes",
+        "O adversário se aproveita de uma vulnerabilidade de rede entre os dois ambientes; a defesa resolve segmentando a rede entre eles",
+        "A movimentação só é possível porque as duas fontes compartilham a mesma conta de serviço; a defesa resolve isolando as contas"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O cenário não menciona nenhuma falha de criptografia; o problema descrito é de esquema de campo, não de cifra de transporte.",
+        "2": "Segmentação de rede é controle de defesa em profundidade (tema do 4.3), mas não resolve o problema de duas fontes não se falarem no SIEM.",
+        "3": "Contas de serviço compartilhadas são um problema real de outra natureza (4.3.q12), mas não é o que este cenário descreve."
+      },
+      "dicas": [
+        "O ganho do adversário aqui é de visibilidade fragmentada, não de exploração técnica direta.",
+        "Pense no que aconteceria se as duas fontes usassem os mesmos nomes de campo para o mesmo fato.",
+        "Duas opções trazem controles de outros módulos (rede, contas) que não respondem ao problema de correlação descrito."
+      ],
+      "pergunta_socratica": "Antes de conferir: sem campo comum, uma regra de correlação consegue ligar uma ação no Linux a uma ação na nuvem, na mesma investigação?",
+      "explicacao": "Sem normalização, a movimentação do adversário entre as duas fontes aparece como dois conjuntos de eventos desconexos, e nenhuma regra de correlação os une automaticamente. Mapear os fatos de ambas para os mesmos campos comuns é o que permite uma única regra enxergar a sequência inteira.",
+      "fonte": "4.5.t2",
+      "tags": ["siem", "ataque-defesa", "normalizacao", "correlacao"]
+    },
+    {
+      "id": "4.5.q17",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Por que o formato do timestamp é, ele mesmo, um problema de normalização, e não só o nome dos campos de fato?",
+      "alternativas": [
+        "Porque fontes diferentes registram horário em formatos distintos — com ou sem fuso, com ou sem ano",
+        "Porque o horário nunca é registrado por nenhuma fonte de log, sendo sempre inferido a partir da ordem de chegada",
+        "Porque o relógio de cada máquina para automaticamente ao gerar mais de mil eventos por dia",
+        "Porque apenas fontes na nuvem registram horário; fontes locais como Windows e Linux não o fazem"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Praticamente toda fonte de log relevante registra horário; a questão não é ausência, é formato inconsistente entre fontes.",
+        "2": "Não existe essa limitação de contagem de eventos afetando o relógio do sistema.",
+        "3": "Windows e Linux registram horário rotineiramente — auth.log e o XML de evento do Windows trazem timestamp, cada um em seu formato."
+      },
+      "dicas": [
+        "Pense nos três exemplos do 4.5.t2 e em como cada um escreve a hora de um jeito.",
+        "Pense em como um sistema automatizado compararia duas datas escritas de formas diferentes, sem conversão prévia.",
+        "Duas opções inventam uma ausência de horário que os exemplos já mostrados no módulo contradizem."
+      ],
+      "pergunta_socratica": "Antes de conferir: \"Aug 30 03:22:41\" e \"2026-08-30T03:22:41Z\" descrevem o mesmo instante — um sistema automatizado reconhece isso sem ajuda?",
+      "explicacao": "Auth.log tradicionalmente não traz ano nem fuso explícito, o evento do Windows traz timestamp UTC em ISO 8601, e o JSON de nuvem também usa ISO 8601 com Z — três formatos que, sem conversão para uma representação comum, dificultam saber com certeza qual evento aconteceu antes de qual outro.",
+      "fonte": "4.5.t2",
+      "tags": ["siem", "normalizacao", "conceitual", "timestamp"]
+    },
+    {
+      "id": "4.5.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que dizer que \"toda regra de correlação nasce de uma pergunta\" é verdade mesmo quando quem escreveu a regra nunca formulou essa pergunta em voz alta?",
+      "alternativas": [
+        "Porque um limiar ou condição escolhida na regra sempre reflete uma decisão implícita sobre o que conta como comportamento suspeito",
+        "Porque toda ferramenta de SIEM exige, no cadastro da regra, um campo obrigatório de texto com a pergunta associada",
+        "Porque regras de correlação costumam ser geradas automaticamente a partir de perguntas formuladas em linguagem natural por um analista humano",
+        "Porque a pergunta só existe depois que a regra dispara pela primeira vez, nunca antes"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe essa exigência universal de campo de texto nas ferramentas de SIEM; a pergunta pode ficar implícita na lógica da regra.",
+        "2": "A maioria das regras de correlação em uso hoje é escrita manualmente por um engenheiro, não gerada automaticamente a partir de linguagem natural.",
+        "3": "A pergunta precede a regra mesmo quando não é escrita; ela não nasce depois do primeiro disparo — nasce na escolha do limiar."
+      },
+      "dicas": [
+        "Pense no exemplo do limiar de 50 falhas de autenticação: de onde vem esse número específico?",
+        "A pergunta pode estar implícita mesmo sem estar documentada em lugar nenhum.",
+        "Duas opções descrevem processos automáticos que não correspondem a como a maioria das regras é escrita hoje."
+      ],
+      "pergunta_socratica": "Antes de conferir: o número 50, numa regra de limiar, apareceu do nada, ou de uma decisão sobre o que caracteriza força bruta?",
+      "explicacao": "Todo limiar, toda condição de uma regra de correlação reflete uma decisão sobre o que separa comportamento normal de suspeito — mesmo quando essa decisão nunca foi escrita como pergunta explícita. A pergunta existe implícita na lógica, o que a torna testável depois.",
+      "fonte": "4.5.t3",
+      "tags": ["siem", "correlacao", "conceitual"]
+    },
+    {
+      "id": "4.5.q19",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um engenheiro percebe que o log de um firewall traz um campo fácil de somar — número de conexões por endereço — e escreve uma regra que alerta quando esse número passa de 1000 em uma hora, sem antes decidir o que essa regra deveria representar. O resultado prático mais provável é:",
+      "alternativas": [
+        "A regra dispara para qualquer coincidência que produza esse volume, incluindo tráfego legítimo, sem critério que distinga de ataque real",
+        "A regra nunca dispara, porque 1000 conexões por hora é, na prática, um valor tecnicamente impossível de qualquer serviço atingir",
+        "A regra passa a substituir automaticamente a necessidade de outras fontes e formas de detecção já existentes na rede",
+        "A regra se ajusta sozinha ao longo do tempo, aprendendo a diferença entre tráfego legítimo e malicioso sem intervenção"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Mil conexões por hora é um volume plausível para vários serviços legítimos, especialmente em rede corporativa — não é um valor impossível.",
+        "2": "Uma única regra de limiar não substitui a necessidade de outras fontes e formas de detecção; ela cobre só o comportamento que mede.",
+        "3": "Regras de limiar fixo não se ajustam sozinhas; ajuste automático exigiria um mecanismo adicional, que o cenário não descreve."
+      },
+      "dicas": [
+        "O problema descrito é escolher o campo pela facilidade de somar, não pelo comportamento que interessa capturar.",
+        "Pense no que diferencia um servidor de e-mail legítimo processando 1000 conexões de um ataque real.",
+        "Duas opções atribuem à regra capacidades que ela não tem, como aprendizado automático."
+      ],
+      "pergunta_socratica": "Antes de conferir: um servidor de e-mail corporativo processando newsletters teria mais ou menos de 1000 conexões numa hora de pico?",
+      "explicacao": "Escrever a regra a partir do campo disponível — sem antes decidir que comportamento ela deveria capturar — produz um limiar que qualquer tráfego legítimo intenso também ultrapassa. É exatamente o caminho descrito em 4.5.t3 até a fadiga de alerta.",
+      "fonte": "4.5.t3",
+      "tags": ["siem", "cenario", "correlacao", "fadiga-de-alerta"]
+    },
+    {
+      "id": "4.5.q20",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "trecho": "Ata de reunião de engenharia de detecção:\n\"Notamos que o campo 'porta_destino' está disponível em todos os eventos de firewall.\nVamos criar uma regra que alerta sempre que 'porta_destino' aparecer fora do intervalo 1-1024.\nNão foi discutido qual comportamento do adversário essa regra deveria capturar.\"",
+      "enunciado": "Qual é o defeito de processo nesta decisão de criar a regra?",
+      "alternativas": [
+        "A regra nasceu da disponibilidade do campo, sem que a equipe formulasse antes a pergunta sobre o comportamento que ela deveria capturar",
+        "O intervalo 1-1024 escolhido está tecnicamente incorreto e não corresponde, de forma alguma, a nenhuma faixa real de porta conhecida",
+        "O campo 'porta_destino' não existe de fato em eventos de firewall, tornando a regra impossível de implementar",
+        "A reunião deveria ter sido conduzida por um analista sênior, e não por engenharia de detecção"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O intervalo 1-1024 corresponde de fato às portas bem conhecidas (well-known ports); tecnicamente ele existe e é válido.",
+        "2": "Porta de destino é um campo padrão em log de firewall; nada na ata sugere que ele esteja ausente.",
+        "3": "Quem conduz a reunião não é o defeito central; o defeito está na ordem das decisões, não em quem as tomou."
+      },
+      "dicas": [
+        "Repare na última frase da ata: o que ficou faltando antes de decidir criar a regra?",
+        "O intervalo de porta escolhido não é o problema — o problema é o motivo de escolhê-lo.",
+        "Duas opções contestam fatos técnicos que a ata não contradiz."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual porta destino fora de 1-1024 seria automaticamente suspeita, sem mais contexto nenhum?",
+      "explicacao": "A ata mostra explicitamente que a regra nasceu da disponibilidade do campo, e a própria equipe registrou que não discutiu qual comportamento ela deveria capturar. Tráfego legítimo usa portas altas (efêmeras) o tempo todo, então essa regra tende a disparar sem relação com o comportamento que de fato importa.",
+      "fonte": "4.5.t3",
+      "tags": ["siem", "caca-erro", "correlacao", "processo"]
+    },
+    {
+      "id": "4.5.q21",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [2],
+      "enunciado": "Por que descrever fadiga de alerta como \"o analista parou de prestar atenção\" erra o alvo do problema?",
+      "alternativas": [
+        "Porque um alerta que erra na maior parte das vezes ensina, de forma racional, que ignorá-lo custa menos que investigar",
+        "Porque analistas de segurança são treinados especificamente para nunca ignorar absolutamente nenhum alerta, em qualquer circunstância de trabalho",
+        "Porque fadiga de alerta é um termo em desuso, substituído por \"erro de configuração\" na literatura atual",
+        "Porque o volume de alerta influencia muito pouco o comportamento de quem o recebe, comparado à qualidade da resposta dada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe esse treinamento universal e infalível; mesmo analistas bem treinados desenvolvem hábitos racionais diante de alta taxa de falso positivo.",
+        "2": "O termo continua em uso corrente na literatura e na prática de operação de SOC.",
+        "3": "Volume alto de alerta ruim influencia diretamente o comportamento de quem o recebe — é justamente o mecanismo que explica a fadiga."
+      },
+      "dicas": [
+        "Pense em o que o analista aprende, racionalmente, depois de investigar vinte alertas seguidos que eram falso positivo.",
+        "O defeito muda de lugar quando se troca \"disciplina de quem lê\" por \"qualidade de quem escreveu\".",
+        "Duas opções descrevem cenários que não correspondem à prática real de operação de SOC."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um alerta específico está errado 95% das vezes, ignorá-lo é um erro de disciplina, ou uma resposta racional a um dado ruim?",
+      "explicacao": "Um alerta majoritariamente falso ensina, corretamente, que investigá-lo não compensa o tempo gasto — e é isso que analistas aprendem a fazer com o tempo. Tratar isso como falta de disciplina ataca o sintoma; o defeito real está em quem escreveu a regra que gera o alerta ruim.",
+      "fonte": "4.5.t4",
+      "tags": ["siem", "fadiga-de-alerta", "conceitual"]
+    },
+    {
+      "id": "4.5.q22",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Depois de meses de reclamação sobre excesso de alerta, a gestão de uma equipe de monitoramento decide responder com um treinamento de meio período sobre \"atenção e triagem de alertas\". Qual é a limitação central dessa resposta?",
+      "alternativas": [
+        "Ela não muda a taxa de falso positivo das regras que geram o excesso, então o volume de ruído continua o mesmo depois do treinamento",
+        "Treinamento de meio período é tecnicamente impossível de aplicar a uma equipe de monitoramento em operação",
+        "A resposta é totalmente desnecessária, porque a fadiga de alerta tende a se resolver sozinha depois de alguns meses de exposição contínua ao mesmo ruído",
+        "O treinamento deveria ter sido sobre ferramentas de SIEM, e não sobre triagem de alerta especificamente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Treinamento de meio período é uma prática comum e viável em equipes de operação; não há impossibilidade técnica nisso.",
+        "2": "Fadiga de alerta não se resolve sozinha; sem mudança na regra, o volume de ruído tende a se manter ou piorar.",
+        "3": "O tema do treinamento (triagem versus ferramenta) não é o defeito central; mesmo um treinamento bem escolhido não altera a regra que gera o ruído."
+      },
+      "dicas": [
+        "Pense no que muda, de fato, na regra que gera o excesso de alerta depois do treinamento.",
+        "A resposta não questiona se o treinamento é bem-intencionado, questiona se ele ataca a causa.",
+        "Duas opções apontam problemas de viabilidade ou de tema, não de eficácia sobre a causa raiz."
+      ],
+      "pergunta_socratica": "Antes de conferir: depois do treinamento, a regra que gerava alerta em falso continua gerando o mesmo alerta em falso?",
+      "explicacao": "Treinar o analista não muda a especificidade da regra nem sua taxa de falso positivo. O volume de ruído permanece o mesmo, e o padrão descrito em 4.5.t4 se repete: fadiga de alerta é defeito de engenharia da regra, resolvido ajustando a regra, não a atenção de quem a recebe.",
+      "fonte": "4.5.t4",
+      "tags": ["siem", "cenario", "fadiga-de-alerta"]
+    },
+    {
+      "id": "4.5.q23",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "artefato": "Frequência de EventID no log System desta máquina, últimas 24h:\n  EventID 28  : 58 ocorrências\n  EventID 6   : 45 ocorrências\n  EventID 112 : 42 ocorrências\n  EventID 55  : 36 ocorrências\n  EventID 29  : 33 ocorrências\n  EventID 16  : 22 ocorrências\n  EventID 10016: 19 ocorrências\n  EventID 1   : 16 ocorrências",
+      "enunciado": "Uma equipe quer criar uma regra que alerta sempre que o EventID 10016 aparecer, achando que \"erro\" no nome já indica problema de segurança. Por que essa regra, tal como proposta, tende a produzir fadiga de alerta?",
+      "alternativas": [
+        "Porque 10016 é um erro de permissão DCOM, ruído rotineiro de várias plataformas Windows — a regra dispararia sobre isso, não sobre indício de ataque",
+        "Porque o volume de 19 ocorrências em 24h é baixo demais para qualquer regra de correlação processar",
+        "Porque EventID 10016, segundo a documentação da própria Microsoft, nunca deveria aparecer em nenhum sistema Windows corretamente configurado e atualizado",
+        "Porque o nome \"erro\" no evento é apenas cosmético e o Windows não gera mais esse tipo de evento em versões atuais"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "19 ocorrências em 24h é um volume perfeitamente processável por qualquer regra de correlação; volume baixo não é o problema aqui.",
+        "2": "10016 aparece rotineiramente até em sistemas bem configurados; é um dos eventos mais comumente documentados como ruído benigno do próprio Windows.",
+        "3": "O evento continua sendo gerado normalmente por versões atuais do Windows; a palavra \"erro\" no nome é só terminologia da plataforma, não deixou de existir."
+      },
+      "dicas": [
+        "O volume de ocorrências não é o problema desta regra — 19 é um número pequeno.",
+        "Pense em quantas máquinas do parque provavelmente geram esse mesmo evento, todos os dias, sem relação com ataque nenhum.",
+        "O nome do evento sugerir \"erro\" não significa que ele representa comportamento malicioso."
+      ],
+      "pergunta_socratica": "Antes de conferir: esse EventID tende a aparecer só nesta máquina, ou em quase todo parque Windows, independente de qualquer ataque?",
+      "explicacao": "EventID 10016 é um erro de permissão do DCOM, historicamente um dos eventos mais citados como ruído benigno de plataforma Windows — aparece em máquinas saudáveis, sem relação com comportamento malicioso. Uma regra que alerta sobre qualquer ocorrência dele soma volume de alerta sem soma de sinal, o defeito de engenharia descrito em 4.5.t4.",
+      "fonte": "data/rascunhos/nivel-4/lab/frequencia_eventid.py, executado nesta máquina em 30/08/2026; EventID 10016 é citado na literatura de administração Windows como ruído recorrente de plataforma",
+      "tags": ["siem", "artefato", "fadiga-de-alerta", "correlacao"]
+    },
+    {
+      "id": "4.5.q24",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um adversário estuda o ambiente e escolhe agir sobre uma ação que gera o mesmo tipo de evento de um ruído já conhecido e ignorado pela equipe. Como isso favorece o adversário, e o que resolve o problema do lado da defesa?",
+      "alternativas": [
+        "A ação se mistura ao ruído que a equipe já aprendeu a ignorar; a defesa precisa apertar a especificidade da regra, não apenas descartar o evento inteiro",
+        "O adversário explora uma falha de autenticação presente na regra de correlação; a defesa resolve trocando a senha do sistema de SIEM",
+        "A ação só funciona porque a equipe de monitoramento nunca trabalha em turnos noturnos nem finais de semana; a defesa resolve contratando plantão de vigilância 24 horas",
+        "O adversário se aproveita de uma vulnerabilidade de rede não corrigida; a defesa resolve aplicando o patch mais recente no firewall"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O cenário não descreve nenhuma falha de autenticação no SIEM; o problema é de especificidade de regra, não de credencial.",
+        "2": "Plantão 24 horas ajuda com cobertura de horário, mas não resolve o problema de a ação se confundir com ruído já ignorado, a qualquer hora.",
+        "3": "Não há menção a vulnerabilidade de rede corrigível por patch; o problema descrito é de engenharia de regra de detecção."
+      },
+      "dicas": [
+        "O adversário não está explorando uma falha técnica de rede ou autenticação — está explorando um hábito da equipe.",
+        "Pense no que muda se a regra conseguir distinguir a ação pontual do volume que a cerca todos os dias, dentro do mesmo tipo de evento.",
+        "Duas opções trazem soluções de outro domínio (patch, plantão) que não atacam o problema de especificidade da regra."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a equipe já ignora um tipo de evento por rotina, uma ação real disfarçada nesse mesmo tipo teria vantagem?",
+      "explicacao": "Um adversário que reproduz o formato de um evento já tratado como ruído se beneficia diretamente da fadiga de alerta da equipe. A defesa não é ignorar menos — é apertar a regra para distinguir o padrão raro (a ação real) do padrão rotineiro (o ruído conhecido), mantendo a capacidade de ver os dois separadamente.",
+      "fonte": "4.5.t4",
+      "tags": ["siem", "ataque-defesa", "fadiga-de-alerta"]
+    },
+    {
+      "id": "4.5.q25",
+      "tipo": "ordenacao",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Ordene os passos corretos para corrigir uma regra de correlação que está gerando fadiga de alerta, do primeiro ao último.",
+      "itens": [
+        "Medir que fração dos disparos atuais da regra levou a uma ação real",
+        "Identificar o que, no padrão benigno mais comum, aciona a regra sem ser o comportamento que interessa",
+        "Ajustar a regra — apertar condição, acrescentar contexto ou suprimir o padrão já conhecido como benigno",
+        "Medir novamente a fração de disparos úteis, para confirmar se a mudança melhorou algo"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "É preciso saber o tamanho do problema antes de decidir qualquer ajuste na regra.",
+        "Só depois de entender o que aciona a regra em falso é possível decidir o ajuste certo.",
+        "Sem medir de novo depois da mudança, não há como saber se ela realmente funcionou."
+      ],
+      "pergunta_socratica": "Antes de conferir: faz sentido ajustar uma regra sem antes medir o quão ruim ela está?",
+      "explicacao": "Corrigir fadiga de alerta como problema de engenharia segue o mesmo ciclo de qualquer ajuste técnico: medir o problema, entender a causa, ajustar, e medir de novo para confirmar. Pular a primeira ou a última etapa impede saber se a mudança realmente resolveu algo.",
+      "fonte": "4.5.t4",
+      "tags": ["siem", "ordenacao", "fadiga-de-alerta"]
+    },
+    {
+      "id": "4.5.q26",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que \"quantos alertas por dia\" é uma pergunta que mede o sintoma da fadiga de alerta, e não a causa?",
+      "alternativas": [
+        "Porque o número de alertas por dia não distingue disparo útil de disparo em falso, tratando todos como equivalentes",
+        "Porque o número de alertas por dia é sempre zero em qualquer SIEM corretamente configurado",
+        "Porque contar quantos alertas chegam por dia exige integração manual que a maioria das ferramentas modernas de monitoramento ainda não automatiza",
+        "Porque a quantidade de alertas por dia só é relevante em organizações com mais de mil funcionários"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nenhum SIEM em operação real gera zero alertas por dia; a afirmação não corresponde à prática.",
+        "2": "Contagem de alerta por dia é uma métrica trivial de automatizar; toda ferramenta de SIEM já expõe esse número.",
+        "3": "O tamanho da organização não determina se contar alerta por dia é ou não uma métrica útil — o problema é conceitual, não de escala."
+      },
+      "dicas": [
+        "Pense em duas regras com o mesmo número de disparos por dia, uma sempre certa e outra sempre errada — o número sozinho distingue as duas?",
+        "Pense numa métrica que compare o resultado de cada disparo, não apenas quantos disparos aconteceram.",
+        "Duas opções descrevem limitações técnicas que não existem na prática."
+      ],
+      "pergunta_socratica": "Antes de conferir: duas regras com 100 disparos por dia — uma útil em 90% dos casos, outra em 5% — a contagem diária diferencia as duas?",
+      "explicacao": "Contar alertas por dia trata todo disparo como equivalente, escondendo se ele foi útil ou não. A pergunta que aponta a causa da fadiga é a fração de disparos que levou a uma ação real — é ela que revela se o problema está na regra, não apenas no volume que ela produz.",
+      "fonte": "4.5.t4",
+      "tags": ["siem", "fadiga-de-alerta", "conceitual", "metrica"]
+    },
+    {
+      "id": "4.5.q27",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que uma regra de correlação nunca testada de propósito compartilha o mesmo defeito de um alerta que ninguém lê?",
+      "alternativas": [
+        "Porque nos dois casos ninguém tem evidência de que a detecção funciona, apenas que ela existe no papel ou gera ruído",
+        "Porque as duas situações são, tecnicamente, a mesma regra escrita de forma diferente no mesmo sistema",
+        "Porque, segundo essa visão, toda regra nunca testada sempre acaba gerando alertas que ninguém lê, por definição do próprio sistema de SIEM usado",
+        "Porque nenhuma das duas situações pode ocorrer em uma ferramenta de SIEM moderna e bem configurada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "São situações diferentes tecnicamente — uma é ausência de teste, outra é excesso de ruído ignorado — mas compartilham a mesma falta de evidência sobre eficácia.",
+        "2": "Não existe essa relação causal necessária; uma regra pode nunca ter sido testada e mesmo assim gerar poucos ou nenhum alerta.",
+        "3": "Ferramentas de SIEM modernas não impedem regra não testada nem alerta ignorado; ambos dependem de prática humana, não da ferramenta."
+      },
+      "dicas": [
+        "Pense no que as duas situações têm em comum: o que se sabe, de fato, sobre elas.",
+        "Uma é sobre uma regra que nunca disparou; outra é sobre um alerta que dispara e não é lido — pense no que cada situação garante, e no que nenhuma das duas garante.",
+        "Duas opções tratam isso como limitação técnica de ferramenta, quando é questão de prática."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual das duas situações alguém sabe, com certeza, se a detecção está funcionando?",
+      "explicacao": "Em ambas, existe uma regra ou um alerta \"no papel\", mas nenhuma confirmação de que a cadeia completa — evento, disparo, leitura, ação — de fato funciona. A equivalência não está na causa técnica, está na ausência de evidência: opinião sobre a detecção, não prova dela.",
+      "fonte": "4.5.t5",
+      "tags": ["siem", "validacao", "conceitual"]
+    },
+    {
+      "id": "4.5.q28",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma regra de detecção de movimento lateral não dispara há seis meses. A equipe já reconhece que o silêncio, sozinho, não prova que não há ataque — pode ser regra quebrada. Qual é a próxima ação que resolve essa dúvida, e não apenas a registra?",
+      "alternativas": [
+        "Provocar de propósito, em ambiente controlado, o comportamento exato que a regra deveria capturar, e confirmar que o alerta nasce e é lido",
+        "Aumentar a prioridade da regra no painel, para que ela receba mais atenção visual da equipe quando disparar",
+        "Reescrever a documentação da regra, deixando mais claro o que ela deveria detectar",
+        "Reduzir o limiar numérico da regra pela metade, para que ela tenha, estatisticamente, mais chance de disparar em algum momento próximo"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Aumentar prioridade visual não testa se a regra ainda funciona; ela pode continuar quebrada e simplesmente destacada.",
+        "2": "Melhorar a documentação não confirma se a regra dispara na prática; documentação e funcionamento são coisas diferentes.",
+        "3": "Reduzir o limiar pode fazer a regra disparar por acaso, sem confirmar que ela captura o comportamento correto — troca um problema por outro."
+      },
+      "dicas": [
+        "Pense em qual dessas ações muda o que se sabe sobre a regra, e qual só muda a aparência do problema.",
+        "Pense no extintor: reescrever o manual dele resolve a dúvida sobre se ele solta espuma?",
+        "Duas opções mexem em prioridade ou documentação, sem tocar em saber se a regra dispara de verdade."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas ações, sozinha, muda o que se sabe sobre se a regra funciona?",
+      "explicacao": "A única ação que resolve a dúvida entre \"não há ataque\" e \"a regra quebrou\" é provocar de propósito o evento que a regra deveria capturar e verificar a cadeia inteira até a leitura do alerta. Esse é o método que completa o que 4.3.q16 já havia identificado como uma hipótese a testar.",
+      "fonte": "4.5.t5",
+      "tags": ["siem", "cenario", "validacao", "deteccao"]
+    },
+    {
+      "id": "4.5.q29",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "artefato": "regra escrita, nunca testada: nenhuma evidência de que dispara\nevento provocado em: t=0,000s\ndetectado em:        t=0.023s, na varredura número 1\narquivo:             artefato_suspeito.txt\n\nsem provocar o evento, a única coisa que se sabe sobre a regra é que ela\nfoi escrita — não que ela detecta o que promete detectar.",
+      "enunciado": "Esta é a saída real de um laboratório que cria um arquivo com um marcador e mede quanto tempo uma função de varredura leva para encontrá-lo. O que este experimento demonstra sobre validar detecção?",
+      "alternativas": [
+        "Que só provocando o evento de propósito e medindo a cadeia até a detecção existe evidência real de que a regra funciona",
+        "Que qualquer regra de detecção, não importa como foi escrita, sempre detecta o evento em menos de 1 segundo em qualquer ambiente de produção real",
+        "Que o tempo de 0,023 segundos é o padrão mínimo aceitável esperado de um SOC de produção madura",
+        "Que regras de detecção não precisam ser testadas quando escritas por um engenheiro experiente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O tempo de 0,023s é específico deste experimento simplificado, em memória local; não generaliza para qualquer regra ou ambiente.",
+        "2": "Não existe esse padrão universal de tempo mínimo; o número aqui é ilustrativo do mecanismo, não uma meta de SOC real.",
+        "3": "Experiência de quem escreve não substitui a verificação: mesmo regra escrita por engenheiro experiente pode quebrar por mudança de campo ou de fonte, como discutido em 4.5.t5."
+      },
+      "dicas": [
+        "Repare que a saída não fala em ambiente de produção nem em regra pronta — pense no que ela demonstra sobre o mecanismo em si.",
+        "Pense no que se sabia sobre a regra ANTES do evento ser provocado, comparado a depois.",
+        "Duas opções tratam o número específico do experimento como se fosse uma meta ou um padrão geral."
+      ],
+      "pergunta_socratica": "Antes de conferir: antes de rodar este laboratório, havia alguma evidência de que a função detectar() funcionava?",
+      "explicacao": "Antes do evento ser provocado, a função detectar() existia apenas como código escrito — sem evidência de que funcionava. Provocar o evento e medir 0,023s até a detecção transforma isso em evidência real: a mesma lógica que se aplica a uma regra de correlação de produção, numa escala em que dá para ver o mecanismo funcionando.",
+      "fonte": "data/rascunhos/nivel-4/lab/validar_deteccao.py, executado nesta sessão",
+      "tags": ["siem", "artefato", "validacao", "deteccao"]
+    },
+    {
+      "id": "4.5.q30",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Qual abordagem valida, de forma segura e reversível, se uma regra que detecta \"arquivo com um indicador conhecido criado em um diretório monitorado\" realmente funciona?",
+      "alternativas": [
+        "Criar, em um diretório temporário e controlado, um arquivo benigno com o indicador exato que a regra procura, e confirmar que o alerta é gerado",
+        "Aguardar um incidente real acontecer no ambiente de produção para observar se a regra dispara naquele momento",
+        "Ler novamente o código da regra linha por linha, sem executar nada, até ter certeza lógica de que ela está correta",
+        "Perguntar diretamente ao fornecedor da ferramenta de SIEM se a regra está corretamente configurada, sem nunca testá-la de fato neste ambiente específico"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Esperar um incidente real é passivo e não controla quando a verificação acontece — pode levar meses, e o incidente real tem consequências que o teste controlado não tem.",
+        "2": "Releitura de código encontra erros de lógica óbvios, mas não confirma se a cadeia real — coleta, regra, alerta, leitura — funciona de ponta a ponta.",
+        "3": "O fornecedor pode confirmar a configuração declarada, mas não tem visibilidade sobre o ambiente específico desta organização nem substitui o teste local."
+      },
+      "dicas": [
+        "A validação segura usa um artefato que o próprio time controla, não um evento real e imprevisível.",
+        "Pense no que os outros três caminhos têm em comum: nenhum observa a cadeia completa acontecendo de propósito.",
+        "Pense em qual das quatro opções realmente observa algo do início ao fim, em vez de confiar em leitura ou em terceiros."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das quatro abordagens realmente observa o alerta nascer de um evento controlado, do início ao fim?",
+      "explicacao": "Criar de propósito, em ambiente controlado, o artefato exato que a regra deveria capturar — e confirmar que o alerta nasce e chega a alguém — é a prática que converte opinião sobre a regra em evidência. É segura porque o artefato é benigno e descartável, e reversível porque não depende de esperar um incidente real.",
+      "fonte": "4.5.t5; data/rascunhos/nivel-4/lab/validar_deteccao.py",
+      "tags": ["siem", "comando", "validacao", "deteccao"]
+    },
+    {
+      "id": "4.5.q31",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [3],
+      "enunciado": "Por que o número de regras ativas ou o volume de alertas por dia não é uma boa métrica para saber se um monitoramento está funcionando?",
+      "alternativas": [
+        "Porque essas contagens medem esforço de configuração e volume, não se um comprometimento real é percebido rapidamente",
+        "Porque contar regras e contar alertas exige um processo manual demorado, que a maioria das ferramentas de SIEM ainda não automatiza bem",
+        "Porque toda ferramenta de SIEM limita, por padrão de fábrica, o número de regras ativas a no máximo dez, tornando a contagem irrelevante",
+        "Porque o volume de alertas por dia tende a ser parecido entre organizações de portes bem diferentes"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Contar regras e alertas é trivial de automatizar; toda ferramenta de SIEM já expõe esses números em painel.",
+        "2": "Não existe esse limite universal de dez regras; ambientes de produção costumam ter dezenas ou centenas de regras ativas.",
+        "3": "O volume de alertas varia enormemente com o tamanho e o perfil da organização; não há razão para ser idêntico entre organizações diferentes."
+      },
+      "dicas": [
+        "Pense em duas equipes com o mesmo número de regras e o mesmo volume de alerta, uma detectando rápido e outra devagar.",
+        "Pense no que duas equipes, com números de regra e alerta idênticos, ainda poderiam ter de completamente diferente.",
+        "Duas opções inventam limitações técnicas que não existem em ferramentas reais de SIEM."
+      ],
+      "pergunta_socratica": "Antes de conferir: duas equipes com o mesmo número de regras podem ter velocidades de detecção completamente diferentes?",
+      "explicacao": "Regra e alerta contados medem esforço de configuração e volume processado, não o resultado que interessa: quanto tempo passa entre o evento acontecer e alguém perceber. Duas equipes podem empatar nessas contagens e estar em situações opostas de eficácia real.",
+      "fonte": "4.5.t6",
+      "tags": ["siem", "mttd", "conceitual", "metrica"]
+    },
+    {
+      "id": "4.5.q32",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Duas equipes de monitoramento têm exatamente o mesmo número de regras ativas e o mesmo volume diário de alertas. A primeira percebe um comprometimento simulado em poucos minutos; a segunda demora semanas para perceber o mesmo cenário. O que essa diferença mais provavelmente revela?",
+      "alternativas": [
+        "A qualidade e a especificidade das regras da primeira equipe convertem sinal em percepção mais rápido",
+        "A primeira equipe certamente investiu num orçamento de ferramenta de SIEM consideravelmente maior do que o da segunda equipe",
+        "A diferença é aleatória e não pode ser atribuída a nenhuma prática de engenharia de detecção",
+        "A segunda equipe está usando uma versão desatualizada da mesma ferramenta de SIEM que a primeira"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O cenário não menciona orçamento de ferramenta; contagem igual de regras e alertas não implica orçamento igual ou diferente necessariamente.",
+        "2": "Atribuir a diferença ao acaso ignora que tempo até detectar é diretamente afetado por qualidade de regra, normalização e prática de validação — fatores de engenharia, não sorte.",
+        "3": "Nada no cenário indica diferença de versão de ferramenta; a diferença descrita é de resultado, que pode vir de várias práticas, não de uma causa única não mencionada."
+      },
+      "dicas": [
+        "Pense no que este módulo já ensinou que afeta o tempo até detectar, além de contar regra e contar alerta.",
+        "As duas equipes empatam exatamente nas métricas de volume — a diferença está em outro lugar.",
+        "Duas opções inventam uma causa (orçamento, versão de ferramenta) que o cenário não menciona."
+      ],
+      "pergunta_socratica": "Antes de conferir: contar regras e contar alertas, sozinho, já revelou qual equipe detecta mais rápido?",
+      "explicacao": "Contagem de regra e de alerta empatada mostra que o esforço de configuração é parecido; a diferença de tempo até detectar vem de outros fatores de engenharia — especificidade da regra, normalização entre fontes, prática de validação — exatamente os eixos deste módulo, não de sorte ou de orçamento presumido.",
+      "fonte": "4.5.t6",
+      "tags": ["siem", "cenario", "mttd", "metrica"]
+    },
+    {
+      "id": "4.5.q33",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "trecho": "Relatório trimestral de segurança, seção de monitoramento:\n\"A equipe mantém 200 regras de correlação ativas e processa 5 milhões de eventos por dia.\nConcluímos que o monitoramento da organização está em nível maduro e eficaz.\"",
+      "enunciado": "Qual é o defeito lógico na conclusão deste relatório?",
+      "alternativas": [
+        "As duas métricas citadas medem esforço de configuração e volume processado, não o tempo até um comprometimento real ser percebido",
+        "O número de 200 regras está incorreto, porque nenhum SIEM suporta mais de 100 regras simultâneas",
+        "O volume de 5 milhões de eventos por dia é impossivelmente alto para qualquer organização real",
+        "O relatório deveria, por padrão de governança, ter sido escrito pela equipe de resposta a incidentes, e não pela de monitoramento"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe esse limite técnico de 100 regras; ferramentas de SIEM em produção costumam suportar centenas ou milhares de regras ativas.",
+        "2": "Organizações de porte médio a grande frequentemente processam volumes na casa de milhões de eventos por dia; o número não é implausível.",
+        "3": "A autoria do relatório não é o defeito lógico central; o problema está no que as métricas citadas realmente sustentam, não em quem o escreveu."
+      },
+      "dicas": [
+        "Releia 4.5.t6 e pense no que fica de fora quando só se olha para essas duas contagens.",
+        "O defeito não está nos números em si, está no que a conclusão afirma que eles provam.",
+        "Duas opções contestam a plausibilidade dos números, quando o problema é de raciocínio, não de magnitude."
+      ],
+      "pergunta_socratica": "Antes de conferir: 200 regras e 5 milhões de eventos por dia dizem alguma coisa sobre quanto tempo um comprometimento levaria para ser percebido?",
+      "explicacao": "Contagem de regra e volume de evento processado são medidas de esforço de configuração, não de resultado. A conclusão de \"nível maduro e eficaz\" precisaria de uma medida de tempo até detectar, obtida provocando um evento de propósito — nada disso aparece no relatório citado.",
+      "fonte": "4.5.t6",
+      "tags": ["siem", "caca-erro", "mttd", "metrica"]
+    },
+    {
+      "id": "4.5.q34",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Ligue cada métrica ao que ela realmente mede sobre um programa de monitoramento.",
+      "pares": [
+        ["Tempo até detectar (MTTD)", "Quanto tempo passa entre o evento acontecer e uma pessoa perceber"],
+        ["Contagem de alertas por dia", "Volume de disparo, sem distinguir disparo útil de disparo em falso"],
+        ["Contagem de regras ativas", "Esforço de configuração já investido, não resultado obtido"],
+        ["Fração de disparos que levou a uma ação real", "Qualidade e especificidade da regra que gera cada alerta"]
+      ],
+      "dicas": [
+        "Uma destas métricas é a única que envolve diretamente o tempo entre evento e percepção humana.",
+        "Duas delas contam quantidade — de alerta, de regra — sem julgar qualidade.",
+        "A última mede proporção, não volume absoluto."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual destas quatro métricas, sozinha, mudaria se a mesma regra ficasse mais específica, mantendo o mesmo volume de eventos de entrada?",
+      "explicacao": "MTTD mede o resultado que realmente importa — velocidade de percepção. Contagem de alerta e de regra medem volume e esforço, não qualidade. A fração de disparos úteis é o que revela, de forma prática, se uma regra está bem ajustada — e é essa fração, junto ao MTTD, que orienta onde investir esforço de engenharia.",
+      "fonte": "4.5.t4; 4.5.t6",
+      "tags": ["siem", "pareamento", "mttd", "metrica"]
+    },
+    {
+      "id": "4.5.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Você recebeu duas semanas para melhorar o monitoramento de uma empresa que já coleta log de várias fontes, mas nunca mede nada além de \"quantos alertas chegaram ontem\". O que produz o resultado mais útil dentro do prazo?",
+      "alternativas": [
+        "Mapear as fontes já coletadas para campos comuns, escolher poucas perguntas de detecção prioritárias, provocar os eventos de propósito para validar as regras existentes e medir o tempo até detectar",
+        "Ativar coleta verbosa em todas as fontes possíveis e aumentar a retenção para o máximo permitido pelo orçamento, antes de saber quais perguntas essas fontes deveriam responder",
+        "Escrever o maior número possível de novas regras de correlação, para aumentar a cobertura de detecção o quanto antes",
+        "Substituir a ferramenta de SIEM atual por outra mais moderna, já que a atual provavelmente é a causa do problema relatado"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Aumentar coleta e retenção sem antes saber o que já não funciona é gastar o orçamento antes de entender o problema — o oposto do critério do 4.5.t1.",
+        "2": "Mais regras sem validar as existentes e sem medir o efeito tende a piorar a fadiga de alerta, não a resolver o problema relatado.",
+        "3": "Nada no cenário indica que a ferramenta seja a causa; trocar de ferramenta sem diagnóstico é uma ação cara e não resolve os eixos que o cenário já revela como fracos — normalização, validação e métrica."
+      },
+      "dicas": [
+        "O sintoma dado — só medir \"quantos alertas chegaram\" — já aponta para qual dos seis eixos deste módulo está mais fraco.",
+        "Em duas semanas, o resultado mais útil vem de consertar o que já existe, não de adicionar mais do mesmo.",
+        "Pense em qual ação, sozinha, muda o que a equipe sabe sobre a própria eficácia, e não só o volume que ela processa."
+      ],
+      "pergunta_socratica": "Antes de conferir: aumentar coleta ajuda em algo se as regras que já existem nunca foram testadas nem medidas por tempo até detectar?",
+      "explicacao": "O diagnóstico do cenário — só contar alerta — mostra que faltam normalização, pergunta de detecção clara, validação por provocação e a métrica certa. Em duas semanas, mapear fontes, priorizar perguntas, testar regras existentes de propósito e medir o tempo até detectar antes e depois entrega diagnóstico e melhoria real, sem depender de mais orçamento nem de trocar ferramenta.",
+      "fonte": "Síntese dos seis eixos deste módulo (4.5.t1 a 4.5.t6)",
+      "tags": ["siem", "cenario", "sintese", "mttd"]
+    }
+  ]
+}
