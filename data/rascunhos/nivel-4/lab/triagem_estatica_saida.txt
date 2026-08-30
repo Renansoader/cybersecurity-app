@@ -1,0 +1,34 @@
+=== 1. extensao declarada contra tipo real ===
+  arquivo                    extensao   tipo real pelos primeiros bytes
+  relatorio_final.pdf        .pdf       imagem PNG  <-- NAO BATE
+  planilha_orcamento.xlsx    .xlsx      arquivo ZIP (ou formato baseado em ZIP)
+  manual.pdf                 .pdf       documento PDF
+  notas.txt                  .txt       texto legivel
+
+=== 2. resumo criptografico de cada arquivo ===
+  relatorio_final.pdf        sha256 3ddaeb268eab8d332bdf073e4b022326...
+  planilha_orcamento.xlsx    sha256 2b91f48af9357b028f792f41332e0b9d...
+  manual.pdf                 sha256 7f9e16a776c36972ca7b775632244dde...
+  notas.txt                  sha256 fd628a85eabbcc620de9194046752764...
+
+=== 3. cadeias legiveis e o que elas sugerem ===
+  relatorio_final.pdf: 0 cadeia(s) com 6 caracteres ou mais
+  planilha_orcamento.xlsx: 0 cadeia(s) com 6 caracteres ou mais
+  manual.pdf: 4 cadeia(s) com 6 caracteres ou mais
+  notas.txt: 4 cadeia(s) com 6 caracteres ou mais
+      endereco IP: 192.0.2.10
+      endereco de e-mail: suporte@example.com
+
+=== leitura ===
+  O primeiro arquivo se chama .pdf e comeca com a assinatura de PNG:
+  extensao e nome sao escolhidos por quem entrega o arquivo, e nao
+  descrevem o conteudo. Os primeiros bytes descrevem.
+  O .txt traz um endereco IP e um e-mail, que um leitor apressado
+  chamaria de indicador. Nenhum dos dois e indicio aqui: sao os
+  dados de uma reuniao. Indicador precisa de contexto:
+  o mesmo IP dentro de um binario sem motivo para falar em rede
+  significa uma coisa; num arquivo de notas, significa outra.
+  O resumo nao diz se o arquivo e malicioso. Ele serve para comparar
+  com o que ja se conhece e para nomear o arquivo sem ambiguidade.
+
+  (diretorio temporario removido)

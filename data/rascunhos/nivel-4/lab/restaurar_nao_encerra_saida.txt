@@ -1,0 +1,42 @@
+=== fatos do incidente ===
+  [disponibilidade ] arquivos de producao cifrados
+  [confidencialidade] copia dos dados saiu da rede antes da cifra
+  [acesso          ] credenciais de administrador coletadas
+  [acesso          ] mecanismo de persistencia instalado
+  [acesso          ] caminho de entrada continua aberto
+  [acesso          ] relacao de confianca com um parceiro usada
+
+=== o que sobra depois de cada resposta ===
+
+  pagar o resgate
+    resolve 1 de 6 fatos
+    fica: [confidencialidade] copia dos dados saiu da rede antes da cifra
+    fica: [acesso] credenciais de administrador coletadas
+    fica: [acesso] mecanismo de persistencia instalado
+    fica: [acesso] caminho de entrada continua aberto
+    fica: [acesso] relacao de confianca com um parceiro usada
+
+  restaurar do backup
+    resolve 1 de 6 fatos
+    fica: [confidencialidade] copia dos dados saiu da rede antes da cifra
+    fica: [acesso] credenciais de administrador coletadas
+    fica: [acesso] mecanismo de persistencia instalado
+    fica: [acesso] caminho de entrada continua aberto
+    fica: [acesso] relacao de confianca com um parceiro usada
+
+  restaurar + resposta a incidente
+    resolve 5 de 6 fatos
+    fica: [confidencialidade] copia dos dados saiu da rede antes da cifra
+
+=== o eixo que nenhuma das tres resolve ===
+  copia dos dados saiu da rede antes da cifra: resolvido por nenhuma das respostas
+
+=== leitura ===
+  Pagar e restaurar resolvem o mesmo unico fato: os arquivos voltam.
+  A diferenca entre os dois e de custo e de risco, nao de alcance.
+  Cinco dos seis fatos continuam de pe depois de qualquer um dos dois.
+  A copia que saiu antes da cifra e o unico fato que NENHUMA resposta
+  desfaz: dado exfiltrado nao volta. E dai que vem a dupla extorsao —
+  a segunda cobranca nao depende de a vitima ter restaurado ou nao.
+  Restaurar sem resposta a incidente devolve os arquivos para dentro
+  de um ambiente em que o acesso do adversario continua valido.

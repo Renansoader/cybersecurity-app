@@ -1,0 +1,38 @@
+=== quanto estado volatil existe agora nesta maquina ===
+  processos em execucao               309
+  conexoes TCP estabelecidas          101
+  portas em escuta                     31
+  servicos em execucao                145
+  modulos carregados no total        8434
+
+  Tudo isso desaparece no instante em que a energia acaba.
+
+=== o que sobrevive a cada decisao ===
+  artefato                                    desligar     isolar
+  conteudo da memoria dos processos              perde  sobrevive
+  tabela de conexoes de rede em uso              perde  sobrevive
+  processos em execucao e seus modulos           perde  sobrevive
+  chaves e segredos so carregados em RAM         perde  sobrevive
+  area de troca e arquivo de hibernacao      sobrevive  sobrevive
+  registros de evento ja gravados            sobrevive  sobrevive
+  arquivos em disco e horarios deles         sobrevive  sobrevive
+  tarefas agendadas e servicos declarados    sobrevive  sobrevive
+
+  desligar destroi 4 das 8 categorias
+  isolar destroi   0 das 8 categorias
+
+=== o que cada decisao interrompe ===
+  desligar : interrompe a cifra em curso, a exfiltracao e o processo
+             malicioso — e a evidencia volatil junto
+  isolar   : interrompe a exfiltracao e o comando remoto, e mantem
+             o processo vivo com a memoria intacta para captura
+
+=== leitura ===
+  As duas decisoes param a saida de dados. So uma delas preserva as
+  quatro categorias volateis — e sao justamente as que respondem de
+  onde o codigo veio, com quem ele falava e o que ele ja tinha aberto.
+  Isolar nao e sempre a resposta: contra cifra em andamento, cada
+  minuto de processo vivo e mais arquivo perdido, e ai desligar pode
+  ser a escolha certa mesmo custando a memoria.
+  O erro nao e escolher desligar. O erro e escolher sem saber que a
+  conta inclui perder as quatro primeiras linhas da tabela.
