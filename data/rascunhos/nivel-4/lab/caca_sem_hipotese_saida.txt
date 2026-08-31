@@ -1,0 +1,22 @@
+=== eventos do log System por hora, últimas 48h (13 horas com dado) ===
+  2026-08-29 00:00     6 eventos
+  2026-08-29 08:00    34 eventos
+  2026-08-29 09:00    47 eventos
+  2026-08-29 21:00    45 eventos
+  2026-08-29 22:00     2 eventos
+  2026-08-29 23:00    10 eventos
+  2026-08-30 00:00   560 eventos  <-- a mais movimentada
+  2026-08-30 10:00    27 eventos
+  2026-08-30 11:00     5 eventos
+  2026-08-30 19:00    17 eventos
+  2026-08-30 21:00    14 eventos
+  2026-08-30 22:00     7 eventos
+  2026-08-30 23:00     6 eventos
+
+média por hora: 60.0
+hora mais movimentada: 2026-08-30 00:00, com 560 eventos (9.3x a média)
+
+Essa hora seria 'a mais movimentada' MESMO que todo o tráfego fosse
+inteiramente normal: em qualquer lista de números, um deles é o maior.
+Apontar para ela sem uma hipótese declarada antes não é achado — é o
+resultado garantido de perguntar 'qual é o pico?' depois de já ter os dados.

@@ -1,0 +1,13 @@
+=== autostart real desta máquina (Win32_StartupCommand) ===
+  MicrosoftEdgeAutoLaunch_D21A3207C313279760993974D24FC0BF "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --win-session-start
+  OneDrive                                      "C:\Program Files\Microsoft OneDrive\OneDrive.exe" /background
+  RiotClient                                    C:\Riot Games\Riot Client\RiotClientServices.exe --launch-background-mode
+  Steam                                         "C:\Program Files (x86)\Steam\steam.exe" -silent
+  LenovoVantageToolbar                          C:\ProgramData\Lenovo\Vantage\AddinData\LenovoBatteryGaugeAddin\x64\QSHelper.exe
+  Discord                                       "C:\Users\ana.silva\AppData\Local\Discord\Update.exe" --processStart Discord.exe  [binário roda de dentro do perfil do usuário]
+  com.squirrel.tipspace.tipspace                C:\Users\ana.silva\AppData\Local\tipspace\app-4.4.0\tipspace.exe --tipspace-hidden  [binário roda de dentro do perfil do usuário]
+  com.tipspace.tipspace                         C:\Users\ana.silva\AppData\Local\tipspace\app-4.7.0\tipspace.exe --tipspace-hidden  [binário roda de dentro do perfil do usuário]
+  GoogleChromeAutoLaunch_776E92D49ECF5982D411F157F4625CF7 "C:\Program Files\Google\Chrome\Application\chrome.exe" --no-startup-window /prefetch:5
+  SecurityHealth                                %windir%\system32\SecurityHealthSystray.exe
+  RtkAudUService                                "C:\WINDOWS\System32\DriverStore\FileRepository\realtekservice.inf_amd64_1f375c301924ceef\RtkAudUService64.exe" -background
+  Riot Vanguard                                 "C:\Program Files\Riot Vanguard\vgtray.exe"
