@@ -10,11 +10,13 @@ cobrem: bloco de teoria com analogia e erro comum, tag fora do padrão, enunciad
 repetido, dado pessoal em artefato, endereço de terceiro em módulo ofensivo e
 payload pronto para copiar e colar.
 
-Roda também as quatro regras de gabarito entregue de graça — dica que reescreve a
+Roda também as regras de gabarito entregue de graça — dica que reescreve a
 alternativa correta, artefato que carrega a resposta, enunciado que afirma a
-resposta e distrator que é o gabarito de outra questão. Elas saíram de defeitos
-reais achados à mão na revisão do nível 3; a seção correspondente do README
-explica o cálculo e os limites.
+resposta, distrator que é o gabarito de outra questão, o molde "Pergunte…" na
+dica, e a alternativa correta estruturalmente única entre as quatro (única com
+dígito, única com negação). Elas saíram de defeitos reais achados à mão na
+revisão do nível 3 e na revisão adversarial do nível 4; a seção correspondente
+do README explica o cálculo e os limites.
 
 `--esqueleto` dispensa as regras de quantidade (35 a 60 questões, 4 a 8 blocos de
 teoria). Serve para conferir a forma de um arquivo de exemplo ou de um módulo
@@ -181,6 +183,53 @@ MOLDE_PERGUNTE = re.compile(
     r"(?:^|(?<=[.!?;]))\s*(?:se\s+)?pergunt[ae](?:-se)?\b"
     r"|(?:^|(?<=[.!?;]))\s*(?:questione|indague)\b", re.I)
 
+# Regra 7: a alternativa correta ESTRUTURALMENTE única entre as quatro — mesmo
+# defeito da "correta é a mais longa" (MAX_CORRETA_MAIS_LONGA), por outro canal.
+# Quem não lê nada ainda acerta reconhecendo qual das quatro "tem uma forma
+# diferente": só ela cita um número, só ela nega alguma coisa, só ela usa uma
+# sigla. Medido nos 27 módulos publicados antes de escrever esta regra: dígito
+# ocorre em 2,1% das questões (18 de 859), negação em 10,0% (86 de 859) — os
+# dois com vazamento real confirmado à mão. "Única em forma interrogativa" deu
+# ZERO ocorrência nos mesmos 859 e por isso não virou regra — é exatamente o
+# caso que a regra 4 original não tinha (nunca disparava em módulo nenhum) e
+# que deveria ter sido descartado antes de existir.
+#
+# LIMITE CONHECIDO: dígito não distingue número que significa algo ("3 dias",
+# "50 contas") de dígito que é parte de nome de produto ou algoritmo (Argon2id,
+# PBKDF2, SHA-256, TLS 1.3) — nesses casos o "dígito" é vocabulário do assunto,
+# não descuido de escrita, e o caso vai para avisos_aceitos.json depois de lido.
+# Negação mede "não/nunca/nenhum" cru, sem saber se a negação é o próprio
+# argumento da resposta (legítimo) ou só um jeito de escrever a mesma ideia que
+# um distrator também poderia ter escrito sem negar nada.
+RE_DIGITO = re.compile(r"\d")
+RE_NEGACAO = re.compile(r"\bnão\b|\bnunca\b|\bnenhum\w*\b", re.I)
+EIXOS_UNICIDADE = (("dígito", RE_DIGITO), ("negação", RE_NEGACAO))
+
+
+def _unicidade_estrutural(alternativas, indice_correta):
+    """Em quais eixos a alternativa correta é a única diferente das outras três.
+
+    Função pura, sem depender de `questao` nem de módulo: só a lista de textos e
+    o índice da correta. Devolve uma lista de (nome_do_eixo, "presente"|"ausente").
+    "presente" é a correta ser a única COM a marca (dígito, negação); "ausente"
+    é a correta ser a única SEM ela, com as outras três marcadas.
+
+    Não se aplica a pareamento nem a ordenação: os dois guardam texto sem a
+    forma "uma correta contra três distratoras" — pareamento tem quatro pares
+    igualmente certos, ordenação tem uma permutação, nenhum dos dois tem
+    distrator para a correta destoar. Por isso esta função só é chamada quando
+    `alternativas` existe.
+    """
+    achados = []
+    for nome, padrao in EIXOS_UNICIDADE:
+        marcas = [bool(padrao.search(a)) for a in alternativas]
+        n_marcadas = sum(marcas)
+        if n_marcadas == 1 and marcas[indice_correta]:
+            achados.append((nome, "presente"))
+        elif len(alternativas) - n_marcadas == 1 and not marcas[indice_correta]:
+            achados.append((nome, "ausente"))
+    return achados
+
 
 ACEITOS = json.loads((RAIZ / "ferramentas" / "avisos_aceitos.json").read_text(encoding="utf-8"))
 
@@ -248,6 +297,18 @@ def achar_gabarito_entregue(dados, avisos):
                 f"{ctx}: o enunciado traz {medida[0]:.0%} das palavras que só a alternativa "
                 f"correta tem ({', '.join(medida[1])}) — confira se ele não afirma a "
                 f"resposta antes de perguntar")
+
+        # 7. alternativa correta estruturalmente única entre as quatro (dígito,
+        # negação) — quem escolhe pela forma, sem ler, acerta. Ver comentário
+        # de _unicidade_estrutural para o que cada eixo mede e o limite conhecido.
+        for nome, direcao in _unicidade_estrutural(alternativas, questao["correta"]):
+            rotulo = f"unicidade de {nome}"
+            if _aceito(ctx, rotulo):
+                continue
+            falta = "SEM" if direcao == "ausente" else "com"
+            avisos.append(
+                f"{ctx}: a alternativa correta é a única, entre as quatro, {falta} {nome} "
+                f"— quem escolhe pela forma, sem ler o conteúdo, acerta")
 
     # 5. duas questões com a mesma resposta certa, aqui ou em outro módulo.
     # Foi a duplicação que a revisão do nível 3 mais encontrou à mão, e a regra 4

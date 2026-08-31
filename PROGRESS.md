@@ -331,6 +331,38 @@ real de requisição.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
   existir `.venv` na pasta, o atalho continuará usando o Python global; o
   `run.bat` é quem prefere a `.venv`.
+- **Regra 7 — unicidade estrutural — varrida, mas o corpus existente não foi
+  corrigido.** A lente 2 do 4.6 achou o mesmo defeito da "correta é a mais
+  longa" por outro canal: a correta ser a única, entre as quatro, com um
+  dígito, ou a única sem uma negação — quem escolhe pela forma, sem ler,
+  acerta. Medido nos 27 módulos antes de virar regra: dígito em 2,1% das
+  questões (18 de 859), negação em 10,0% (86 de 859); "única em forma
+  interrogativa" deu **zero** ocorrência e por isso não virou regra — é
+  exatamente o defeito que a antiga regra 4 tinha (nunca disparava) e que
+  deveria ter sido descartado antes de existir.
+
+  Amostra de 15 achados classificada à mão em 31/08/2026: **73% vazamento
+  real**, o eixo dígito sozinho tem **8 falsos positivos** — todos nome de
+  algoritmo, protocolo ou versão de ferramenta com dígito embutido (SHA-256,
+  Argon2id, IPv4, FIDO2, Base64, v3.7, PBKDF2, `HEAD~1`) — já aceitos em
+  `ferramentas/avisos_aceitos.json`. O que ficou, **96 achados, nenhum
+  corrigido**:
+
+  - **10 do eixo dígito**, a maioria vazamento real confirmado à mão (a
+    correta cita o número que a pergunta já estabeleceu, ou o número É
+    o fato que a questão testa — `72 bytes` do bcrypt, `30 s` do TOTP,
+    `64 bits` de entropia — e por isso é a única alternativa com número).
+  - **86 do eixo negação**, amostrados em 7 e classificados 6 reais / 1
+    coincidência — nenhum falso positivo encontrado nesse eixo. O padrão mais
+    comum: 3 distratoras descartam risco ou capacidade dizendo "não X", e a
+    correta afirma direto, sem negar nada — ou o inverso, a correta é a única
+    com "não é o mesmo que X" ao nomear uma nuance.
+
+  Decisão registrada em 31/08/2026: corrigir os 96 é trabalho de conteúdo
+  (reescrever 1 alternativa por achado, não uma faxina de regex) espalhado
+  por 25 módulos já publicados — do tamanho da varredura de comprimento, que
+  também ficou parcial. Fica para quando algum desses módulos for reaberto
+  para outra revisão, e não como sessão dedicada agora.
 
 ---
 
@@ -449,6 +481,16 @@ Seis hábitos, em ordem de retorno:
 4. Desafios práticos nunca vêm com a solução — só checklist e dicas.
 5. Nenhum conteúdo de estudo hardcoded em `.py`.
 6. Nada de acesso à rede em tempo de estudo.
+7. **Distribuição de comprimento e unicidade estrutural da alternativa correta
+   se medem depois das primeiras 8 questões de qualquer módulo novo, nunca só
+   no fim.** No 4.5 e no 4.6 a correta saiu mais longa em 100% e 97% das
+   questões na primeira escrita — mesmo com a regra escrita no prompt as duas
+   vezes — porque a medição só aconteceu com o módulo inteiro pronto, quando
+   corrigir já significava reescrever 30+ alternativas. Corrigir 8 é barato;
+   corrigir 35 não é. Rode `python -c "..."` (ou o trecho de medição do
+   relatório de procedência mais recente) contra o arquivo parcial assim que a
+   oitava questão for escrita, ajuste o hábito de escrita ali, e só então siga
+   para as 27 restantes.
 
 ---
 
