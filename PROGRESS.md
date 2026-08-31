@@ -13,18 +13,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 26 de 41 |
-| Questões | 911 |
-| Blocos de teoria | 158 |
-| Tags distintas | 784 |
-| Testes automatizados | 2.991 |
+| Módulos de conteúdo escritos | 27 de 41 |
+| Questões | 946 |
+| Blocos de teoria | 164 |
+| Tags distintas | 789 |
+| Testes automatizados | 3.103 |
 | Linhas de código Python | ~2.280 no app · ~3.830 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 175 (5 de 8 módulos).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 210 (6 de 8 módulos).
 
-Tipos de questão em uso: conceitual 391, cenário 191, ataque→defesa 69,
-caça ao erro 67, comando 55, artefato 54, pareamento 50, ordenação 34.
+Tipos de questão em uso: conceitual 404, cenário 201, ataque→defesa 71,
+caça ao erro 70, comando 56, artefato 57, pareamento 51, ordenação 36.
 
 ---
 
@@ -214,9 +214,9 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
-**Nível 4 — Defensivo** (175 questões, 5 de 8)
+**Nível 4 — Defensivo** (210 questões, 6 de 8)
 4.1 Hardening · 4.2 Segurança de rede · 4.3 Defesa em profundidade · 4.4 Malware ·
-4.5 SIEM e monitoramento
+4.5 SIEM e monitoramento · 4.6 MITRE ATT&CK e caça a ameaças
 
 **Nível 3 — Ofensivo** (105 questões, 3 de 9)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
@@ -240,12 +240,11 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 15 módulos
+### Conteúdo — 14 módulos
 
 - **Nível 3 — Ofensivo** (6 restantes): Web I/II/III, OWASP Top 10, quebra de
   senhas, engenharia social e redes sem fio
-- **Nível 4 — Defensivo** (3 restantes): MITRE ATT&CK, resposta a incidentes,
-  forense
+- **Nível 4 — Defensivo** (2 restantes): resposta a incidentes, forense
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
 

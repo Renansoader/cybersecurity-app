@@ -1,0 +1,1034 @@
+{
+  "id": "4.6",
+  "nivel": 4,
+  "titulo": "MITRE ATT&CK e caça a ameaças — comportamento como vocabulário compartilhado",
+  "objetivos": [
+    "Distinguir tática, técnica e procedimento, e explicar por que a distinção resolve comunicação entre times de ataque e defesa",
+    "Mapear um comportamento observado para uma técnica partindo sempre do artefato, nunca do nome, e reconhecer quando a evidência sustenta mais de uma leitura",
+    "Formular a hipótese de uma caça antes de olhar o dado, reconhecer viés de confirmação como o defeito de quem caça sem hipótese, e fazer a caça confirmada virar regra",
+    "Reconhecer os limites de um mapa de cobertura de técnica: célula pintada é log ou regra mapeada, não detecção validada"
+  ],
+  "pre_requisitos": ["4.3", "4.4", "4.5"],
+  "teoria": [
+    {
+      "id": "4.6.t1",
+      "titulo": "Tática, técnica e procedimento: três perguntas diferentes",
+      "texto": "Tática é o objetivo do adversário num momento da campanha — persistir, mover lateralmente, exfiltrar dado. Técnica é o meio geral que alcança esse objetivo — por exemplo, usar um mecanismo de execução automática do sistema para continuar rodando depois de um reinício. Procedimento é a implementação específica que um adversário de fato usa naquele caso — qual mecanismo, qual caminho, qual nome de arquivo.\n\nA distinção existe porque cada pergunta serve a um público diferente. \"Qual é a tática?\" orienta a defesa estratégica — quais fases de uma campanha preocupam mais esta organização. \"Qual é a técnica?\" orienta o que instrumentar e o que caçar. \"Qual é o procedimento?\" é o que sobra de uma investigação específica — muda a cada campanha, e raramente se repete entre adversários diferentes.\n\nConfundir os três níveis é o erro mais comum de quem começa: tratar um procedimento observado (aquele arquivo, aquele endereço) como se fosse a técnica geral, e generalizar uma defesa que só funciona contra aquele caso.",
+      "analogia": "É a diferença entre dizer que um ladrão quer entrar numa casa (tática), que ele arromba fechaduras (técnica) e que usou uma ferramenta específica numa porta específica (procedimento) — trocar aquela fechadura não impede o próximo arrombamento com outra ferramenta.",
+      "erro_comum": "Tratar o procedimento observado numa investigação como se fosse a técnica geral, generalizando uma defesa que só vale para aquele caso.",
+      "fonte": "MITRE ATT&CK, estrutura tática/técnica/procedimento — framework já citado como fonte em seis módulos deste corpus, nunca antes ensinado como estrutura."
+    },
+    {
+      "id": "4.6.t2",
+      "titulo": "Do artefato para o nome, nunca do nome para o artefato",
+      "texto": "Um comportamento observado — um processo, uma entrada de inicialização automática, uma tarefa agendada — pode, na forma, parecer com mais de uma técnica ao mesmo tempo. Nomear a partir do artefato significa examinar o que ele realmente faz, de onde roda e quem o assina, e só depois perguntar qual rótulo do vocabulário compartilhado descreve aquilo com mais precisão.\n\nO caminho inverso — partir de um nome de técnica já escolhido e procurar evidência que o confirme — força o dado a caber num rótulo decidido cedo demais, e descarta, sem perceber, o detalhe que desmentiria a etiqueta. É o mesmo risco, em outra roupa, de escrever a regra de correlação antes de formular a pergunta que ela deveria responder.\n\nDuas entradas de inicialização automática podem ter exatamente a mesma forma — binário dentro da pasta pessoal do usuário, nome genérico de atualizador, execução silenciosa — e uma ser um aplicativo comum, e a outra ser persistência real. A forma sozinha não decide; o procedimento decide.",
+      "analogia": "Um médico que decide o diagnóstico antes de examinar o paciente já sabe qual sintoma vai \"encontrar\" — e vai encontrá-lo, porque está procurando por ele.",
+      "erro_comum": "Ver uma entrada de inicialização automática incomum e já registrar o incidente como uma técnica específica, sem checar assinatura, editor e comportamento real do binário.",
+      "fonte": "Prática de análise de artefato consolidada; mecanismo demonstrado no laboratório mapear_comportamento.py desta sessão."
+    },
+    {
+      "id": "4.6.t3",
+      "titulo": "A mesma forma, dois donos",
+      "texto": "Entre as entradas reais de inicialização automática desta máquina, duas rodam um binário de dentro da pasta pessoal do usuário, com um executável de nome genérico de atualizador, lançado sem privilégio elevado e de forma silenciosa. Uma é o atualizador de um aplicativo de mensagens de uso diário; a outra, de um aplicativo de anotações menos popular. As duas têm a mesma forma de um padrão de persistência documentado no vocabulário compartilhado.\n\nNenhuma das duas é maliciosa. A lição não é \"todo atualizador genérico é suspeito\", nem o oposto, \"nenhum é\" — as duas leituras absolutas erram. A forma do artefato é o primeiro filtro, nunca o veredito: o passo seguinte é sempre checar procedência — o editor está assinado, o processo pai é o instalador oficial, existe uma versão anterior no mesmo lugar.\n\nUm ambiente real tem dezenas dessas entradas. Tratar cada uma como incidente sem esse segundo passo é caro demais para sustentar; ignorá-las por serem comuns abre mão do único sinal que distinguiria a real da benigna.",
+      "analogia": "Uma van estacionada na rua não é, por si, motivo de suspeita — o que importa é quem sai dela e o que carrega, não o modelo do veículo.",
+      "erro_comum": "Aplicar a mesma regra — \"pasta pessoal do usuário mais nome de atualizador é sempre suspeito\", ou o oposto — a toda entrada de inicialização automática, sem checar o procedimento específico de cada uma.",
+      "fonte": "Autostart real desta máquina, lab/mapear_comportamento.py, executado em 30/08/2026 (usuário anonimizado)."
+    },
+    {
+      "id": "4.6.t4",
+      "titulo": "Caça existe para o que a regra não teria motivo de cobrir",
+      "texto": "Uma regra de correlação vale a pena quando o comportamento que ela detecta é recorrente o bastante para justificar um limiar fixo, testado e mantido — o assunto do módulo anterior. Caça a ameaças existe para o oposto: o comportamento raro, novo ou específico demais para merecer uma regra permanente, e por isso precisa de um humano formulando uma pergunta pontual, não um limiar rodando para sempre.\n\nA pergunta de uma caça começa como hipótese, não como exploração livre: \"existe, nesta rede, uma conta de serviço fazendo autenticação interativa fora da janela de manutenção declarada?\" é uma pergunta que se responde sim ou não, com uma consulta específica — bem diferente de abrir um painel e navegar dados só para ver o que aparece.\n\nQuando uma caça confirma um padrão que se repete, o trabalho certo é fazer aquele padrão virar regra — devolvendo-o ao mundo automatizado do módulo anterior, e liberando a caça para procurar o próximo comportamento que ainda não tem limiar.",
+      "analogia": "Um bombeiro não instala um detector permanente para cada tipo de fogo possível; ele investiga, sob suspeita pontual, o que ainda não tem sensor — e só se aquele tipo de fogo se tornar comum é que vale instalar o detector.",
+      "erro_comum": "Tratar caça a ameaças como \"olhar os dados para ver se algo aparece\", em vez de uma pergunta específica formulada antes de abrir qualquer painel.",
+      "fonte": "Prática de threat hunting consolidada na literatura de operação de SOC; contraste deliberado com a correlação automatizada de 4.5.t3."
+    },
+    {
+      "id": "4.6.t5",
+      "titulo": "Viés de confirmação: por que olhar sem hipótese sempre \"acha\" algo",
+      "texto": "Em qualquer conjunto de números, um deles é o maior. A frase parece trivial, mas é o mecanismo inteiro por trás do erro mais comum de quem caça sem hipótese: abrir um painel, agrupar eventos por hora, e apontar para o pico como se ele fosse, por si, um achado. Medido nesta máquina, o log System teve uma hora com 9,3 vezes a média de eventos das outras — e nada nela é evidência de ataque; é o horário em que tarefas de manutenção do sistema costumam rodar.\n\nEsse é o viés de confirmação em ação: quem já espera achar algo suspeito olha para qualquer distribuição de dado e encontra um valor fora da curva, porque um valor fora da curva sempre existe quando não há um critério fixado antes de olhar. A caça que vale alguma coisa declara o comportamento esperado antes de rodar a consulta, e só investiga o resultado se ele contradisser essa expectativa — não porque é o maior número da lista.\n\nA diferença prática: \"qual hora tem mais eventos?\" sempre tem resposta e nunca prova nada sozinha; \"esta conta de serviço autentica fora da janela de manutenção declarada, sim ou não?\" tem resposta que, se for sim, já é evidência por si.",
+      "analogia": "Perguntar \"qual nuvem parece uma cara?\" sempre acha uma — o céu está cheio de formas, e a pergunta não filtra nada antes de olhar.",
+      "erro_comum": "Confundir o valor mais alto de um gráfico com o comportamento mais suspeito — o primeiro sempre existe; o segundo depende de uma hipótese declarada antes.",
+      "fonte": "Contagem real de eventos por hora no log System desta máquina, lab/caca_sem_hipotese.py, executado em 30/08/2026 — pico de 560 eventos à 00h, 9,3× a média."
+    },
+    {
+      "id": "4.6.t6",
+      "titulo": "Célula pintada não é detecção validada",
+      "texto": "Um mapa de cobertura de técnicas mostra, célula por célula, quais técnicas uma organização diz cobrir. O problema é o que \"cobrir\" costuma significar na prática: existe uma fonte de log que alcançaria aquele comportamento, ou existe uma regra escrita com aquele nome — não que alguém já confirmou que a cadeia inteira, do evento real ao alerta lido, funciona.\n\nÉ o mesmo defeito que o módulo anterior nomeou para uma regra individual: uma regra nunca disparada de propósito é uma regra sobre a qual existe opinião, não evidência. Um mapa inteiro pintado tem exatamente esse problema, multiplicado pelo número de células — cada uma pode estar tão não testada quanto a regra isolada estava.\n\n\"Cobrimos um grande número de técnicas\" é uma afirmação sobre configuração declarada, não sobre capacidade de detectar. A pergunta que vale é quantas dessas células foram, de fato, validadas provocando o comportamento — a mesma prática do módulo anterior, aplicada célula por célula, não ao mapa inteiro de uma vez.",
+      "analogia": "Um mapa de extintores marcados na planta de um prédio não diz se algum deles ainda solta espuma — só que, no papel, ali deveria haver um.",
+      "erro_comum": "Reportar o percentual de técnicas cobertas no mapa como medida de maturidade de detecção, sem nunca ter provocado o comportamento de nenhuma delas.",
+      "fonte": "Mapa de cobertura por técnica (o formato que o MITRE ATT&CK Navigator populariza), conferido nesta sessão; mecanismo idêntico ao de 4.5.t5, aplicado à unidade \"técnica\"."
+    }
+  ],
+  "questoes": [
+    {
+      "id": "4.6.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "No vocabulário tática/técnica/procedimento, o que uma tática descreve?",
+      "alternativas": [
+        "O objetivo do adversário num momento da campanha, como persistir ou mover lateralmente",
+        "O arquivo, o comando ou o endereço específico usado numa investigação",
+        "O conjunto completo de ferramentas que um grupo de adversários costuma usar",
+        "A ordem cronológica exata, minuto a minuto, em que um incidente específico se desenrolou do início ao fim"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Arquivo, comando e endereço específicos são procedimento — o nível mais concreto, não o mais estratégico.",
+        "2": "Conjunto de ferramentas de um grupo é atribuição de autoria, um problema diferente do que a tática descreve.",
+        "3": "Ordem cronológica de um incidente é sequência de fato, não o objetivo abstrato por trás de uma etapa."
+      },
+      "dicas": [
+        "Pense no nível mais alto de abstração dos três — o que menos muda de um caso para outro.",
+        "Duas alternativas descrevem coisas concretas e específicas de um caso.",
+        "A resposta certa poderia valer para dezenas de adversários diferentes ao mesmo tempo."
+      ],
+      "pergunta_socratica": "Antes de conferir: entre os três níveis, qual descreveria igualmente bem duas campanhas de grupos completamente diferentes?",
+      "explicacao": "Tática é o nível mais abstrato dos três — o objetivo momentâneo do adversário, como persistir ou exfiltrar. Técnica é o meio geral; procedimento é a implementação específica. Confundir tática com procedimento é tratar o objetivo como se fosse o detalhe.",
+      "fonte": "4.6.t1",
+      "tags": ["mitre", "tatica-tecnica-procedimento", "conceitual"]
+    },
+    {
+      "id": "4.6.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que a distinção entre tática, técnica e procedimento resolve um problema real de comunicação entre times?",
+      "alternativas": [
+        "Porque cada nível serve a uma decisão diferente — tática orienta prioridade, técnica orienta o que caçar",
+        "Porque só analistas seniores têm autorização para discutir tática, enquanto técnica e procedimento são discutidos livremente por qualquer membro da equipe, independente de senioridade",
+        "Porque a distinção elimina a necessidade de qualquer outro vocabulário de segurança na organização",
+        "Porque times de ataque só usam o termo tática e times de defesa só usam o termo procedimento"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe essa hierarquia de autorização por nível de vocabulário; qualquer analista pode discutir qualquer um dos três.",
+        "2": "A distinção não substitui outro vocabulário de segurança — convive com termos de rede, de criptografia e de outros domínios.",
+        "3": "Ambos os times usam os três termos; a distinção serve à comunicação entre eles, não à separação de jargão por time."
+      },
+      "dicas": [
+        "Pense em quem toma uma decisão de investimento de longo prazo, e quem decide o que caçar amanhã.",
+        "A resposta certa não fala em hierarquia de acesso nem em jargão exclusivo de time.",
+        "Duas opções inventam uma separação de acesso ou de jargão que não existe na prática."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma decisão de orçamento anual e uma decisão de o que caçar amanhã precisam do mesmo nível de detalhe?",
+      "explicacao": "Cada nível serve a uma pergunta diferente: tática para prioridade estratégica, técnica para o que instrumentar e caçar, procedimento para o que uma investigação específica revelou. É essa diferença de finalidade que evita conversas cruzadas entre quem decide orçamento e quem decide a caça de amanhã.",
+      "fonte": "4.6.t1",
+      "tags": ["mitre", "tatica-tecnica-procedimento", "comunicacao"]
+    },
+    {
+      "id": "4.6.q3",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Depois de um incidente, a equipe bloqueia o endereço IP específico usado pelo adversário e o hash exato do arquivo malicioso, e declara o caso encerrado. Qual é o defeito de tratar isso como suficiente?",
+      "alternativas": [
+        "O IP e o hash são procedimento — mudam a cada campanha; a técnica geral que os produziu continua sem resposta",
+        "Bloquear IP e hash é tecnicamente impossível de fazer ao mesmo tempo num único incidente",
+        "A ação correta seria bloquear a tática inteira, o que sempre é possível de fazer de uma vez",
+        "Nenhuma ação de bloqueio deveria ocorrer antes de identificar com certeza absoluta o grupo responsável pelo ataque"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Bloquear IP e hash simultaneamente é rotina de resposta a incidente, sem limitação técnica que o impeça.",
+        "2": "Tática é objetivo abstrato, não algo que se \"bloqueia\" diretamente com um controle técnico único.",
+        "3": "Identificar o grupo responsável (atribuição) é um problema à parte, frequentemente difícil, e não é pré-requisito para conter um incidente em andamento."
+      },
+      "dicas": [
+        "Pense em qual dos três níveis do vocabulário um IP específico e um hash específico realmente representam.",
+        "A resposta certa não questiona a ação tomada — questiona se ela é suficiente.",
+        "Duas opções tratam bloqueio ou atribuição como algo mais absoluto do que realmente é na prática."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o adversário trocar de IP e recompilar o arquivo amanhã, o bloqueio de hoje ainda funciona?",
+      "explicacao": "IP e hash são procedimento — o nível que menos se repete entre campanhas. Bloqueá-los resolve o caso pontual, mas deixa intacta a técnica geral (por exemplo, o mecanismo de persistência usado), que o próximo procedimento do mesmo adversário pode reaproveitar sem esforço.",
+      "fonte": "4.6.t1",
+      "tags": ["mitre", "cenario", "procedimento"]
+    },
+    {
+      "id": "4.6.q4",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Entre tática e técnica, qual delas orienta mais diretamente a decisão de o que instrumentar e caçar?",
+      "alternativas": [
+        "Técnica, porque descreve o meio geral que um comportamento usa, servindo de base para coleta e caça",
+        "Tática, porque é o nível mais abstrato de todos e, por isso mesmo, o mais fácil de instrumentar tecnicamente em qualquer ferramenta",
+        "Nenhuma das duas, porque só o procedimento específico permite decidir o que instrumentar",
+        "As duas de forma idêntica, porque não existe diferença prática de aplicação entre elas"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Abstração maior não implica facilidade de instrumentação — o contrário costuma ser verdade: quanto mais abstrato, mais difícil de operacionalizar.",
+        "2": "O procedimento muda a cada campanha; ancorar a instrumentação nele obrigaria a reconstruir a caça a cada novo caso.",
+        "3": "Existe diferença prática real: tática orienta prioridade estratégica, técnica orienta instrumentação, como o texto descreve."
+      },
+      "dicas": [
+        "Pense em qual nível descreve um comportamento estável o bastante para valer a pena instrumentar, mas concreto o bastante para caçar.",
+        "Tática é abstrata demais para virar consulta direta; procedimento é específico demais para durar.",
+        "A resposta certa fica no meio dos dois extremos dessa escala de abstração."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para escrever uma consulta de caça em cima de \"persistir\" sozinho, sem mais nenhum detalhe?",
+      "explicacao": "Técnica ocupa o meio da escala de abstração: geral o bastante para valer a pena instrumentar de forma duradoura, específica o bastante para orientar uma consulta de caça concreta. Tática é ampla demais para virar consulta direta; procedimento muda rápido demais para durar.",
+      "fonte": "4.6.t1",
+      "tags": ["mitre", "tatica-tecnica-procedimento", "instrumentacao"]
+    },
+    {
+      "id": "4.6.q5",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Ligue cada nível do vocabulário ao tipo de pergunta que ele responde.",
+      "pares": [
+        ["Tática", "Qual fase da campanha isso serve — persistir, mover, exfiltrar?"],
+        ["Técnica", "Que mecanismo geral alcança esse objetivo, e vale a pena instrumentar?"],
+        ["Procedimento", "Qual foi, especificamente, o arquivo, o caminho ou o comando usado desta vez?"],
+        ["Atribuição de autoria", "Quem, entre grupos conhecidos, provavelmente está por trás disso?"]
+      ],
+      "dicas": [
+        "Três dos quatro itens vêm do mesmo vocabulário de três níveis; um deles é um problema vizinho, mas diferente.",
+        "Pense em qual pergunta muda menos entre duas campanhas de adversários diferentes.",
+        "Atribuição de autoria já apareceu no corpus como um problema difícil à parte (0.3), não como um dos três níveis."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro perguntas você faria primeiro, antes de saber qualquer detalhe do incidente?",
+      "explicacao": "Tática, técnica e procedimento formam uma escala do mais abstrato ao mais específico. Atribuição de autoria — quem fez — é um problema relacionado, mas distinto: pode ficar sem resposta mesmo quando tática, técnica e procedimento já estão claros.",
+      "fonte": "4.6.t1",
+      "tags": ["mitre", "pareamento", "tatica-tecnica-procedimento"]
+    },
+    {
+      "id": "4.6.q6",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Ordene os três níveis do vocabulário do mais abstrato para o mais específico.",
+      "itens": [
+        "Tática — o objetivo do adversário num momento da campanha",
+        "Técnica — o meio geral que alcança esse objetivo",
+        "Procedimento — a implementação exata usada num caso específico",
+        "Ferramenta específica — o programa exato empregado para executar aquele procedimento"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "O primeiro item vale para qualquer campanha, de qualquer adversário, quase sem exceção.",
+        "O último item é o mais específico dos quatro, e o que menos se repete entre casos.",
+        "Os dois itens do meio servem de ponte entre o objetivo e o detalhe mais concreto."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses quatro descreveria da mesma forma dois incidentes completamente diferentes?",
+      "explicacao": "A escala vai do objetivo (tática, o mais estável) ao meio geral (técnica), até a implementação específica (procedimento) e o programa exato usado (ferramenta, o que menos se repete de todos). Essa ordem é o que permite decidir em qual nível vale a pena investir esforço de defesa duradouro.",
+      "fonte": "4.6.t1",
+      "tags": ["mitre", "ordenacao", "tatica-tecnica-procedimento"]
+    },
+    {
+      "id": "4.6.q7",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "trecho": "Relatório pós-incidente, seção de recomendações:\n\"O adversário usou o arquivo update_helper_92.dll e o endereço 203.0.113.44.\nRecomendamos escrever uma defesa permanente contra o arquivo update_helper_92.dll\ne contra o endereço 203.0.113.44, e considerar a técnica neutralizada.\"",
+      "enunciado": "Qual é o defeito nesta recomendação?",
+      "alternativas": [
+        "A defesa foi ancorada em procedimento (nome de arquivo, endereço específico), que o próximo caso do mesmo adversário provavelmente não repete",
+        "O endereço 203.0.113.44 não pode, tecnicamente, ser bloqueado por nenhum firewall convencional",
+        "O nome de arquivo update_helper_92.dll é tecnicamente inválido como nome de biblioteca no Windows",
+        "A recomendação deveria ter sido escrita e revisada por um comitê formal do time de resposta a incidentes antes de qualquer publicação, e não constar isolada no relatório citado"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Endereços IP são bloqueados rotineiramente por firewall; não há limitação técnica nisso.",
+        "2": "O nome apresentado é um nome de arquivo .dll tecnicamente válido no Windows, sem nada de inválido nele.",
+        "3": "Quem escreve o relatório não é o defeito central; o problema está no nível de abstração escolhido para a defesa, não em quem o escreveu."
+      },
+      "dicas": [
+        "Pense em qual dos três níveis do vocabulário um nome de arquivo específico e um endereço específico realmente representam.",
+        "A pergunta não questiona se bloquear ajuda agora — questiona se \"considerar a técnica neutralizada\" está certo.",
+        "Duas opções contestam fatos técnicos que o trecho não sustenta."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o adversário trocar o nome do arquivo e o endereço amanhã, a técnica ainda está neutralizada?",
+      "explicacao": "Nome de arquivo e endereço são procedimento — o nível mais específico e menos duradouro dos três. Bloqueá-los é útil para o caso pontual, mas declarar a técnica geral \"neutralizada\" confunde o nível mais raso com o nível intermediário que de fato precisaria de resposta.",
+      "fonte": "4.6.t1",
+      "tags": ["mitre", "caca-erro", "procedimento"]
+    },
+    {
+      "id": "4.6.q8",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "O que caracteriza um procedimento, no vocabulário tática/técnica/procedimento?",
+      "alternativas": [
+        "A implementação exata que um adversário usou num caso específico — qual arquivo, qual caminho, qual comando",
+        "O objetivo geral e abstrato que orienta toda uma campanha inteira, do primeiro contato até o objetivo final",
+        "O conjunto de normas internas que a organização defensora segue para responder a incidentes",
+        "A lista completa de técnicas que um framework de referência documenta"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Objetivo geral de campanha é tática, não procedimento — nível mais abstrato, não mais concreto.",
+        "2": "Normas internas de resposta a incidente são processo da organização defensora, não vocabulário sobre o comportamento do adversário.",
+        "3": "Lista completa documentada por um framework é catálogo de referência, não o procedimento específico observado num caso."
+      },
+      "dicas": [
+        "Pense no nível mais concreto e menos reutilizável dos três.",
+        "Duas alternativas descrevem coisas do lado da defesa, não do comportamento do adversário.",
+        "A resposta certa é o que muda quase toda vez que o mesmo grupo ataca de novo."
+      ],
+      "pergunta_socratica": "Antes de conferir: entre os três níveis, qual é o que menos se repete de um incidente para o outro, mesmo com o mesmo adversário?",
+      "explicacao": "Procedimento é a implementação concreta e específica — o detalhe que muda de campanha para campanha. É o oposto da tática, que é o objetivo estável por trás de qualquer implementação particular.",
+      "fonte": "4.6.t1",
+      "tags": ["mitre", "tatica-tecnica-procedimento", "conceitual"]
+    },
+    {
+      "id": "4.6.q9",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um diretor de segurança pede um relatório trimestral que ajude a decidir onde investir o próximo orçamento de defesa. Em qual nível do vocabulário esse relatório deveria se apoiar principalmente?",
+      "alternativas": [
+        "Tática e técnica, porque são estáveis o bastante para justificar investimento de médio prazo",
+        "Procedimento, porque é o nível mais concreto e por isso o mais fácil de apresentar em uma reunião",
+        "Apenas os nomes de grupos de adversários específicos identificados até hoje, porque é isso que de fato orienta prioridade de investimento",
+        "Nenhum nível específico, porque decisão de orçamento não deveria depender de vocabulário técnico"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Facilidade de apresentação não é o critério certo, e procedimento muda tão rápido que um relatório trimestral baseado nele fica desatualizado antes de ser lido.",
+        "2": "Atribuição de grupo específico é incerta com frequência (problema já visto em 0.3) e não é o nível que orienta investimento estrutural.",
+        "3": "Decisão de orçamento de segurança depende, sim, de entender o comportamento do adversário — só não no nível mais raso dele."
+      },
+      "dicas": [
+        "Pense em qual nível dura o suficiente para justificar um investimento que não muda a cada trimestre.",
+        "A resposta certa evita tanto o nível abstrato demais quanto o específico demais.",
+        "Duas opções descartam vocabulário técnico por motivos que não resistem a uma segunda leitura."
+      ],
+      "pergunta_socratica": "Antes de conferir: um relatório baseado em nomes de arquivo específicos ainda seria útil daqui a três meses?",
+      "explicacao": "Tática e técnica são estáveis o bastante para orientar investimento de médio prazo — ao contrário do procedimento, que muda a cada campanha e ficaria obsoleto antes do próximo trimestre. É por isso que decisão orçamentária se apoia nesses dois níveis, não no mais raso.",
+      "fonte": "4.6.t1",
+      "tags": ["mitre", "cenario", "priorizacao"]
+    },
+    {
+      "id": "4.6.q10",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "O que significa \"mapear do artefato para o nome, nunca do nome para o artefato\"?",
+      "alternativas": [
+        "Examinar o que o comportamento observado realmente faz antes de decidir qual técnica o descreve",
+        "Sempre preferir o nome mais recente disponível num framework de referência público, mesmo quando o nome antigo já é bem entendido pela equipe",
+        "Nunca atribuir nenhum nome de técnica a um comportamento observado, mantendo toda análise sem rótulo",
+        "Consultar primeiro o histórico de nomes já usados pela equipe antes de examinar qualquer evidência nova"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A questão não é sobre idade do nome no framework, é sobre a ordem entre observar e nomear.",
+        "2": "O princípio não proíbe nomear — proíbe nomear antes de examinar; nomear depois de examinar é o objetivo do processo.",
+        "3": "Consultar nomes já usados pela equipe não é o critério; o critério é o comportamento observado agora, não o histórico de rótulos."
+      },
+      "dicas": [
+        "Pense na ordem de duas ações: examinar e nomear. Qual vem primeiro?",
+        "O princípio não é sobre qual nome escolher — é sobre quando escolher um nome.",
+        "Duas opções distorcem o princípio para algo sobre atualização de vocabulário ou histórico da equipe."
+      ],
+      "pergunta_socratica": "Antes de conferir: escolher o nome antes de examinar o comportamento muda o que se procura depois?",
+      "explicacao": "O princípio é sobre ordem: examinar o comportamento real — onde roda, o que faz, quem assina — antes de decidir qual técnica o descreve. Fazer o caminho inverso faz o examinador procurar só o que confirma o nome já escolhido.",
+      "fonte": "4.6.t2",
+      "tags": ["mitre", "mapeamento", "conceitual"]
+    },
+    {
+      "id": "4.6.q11",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "artefato": "=== autostart real desta máquina (Win32_StartupCommand) ===\n  OneDrive                    \"C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe\" /background\n  Discord                     \"C:\\Users\\ana.silva\\AppData\\Local\\Discord\\Update.exe\" --processStart Discord.exe  [binário roda de dentro do perfil do usuário]\n  com.tipspace.tipspace       C:\\Users\\ana.silva\\AppData\\Local\\tipspace\\app-4.7.0\\tipspace.exe --tipspace-hidden  [binário roda de dentro do perfil do usuário]\n  SecurityHealth               %windir%\\system32\\SecurityHealthSystray.exe",
+      "enunciado": "As entradas de Discord e tipspace têm a mesma forma de superfície — binário na pasta pessoal do usuário, nome de atualizador, execução silenciosa. O que decide se alguma delas merece investigação, e o que não decide nada sozinho?",
+      "alternativas": [
+        "A forma — caminho, nome genérico — não decide sozinha; o que decide é checar assinatura, editor e processo de origem",
+        "A entrada de OneDrive é a única que merece atenção, porque roda de Program Files e as outras duas, não",
+        "As duas entradas (Discord e tipspace) já são, sozinhas e sem nenhuma checagem adicional, evidência suficiente de comprometimento, dado o caminho em AppData",
+        "Nenhuma das quatro entradas merece qualquer atenção, porque autostart é sempre comportamento normal do sistema"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Rodar de Program Files não torna uma entrada automaticamente mais confiável do que rodar de AppData — a origem do caminho é só um dado a mais, não o veredito.",
+        "2": "Caminho em AppData com nome de atualizador é comum a milhares de aplicativos legítimos; não é evidência suficiente por si.",
+        "3": "Tratar todo autostart como sempre normal descarta o único sinal — a forma — que motivaria a checagem de procedência quando algo realmente destoa."
+      },
+      "dicas": [
+        "Pense no que aconteceria se você checasse só o caminho e o nome, sem olhar mais nada.",
+        "A resposta certa não elege uma das quatro entradas como \"a suspeita\" — questiona o critério usado para decidir isso.",
+        "Duas opções tratam a forma do artefato como veredito final, em vez de primeiro filtro."
+      ],
+      "pergunta_socratica": "Antes de conferir: o caminho da entrada, sozinho, já diz se o binário é assinado pelo editor que ele afirma ser?",
+      "explicacao": "A forma do artefato — caminho, nome, privilégio — é sempre o primeiro filtro, nunca o veredito. Discord e tipspace têm a mesma forma superficial de um padrão de persistência conhecido, e ambas são, nesta máquina, aplicativos legítimos: só a checagem de procedência (assinatura, editor, processo pai) separa uma leitura da outra.",
+      "fonte": "lab/mapear_comportamento.py, executado nesta máquina em 30/08/2026",
+      "tags": ["mitre", "artefato", "mapeamento"]
+    },
+    {
+      "id": "4.6.q12",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual comando lista, sem alterar nada no sistema, as entradas de inicialização automática desta máquina para inspeção antes de qualquer nome de técnica ser atribuído?",
+      "alternativas": [
+        "Get-CimInstance Win32_StartupCommand | Select-Object Name, Command, Location",
+        "Get-Process | Where-Object { $_.StartTime -lt (Get-Date).AddDays(-1) }",
+        "Remove-Item -Path (Get-CimInstance Win32_StartupCommand).Command -WhatIf",
+        "schtasks /create /tn AutostartCheck /tr notepad.exe /sc onstart"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Get-Process com filtro por tempo de início lista processos em execução agora, não o que está configurado para iniciar automaticamente.",
+        "2": "O campo Command de Win32_StartupCommand é a linha de comando inteira (programa mais argumentos), não um caminho de arquivo válido — Remove-Item -Path apontaria para algo que não existe como arquivo, e -WhatIf não muda o fato de a ferramenta ser de remoção, não de inspeção.",
+        "3": "schtasks /create cria uma nova tarefa agendada; é uma alteração no sistema, o oposto de uma inspeção somente leitura."
+      },
+      "dicas": [
+        "A resposta certa só lê e mostra informação, sem criar nem remover nada.",
+        "Duas opções alteram ou criam algo no sistema, mesmo que pareçam inofensivas à primeira vista.",
+        "Pense em qual comando corresponde exatamente ao que o laboratório desta sessão executou."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro linhas você rodaria sem nenhuma preocupação de estar mudando algo no sistema?",
+      "explicacao": "Get-CimInstance Win32_StartupCommand é consulta somente leitura via WMI/CIM nativo do Windows, e foi exatamente o comando usado no laboratório mapear_comportamento.py para levantar a lista real de autostart antes de qualquer classificação.",
+      "fonte": "lab/mapear_comportamento.py",
+      "tags": ["mitre", "comando", "powershell", "mapeamento"]
+    },
+    {
+      "id": "4.6.q13",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um analista vê um binário rodando da pasta pessoal do usuário, com nome genérico de atualizador, e já registra o incidente como uma técnica de persistência conhecida, sem checar mais nada. Qual é o risco concreto dessa pressa?",
+      "alternativas": [
+        "Se o binário for legítimo, o tempo do analista foi gasto num falso positivo, e um comportamento real pode passar despercebido",
+        "Não há risco algum, porque a forma do artefato já é, por definição, prova suficiente de persistência maliciosa",
+        "O único risco é o tempo perdido escrevendo o relatório, sem nenhuma consequência para a detecção real",
+        "O risco existe apenas quando o binário está localizado dentro de Program Files, e nunca quando roda a partir da pasta pessoal do usuário"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A forma sozinha nunca é prova suficiente — é exatamente esse pressuposto que 4.6.t2 e t3 desmontam com o exemplo real do autostart desta máquina.",
+        "2": "O risco vai além do tempo do relatório: recursos de investigação usados no falso positivo são recursos que não sobraram para outra coisa.",
+        "3": "A localização em Program Files não elimina risco nem garante confiabilidade — a checagem de procedência vale para qualquer caminho."
+      },
+      "dicas": [
+        "Pense no que acontece com o tempo e a atenção do analista quando ele conclui rápido demais.",
+        "A resposta certa liga o falso positivo a um custo que vai além do caso individual.",
+        "Duas opções tratam a forma do artefato como prova definitiva, o que o módulo já refuta."
+      ],
+      "pergunta_socratica": "Antes de conferir: enquanto o analista investiga um falso positivo, o que ele não está investigando?",
+      "explicacao": "Nomear a partir da forma, sem checar procedência, arrisca dois custos ao mesmo tempo: gastar recursos de investigação num comportamento benigno, e deixar de olhar para o que realmente merecia atenção naquele momento. É o mesmo mecanismo de custo de oportunidade por trás da fadiga de alerta, aplicado à classificação de artefato em vez de à regra.",
+      "fonte": "4.6.t2; 4.6.t3",
+      "tags": ["mitre", "cenario", "mapeamento", "custo"]
+    },
+    {
+      "id": "4.6.q14",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Por que dois artefatos com a mesma forma de superfície podem exigir duas conclusões opostas?",
+      "alternativas": [
+        "Porque a forma — caminho, nome, privilégio — é compartilhada por comportamentos legítimos e maliciosos",
+        "Porque um dos dois é sempre malicioso, e a forma idêntica é só coincidência estatística rara",
+        "Porque ferramentas de segurança de fornecedores diferentes sempre classificam exatamente o mesmo artefato de um jeito diferente entre si",
+        "Porque a forma de superfície muda dependendo de qual antivírus está instalado na máquina"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe essa regra de \"um dos dois é sempre malicioso\" — o exemplo real desta máquina mostra os dois legítimos ao mesmo tempo.",
+        "2": "Classificação divergente entre ferramentas é um problema à parte, de qualidade de detecção — não a razão pela qual a forma sozinha é insuficiente.",
+        "3": "A forma de superfície de um artefato não depende de qual antivírus está instalado; é uma propriedade do próprio artefato."
+      },
+      "dicas": [
+        "Pense no exemplo real do Discord e do tipspace: os dois têm a mesma forma, e nenhum é malicioso.",
+        "A resposta certa não afirma que um dos dois é sempre a exceção maliciosa.",
+        "Duas opções colocam a explicação em outro lugar (ferramenta instalada, coincidência estatística), fora do artefato em si."
+      ],
+      "pergunta_socratica": "Antes de conferir: no exemplo real desta máquina, algum dos dois aplicativos com forma idêntica era malicioso?",
+      "explicacao": "A forma de um artefato — onde roda, como se chama, com que privilégio — é compartilhada por comportamentos benignos e maliciosos igualmente. É o procedimento específico (assinatura, editor, processo pai) que separa os dois casos, não a forma, que por definição os iguala.",
+      "fonte": "4.6.t3",
+      "tags": ["mitre", "mapeamento", "conceitual"]
+    },
+    {
+      "id": "4.6.q15",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "trecho": "Política interna de triagem:\n\"Qualquer binário executado a partir de AppData\\Local do usuário deve ser\nautomaticamente classificado como técnica de persistência e encaminhado\npara remoção, sem exceção.\"",
+      "enunciado": "Qual é o problema desta política?",
+      "alternativas": [
+        "Ela trata a forma do artefato como veredito automático, ignorando aplicativos legítimos que também rodam dali",
+        "AppData\\Local é uma pasta que, tecnicamente, nunca contém nenhum executável válido no Windows",
+        "Remoção automática de um binário é uma ação tecnicamente impossível de configurar em qualquer sistema",
+        "A política deveria mencionar apenas chaves do registro HKLM em vez de pastas AppData, porque só chaves de máquina importariam de fato para persistência"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "AppData\\Local hospeda rotineiramente instaladores e atualizadores de aplicativos legítimos, como mostrou o autostart real desta máquina.",
+        "2": "Remoção automática de arquivo é ação comum em ferramentas de resposta; não há impossibilidade técnica nisso.",
+        "3": "Chaves por usuário (como as que apontam para AppData) são tão relevantes quanto chaves de máquina para persistência — a política erra em outro ponto, não nesse."
+      },
+      "dicas": [
+        "Pense no exemplo real do Discord e do tipspace, ambos rodando exatamente dessa pasta.",
+        "A política usa a palavra \"automaticamente\" e \"sem exceção\" — questione o que isso descarta.",
+        "Duas opções contestam fatos técnicos que o exemplo real desta sessão já contradiz."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantos aplicativos legítimos de uso diário desta máquina essa política removeria sem checagem nenhuma?",
+      "explicacao": "A política aplica a forma (caminho AppData\\Local) como veredito automático, exatamente o erro que 4.6.t2 e t3 descrevem. Aplicada ao ambiente real desta sessão, ela removeria o atualizador do Discord e do tipspace — dois aplicativos legítimos — sem nunca checar procedência.",
+      "fonte": "4.6.t3; lab/mapear_comportamento.py",
+      "tags": ["mitre", "caca-erro", "mapeamento"]
+    },
+    {
+      "id": "4.6.q16",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um adversário nomeia deliberadamente seu binário de persistência como \"UpdateHelper.exe\" e o coloca dentro de AppData\\Local, sabendo que dezenas de aplicativos legítimos fazem exatamente isso. Como essa escolha ajuda o adversário, e o que resolve o problema do lado da defesa?",
+      "alternativas": [
+        "O binário se mistura à forma de artefatos legítimos já tolerados; a defesa resolve checando procedência — assinatura, editor, processo pai",
+        "O adversário explora uma falha de criptografia do sistema de arquivos; a defesa resolve cifrando a pasta AppData inteira",
+        "O nome do arquivo torna a detecção tecnicamente impossível para qualquer ferramenta antivírus existente",
+        "A escolha só funciona se a máquina não tiver nenhum outro aplicativo instalado; a defesa resolve removendo todos os outros atualizadores"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não há menção a falha de criptografia no cenário; cifrar a pasta inteira não impediria um binário malicioso já executando dentro dela.",
+        "2": "Nome de arquivo não impede detecção por ferramentas que analisam assinatura, comportamento ou origem — só dificulta a triagem baseada em nome.",
+        "3": "Remover outros atualizadores legítimos não resolve nada e ainda quebra funcionalidade de aplicativos que os usuários dependem."
+      },
+      "dicas": [
+        "O adversário não está explorando uma falha técnica do sistema — está explorando um padrão de triagem preguiçoso.",
+        "Pense no que aconteceria se a defesa checasse assinatura em vez de confiar no nome do arquivo.",
+        "Duas opções propõem soluções que quebram funcionalidade legítima sem resolver o problema real."
+      ],
+      "pergunta_socratica": "Antes de conferir: um nome de arquivo escolhido de propósito engana uma checagem de assinatura digital?",
+      "explicacao": "O adversário se aproveita exatamente da tolerância que a forma comum de \"atualizador em AppData\" já recebe de triagens apressadas. A defesa que resiste a isso é a que checa procedência — se o binário está assinado pelo editor que afirma ser, e se o processo pai corresponde ao instalador oficial —, não a que confia no nome do arquivo.",
+      "fonte": "4.6.t2; 4.6.t3",
+      "tags": ["mitre", "ataque-defesa", "mapeamento"]
+    },
+    {
+      "id": "4.6.q17",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma equipe quer decidir, em poucos minutos, se uma entrada de autostart desconhecida merece investigação aprofundada. Qual conjunto de perguntas orienta melhor essa triagem rápida?",
+      "alternativas": [
+        "O binário está assinado, por quem, e o processo pai corresponde ao instalador esperado daquele nome de aplicativo?",
+        "O caminho contém a palavra AppData, e o nome do arquivo já soa genérico o bastante para parecer um atualizador comum de aplicativo?",
+        "Quantos outros aplicativos na mesma máquina têm entradas de autostart parecidas com essa?",
+        "O antivírus instalado já reconhece esse nome de arquivo em sua base de assinaturas?"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Caminho e nome genérico são só forma — o próprio módulo mostra que essa checagem sozinha não distingue Discord de um binário malicioso disfarçado.",
+        "2": "Quantidade de entradas parecidas não diz nada sobre a legitimidade de nenhuma delas em particular.",
+        "3": "Reconhecimento por assinatura de antivírus cobre só ameaças já catalogadas, e não substitui checar procedência do binário específico."
+      },
+      "dicas": [
+        "Pense no que realmente separa o Discord legítimo de um binário disfarçado com a mesma forma.",
+        "A resposta certa vai além de caminho e nome — chega à origem verificável do binário.",
+        "Duas opções ficam presas à forma ou a uma contagem que não prova nada por si."
+      ],
+      "pergunta_socratica": "Antes de conferir: saber que várias entradas de autostart \"parecem\" iguais já diz se alguma delas é maliciosa?",
+      "explicacao": "Assinatura digital e correspondência com o processo pai esperado vão além da forma — é procedência verificável, o passo que 4.6.t2 e t3 descrevem como necessário depois do primeiro filtro visual. As outras três opções param na forma ou em uma contagem que não distingue nada.",
+      "fonte": "4.6.t2; 4.6.t3",
+      "tags": ["mitre", "cenario", "mapeamento", "triagem"]
+    },
+    {
+      "id": "4.6.q18",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [2],
+      "enunciado": "Por que uma regra de correlação (do módulo anterior) e uma caça a ameaças existem para propósitos diferentes?",
+      "alternativas": [
+        "A regra cobre o comportamento recorrente o bastante para um limiar fixo; a caça cobre o raro demais para isso",
+        "A regra é sempre mais precisa tecnicamente do que qualquer caça, tornando a caça, segundo essa visão, desnecessária na maior parte dos casos reais",
+        "A caça sempre encontra mais incidentes reais do que qualquer regra jamais encontraria",
+        "As duas fazem exatamente a mesma coisa, e a diferença é apenas de nome entre ferramentas diferentes"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Precisão de uma regra depende de como ela foi escrita, não é uma propriedade automática superior à caça.",
+        "2": "Não há essa garantia de volume de achados; caça e regra encontram tipos diferentes de comportamento, não uma quantidade comparável entre si.",
+        "3": "Regra e caça respondem a propósitos diferentes — recorrente contra raro — não são a mesma coisa com nomes trocados."
+      },
+      "dicas": [
+        "Pense no que justifica manter um limiar rodando para sempre, contra o que só vale investigar uma vez.",
+        "A resposta certa separa os dois pelo tipo de comportamento que cada um cobre, não por qual é \"melhor\".",
+        "Duas opções tentam eleger um dos dois como superior, o que não é o argumento do módulo."
+      ],
+      "pergunta_socratica": "Antes de conferir: vale a pena manter um limiar automatizado rodando para sempre atrás de um comportamento que só aconteceu uma vez?",
+      "explicacao": "Regra de correlação e caça cobrem faixas diferentes do mesmo espectro: a regra vale a pena para o recorrente, testável e mantido; a caça existe para o raro ou específico demais para virar limiar permanente. Nenhuma substitui a outra.",
+      "fonte": "4.6.t4",
+      "tags": ["mitre", "caca-a-ameacas", "conceitual"]
+    },
+    {
+      "id": "4.6.q19",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um analista abre o painel de eventos e começa a navegar os dados \"para ver o que aparece\", sem nenhuma pergunta específica em mente. O que falta para isso ser uma caça, e não outra coisa?",
+      "alternativas": [
+        "Uma hipótese formulada antes de olhar o dado — uma pergunta específica respondida por uma consulta definida",
+        "Um número mínimo de horas gastas navegando livremente o painel, abaixo do qual isso não contaria como uma caça de verdade",
+        "Autorização por escrito da diretoria antes de qualquer analista abrir qualquer painel de eventos",
+        "Um relatório final de pelo menos dez páginas, independentemente do que a navegação encontrar"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Tempo gasto não define caça; uma consulta hipótese-orientada pode levar minutos e valer mais do que horas de navegação livre.",
+        "2": "Autorização formal é prática de governança em alguns contextos, mas não é o que distingue caça de navegação livre.",
+        "3": "Tamanho do relatório final não tem relação com a qualidade metodológica da investigação que o originou."
+      },
+      "dicas": [
+        "Pense na diferença entre \"o que aparece?\" e uma pergunta que se responde sim ou não.",
+        "A resposta certa é sobre o que vem antes da consulta, não sobre o que vem depois dela.",
+        "Duas opções inventam critérios burocráticos que não aparecem no texto do módulo."
+      ],
+      "pergunta_socratica": "Antes de conferir: \"ver o que aparece\" é uma pergunta que se responde sim ou não?",
+      "explicacao": "O que separa caça de navegação livre é a hipótese formulada antes: uma pergunta específica e falsificável, respondida por uma consulta definida — não o tempo gasto, nem autorização, nem o tamanho do relatório final.",
+      "fonte": "4.6.t4",
+      "tags": ["mitre", "cenario", "caca-a-ameacas"]
+    },
+    {
+      "id": "4.6.q20",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que deveria acontecer quando uma caça a ameaças confirma um padrão que se repete em múltiplos casos?",
+      "alternativas": [
+        "O padrão deveria virar uma regra de correlação automatizada, liberando a caça para procurar o próximo comportamento sem limiar",
+        "A caça deveria ser arquivada sem nenhuma ação adicional, já que o objetivo dela era só confirmar uma suspeita pontual",
+        "O mesmo analista deveria repetir manualmente a mesma consulta todos os dias, para sempre, sem automatizar nada",
+        "O padrão deveria ser mantido em segredo só dentro da equipe de caça, sem nunca compartilhar com quem escreve as regras de correlação automatizada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Arquivar sem ação desperdiça um padrão já validado que poderia proteger a organização de forma contínua e automatizada.",
+        "2": "Repetir manualmente todos os dias é exatamente o trabalho que uma regra automatizada deveria assumir, liberando a pessoa para outra coisa.",
+        "3": "Não compartilhar entre times contraria o próprio propósito da caça: alimentar o conjunto de regras automatizadas com o que só um humano conseguiria achar primeiro."
+      },
+      "dicas": [
+        "Pense em qual módulo anterior trata exatamente de regras automatizadas recorrentes.",
+        "A resposta certa fecha um ciclo entre dois módulos, não isola a caça como um fim em si mesma.",
+        "Duas opções desperdiçam o trabalho já feito ao confirmar o padrão."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que repetir manualmente, para sempre, o que já foi confirmado como recorrente?",
+      "explicacao": "Uma caça confirmada e recorrente deveria virar regra de correlação — devolvendo o trabalho ao mundo automatizado do módulo anterior, e liberando o esforço humano de caça para o próximo comportamento que ainda não tem limiar. É o fechamento explícito do ciclo entre os dois módulos.",
+      "fonte": "4.6.t4",
+      "tags": ["mitre", "caca-a-ameacas", "conceitual"]
+    },
+    {
+      "id": "4.6.q21",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "artefato": "=== eventos do log System por hora, últimas 48h (13 horas com dado) ===\n  2026-08-29 08:00    34 eventos\n  2026-08-29 09:00    47 eventos\n  2026-08-29 21:00    45 eventos\n  2026-08-30 00:00   560 eventos  <-- a mais movimentada\n  2026-08-30 10:00    27 eventos\n\nmédia por hora: 60.0\nhora mais movimentada: 2026-08-30 00:00, com 560 eventos (9.3x a média)",
+      "enunciado": "Um analista, sem nenhuma hipótese prévia, aponta para a hora das 00:00 como \"a mais suspeita\", só porque ela tem o maior número de eventos. O que essa saída real sustenta sobre esse raciocínio?",
+      "alternativas": [
+        "Uma hora com o maior número de eventos — sejam 560 ou qualquer outro valor — sempre existe em qualquer conjunto de 13 horas medidas; apontar para ela sem hipótese não é achado",
+        "560 eventos numa única hora é, por si, prova estatística de comprometimento nesta máquina",
+        "A tabela mostra que todas as 13 horas medidas têm exatamente o mesmo número de eventos",
+        "O pico às 00:00 só pode ser explicado por atividade maliciosa, já que nenhum processo legítimo do sistema operacional jamais roda durante a madrugada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "560 eventos numa hora não é, por si, prova de nada — a explicação mais provável é tarefa de manutenção do sistema rodando no período ocioso.",
+        "2": "A tabela mostra valores claramente diferentes entre as horas (de 27 a 560), o oposto de \"todas iguais\".",
+        "3": "Tarefas de manutenção, atualização e limpeza rodam rotineiramente durante a madrugada em praticamente qualquer sistema Windows."
+      },
+      "dicas": [
+        "Pense: em qualquer lista de 13 números diferentes, um deles precisa ser o maior — isso já é garantido antes de olhar.",
+        "A pergunta não é se 560 é um número alto — é se \"ser o maior\" prova alguma coisa por si só.",
+        "Duas opções tratam o horário ou o valor como prova definitiva, sem checar o que realmente roda nesse período."
+      ],
+      "pergunta_socratica": "Antes de conferir: essa hora seria \"a mais movimentada\" mesmo que todo o tráfego fosse inteiramente normal?",
+      "explicacao": "Em qualquer conjunto de 13 valores distintos, um deles é necessariamente o maior — isso não depende de nada acontecer de errado. O pico real desta máquina, à meia-noite, corresponde ao horário típico de tarefas de manutenção do sistema, não a nenhum indício de ataque encontrado.",
+      "fonte": "lab/caca_sem_hipotese.py, executado nesta máquina em 30/08/2026",
+      "tags": ["mitre", "artefato", "vies-de-confirmacao"]
+    },
+    {
+      "id": "4.6.q22",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Qual é a diferença prática entre a pergunta \"qual hora tem mais eventos?\" e a pergunta \"esta conta de serviço autentica fora da janela de manutenção declarada, sim ou não?\"",
+      "alternativas": [
+        "A primeira sempre tem resposta e não prova nada sozinha; a segunda, se a resposta for sim, já é evidência por si",
+        "Não existe diferença prática relevante entre as duas; ambas são igualmente úteis para qualquer caça",
+        "A primeira é sempre muito mais rápida de responder tecnicamente do que a segunda, e por isso sempre preferível na prática",
+        "A segunda só pode ser respondida por ferramentas comerciais de SIEM, nunca por consulta manual simples"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Há diferença real e relevante: uma nunca prova nada por si, a outra pode ser evidência direta dependendo da resposta.",
+        "2": "Velocidade de resposta não é o critério que diferencia as duas perguntas; o critério é se a resposta, sozinha, já significa algo.",
+        "3": "Uma consulta sobre autenticação fora de horário pode ser escrita manualmente, sem depender de nenhuma ferramenta comercial específica."
+      },
+      "dicas": [
+        "Pense no que a resposta \"a hora X tem mais eventos\" realmente diz sobre segurança, por si só.",
+        "Uma das duas perguntas já embute um critério fixado antes de qualquer número aparecer.",
+        "Pense em qual das duas você faria antes de abrir qualquer painel, e qual só faz sentido depois."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das duas perguntas já embute, na formulação, o que contaria como resultado anormal?",
+      "explicacao": "\"Qual hora tem mais eventos?\" sempre tem resposta, e a resposta nunca prova nada sozinha — é aritmética garantida. \"Esta conta autentica fora da janela declarada?\" embute uma expectativa fixada antes de perguntar; uma resposta afirmativa já é evidência, porque contradiz algo declarado com antecedência.",
+      "fonte": "4.6.t5",
+      "tags": ["mitre", "vies-de-confirmacao", "conceitual"]
+    },
+    {
+      "id": "4.6.q23",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Duas equipes de caça analisam o mesmo ambiente. A primeira declara, antes de consultar qualquer dado, \"vamos verificar se alguma conta de serviço autenticou fora da janela de manutenção\". A segunda abre o painel e navega até achar \"algo estranho\". Qual delas está mais protegida contra apontar um falso achado como se fosse real?",
+      "alternativas": [
+        "A primeira, porque a hipótese declarada antes fixa o que conta como resultado anormal antes de qualquer valor aparecer",
+        "A segunda, porque navegar mais dados aumenta proporcionalmente a chance de encontrar um ataque real em andamento",
+        "As duas estão igualmente protegidas, porque o resultado final depende só da experiência de quem analisa",
+        "Nenhuma das duas, porque toda caça a ameaças é, por natureza e sem exceção, subjetiva demais para ter qualquer proteção contra falso achado"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Navegar mais dados aumenta a chance de encontrar um valor fora da curva por acaso, não necessariamente um ataque real — é o próprio mecanismo do viés de confirmação.",
+        "2": "Experiência ajuda, mas não substitui o efeito estrutural de ter (ou não ter) uma hipótese fixada antes de olhar o dado.",
+        "3": "Caça pode ser conduzida com rigor suficiente para reduzir, embora não eliminar, o risco de falso achado — a hipótese prévia é justamente essa proteção."
+      },
+      "dicas": [
+        "Pense em qual das duas equipes já sabe, antes de olhar, o que contaria como resultado anormal.",
+        "A resposta certa não elogia \"mais dado\" como proteção — questiona o que \"mais dado sem critério\" produz.",
+        "Duas opções tratam caça como algo sem nenhuma estrutura possível, o que o módulo contesta."
+      ],
+      "pergunta_socratica": "Antes de conferir: navegar mais dados, sem hipótese, aumenta a chance de achar um ataque real, ou só de achar algo que parece um?",
+      "explicacao": "A hipótese declarada antes fixa o critério de anormalidade antes de qualquer número aparecer, protegendo contra o viés de confirmação. Navegar mais dados sem esse critério só aumenta a chance de topar com um valor fora da curva por acaso — que é justamente o mecanismo descrito em 4.6.t5.",
+      "fonte": "4.6.t5",
+      "tags": ["mitre", "cenario", "vies-de-confirmacao"]
+    },
+    {
+      "id": "4.6.q24",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um adversário programa sua atividade maliciosa para rodar exatamente na janela de manutenção noturna, sabendo que o volume de eventos legítimos já é alto nesse período. Como isso explora o viés de confirmação da defesa, e o que resolve o problema?",
+      "alternativas": [
+        "A atividade se esconde no ruído que os analistas já esperam ver ali; a defesa resolve com uma hipótese específica sobre o que a janela deveria conter",
+        "O adversário explora uma vulnerabilidade de rede que só existe durante a madrugada; a defesa resolve desligando a rede nesse período",
+        "A atividade só é possível porque o relógio do sistema está mal configurado em todas as máquinas do ambiente; a defesa resolve sincronizando o relógio de toda a rede com um servidor externo confiável",
+        "O adversário depende de um bug conhecido do agendador de tarefas do Windows; a defesa resolve desativando o agendador por completo"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não há menção a nenhuma vulnerabilidade de rede específica de horário; desligar a rede à noite quebraria backups e atualizações legítimas.",
+        "2": "O cenário não envolve relógio mal configurado; sincronizar horário não afeta a estratégia do adversário descrita.",
+        "3": "Desativar o agendador de tarefas inteiro quebraria toda a manutenção legítima que roda nesse horário, sem relação com nenhum bug mencionado."
+      },
+      "dicas": [
+        "O adversário não explora uma falha técnica específica — explora uma expectativa da equipe de defesa.",
+        "Pense no que aconteceria se a defesa tivesse uma hipótese específica sobre o comportamento normal daquela janela, em vez de só notar o volume.",
+        "Duas opções propõem desligar algo essencial, quebrando funcionalidade legítima sem resolver o problema real."
+      ],
+      "pergunta_socratica": "Antes de conferir: notar que o volume da madrugada é sempre alto ajuda a distinguir uma atividade nova ali dentro?",
+      "explicacao": "O adversário se esconde exatamente no período em que o alto volume já é esperado e, por isso, menos escrutinado — a defesa que só reage a volume cai no mesmo viés de confirmação de 4.6.t5. A defesa eficaz tem uma hipótese específica sobre o que deveria acontecer naquela janela (que contas, que processos), não apenas a expectativa de \"volume alto é normal aqui\".",
+      "fonte": "4.6.t4; 4.6.t5",
+      "tags": ["mitre", "ataque-defesa", "vies-de-confirmacao"]
+    },
+    {
+      "id": "4.6.q25",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [2],
+      "enunciado": "Por que \"em qualquer conjunto de números, um deles é o maior\" é relevante para caça a ameaças?",
+      "alternativas": [
+        "Porque mostra que apontar para o valor mais alto de uma distribuição não é, por si, um achado — ele sempre existe",
+        "Porque prova, sem exceção nenhuma, que toda distribuição de eventos de segurança contém necessariamente um ataque real em andamento",
+        "Porque é uma regra específica de sistemas Windows, que não se aplica a outros sistemas operacionais",
+        "Porque justifica ignorar completamente qualquer valor que se destaque de uma distribuição de dados"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A existência garantida de um valor máximo não implica que exista ataque algum — é justamente o oposto do que a frase ensina.",
+        "2": "A frase é matemática pura sobre qualquer conjunto de números, não uma propriedade específica de um sistema operacional.",
+        "3": "A conclusão certa não é ignorar valores que se destacam, é não tratá-los como achado sem investigar com uma hipótese específica."
+      },
+      "dicas": [
+        "Pense na diferença entre \"esse valor existe\" e \"esse valor significa alguma coisa\".",
+        "A frase é sobre matemática de conjuntos, não sobre nenhuma tecnologia específica.",
+        "A resposta certa não recomenda ignorar nem recomenda confiar cegamente no valor mais alto."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você gerasse 13 números totalmente aleatórios agora, um deles seria o maior?",
+      "explicacao": "A frase descreve um fato puramente aritmético: qualquer lista não vazia de números tem um máximo, independentemente de qualquer coisa estar errada. Isso não significa que o valor máximo deva ser ignorado — significa que ele precisa de uma hipótese específica para virar evidência, não só o fato de ser o maior.",
+      "fonte": "4.6.t5",
+      "tags": ["mitre", "vies-de-confirmacao", "conceitual"]
+    },
+    {
+      "id": "4.6.q26",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Ordene os passos de uma caça a ameaças conduzida com rigor, do primeiro ao último.",
+      "itens": [
+        "Formular a hipótese: uma pergunta específica que se responde sim ou não",
+        "Escrever a consulta que responde exatamente essa pergunta, sem mais",
+        "Investigar o resultado apenas se ele contradisser a expectativa declarada",
+        "Se o padrão se repetir em outros casos, propor que ele vire uma regra de correlação"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "A pergunta específica precisa existir antes de qualquer consulta ser escrita.",
+        "Investigar o resultado só faz sentido depois de já saber o que seria \"esperado\" versus \"inesperado\".",
+        "Transformar em regra é o destino do padrão confirmado, não o ponto de partida da caça."
+      ],
+      "pergunta_socratica": "Antes de conferir: faz sentido escrever uma consulta sem antes saber qual pergunta ela deveria responder?",
+      "explicacao": "A caça rigorosa começa pela pergunta, não pela consulta nem pelo dado. Investigar só o que contradiz a expectativa evita o viés de confirmação, e transformar um padrão confirmado em regra fecha o ciclo com a engenharia de detecção automatizada.",
+      "fonte": "4.6.t4; 4.6.t5",
+      "tags": ["mitre", "ordenacao", "caca-a-ameacas"]
+    },
+    {
+      "id": "4.6.q27",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "O que uma célula pintada num mapa de cobertura de técnicas costuma significar, na prática?",
+      "alternativas": [
+        "Que existe uma fonte de log ou uma regra mapeada para aquele comportamento — não que a detecção foi confirmada",
+        "Que a técnica correspondente já foi eliminada de forma definitiva e completa do ambiente, sem nenhuma chance de jamais ocorrer novamente",
+        "Que um teste de intrusão recente confirmou, com evidência prática, que aquela técnica específica é detectada",
+        "Que nenhuma outra organização no mundo já foi comprometida usando aquela técnica específica"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nenhuma célula de cobertura implica eliminação da técnica; ela só indica intenção de monitorar aquele comportamento.",
+        "2": "Confirmação por teste prático é exatamente o que costuma faltar — é o ponto central de 4.6.t6, não o que a célula já garante.",
+        "3": "Cobertura de uma organização não tem relação com o histórico de outras organizações serem ou não comprometidas pela mesma técnica."
+      },
+      "dicas": [
+        "Pense no que \"pintar uma célula\" realmente exige de trabalho — é o mesmo que testar a detecção?",
+        "A resposta certa distingue declarar uma capacidade de validar essa capacidade.",
+        "Duas opções atribuem à célula uma garantia que ela não oferece por si."
+      ],
+      "pergunta_socratica": "Antes de conferir: pintar uma célula no mapa exige provocar o comportamento correspondente e ver o alerta nascer?",
+      "explicacao": "Uma célula pintada costuma significar apenas que existe log ou regra mapeada para aquele comportamento — uma declaração de configuração, não uma validação de que a detecção funciona de fato, do evento real até o alerta lido por alguém.",
+      "fonte": "4.6.t6",
+      "tags": ["mitre", "cobertura", "conceitual"]
+    },
+    {
+      "id": "4.6.q28",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um relatório de segurança anuncia \"cobrimos um grande número de técnicas no nosso mapa\" como prova de maturidade de detecção. O que falta nessa afirmação para ela sustentar essa conclusão?",
+      "alternativas": [
+        "O número de células que foram, de fato, validadas provocando o comportamento e confirmando o alerta",
+        "O nome exato do framework de referência usado para colorir o mapa de cobertura",
+        "A quantidade total de analistas que trabalham na equipe de detecção da organização",
+        "O valor exato em orçamento anual investido na licença da ferramenta comercial que gera esse mapa de cobertura"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O nome do framework não muda se a cobertura declarada foi ou não validada na prática.",
+        "2": "Quantidade de analistas na equipe não informa se as células do mapa correspondem a detecção testada.",
+        "3": "Valor investido em licença de ferramenta mede gasto, não capacidade de detecção validada — o mesmo erro de medir esforço em vez de resultado."
+      },
+      "dicas": [
+        "Pense no que separa \"declarar cobertura\" de \"confirmar que a detecção funciona\".",
+        "A resposta certa é sobre validação prática, não sobre nome de ferramenta, tamanho de equipe ou orçamento.",
+        "Duas opções tentam medir maturidade por gasto ou por rótulo, o que o módulo anterior já mostrou ser insuficiente."
+      ],
+      "pergunta_socratica": "Antes de conferir: um número grande de técnicas cobertas prova, sozinho, que alguma delas foi testada de verdade?",
+      "explicacao": "A afirmação mede configuração declarada — quantas células foram pintadas — não capacidade de detecção. Para sustentar maturidade, faltaria dizer quantas dessas células foram validadas provocando o comportamento de propósito, a mesma prática que o módulo anterior já exigia para uma regra individual.",
+      "fonte": "4.6.t6",
+      "tags": ["mitre", "cenario", "cobertura"]
+    },
+    {
+      "id": "4.6.q29",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "trecho": "Relatório trimestral de detecção:\n\"Nosso mapa de cobertura mostra 85% das técnicas mais relevantes para o setor\npintadas de verde. Concluímos que a maturidade de detecção da organização é alta.\"",
+      "enunciado": "Qual é o defeito lógico nesta conclusão?",
+      "alternativas": [
+        "85% de células pintadas mede configuração declarada, não quantas técnicas tiveram a detecção validada de fato",
+        "O número 85% está tecnicamente incorreto, porque nenhum mapa de cobertura real pode jamais ultrapassar 50% de técnicas cobertas",
+        "O mapa de cobertura citado não pode, tecnicamente, ser gerado para nenhum setor específico",
+        "A conclusão deveria ter sido assinada pelo time de resposta a incidentes, não pelo time de detecção"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe esse limite técnico de 50%; organizações com programas maduros de detecção frequentemente reportam percentuais bem mais altos de células pintadas.",
+        "2": "Mapas de cobertura são comumente segmentados por setor, já que diferentes setores enfrentam conjuntos diferentes de técnicas relevantes.",
+        "3": "A autoria do relatório não é o defeito central; o problema está no que o percentual citado realmente sustenta, não em quem assina."
+      },
+      "dicas": [
+        "Releia 4.6.t6: o que uma célula pintada garante, e o que ela não garante?",
+        "O defeito não está no número 85% em si — está no que a conclusão afirma que esse número prova.",
+        "Duas opções contestam a plausibilidade do número, quando o problema é de raciocínio."
+      ],
+      "pergunta_socratica": "Antes de conferir: 85% de células pintadas diz alguma coisa sobre quantas dessas técnicas já tiveram o comportamento provocado de propósito?",
+      "explicacao": "O percentual de células pintadas mede configuração declarada, não resultado validado — o mesmo raciocínio já aplicado a contagem de regra e de alerta no módulo anterior. A conclusão de \"maturidade alta\" precisaria de uma medida de quantas técnicas tiveram a detecção efetivamente provocada e confirmada.",
+      "fonte": "4.6.t6",
+      "tags": ["mitre", "caca-erro", "cobertura"]
+    },
+    {
+      "id": "4.6.q30",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Duas organizações têm o mesmo percentual de células pintadas no mapa de cobertura. Uma detecta uma simulação de ataque em minutos; a outra não percebe nada durante todo o exercício. O que essa diferença mais provavelmente revela?",
+      "alternativas": [
+        "A primeira validou boa parte das células provocando o comportamento; a segunda só declarou a cobertura, sem testar nada",
+        "A primeira organização certamente tem um mapa de cobertura mais completo, mais extenso e mais atualizado do que o mapa da segunda organização",
+        "A diferença é aleatória e não pode ser atribuída a nenhuma prática de validação de detecção",
+        "A segunda organização está usando uma versão desatualizada do framework de referência do mapa"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O cenário já estabelece que as duas têm o mesmo percentual de cobertura declarada — a diferença não está no tamanho do mapa.",
+        "2": "Atribuir a diferença ao acaso ignora que validação de detecção é prática de engenharia, não sorte — o mesmo argumento já visto no módulo anterior para MTTD.",
+        "3": "Nada no cenário menciona versão de framework; a diferença descrita é sobre validação prática, não sobre atualização de catálogo."
+      },
+      "dicas": [
+        "As duas empatam exatamente no percentual do mapa — a diferença está em outro lugar.",
+        "Pense no que o módulo anterior já ensinou sobre contar regra versus validar regra.",
+        "Duas opções inventam uma causa (mapa maior, versão desatualizada) que o cenário não menciona."
+      ],
+      "pergunta_socratica": "Antes de conferir: mesmo percentual de células pintadas garante o mesmo resultado num exercício real de detecção?",
+      "explicacao": "Percentual de cobertura empatado mostra que a configuração declarada é parecida; a diferença de resultado vem de quantas dessas células foram, de fato, validadas provocando o comportamento — o mesmo raciocínio de 4.5 aplicado à unidade técnica, não regra individual.",
+      "fonte": "4.6.t6",
+      "tags": ["mitre", "cenario", "cobertura"]
+    },
+    {
+      "id": "4.6.q31",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [3],
+      "enunciado": "Por que o defeito de um mapa de cobertura de técnicas não validado é descrito como \"o mesmo problema de uma regra individual, multiplicado\"?",
+      "alternativas": [
+        "Porque cada célula pode estar tão não testada quanto uma regra isolada nunca disparada de propósito",
+        "Porque um mapa de cobertura sempre contém, literalmente, o dobro de erros de uma regra individual",
+        "Porque nenhuma célula de um mapa de cobertura pode, por definição, ser testada de forma alguma",
+        "Porque, segundo essa leitura, o mapa de cobertura substitui por completo a necessidade de qualquer regra de correlação individual existente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe essa proporção fixa de \"dobro de erros\" — a comparação é sobre o tipo de defeito, não sobre uma contagem exata.",
+        "2": "Células de um mapa de cobertura podem, sim, ser testadas — provocando o comportamento de propósito, exatamente como uma regra individual.",
+        "3": "O mapa de cobertura organiza e visualiza o que já existe de regras e fontes; ele não substitui a necessidade delas."
+      },
+      "dicas": [
+        "Pense no que \"multiplicado\" quer dizer aqui — é sobre proporção exata, ou sobre o mesmo tipo de problema em maior escala?",
+        "Pense em quantas vezes, de fato, alguém precisaria repetir uma mesma verificação para cobrir o mapa inteiro.",
+        "Duas opções tratam como impossível algo que, na prática, é só trabalhoso — validar cada célula."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma célula específica do mapa pode ser testada do mesmo jeito que uma regra individual foi testada no módulo anterior?",
+      "explicacao": "Cada célula do mapa representa, potencialmente, uma regra ou fonte nunca provocada de propósito — o mesmo defeito de \"regra nunca testada é regra que não existe\", só que repetido por célula. Validar o mapa inteiro significa aplicar essa mesma prática, célula por célula, não aceitar a cor da célula como suficiente.",
+      "fonte": "4.6.t6",
+      "tags": ["mitre", "cobertura", "conceitual"]
+    },
+    {
+      "id": "4.6.q32",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "artefato": "Mapa de cobertura declarado por uma equipe (formato resumido, sem ID de técnica):\n\n  Técnica                                   Log existe   Regra existe   Já validada provocando o evento\n  Execução via interpretador de script         sim           sim                    não\n  Criação de conta local não autorizada        sim           sim                     sim\n  Exfiltração por canal já usado (DNS, HTTP)   sim           não                    não\n  Movimento lateral via credencial reutilizada sim           sim                    não",
+      "enunciado": "Segundo este mapa, quantas das quatro técnicas listadas têm detecção de fato confirmada, e não apenas configuração declarada?",
+      "alternativas": [
+        "Apenas uma, a segunda da lista — todas as outras têm log e regra, mas nenhuma validação confirmada na terceira coluna",
+        "Três, porque ter log e regra ao mesmo tempo já basta para considerar a detecção confirmada",
+        "Todas as quatro, porque a existência do log por si já garante que o comportamento seria percebido",
+        "Nenhuma, porque um mapa declarado por uma equipe nunca pode ser considerado uma fonte confiável"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Ter log e regra é exatamente o que a coluna \"já validada\" mede à parte — três das quatro têm log e regra, mas só uma tem validação confirmada.",
+        "2": "A existência do log não garante detecção; é preciso a regra processar aquele log e alguém confirmar o alerta, que é o que a terceira coluna mede.",
+        "3": "O mapa pode ser uma fonte legítima de acompanhamento interno; o problema não é a origem do mapa, é distinguir configuração de validação dentro dele."
+      },
+      "dicas": [
+        "Conte só a coluna \"já validada provocando o evento\", ignorando as outras duas colunas por um momento.",
+        "Log e regra existirem é pré-requisito, mas a tabela separa isso de validação de propósito.",
+        "Conte quantas linhas realmente têm as três marcas ao mesmo tempo, não só as duas primeiras."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas linhas desta tabela têm \"sim\" na coluna mais à direita?",
+      "explicacao": "Três das quatro técnicas têm log e regra declarados, mas só a segunda linha da tabela tem a validação confirmada na terceira coluna — provocada de propósito e com o alerta conferido. As outras três, mesmo com log e regra, permanecem no mesmo estado de opinião não testada que 4.6.t6 descreve.",
+      "fonte": "4.6.t6",
+      "tags": ["mitre", "artefato", "cobertura"]
+    },
+    {
+      "id": "4.6.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Qual pergunta reflete melhor a maturidade real de um programa de detecção mapeado por técnica?",
+      "alternativas": [
+        "Quantas das técnicas mapeadas já tiveram o comportamento provocado de propósito, com o alerta confirmado por alguém?",
+        "Quantas técnicas diferentes aparecem listadas no framework de referência usado pela organização?",
+        "Quantas cores diferentes o mapa de cobertura usa para representar visualmente cada célula pintada no relatório trimestral?",
+        "Quantos analistas da equipe conseguem recitar de memória o nome de todas as técnicas do mapa?"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Quantidade de técnicas no catálogo de referência é uma propriedade do framework, não da organização que o usa.",
+        "2": "Número de cores usadas no mapa é uma escolha de visualização, sem relação com a detecção de fato funcionar.",
+        "3": "Memorizar nomes de técnica não tem relação com a capacidade real de detectar o comportamento correspondente."
+      },
+      "dicas": [
+        "Pense no que realmente mudaria se a organização sofresse um incidente amanhã.",
+        "A resposta certa é sobre ação verificável (provocar e confirmar), não sobre catálogo, cor ou memorização.",
+        "Duas opções medem características do framework ou da equipe que não dependem da detecção funcionar."
+      ],
+      "pergunta_socratica": "Antes de conferir: memorizar o nome de uma técnica ajuda a detectá-la de verdade quando ela acontecer?",
+      "explicacao": "A pergunta que reflete maturidade real é sobre validação: quantas técnicas mapeadas já tiveram o comportamento provocado de propósito, com o alerta confirmado. Catálogo do framework, cor do mapa e memorização de nomes são características que não dependem da detecção funcionar de fato.",
+      "fonte": "4.6.t6",
+      "tags": ["mitre", "cobertura", "conceitual"]
+    },
+    {
+      "id": "4.6.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma organização tem duas semanas para melhorar a confiabilidade do próprio mapa de cobertura de técnicas, sem aumentar o número de células pintadas. O que produz o resultado mais útil no prazo?",
+      "alternativas": [
+        "Escolher um subconjunto de técnicas já cobertas e validar cada uma provocando o comportamento, corrigindo o que falhar",
+        "Pintar o maior número possível de células novas no mapa, para que a cobertura declarada pareça consideravelmente mais completa e impressionante ao final do prazo de duas semanas",
+        "Trocar o framework de referência usado para gerar o mapa por um mais recente, mantendo as mesmas células já pintadas",
+        "Reduzir o número de técnicas listadas no mapa, para que o percentual de cobertura pareça maior sem mudar nada na prática"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Pintar mais células sem validar nenhuma aumenta a aparência de cobertura, sem mudar nada sobre confiabilidade real.",
+        "2": "Trocar de framework não altera se as células já pintadas correspondem a detecção de fato validada.",
+        "3": "Reduzir a lista de técnicas para inflar o percentual manipula a métrica sem melhorar a confiabilidade real de nenhuma célula."
+      },
+      "dicas": [
+        "A pergunta pede o que melhora confiabilidade, não o que melhora a aparência do percentual.",
+        "Pense no que o módulo já ensinou como prática de validação, aplicada agora célula por célula.",
+        "Duas opções mexem no número ou no framework, sem tocar em nenhuma validação real."
+      ],
+      "pergunta_socratica": "Antes de conferir: pintar mais células, sem validar nenhuma, muda o que se sabe sobre a detecção de verdade?",
+      "explicacao": "Validar um subconjunto de células já pintadas — provocando o comportamento e corrigindo o que falhar — é a única ação que muda o que a organização de fato sabe sobre a própria detecção. As outras opções mexem na aparência do mapa (mais células, outro framework, lista menor) sem tocar em validação real.",
+      "fonte": "4.6.t6",
+      "tags": ["mitre", "cenario", "cobertura", "validacao"]
+    },
+    {
+      "id": "4.6.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Você assume a função de caça a ameaças numa empresa que já tem um mapa de cobertura extenso, mas nunca formulou uma hipótese de caça nem validou nenhuma célula provocando o comportamento. Com um mês pela frente, o que produz o resultado mais útil no prazo?",
+      "alternativas": [
+        "Escolher poucas técnicas prioritárias, mapear cada comportamento suspeito a partir do artefato, formular hipóteses específicas de caça e validar provocando o evento",
+        "Aumentar o número de técnicas listadas no mapa de cobertura, para que a organização apareça consideravelmente mais madura e completa no próximo relatório trimestral de segurança",
+        "Escrever o maior número possível de novas regras de correlação, cobrindo o máximo de técnicas do framework de referência de uma vez",
+        "Substituir o framework de referência atual por outro mais recente, já que o antigo provavelmente é a causa da falta de validação"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Aumentar a lista de técnicas sem validar nada infla a aparência de maturidade sem mudar a capacidade real de detecção.",
+        "2": "Escrever muitas regras de uma vez, sem hipótese nem validação, tende a repetir o defeito de fadiga de alerta já visto no módulo anterior.",
+        "3": "Nada no cenário indica que o framework seja a causa; trocar de framework não resolve falta de hipótese nem de validação, que são práticas, não ferramentas."
+      },
+      "dicas": [
+        "O sintoma dado — mapa extenso, nada validado, nenhuma hipótese formulada — já aponta para quais eixos deste módulo estão mais fracos.",
+        "Em um mês, o resultado mais útil vem de validar o que já existe com critério, não de adicionar mais do mesmo sem checar nada.",
+        "Pense em qual ação, sozinha, muda o que a equipe sabe sobre a própria capacidade de detectar, e não só o tamanho do mapa."
+      ],
+      "pergunta_socratica": "Antes de conferir: um mapa maior ajuda em algo se nenhuma célula dele nunca foi testada nem partiu de uma hipótese específica?",
+      "explicacao": "O diagnóstico do cenário — mapa extenso, nada validado, nenhuma hipótese — mostra que faltam justamente os quatro eixos deste módulo: mapear a partir do artefato, priorizar por tática/técnica em vez de lista completa, formular hipótese de caça, e validar célula por célula. Em um mês, priorizar e validar entrega diagnóstico e melhoria real, sem depender de mapa maior nem de trocar ferramenta.",
+      "fonte": "Síntese dos quatro objetivos deste módulo (4.6.t1 a 4.6.t6)",
+      "tags": ["mitre", "cenario", "sintese"]
+    }
+  ]
+}
