@@ -573,7 +573,7 @@
         "Faltam serviços em nuvem, aplicações de terceiros com acesso a dados, contas de usuário e dispositivos móveis — todos caminhos possíveis até a informação",
         "Falta informar o fabricante e o modelo de cada equipamento listado",
         "Falta separar os servidores por sistema operacional",
-        "Falta indicar a data da última manutenção física de cada ativo"
+        "Falta indicar a data da última manutenção física de cada ativo, informação útil para planejamento de troca de equipamento, mas sem relação com pontos de contato explorados por um invasor"
       ],
       "correta": 0,
       "dicas": [
@@ -746,7 +746,7 @@
       ],
       "enunciado": "O que caracteriza movimento lateral em um incidente?",
       "alternativas": [
-        "O uso de um acesso já obtido para alcançar outras máquinas, contas ou sistemas dentro do ambiente",
+        "O uso de um acesso obtido para alcançar outros pontos do ambiente",
         "A tentativa inicial de entrar no ambiente a partir da internet",
         "A extração dos dados do ambiente para um servidor externo",
         "A tentativa de apagar registros de log para dificultar a investigação"
@@ -853,7 +853,7 @@
       ],
       "enunciado": "Uma empresa quer limitar o alcance de um invasor que consiga comprometer uma estação de trabalho. Qual medida ataca especificamente o movimento lateral?",
       "alternativas": [
-        "Segmentar a rede e restringir quais sistemas podem ser alcançados a partir da faixa das estações",
+        "Segmentar a rede e limitar o alcance das estações a outros sistemas",
         "Instalar um filtro de e-mail mais rigoroso para anexos e links",
         "Exigir senhas mais longas para todos os usuários da empresa",
         "Aumentar a retenção dos registros de log de seis meses para dois anos"
