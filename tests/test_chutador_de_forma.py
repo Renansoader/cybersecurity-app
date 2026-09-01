@@ -5,6 +5,7 @@ depende para não virar tautologia despercebida."""
 
 from ferramentas.chutador_de_forma import (
     evita_absoluto,
+    mais_curta,
     mais_longa,
     unica_com_digito,
     unica_com_negacao,
@@ -16,6 +17,10 @@ from ferramentas.chutador_de_forma import (
 
 def test_mais_longa_escolhe_a_de_mais_caracteres():
     assert mais_longa(["curta", "a mais longa de todas", "média", "outra"]) == 1
+
+
+def test_mais_curta_escolhe_a_de_menos_caracteres():
+    assert mais_curta(["curta", "a mais longa de todas", "média", "outra"]) == 0
 
 
 def test_unica_com_negacao_acha_a_marcada():

@@ -292,7 +292,7 @@
       "objetivos": [0],
       "enunciado": "A área de segurança propõe cifrar todos os documentos com uma chave guardada em um cofre físico, acessível apenas ao diretor, para eliminar risco de vazamento. Qual é a objeção mais consistente?",
       "alternativas": [
-        "O ganho de confidencialidade se paga com uma perda severa de disponibilidade, e o controle provavelmente será contornado",
+        "O ganho de confidencialidade se paga com uma perda severa de disponibilidade",
         "Criptografia não protege documentos, apenas conexões de rede",
         "O risco de vazamento não existe se os documentos ficam em servidor interno",
         "A objeção é infundada: eliminar o risco de vazamento justifica qualquer custo operacional"
@@ -512,7 +512,7 @@
       "enunciado": "Uma empresa investiu pesado em controles digitais e sofreu um vazamento: um estagiário foi convencido por telefone a ler em voz alta os códigos de um relatório interno para alguém que se passou por auditor. Qual leitura é a mais correta?",
       "alternativas": [
         "O incidente é de segurança da informação com vetor humano, e nenhum controle exclusivamente digital o teria evitado",
-        "O incidente prova que os controles digitais estavam mal configurados",
+        "O incidente prova que os controles digitais estavam mal configurados e precisam de uma auditoria completa de configuração antes de qualquer outra medida",
         "O incidente não é de segurança da informação, porque não houve acesso a nenhum sistema",
         "O incidente teria sido evitado por um firewall com inspeção de conteúdo"
       ],
@@ -619,7 +619,7 @@
       "objetivos": [2],
       "enunciado": "Uma empresa quer reduzir o risco de ser afetada por vulnerabilidades recém-divulgadas em software de terceiros. Qual medida trata a causa de forma sustentável?",
       "alternativas": [
-        "Manter inventário do que está instalado e um processo periódico de avaliação e aplicação de correções",
+        "Inventário do que está instalado e processo periódico de correções",
         "Comprar uma solução de proteção de endpoint com detecção por comportamento",
         "Contratar um teste de intrusão anual mais completo que o atual",
         "Bloquear no firewall todo tráfego de saída não essencial"
@@ -706,7 +706,7 @@
         "Vulnerabilidade é a fraqueza; ameaça é quem ou o que pode explorá-la; risco é a combinação de probabilidade e impacto disso acontecer",
         "Vulnerabilidade é o ataque em si; ameaça é o prejuízo; risco é a chance de ser descoberto",
         "Os três são sinônimos usados por públicos diferentes: técnico, executivo e jurídico",
-        "Risco é a fraqueza técnica; vulnerabilidade é a decisão de aceitá-la"
+        "Risco é a fraqueza técnica do sistema; vulnerabilidade é a decisão de aceitar esse risco sem corrigir; ameaça é o registro formal dessa aceitação no comitê de segurança"
       ],
       "correta": 0,
       "dicas": [
@@ -719,7 +719,7 @@
       "por_que_erradas": {
         "1": "Inverte e embaralha os três conceitos; vulnerabilidade não é o ataque, e risco não é a chance de detecção.",
         "2": "São conceitos tecnicamente distintos, não versões do mesmo termo para públicos diferentes.",
-        "3": "Inverte os papéis: risco não é a fraqueza, e vulnerabilidade não é uma decisão."
+        "3": "Inverte os três papéis: risco não é a fraqueza, vulnerabilidade não é uma decisão, e ameaça não é um registro formal."
       },
       "fonte": "Security Engineering, 3ª ed., cap. 1; NIST Cybersecurity Framework",
       "tags": ["processo-nao-produto", "risco", "vocabulario", "fundamentos"]
@@ -789,7 +789,7 @@
       "trecho": "RELATÓRIO PÓS-INCIDENTE — nº 2026-014\nCausa raiz: servidor de aplicação rodando versão vulnerável da biblioteca de terceiros X. A correção do fornecedor estava disponível havia oito meses.\nDetecção: alerta de um cliente, por telefone.\nAção corretiva: biblioteca X atualizada no servidor afetado. Chamado encerrado.",
       "enunciado": "A ação corretiva registrada resolve o incidente, mas deixa um dos três pilares — pessoas, processo e tecnologia — sem nenhum tratamento. Qual pilar ficou de fora, e por quê?",
       "alternativas": [
-        "Processo: atualizar aquele servidor conserta a instância, mas não cria a rotina de inventário e de aplicação de correções que deixou a falha oito meses no ar",
+        "Processo: conserta a instância, mas não cria a rotina que evitaria a próxima falha semelhante",
         "Tecnologia: atualizar a biblioteca é insuficiente, seria preciso substituir o servidor por um modelo mais recente",
         "Pessoas: o que faltou foi treinar os usuários finais a reconhecer o ataque antes que ele chegasse ao servidor",
         "Nenhum: a causa raiz técnica foi corrigida, então o incidente está devidamente encerrado"
@@ -896,7 +896,7 @@
       "alternativas": [
         "Regra de processo que exige confirmação por canal independente, previamente cadastrado, antes de qualquer alteração de dado bancário",
         "Filtro de e-mail mais agressivo, que bloqueie mensagens externas com anexos",
-        "Treinamento anual sobre fraude em pagamentos para toda a empresa",
+        "Treinamento anual sobre fraude em pagamentos, reforçado com simulações periódicas de phishing direcionado especificamente ao time financeiro da empresa",
         "Antivírus atualizado nas estações do time financeiro"
       ],
       "correta": 0,
@@ -1031,7 +1031,7 @@
       "alternativas": [
         "Levantar quais informações a empresa tem e quais são críticas, mapear as ameaças plausíveis e propor um ciclo com poucas ações priorizadas por risco",
         "Contratar imediatamente as três ferramentas mais bem avaliadas do mercado para prevenção, detecção e resposta",
-        "Escrever a política de segurança completa, com todos os controles previstos em norma internacional",
+        "Escrever a política de segurança completa, cobrindo todos os controles previstos em uma norma internacional reconhecida, e publicá-la para toda a empresa seguir",
         "Executar um teste de intrusão em toda a infraestrutura para descobrir as falhas e corrigi-las"
       ],
       "correta": 0,

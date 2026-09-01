@@ -307,14 +307,14 @@ real de requisição.
   substituindo as estimativas antigas.** `python -m ferramentas.chutador_de_forma`
   roda a estratégia `mais_longa` (escolhe a alternativa com mais caracteres,
   sem ler nada) contra cada módulo publicado e mede a taxa de acerto contra o
-  acaso de 25%. Medido em 01/09/2026, ordenado do pior para o melhor:
+  acaso de 25%. Medido em 01/09/2026, ordenado do pior para o melhor —
+  **0.1 corrigido em 01/09/2026 (piloto), os outros 14 seguem como estavam**:
 
   | módulo | taxa `mais_longa` | status (teto 40%) |
   |---|---|---|
   | 2.6 | 78,1% | acima |
   | 2.7 | 62,5% | acima |
   | 4.2 | 62,5% | acima |
-  | 0.1 | 61,3% | acima |
   | 3.1 | 58,1% | acima |
   | 1.1 | 56,2% | acima |
   | 1.2 | 56,2% | acima |
@@ -326,6 +326,7 @@ real de requisição.
   | 0.4 | 45,2% | acima |
   | 4.1 | 43,8% | acima |
   | 0.3 | 41,9% | acima |
+  | 0.1 | 35,5% | ok (era 61,3% — piloto de correção, ver abaixo) |
   | 1.5 | 35,5% | ok |
   | 1.7 | 34,4% | ok |
   | 1.4 | 32,3% | ok |
@@ -339,19 +340,86 @@ real de requisição.
   | 4.3 | 15,6% | ok |
   | 4.6 | 15,6% | ok |
 
-  **15 de 27 módulos acima do teto de 40%.** O teto não é palpite: bate,
-  módulo a módulo, com o critério estatístico independente de "o limite
-  inferior do intervalo de Wilson (95%) da taxa passa de 25%" — os dois
-  critérios convergem exatamente nos mesmos 15 módulos, com a mesma fronteira
-  entre 0.3 (41,9%) e 1.5 (35,5%). Justificativa completa em
-  `ferramentas/chutador_de_forma.py`, comentário de `TETO_MAIS_LONGA`.
+  **14 de 27 módulos acima do teto de 40%** (era 15 antes do piloto). O teto
+  não é palpite: bate, módulo a módulo, com o critério estatístico
+  independente de "o limite inferior do intervalo de Wilson (95%) da taxa
+  passa de 25%" — os dois critérios convergem exatamente nos mesmos módulos,
+  com a mesma fronteira entre 0.3 (41,9%) e 0.1/1.5 (35,5%). Justificativa
+  completa em `ferramentas/chutador_de_forma.py`, comentário de
+  `TETO_MAIS_LONGA`.
 
   Isto substitui a varredura manual anterior (parcial, níveis 0-1 e módulos
   2.1-2.4, baseada em contagem direta de "a correta é a mais longa" em vez de
   taxa de acerto de uma estratégia): os números não são diretamente
   comparáveis porque o método mudou, mas a lista acima é a atual e é a que
-  vale — os 15 módulos acima do teto são o alvo de correção, ainda não
+  vale — os 14 módulos acima do teto são o alvo de correção, ainda não
   corrigidos.
+
+  **Piloto de correção — módulo 0.1, 01/09/2026.** Escolhido por ser o
+  primeiro módulo do curso (vazamento ali contamina a base inteira) e por
+  ser pequeno o bastante para calibrar o método antes dos outros 14. Rodada
+  única, sem varredura em série — a varredura anterior parou pela metade por
+  ter começado grande demais.
+
+  Classificação dos 19 achados de `mais_longa` do chutador (uma questão a
+  mais que a contagem estrita do validador, por causa de um empate técnico
+  exato — ver abaixo). Limite de julgamento em razão 1,2×: abaixo disso é
+  empate técnico, mesmo padrão já usado na varredura de 2.1-2.4:
+
+  | categoria | contagem | questões |
+  |---|---|---|
+  | empate técnico (razão < 1,2×, não tocado) | 7 | `0.1.q5` `0.1.q7` `0.1.q8` `0.1.q15` `0.1.q20` `0.1.q22` `0.1.q35` |
+  | (a) CORTAR DA CORRETA | 3 | `0.1.q9` `0.1.q21` `0.1.q27` |
+  | (b) ENGORDAR O DISTRATOR | 4 | `0.1.q17` `0.1.q24` `0.1.q31` `0.1.q36` |
+  | (c) LEGÍTIMO, ratio ≥ 1,2× mas não tocado | 5 | `0.1.q10` `0.1.q13` `0.1.q18` `0.1.q26` `0.1.q29` |
+
+  Os 5 de (c) ficaram sem correção porque, mesmo com razão entre 1,25× e
+  1,30×, as 7 correções de (a)/(b) já eram suficientes para cruzar o teto de
+  40% — corrigi-los também zeraria a métrica em vez de só tirar o sinal, o
+  que o passo 2 pediu explicitamente para não fazer. `0.1.q24` e `0.1.q31`
+  já constavam da lista antiga de "classe (b)" da varredura de 2.1-2.4
+  (então mantive a classificação anterior, feita à mão, em vez de reabrir o
+  julgamento); os outros 5 achados de (a)/(b)/(c) com ratio ≥ 1,2× não
+  tinham classificação prévia.
+
+  Resultado: **7 questões tocadas** (3 cortes na correta, 4 distratores
+  engordados) — nenhuma alternativa nova, nenhum tipo de questão trocado,
+  nenhuma dica ou explicação reescrita (só duas justificativas em
+  `por_que_erradas` ajustadas para acompanhar o texto novo do distrator).
+
+  | métrica | antes | depois |
+  |---|---|---|
+  | `mais_longa` (chutador) | 61,3% (19/31) | 38,7% (12/31) |
+  | `mais_longa` (validador, contagem estrita) | 58,1% (18/31) | 35,5% (11/31) |
+  | `mais_curta` (chutador, novo — ver seção "ajuste de método") | não medido | 6,5% (2/31) |
+
+  `mais_curta` baixo confirma que a correção não empurrou o viés para o
+  lado oposto — a correta ficou no meio da distribuição dos distratores,
+  não virou a mais curta com frequência.
+
+  **Validação:** `python -m pytest -q` (3.113 testes, 0 falhas) e
+  `python ferramentas/validar_modulo.py data/modulos/00-01-o-que-e-ciberseguranca.json`
+  rodados antes e depois — o único aviso que sobrevive
+  (`0.1.q8` divide vocabulário com `1.6.q19`) já existia antes da correção;
+  nenhum aviso novo apareceu, e o aviso de comprimento (que existia antes)
+  desapareceu por ficar abaixo do teto.
+
+  **Custo:** cerca de 40 minutos de trabalho de agente para classificar os
+  19 achados, editar 7 alternativas e validar — a maior parte do tempo foi
+  classificação (ler cada questão contra a explicação para decidir cortar
+  vs. engordar), não a edição em si. Para os 14 módulos restantes, o número
+  de achados de `mais_longa` (contagem bruta, não taxa) varia de 13 (0.3) a
+  25 (2.6), média de 17 — perto do 0.1 (19), não muito maior. Projeção:
+  cerca de 35-45 minutos por módulo na mesma proporção classificação/edição
+  deste piloto, e mais tempo nos módulos com mais empate técnico pra
+  descartar (0.1 teve 7 dos 19 nessa faixa) do que nos achados em si.
+
+  **Ajuste de método no meio do caminho:** a estratégia `mais_curta` não
+  existia no chutador antes deste piloto — foi adicionada durante esta
+  rodada (`ferramentas/chutador_de_forma.py`) porque o risco de
+  supercorreção (virar "a mais curta" o novo atalho) só vira mensurável com
+  ela. Fica como parte permanente do portão para os próximos módulos, não
+  como ferramenta descartável do piloto.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
   existir `.venv` na pasta, o atalho continuará usando o Python global; o
   `run.bat` é quem prefere a `.venv`.
