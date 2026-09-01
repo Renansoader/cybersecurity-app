@@ -3,7 +3,8 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-08-31 · commit `0e35411` · 3.110 testes passando
+Última atualização: 2026-09-01 · regra 7 removida (dígito/negação medidos e
+descartados) · 3.112 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -17,7 +18,7 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 | Questões | 946 |
 | Blocos de teoria | 164 |
 | Tags distintas | 789 |
-| Testes automatizados | 3.103 |
+| Testes automatizados | 3.112 |
 | Linhas de código Python | ~2.280 no app · ~3.830 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
@@ -56,6 +57,7 @@ C:\Dev\cybersecurity-app\
 │   └── modulo-minimo.json   modelo comentado, um exemplo de cada tipo de questão
 ├── ferramentas/
 │   ├── validar_modulo.py    valida um módulo antes de ele entrar em data/modulos/
+│   ├── chutador_de_forma.py portão de comprimento: taxa de "mais_longa" por módulo
 │   ├── avisos_aceitos.json  casos já lidos e justificados, que não viram aviso
 │   └── gerar_icone.py       redesenha o app.ico (precisa de pillow)
 ├── tests/                   7 arquivos de teste
@@ -301,68 +303,72 @@ real de requisição.
   forma e **não alcança a paráfrase que dispensa o molde** — a leitura humana
   continua sendo a única rede para esses casos, e o passivo deles é
   desconhecido.
-- **Comprimento da alternativa correta: varrido só até o nível 2.** A régua de
-  distribuição entrou em `a21ca56` e a varredura de classe (a) — cortar da
-  correta a justificativa que a explicação já carrega — cobriu os níveis 0, 1 e
-  os módulos 2.1 a 2.4. No corpus, "a correta é a mais longa" caiu de **76% para
-  39%**; o acaso é 25%. O que ficou:
+- **Comprimento da alternativa correta: dívida medida módulo a módulo,
+  substituindo as estimativas antigas.** `python -m ferramentas.chutador_de_forma`
+  roda a estratégia `mais_longa` (escolhe a alternativa com mais caracteres,
+  sem ler nada) contra cada módulo publicado e mede a taxa de acerto contra o
+  acaso de 25%. Medido em 01/09/2026, ordenado do pior para o melhor:
 
-  - **20 questões de classe (b)**, em que a correta não tem gordura e o que falta
-    é especificidade no distrator. Reescrevê-las é trabalho de conteúdo, não de
-    faxina: é preciso escrever um erro plausível com a mesma densidade da
-    resposta certa. Níveis 0 e 1: `0.1.q24` `0.1.q31` `0.2.q1` `0.2.q15`
-    `0.2.q20` `0.4.q3` `0.4.q21` `0.4.q28` `1.2.q21` `1.4.q22` `1.6.q10`.
-    Nível 2: `2.1.q9` e `2.1.q17`. Três subtipos: definição sem gordura contra
-    distrator vago; lista em que cada item é parte da resposta; e comando ou
-    bloco de código em que a resposta certa tem mais estágios.
-  - **Oito módulos não varridos**, todos entre 38% e 75%: 2.6 (75%), 4.2 (62%),
-    2.7 (56%), 3.1 (48%), 3.3 (47%), 3.2 (41%), 4.1 (41%) e 2.5 (38%). Ficaram
-    de fora por decisão de prioridade: já estavam perto ou dentro do teto, e o
-    retorno não pagava mais uma sessão.
-  - **A zona cinzenta e os empates técnicos, deliberadamente não tocados.** Das
-    288 questões em que a correta ainda é a mais longa, **174 são empate técnico**
-    (razão abaixo de 1,2×, diferença de poucos caracteres) e **96 estão entre
-    1,2× e 1,4×**. Mexer nelas produz churn sem reduzir sinal: a amostra mostrou
-    que abaixo de 1,4× não há o que cortar.
+  | módulo | taxa `mais_longa` | status (teto 40%) |
+  |---|---|---|
+  | 2.6 | 78,1% | acima |
+  | 2.7 | 62,5% | acima |
+  | 4.2 | 62,5% | acima |
+  | 0.1 | 61,3% | acima |
+  | 3.1 | 58,1% | acima |
+  | 1.1 | 56,2% | acima |
+  | 1.2 | 56,2% | acima |
+  | 2.5 | 56,2% | acima |
+  | 1.3 | 46,9% | acima |
+  | 3.2 | 46,9% | acima |
+  | 3.3 | 46,9% | acima |
+  | 0.2 | 45,2% | acima |
+  | 0.4 | 45,2% | acima |
+  | 4.1 | 43,8% | acima |
+  | 0.3 | 41,9% | acima |
+  | 1.5 | 35,5% | ok |
+  | 1.7 | 34,4% | ok |
+  | 1.4 | 32,3% | ok |
+  | 4.4 | 31,2% | ok |
+  | 2.1 | 28,1% | ok |
+  | 2.2 | 28,1% | ok |
+  | 1.6 | 27,3% | ok |
+  | 2.3 | 21,2% | ok |
+  | 2.4 | 21,2% | ok |
+  | 4.5 | 19,4% | ok |
+  | 4.3 | 15,6% | ok |
+  | 4.6 | 15,6% | ok |
 
-  A regra dos 40% segue como **aviso**, e não como teste. Ela vira `assert` em
-  `tests/` quando o corpus estiver abaixo do teto — antes disso deixaria a suíte
-  vermelha em 22 módulos, o que não ajuda ninguém.
+  **15 de 27 módulos acima do teto de 40%.** O teto não é palpite: bate,
+  módulo a módulo, com o critério estatístico independente de "o limite
+  inferior do intervalo de Wilson (95%) da taxa passa de 25%" — os dois
+  critérios convergem exatamente nos mesmos 15 módulos, com a mesma fronteira
+  entre 0.3 (41,9%) e 1.5 (35,5%). Justificativa completa em
+  `ferramentas/chutador_de_forma.py`, comentário de `TETO_MAIS_LONGA`.
+
+  Isto substitui a varredura manual anterior (parcial, níveis 0-1 e módulos
+  2.1-2.4, baseada em contagem direta de "a correta é a mais longa" em vez de
+  taxa de acerto de uma estratégia): os números não são diretamente
+  comparáveis porque o método mudou, mas a lista acima é a atual e é a que
+  vale — os 15 módulos acima do teto são o alvo de correção, ainda não
+  corrigidos.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
   existir `.venv` na pasta, o atalho continuará usando o Python global; o
   `run.bat` é quem prefere a `.venv`.
-- **Regra 7 — unicidade estrutural — varrida, mas o corpus existente não foi
-  corrigido.** A lente 2 do 4.6 achou o mesmo defeito da "correta é a mais
-  longa" por outro canal: a correta ser a única, entre as quatro, com um
-  dígito, ou a única sem uma negação — quem escolhe pela forma, sem ler,
-  acerta. Medido nos 27 módulos antes de virar regra: dígito em 2,1% das
-  questões (18 de 859), negação em 10,0% (86 de 859); "única em forma
-  interrogativa" deu **zero** ocorrência e por isso não virou regra — é
-  exatamente o defeito que a antiga regra 4 tinha (nunca disparava) e que
-  deveria ter sido descartado antes de existir.
-
-  Amostra de 15 achados classificada à mão em 31/08/2026: **73% vazamento
-  real**, o eixo dígito sozinho tem **8 falsos positivos** — todos nome de
-  algoritmo, protocolo ou versão de ferramenta com dígito embutido (SHA-256,
-  Argon2id, IPv4, FIDO2, Base64, v3.7, PBKDF2, `HEAD~1`) — já aceitos em
-  `ferramentas/avisos_aceitos.json`. O que ficou, **96 achados, nenhum
-  corrigido**:
-
-  - **10 do eixo dígito**, a maioria vazamento real confirmado à mão (a
-    correta cita o número que a pergunta já estabeleceu, ou o número É
-    o fato que a questão testa — `72 bytes` do bcrypt, `30 s` do TOTP,
-    `64 bits` de entropia — e por isso é a única alternativa com número).
-  - **86 do eixo negação**, amostrados em 7 e classificados 6 reais / 1
-    coincidência — nenhum falso positivo encontrado nesse eixo. O padrão mais
-    comum: 3 distratoras descartam risco ou capacidade dizendo "não X", e a
-    correta afirma direto, sem negar nada — ou o inverso, a correta é a única
-    com "não é o mesmo que X" ao nomear uma nuance.
-
-  Decisão registrada em 31/08/2026: corrigir os 96 é trabalho de conteúdo
-  (reescrever 1 alternativa por achado, não uma faxina de regex) espalhado
-  por 25 módulos já publicados — do tamanho da varredura de comprimento, que
-  também ficou parcial. Fica para quando algum desses módulos for reaberto
-  para outra revisão, e não como sessão dedicada agora.
+- ~~Regra 7 — unicidade estrutural (dígito, negação)~~ — **removida em
+  01/09/2026, não é dívida.** A amostra manual de 31/08 (73% "vazamento
+  real") e a medição por agente cego de 31/08 (dois grupos no teto, sem
+  sinal) não bastaram para decidir — nenhuma das duas media a heurística
+  contra o corpus inteiro, só contra o subconjunto que a própria regra
+  definia. Um chutador determinístico (`ferramentas/chutador_de_forma.py`,
+  sem ler `correta`) mediu a taxa de acerto de "escolher a única alternativa
+  com dígito/negação" contra as 859 questões do corpus inteiro: 27,2% e
+  27,0% para negação, 19,8% e 10,0% para dígito — todos com intervalo de
+  confiança cobrindo os 25% de acaso. A marca não prediz a resposta certa
+  fora do conjunto circular que a define. Os 96 achados (10 dígito + 86
+  negação) não são dívida de conteúdo e nenhuma questão foi reescrita por
+  causa deles. Ver `ferramentas/relatorio_regra7_chutador.md` para a
+  metodologia completa e o padrão aprendido na seção 7 abaixo.
 
 ---
 
@@ -413,6 +419,16 @@ abrir o app → commitar.
    ```bash
    python ferramentas/validar_modulo.py data/modulos/03-01-metodologia-de-pentest.json
    ```
+
+   Depois da oitava questão (regra 7 das invioláveis, seção 7), rode também o
+   portão de comprimento contra o arquivo parcial:
+
+   ```bash
+   python -m ferramentas.chutador_de_forma data/modulos/03-01-metodologia-de-pentest.json
+   ```
+
+   Taxa de `mais_longa` acima de 40% ali é mais barato de corrigir com 8
+   questões escritas do que com as 35 prontas.
 
 7. **Rode a suíte inteira.** O teste de qualidade é parametrizado por módulo, e o
    arquivo novo entra sozinho:
@@ -481,16 +497,43 @@ Seis hábitos, em ordem de retorno:
 4. Desafios práticos nunca vêm com a solução — só checklist e dicas.
 5. Nenhum conteúdo de estudo hardcoded em `.py`.
 6. Nada de acesso à rede em tempo de estudo.
-7. **Distribuição de comprimento e unicidade estrutural da alternativa correta
-   se medem depois das primeiras 8 questões de qualquer módulo novo, nunca só
-   no fim.** No 4.5 e no 4.6 a correta saiu mais longa em 100% e 97% das
-   questões na primeira escrita — mesmo com a regra escrita no prompt as duas
-   vezes — porque a medição só aconteceu com o módulo inteiro pronto, quando
-   corrigir já significava reescrever 30+ alternativas. Corrigir 8 é barato;
-   corrigir 35 não é. Rode `python -c "..."` (ou o trecho de medição do
-   relatório de procedência mais recente) contra o arquivo parcial assim que a
-   oitava questão for escrita, ajuste o hábito de escrita ali, e só então siga
-   para as 27 restantes.
+7. **Distribuição de comprimento da alternativa correta se mede depois das
+   primeiras 8 questões de qualquer módulo novo, nunca só no fim.** No 4.5 e
+   no 4.6 a correta saiu mais longa em 100% e 97% das questões na primeira
+   escrita — mesmo com a regra escrita no prompt as duas vezes — porque a
+   medição só aconteceu com o módulo inteiro pronto, quando corrigir já
+   significava reescrever 30+ alternativas. Corrigir 8 é barato; corrigir 35
+   não é. Rode `python -m ferramentas.chutador_de_forma <arquivo parcial>`
+   assim que a oitava questão for escrita, ajuste o hábito de escrita ali, e
+   só então siga para as 27 restantes.
+
+### Padrão aprendido: regra nascida, medida e descartada
+
+Este projeto já criou três regras de validador que nasceram de um defeito
+real visto à mão, e as três só sobreviveram quando medidas contra o corpus
+inteiro — não contra o conjunto de casos que a própria regra usa para se
+definir:
+
+- **Regra 4 original** ("única em forma interrogativa") nunca disparou em
+  módulo nenhum e foi descartada antes de virar regra — o precedente mais
+  barato dos três, porque a medição aconteceu antes do código existir.
+- **Regra 7, eixo dígito e eixo negação** (31/08–01/09/2026): a heurística
+  parecia forte (73% "vazamento real" numa amostra pequena, classificada por
+  quem já sabia o gabarito) e só caiu quando medida contra as 859 questões do
+  corpus inteiro — 27% de acerto, igual ao acaso.
+
+**A lição que fica: medir uma heurística sobre o conjunto que ela mesma
+define é tautologia — a única população que prova alguma coisa é o corpus
+inteiro, marcado e não-marcado junto.** Uma regra nova só está pronta pra
+virar código quando alguém já rodou essa heurística contra o corpus inteiro e
+viu a taxa de acerto passar do acaso com folga — não contra os casos que
+inspiraram a regra, que por construção sempre "confirmam" a si mesmos. Isso
+não é fracasso: as três regras descartadas custaram uma tarde cada, contra
+semanas de reescrita de conteúdo que teriam sido desperdiçadas corrigindo
+questões que não tinham defeito nenhum. `ferramentas/chutador_de_forma.py`
+existe para tornar essa medição de uma linha de comando, não de uma sessão
+de análise — é ferramenta permanente do processo de escrita de módulo, não
+artefato de uma investigação só.
 
 ---
 

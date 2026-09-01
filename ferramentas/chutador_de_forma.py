@@ -1,47 +1,57 @@
 """Chutador burro: estratégias de forma pura para responder múltipla escolha.
 
-Terceira tentativa de medir se a regra 7 do validador (unicidade estrutural —
-ver `validar_modulo.py`) mede vazamento real. As duas primeiras tentativas
-falharam: amostra manual classificada por quem já sabia o gabarito (não
-generaliza) e agente cego instruído a ignorar o mérito técnico (não
-generaliza — o modelo por trás do agente já sabe cibersegurança, nenhuma
-instrução apaga pré-treino). Esta tira o modelo do circuito: as estratégias
-abaixo são regras determinísticas de Python, sem entendimento nenhum do
-assunto, então não têm como "trapacear" respondendo pelo conteúdo.
+Nasceu pra medir se a regra 7 do validador (unicidade estrutural — dígito,
+negação) media vazamento real. Não mediu: a taxa de acerto no corpus inteiro
+(a única população não-circular — ver `relatorio_regra7_chutador.md`) ficou
+em 27% e 17,8%, contra 25% de acaso. A regra 7 foi removida em 01/09/2026.
 
-Cada estratégia só recebe `alternativas` (lista de 4 textos) — nunca o campo
+O que sobrou tem uso permanente: `mais_longa` e `evita_absoluto` SÃO sinal
+real — 41% e 43% no corpus inteiro, quase o dobro do acaso — e correspondem
+ao viés de comprimento que o PROGRESS.md já rastreia à mão desde antes desta
+ferramenta existir. Este arquivo virou o portão de qualidade desse viés:
+mede, por módulo, a taxa com que "escolher a alternativa mais longa, sem
+ler nada" acerta a resposta certa.
+
+Cada estratégia só recebe `alternativas` (lista de textos) — nunca o campo
 `correta`, a explicação, as dicas ou as tags. Quando a heurística não se
-aplica (ex.: nenhuma alternativa é estruturalmente única), a estratégia se
-abstém (devolve None) em vez de chutar ao acaso — abstenção não conta como
-acerto nem como erro no relatório.
+aplica, ela se abstém (devolve None) em vez de chutar ao acaso — abstenção
+não conta como acerto nem como erro.
 
 Uso:
-    python ferramentas/chutador_de_forma.py
+    python -m ferramentas.chutador_de_forma                    # todos os módulos publicados, pior pro melhor
+    python -m ferramentas.chutador_de_forma data/modulos/X.json  # só os arquivos dados
 """
 
 import json
 import math
-import random
 import re
-from collections import Counter
+import sys
 from pathlib import Path
 
-from ferramentas.validar_modulo import (
-    RAIZ,
-    RE_DIGITO,
-    RE_NEGACAO,
-    _unicidade_estrutural,
-    ids_publicados,
-    validar,
-)
+RAIZ = Path(__file__).resolve().parent.parent
 
+RE_DIGITO = re.compile(r"\d")
+RE_NEGACAO = re.compile(r"\bnão\b|\bnunca\b|\bnenhum\w*\b", re.I)
 RE_ABSOLUTO = re.compile(r"\bsempre\b|\bnunca\b|\bqualquer\b|\btodo\w*\b", re.I)
+
+# Teto do portão de qualidade. Escolhido a partir da distribuição real dos 27
+# módulos publicados (ver `python -m ferramentas.chutador_de_forma`): mediana
+# 43,8%, quartis 28,1%/56,2%, acaso 25%. Não uso a mediana — reprovaria metade
+# dos módulos por definição, o que não separa nada; a mediana só diz "acima da
+# metade pior", não "sinal real".
+#
+# O corte em 40% não é a mediana nem um palpite: é o mesmo número que
+# MAX_CORRETA_MAIS_LONGA já usa em `validar_modulo.py`, e os dois concordam
+# nos 27 módulos por acaso não é — testei com o critério estatístico
+# (intervalo de Wilson 95% da taxa de mais_longa contra os 25% de acaso;
+# módulo "tem sinal" quando o limite inferior do IC passa de 25%) e ele bate
+# EXATAMENTE nos mesmos 15 de 27 módulos que 40% separa, com a mesma fronteira
+# entre 0.3 (41,9%) e 1.5 (35,5%). Dois critérios independentes convergindo no
+# mesmo corte é evidência melhor que qualquer um dos dois sozinho.
+TETO_MAIS_LONGA = 0.40
 
 
 def _unica(alternativas, padrao, quer_marca):
-    """Índice da única alternativa cuja presença/ausência da marca destoa das
-    outras três. `quer_marca=True` procura a única COM a marca; False, a
-    única SEM. Abstém (None) se não houver exatamente uma nessa condição."""
     marcas = [bool(padrao.search(a)) for a in alternativas]
     n = sum(marcas)
     if quer_marca and n == 1:
@@ -88,55 +98,9 @@ ESTRATEGIAS = {
 }
 
 
-# --------------------------------------------------------------------------
-# Montagem das populações e medição — não faz parte do "chutador" em si, é
-# infraestrutura de medição que PODE ler `correta` (só pra conferir acerto).
-# --------------------------------------------------------------------------
-
-SEED_GRUPO_B = 20260831  # data da medição original da regra 7, documentada no PROGRESS.md
-
-
-def _carregar_modulos():
-    return {p: json.loads(p.read_text(encoding="utf-8")) for p in sorted((RAIZ / "data" / "modulos").glob("*.json"))}
-
-
-def _questoes_mc(dados):
-    return [q for q in dados.get("questoes", []) if "alternativas" in q]
-
-
-def montar_populacoes():
-    arquivos = _carregar_modulos()
-    ids = ids_publicados()
-
-    grupo_a = []  # (modulo, questao) que disparam a regra 7 hoje
-    for caminho, dados in arquivos.items():
-        _, _, avisos = validar(caminho, ids)
-        disparadas = {a.split(":")[0] for a in avisos if "entre as quatro" in a}
-        for q in _questoes_mc(dados):
-            if q["id"] in disparadas:
-                grupo_a.append((dados["id"], q))
-
-    limpos_por_modulo = {}
-    for dados in arquivos.values():
-        limpos_por_modulo[dados["id"]] = [
-            q for q in _questoes_mc(dados) if not _unicidade_estrutural(q["alternativas"], q["correta"])
-        ]
-
-    contagem_a = Counter(m for m, _ in grupo_a)
-    random.seed(SEED_GRUPO_B)
-    grupo_b = []
-    for modulo, n in contagem_a.items():
-        pool = limpos_por_modulo[modulo]
-        grupo_b.extend((modulo, q) for q in random.sample(pool, min(n, len(pool))))
-
-    grupo_c = [(dados["id"], q) for dados in arquivos.values() for q in _questoes_mc(dados)]
-
-    return {"A": grupo_a, "B": grupo_b, "C": grupo_c}
-
-
 def wilson(acertos, aplicacoes, z=1.96):
     """Intervalo de confiança de Wilson para uma proporção — melhor que a
-    aproximação normal quando a amostra é pequena (eixo dígito, n=10)."""
+    aproximação normal quando a amostra é pequena."""
     if aplicacoes == 0:
         return None
     p = acertos / aplicacoes
@@ -147,8 +111,9 @@ def wilson(acertos, aplicacoes, z=1.96):
 
 
 def medir(estrategia, questoes):
+    """`questoes` é uma lista de dicts de questão (precisam de 'alternativas' e 'correta')."""
     acertos = aplicacoes = abstencoes = 0
-    for _, q in questoes:
+    for q in questoes:
         palpite = estrategia(q["alternativas"])
         if palpite is None:
             abstencoes += 1
@@ -159,29 +124,42 @@ def medir(estrategia, questoes):
     return {"acertos": acertos, "aplicacoes": aplicacoes, "abstencoes": abstencoes, "total": len(questoes)}
 
 
-def relatorio():
-    populacoes = montar_populacoes()
-    linhas = [f"populacao A: {len(populacoes['A'])} questoes (regra 7 dispara)",
-              f"populacao B: {len(populacoes['B'])} questoes (controle, sem marca)",
-              f"populacao C: {len(populacoes['C'])} questoes (todas as MC do corpus)",
-              ""]
-    resultados = {}
-    for nome_estrat, fn in ESTRATEGIAS.items():
-        for pop, questoes in populacoes.items():
-            r = medir(fn, questoes)
-            resultados[(nome_estrat, pop)] = r
-            taxa = r["acertos"] / r["aplicacoes"] if r["aplicacoes"] else None
-            ic = wilson(r["acertos"], r["aplicacoes"])
-            taxa_str = f"{100*taxa:5.1f}%" if taxa is not None else "  n/a "
-            ic_str = f"[{100*ic[0]:.1f}%, {100*ic[1]:.1f}%]" if ic else "sem aplicação"
-            linhas.append(
-                f"{nome_estrat:22} pop={pop}  acertos={r['acertos']:3}/{r['aplicacoes']:3}"
-                f"  abstencoes={r['abstencoes']:3}/{r['total']:3}  taxa={taxa_str}  IC95%={ic_str}"
-            )
-        linhas.append("")
-    return "\n".join(linhas), resultados
+def _questoes_mc(dados):
+    return [q for q in dados.get("questoes", []) if "alternativas" in q]
+
+
+def checar_modulo(caminho):
+    """Portão de qualidade de comprimento: taxa de mais_longa e evita_absoluto
+    de um módulo. Devolve (dados, resultado_mais_longa, resultado_evita_absoluto)."""
+    dados = json.loads(Path(caminho).read_text(encoding="utf-8"))
+    questoes = _questoes_mc(dados)
+    return dados, medir(mais_longa, questoes), medir(evita_absoluto, questoes)
+
+
+def main():
+    alvos = [Path(a) for a in sys.argv[1:]] or sorted((RAIZ / "data" / "modulos").glob("*.json"))
+
+    linhas = []
+    for caminho in alvos:
+        dados, r_longa, r_absoluto = checar_modulo(caminho)
+        taxa = r_longa["acertos"] / r_longa["aplicacoes"] if r_longa["aplicacoes"] else 0.0
+        linhas.append((taxa, dados.get("id", "?"), caminho.name, r_longa, r_absoluto))
+
+    linhas.sort(key=lambda x: -x[0])  # pior (taxa mais alta) primeiro
+
+    print(f"{'modulo':10} {'mais_longa':>12} {'evita_absoluto':>16}   {'teto':>6}  status")
+    reprovados = 0
+    for taxa, mod_id, nome, r_longa, r_absoluto in linhas:
+        taxa_abs = r_absoluto["acertos"] / r_absoluto["aplicacoes"] if r_absoluto["aplicacoes"] else 0.0
+        acima = taxa > TETO_MAIS_LONGA
+        reprovados += acima
+        status = "ACIMA DO TETO" if acima else "ok"
+        print(f"{mod_id:10} {taxa:11.1%} ({r_longa['acertos']:2}/{r_longa['aplicacoes']:2})"
+              f"  {taxa_abs:14.1%} ({r_absoluto['acertos']:2}/{r_absoluto['aplicacoes']:2})"
+              f"  {TETO_MAIS_LONGA:5.0%}  {status}")
+
+    print(f"\n{reprovados}/{len(linhas)} módulo(s) acima do teto de {TETO_MAIS_LONGA:.0%}")
 
 
 if __name__ == "__main__":
-    texto, _ = relatorio()
-    print(texto)
+    main()

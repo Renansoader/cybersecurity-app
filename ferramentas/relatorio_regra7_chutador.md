@@ -110,3 +110,20 @@ regra 7.
 
 Decisão de aplicar esta recomendação (remover/rebaixar os eixos, atualizar
 PROGRESS.md) fica para o usuário — este relatório só mede.
+
+## Aplicado em 01/09/2026
+
+Decisão tomada: eixos dígito e negação removidos de `validar_modulo.py`
+(função `_unicidade_estrutural` e os dois `RE_*` que só existiam para ela),
+os 7 testes que só cobriam esses eixos removidos de `tests/test_validador.py`,
+e as 8 entradas de "unicidade de dígito" removidas de `avisos_aceitos.json`.
+Os 96 achados não viraram correção de conteúdo.
+
+`ferramentas/chutador_de_forma.py` não foi descartado — as estratégias
+`unica_com_negacao`/`unica_com_digito`/etc. continuam no arquivo como
+chutador de propósito geral, reutilizável se algum dia outro eixo estrutural
+for cogitado (e, se for, a lição da seção anterior é: medir contra o corpus
+inteiro antes de virar regra, não contra a amostra que motivou a ideia).
+`mais_longa` e `evita_absoluto` viraram o portão de qualidade de comprimento
+por módulo — ver PROGRESS.md §5 (dívida de comprimento medida) e §7 (padrão
+aprendido, e o passo novo no passo-a-passo de escrita de módulo).
