@@ -647,7 +647,7 @@
       "trecho": "PLANO DE SEGURANÇA — startup de 30 pessoas\nAdversário principal identificado: crime organizado com ransomware.\nControles implantados: múltiplo fator em todos os acessos, atualização automática, redução de serviços expostos.\nBackup: cópia diária no mesmo servidor de arquivos, para agilizar a restauração.\nDetecção: registros centralizados com alerta para acessos fora do horário.",
       "enunciado": "O plano é coerente com o adversário escolhido, exceto em um ponto. Qual?",
       "alternativas": [
-        "O backup no mesmo servidor de arquivos: ransomware cifra também as cópias acessíveis a partir do sistema comprometido",
+        "O backup no mesmo servidor: ransomware cifra as cópias junto com o original",
         "O múltiplo fator em todos os acessos, que é excessivo para uma empresa de 30 pessoas",
         "A atualização automática, que pode introduzir instabilidade em sistemas de produção",
         "O alerta para acessos fora do horário, que gera muitos falsos positivos"
@@ -1110,7 +1110,7 @@
       ],
       "enunciado": "Uma investigação revela que um invasor esteve no ambiente por sete meses, com acessos discretos em horário comercial e pouca movimentação de dados por vez. Qual é a leitura mais provável e a lição para a defesa?",
       "alternativas": [
-        "Comportamento típico de adversário persistente; a lacuna está na detecção, e a métrica a melhorar é o tempo até perceber",
+        "Comportamento típico de adversário persistente; falha está na detecção do incidente",
         "Comportamento típico de ransomware; a lacuna está no backup, que deveria estar isolado",
         "Comportamento típico de script kiddie; a lacuna está na atualização de sistemas",
         "Comportamento típico de hacktivista; a lacuna está na proteção do site institucional"
