@@ -67,7 +67,7 @@
       "objetivos": [0],
       "enunciado": "O que distingue, do ponto de vista legal, um teste de intrusão profissional de um ataque criminoso?",
       "alternativas": [
-        "A existência de autorização prévia e por escrito de quem tem poder para concedê-la",
+        "A existência de uma autorização prévia e por escrito",
         "A intenção do profissional de ajudar a organização",
         "O uso de ferramentas comerciais em vez de ferramentas gratuitas",
         "A elaboração de um relatório técnico ao final da atividade"
@@ -97,7 +97,7 @@
       "alternativas": [
         "Porque não há registro do que foi autorizado, e o gerente pode não ter competência para autorizar aquele escopo",
         "Porque autorizações verbais não têm validade em nenhuma relação jurídica no Brasil",
-        "Porque testes de intrusão exigem autorização de órgão regulador",
+        "Porque testes de intrusão exigem autorização prévia de um órgão regulador federal específico, registrada em processo formal",
         "Porque a autorização precisa vir necessariamente do departamento jurídico"
       ],
       "correta": 0,
@@ -125,7 +125,7 @@
       "alternativas": [
         "Alvos permitidos e proibidos, janela de execução, técnicas vedadas, tratamento dos dados encontrados e contato de emergência",
         "Nome do cliente, valor do contrato e prazo de entrega do relatório",
-        "Lista de ferramentas que serão utilizadas e versão de cada uma",
+        "Lista de ferramentas que serão utilizadas, a versão de cada uma, o motivo da escolha e o custo de licenciamento de cada fornecedor",
         "Currículo dos profissionais envolvidos e certificações que possuem"
       ],
       "correta": 0,
