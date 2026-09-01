@@ -3,8 +3,8 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-01 · commit `25a1978` · piloto de comprimento no
-módulo 0.1 (14 de 27 acima do teto) · 3.113 testes passando
+Última atualização: 2026-09-01 · nível 0 inteiro corrigido de comprimento
+(0.1-0.4, 11 de 27 acima do teto) · 3.113 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -308,7 +308,8 @@ real de requisição.
   roda a estratégia `mais_longa` (escolhe a alternativa com mais caracteres,
   sem ler nada) contra cada módulo publicado e mede a taxa de acerto contra o
   acaso de 25%. Medido em 01/09/2026, ordenado do pior para o melhor —
-  **0.1 corrigido em 01/09/2026 (piloto), os outros 14 seguem como estavam**:
+  **nível 0 inteiro corrigido (0.1 piloto + 0.2/0.3/0.4 em 01/09/2026), os
+  outros 11 seguem como estavam**:
 
   | módulo | taxa `mais_longa` | status (teto 40%) |
   |---|---|---|
@@ -322,11 +323,11 @@ real de requisição.
   | 1.3 | 46,9% | acima |
   | 3.2 | 46,9% | acima |
   | 3.3 | 46,9% | acima |
-  | 0.2 | 45,2% | acima |
-  | 0.4 | 45,2% | acima |
   | 4.1 | 43,8% | acima |
-  | 0.3 | 41,9% | acima |
   | 0.1 | 35,5% | ok (era 61,3% — piloto de correção, ver abaixo) |
+  | 0.2 | 35,5% | ok (era 45,2%) |
+  | 0.3 | 35,5% | ok (era 41,9%) |
+  | 0.4 | 35,5% | ok (era 45,2%) |
   | 1.5 | 35,5% | ok |
   | 1.7 | 34,4% | ok |
   | 1.4 | 32,3% | ok |
@@ -340,19 +341,18 @@ real de requisição.
   | 4.3 | 15,6% | ok |
   | 4.6 | 15,6% | ok |
 
-  **14 de 27 módulos acima do teto de 40%** (era 15 antes do piloto). O teto
-  não é palpite: bate, módulo a módulo, com o critério estatístico
-  independente de "o limite inferior do intervalo de Wilson (95%) da taxa
-  passa de 25%" — os dois critérios convergem exatamente nos mesmos módulos,
-  com a mesma fronteira entre 0.3 (41,9%) e 0.1/1.5 (35,5%). Justificativa
-  completa em `ferramentas/chutador_de_forma.py`, comentário de
-  `TETO_MAIS_LONGA`.
+  **11 de 27 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
+  0 (0.1-0.4) está inteiro abaixo do teto agora). O teto não é palpite:
+  batia, módulo a módulo, com o critério estatístico independente de "o
+  limite inferior do intervalo de Wilson (95%) da taxa passa de 25%" antes
+  desta rodada — justificativa completa em `ferramentas/chutador_de_forma.py`,
+  comentário de `TETO_MAIS_LONGA`.
 
   Isto substitui a varredura manual anterior (parcial, níveis 0-1 e módulos
   2.1-2.4, baseada em contagem direta de "a correta é a mais longa" em vez de
   taxa de acerto de uma estratégia): os números não são diretamente
   comparáveis porque o método mudou, mas a lista acima é a atual e é a que
-  vale — os 14 módulos acima do teto são o alvo de correção, ainda não
+  vale — os 11 módulos acima do teto são o alvo de correção, ainda não
   corrigidos.
 
   **Piloto de correção — módulo 0.1, 01/09/2026.** Escolhido por ser o
@@ -420,6 +420,65 @@ real de requisição.
   supercorreção (virar "a mais curta" o novo atalho) só vira mensurável com
   ela. Fica como parte permanente do portão para os próximos módulos, não
   como ferramenta descartável do piloto.
+
+  **Nível 0 fechado — 0.2, 0.3, 0.4, 01/09/2026.** Piloto validado, mesmo
+  método aplicado um módulo por vez, ordem de estudo (não de gravidade):
+  os três eram baratos (delta pequeno até o teto). Nenhum módulo exigiu
+  mais de 3 questões tocadas — bem abaixo do limite de 10 combinado com o
+  usuário para parar e reportar.
+
+  | módulo | achados `mais_longa` | empate técnico | tocadas | categoria |
+  |---|---|---|---|---|
+  | 0.2 | 14 | 3 | 3 | (b) `0.2.q15`; (a) `0.2.q20`, `0.2.q23` |
+  | 0.3 | 13 | 4 | 2 | (a) `0.3.q30`, `0.3.q17` |
+  | 0.4 | 14 | 7 | 3 | (b) `0.4.q3`, `0.4.q2`; (a) `0.4.q1` |
+
+  | módulo | `mais_longa` antes → depois | `mais_curta` depois |
+  |---|---|---|
+  | 0.2 | 45,2% (14/31) → 35,5% (11/31) | 19,4% (6/31) |
+  | 0.3 | 41,9% (13/31) → 35,5% (11/31) | 32,3% (10/31) — ver achado abaixo |
+  | 0.4 | 45,2% (14/31) → 35,5% (11/31) | 25,8% (8/31), no acaso |
+
+  Duas iterações no meio da edição, ambas pegas antes de commitar, não
+  depois:
+
+  - **0.2.q23** — o primeiro corte deixou a correta com 52 caracteres
+    contra distratores de 59-69: virou a mais curta das quatro, o mesmo
+    defeito do lado oposto. Recalibrado pro meio da distribuição (67
+    caracteres). É exatamente o motivo de medir `mais_curta` depois de
+    cada corte, não só no fim do módulo.
+  - **0.2.q23** (mesma questão) — a reescrita também reintroduziu a regra
+    1 (dica 3 ecoando "alcançável"/"a partir" que entraram no texto
+    novo da correta). Trocado o vocabulário sem tocar a dica.
+
+  Dois casos com razão alta (0.4.q21 1,86× e 0.4.q28 1,61×) foram
+  classificados (c) LEGÍTIMO e não tocados: são enumerações legais
+  fechadas (categorias de dado sensível da LGPD art. 5º II; verbos do
+  art. 154-A do Código Penal) — cortar arrisca imprecisão jurídica, e
+  engordar um distrator ao lado de uma lista legal precisa confundiria o
+  próprio ponto pedagógico da questão.
+
+  **Achado à parte, não corrigido nesta rodada (fora do escopo de
+  comprimento — mistura de correção repetiria o erro de rastreabilidade
+  do passado):** `mais_curta` do módulo 0.3 já estava em 32,3% (10/31)
+  **antes** desta edição — acima do acaso de 25%, e não criado pelas 2
+  questões tocadas nele (confirmado: nenhuma das duas virou a mais
+  curta). É dívida nova, do lado oposto do comprimento, que a tabela
+  acima não rastreia porque ela só mede `mais_longa`. Fica para decisão
+  do usuário: tratar como nova categoria de dívida medida, ou investigar
+  se é reflexo de outro padrão de escrita do módulo.
+
+  **Nenhum defeito de conteúdo (fato errado, fonte desatualizada,
+  gabarito discutível) foi notado durante a leitura de 0.2, 0.3 ou 0.4.**
+  Fontes citadas (MITRE ATT&CK, NIST CSF, CIS Benchmarks, Código Penal
+  art. 154-A, LGPD art. 5º II, Marco Civil arts. 13/15) pareceram
+  corretas e consistentes com a explicação de cada questão.
+
+  Validação em cada módulo: `pytest -q` (3.113 testes, 0 falhas em cada
+  um dos três) e `validar_modulo.py` antes/depois — nenhum aviso novo em
+  nenhum dos três; os únicos avisos que sobrevivem são pré-existentes e
+  não relacionados às questões tocadas (`0.4.q28` × `3.2.q35`, vocabulário).
+  Três commits, um por módulo.
 - **O atalho da área de trabalho aponta para o Python do sistema.** Se um dia
   existir `.venv` na pasta, o atalho continuará usando o Python global; o
   `run.bat` é quem prefere a `.venv`.
