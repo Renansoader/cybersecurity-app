@@ -3,8 +3,9 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-01 · nível 0 inteiro corrigido de comprimento
-(0.1-0.4, 11 de 27 acima do teto) · 3.113 testes passando
+Última atualização: 2026-09-02 · módulo 4.7 (resposta a incidentes) escrito e
+publicado · achado mais_curta do 0.3 fechado (ruído), 4.3 registrado como
+dívida nova · 3.223 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -14,18 +15,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 27 de 41 |
-| Questões | 946 |
-| Blocos de teoria | 164 |
-| Tags distintas | 789 |
-| Testes automatizados | 3.112 |
+| Módulos de conteúdo escritos | 28 de 41 |
+| Questões | 981 |
+| Blocos de teoria | 170 |
+| Tags distintas | 794 |
+| Testes automatizados | 3.223 |
 | Linhas de código Python | ~2.280 no app · ~3.830 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 210 (6 de 8 módulos).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 245 (7 de 8 módulos).
 
-Tipos de questão em uso: conceitual 404, cenário 201, ataque→defesa 71,
-caça ao erro 70, comando 56, artefato 57, pareamento 51, ordenação 36.
+Tipos de questão em uso: conceitual 414, cenário 210, ataque→defesa 74,
+caça ao erro 74, comando 56, artefato 61, pareamento 53, ordenação 39.
 
 ---
 
@@ -216,9 +217,10 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
-**Nível 4 — Defensivo** (210 questões, 6 de 8)
+**Nível 4 — Defensivo** (245 questões, 7 de 8)
 4.1 Hardening · 4.2 Segurança de rede · 4.3 Defesa em profundidade · 4.4 Malware ·
-4.5 SIEM e monitoramento · 4.6 MITRE ATT&CK e caça a ameaças
+4.5 SIEM e monitoramento · 4.6 MITRE ATT&CK e caça a ameaças ·
+4.7 Resposta a incidentes
 
 **Nível 3 — Ofensivo** (105 questões, 3 de 9)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
@@ -242,11 +244,11 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 14 módulos
+### Conteúdo — 13 módulos
 
 - **Nível 3 — Ofensivo** (6 restantes): Web I/II/III, OWASP Top 10, quebra de
   senhas, engenharia social e redes sem fio
-- **Nível 4 — Defensivo** (2 restantes): resposta a incidentes, forense
+- **Nível 4 — Defensivo** (1 restante): forense
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
 
@@ -335,14 +337,16 @@ real de requisição.
   | 2.1 | 28,1% | ok |
   | 2.2 | 28,1% | ok |
   | 1.6 | 27,3% | ok |
+  | 4.7 | 23,3% | ok (módulo novo, 02/09/2026 — corrigido pelo checkpoint da regra 7 antes de publicar) |
   | 2.3 | 21,2% | ok |
   | 2.4 | 21,2% | ok |
   | 4.5 | 19,4% | ok |
   | 4.3 | 15,6% | ok |
   | 4.6 | 15,6% | ok |
 
-  **11 de 27 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
-  0 (0.1-0.4) está inteiro abaixo do teto agora). O teto não é palpite:
+  **11 de 28 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
+  0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, publicado depois desta
+  medição original, também ficou abaixo). O teto não é palpite:
   batia, módulo a módulo, com o critério estatístico independente de "o
   limite inferior do intervalo de Wilson (95%) da taxa passa de 25%" antes
   desta rodada — justificativa completa em `ferramentas/chutador_de_forma.py`,
@@ -542,6 +546,46 @@ real de requisição.
   negação) não são dívida de conteúdo e nenhuma questão foi reescrita por
   causa deles. Ver `ferramentas/relatorio_regra7_chutador.md` para a
   metodologia completa e o padrão aprendido na seção 7 abaixo.
+- **Módulo 4.7 escrito, 02/09/2026 — resposta a incidentes como decisão sob
+  pressão, não fases decoradas.** Recorte final: autoridade de decisão
+  pré-combinada, custo de agir com informação incompleta, comunicação como
+  cadeia técnica interna (sincronizada com o prazo do 0.4, sem repeti-lo),
+  pós-incidente que verifica mudança real. Duas colisões reais achadas no
+  levantamento de não-repetição, não previstas no pedido original — eixo
+  de contenção colidia com 4.4 (9 questões já cobrem isolar-vs-desligar) e
+  eixo de comunicação colidia com 0.4 (prazo ANPD já ensinado) — os dois
+  eixos foram reformulados antes de qualquer questão escrita; ver
+  `data/rascunhos/nivel-4/fontes/nao-repetir-4.7.md`.
+
+  **Regra 7 (checkpoint de comprimento nas 8 primeiras questões) confirmou
+  o defeito pela terceira vez** (depois de 4.5 e 4.6): 100% das corretas
+  eram a mais longa nas primeiras 8. Corrigido ali para 14,3% — mas o
+  hábito não generalizou para as 27 questões seguintes, e o módulo
+  terminou em 77% (23/30). Uma correção automática (corte no último
+  travessão da correta, ou engorda do distrator mais curto) trouxe a taxa
+  para dentro do teto, mas introduziu um defeito novo: 15 distratores
+  passaram a compartilhar a mesma frase-molde de autorrejeição, um sinal
+  de forma detectável sem ler o conteúdo. A revisão adversarial de duas
+  lentes (abaixo) pegou isso, e a correção final ficou em **23,3%
+  mais_longa, 20,0% mais_curta**, sem padrão de forma repetido.
+
+  **Duas lentes de revisão adversarial, em paralelo, por agentes sem
+  contexto da escrita**, acharam e corrigiram: o defeito sistêmico de
+  frase-molde acima (15 questões); duas dicas que vazavam premissa antes
+  do aluno inferir sozinho; uma justificativa (`por_que_erradas`) que
+  citava um fato não estabelecido pela própria questão; duas questões
+  onde só a correta citava número/rompia o molde gramatical dos
+  distratores; e **um erro factual real**: o laboratório
+  `cadeia_de_comunicacao.py` tratava "3 dias úteis" (o que o 0.4 realmente
+  ensina) como equivalente a "72 horas corridas" — não são a mesma
+  grandeza. Corrigido na fonte (constante do laboratório, artefato da
+  questão, justificativa), com o laboratório re-executado. Relatório
+  completo em `data/rascunhos/nivel-4/relatorios/4.7.md`.
+
+  Validação final: `pytest -q` (3.223 testes, 0 falhas) e
+  `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 28
+  módulos). +35 questões, +1 bloco de teoria por módulo (6), nível 4 em
+  7 de 8 (falta só forense).
 
 ---
 

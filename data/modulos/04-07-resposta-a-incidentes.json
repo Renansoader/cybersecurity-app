@@ -1,0 +1,1319 @@
+{
+  "id": "4.7",
+  "nivel": 4,
+  "titulo": "Resposta a incidentes — decidir, comunicar e mudar sob pressão",
+  "objetivos": [
+    "Distinguir acesso técnico de autoridade de decisão, e reconhecer decisão de contenção sem dono pré-combinado como o defeito central da resposta, não a técnica de contenção em si",
+    "Comparar o custo de agir com informação incompleta contra o custo de esperar confirmação total, e decidir com o prazo do incidente, não com o conforto de quem decide",
+    "Tratar a comunicação como parte técnica da resposta — quem, dentro da empresa, precisa saber e quando — sincronizada com a obrigação legal externa já estabelecida, sem repeti-la",
+    "Distinguir encerrar o registro de um incidente de mudar o sistema de fato, e verificar a mudança em vez de aceitar o registro fechado como prova"
+  ],
+  "pre_requisitos": [
+    "4.4",
+    "4.5",
+    "4.6",
+    "0.4"
+  ],
+  "teoria": [
+    {
+      "id": "4.7.t1",
+      "titulo": "Autoridade de decisão: quem manda desligar, decidido antes",
+      "texto": "Contenção disruptiva — isolar da rede, desligar um sistema, suspender uma integração — corta operação de verdade, às vezes receita, às vezes atendimento de cliente. Alguém precisa poder dizer sim ou não rápido, e essa pessoa raramente é quem está mais perto do teclado.\n\nAcesso técnico e mandato organizacional são dois eixos diferentes, e não coincidem por padrão: o analista de plantão costuma ter permissão para desligar quase qualquer coisa, mas raramente tem sozinho o mandato para decidir sobre um sistema de pagamento em produção. Confundir os dois é o defeito mais caro — a pessoa certa tecnicamente age, e só depois descobre-se que ninguém tinha, de fato, autorizado a decisão.\n\nA saída não é mais reunião durante o incidente: é decidir antes, por critério e por papel — não por nome de pessoa —, quem aprova o quê, para que categorias de sistema.",
+      "analogia": "É a diferença entre ter a chave de um cofre e ter permissão para abri-lo: as duas coisas costumam andar juntas, mas quem projeta o cofre sabe que não precisam.",
+      "erro_comum": "Tratar quem tem acesso administrativo como quem deveria decidir sozinho — acesso não é mandato.",
+      "fonte": "Distinção consolidada em modelos de comando de incidente (Incident Command System) e em práticas de gestão de mudança; lab/autoridade_pre_combinada.py desta sessão."
+    },
+    {
+      "id": "4.7.t2",
+      "titulo": "O custo de esperar por certeza total",
+      "texto": "Esperar confirmação completa parece a decisão prudente, mas prudência tem custo, e o custo cresce enquanto o incidente continua correndo. Um modelo simples mostra isso: se agir sem necessidade custa um valor fixo — reverter um isolamento desnecessário — e esperar custa um valor que cresce a cada minuto que um incidente real continua ativo, existe um ponto exato a partir do qual esperar custa mais, em esperança, do que agir.\n\nEsse ponto não é 50% de certeza, nem 100% — depende da razão entre os dois custos. Quando o custo por minuto de espera é alto (dado saindo da rede, cifra em andamento), o ponto de equilíbrio cai bem abaixo da metade: agir com uma suspeita razoável já compensa. Quando o custo de um falso positivo é alto e o incidente evolui devagar, vale esperar mais.\n\n\"Aja sempre rápido\" e \"espere sempre ter certeza\" são as duas regras fixas que o modelo desmente — a decisão certa depende da razão de custos daquele caso específico, não de um princípio geral.",
+      "analogia": "Um médico não espera o resultado de todo exame possível antes de estabilizar um paciente em risco — ele age com a informação que já reduz o risco mais, mesmo sem certeza completa do diagnóstico.",
+      "erro_comum": "Tratar 'espere ter certeza' como a opção sempre mais segura, ignorando que esperar também tem custo quando o incidente é real.",
+      "fonte": "lab/custo_de_esperar.py desta sessão, executado em 02/09/2026."
+    },
+    {
+      "id": "4.7.t3",
+      "titulo": "O que se decide antes para não decidir durante",
+      "texto": "Um limiar pré-combinado — \"se houver sinal de exfiltração ativa, isole mesmo sem confirmação completa\" — não elimina a decisão humana: ele decide de antemão os casos óbvios, e libera atenção para os casos ambíguos, que são os que de fato exigem julgamento durante o incidente.\n\nA analogia é o disjuntor elétrico: ele não pergunta se vale a pena desligar quando a corrente passa do limite — já foi decidido, na instalação, que passar daquele número desliga. Ninguém negocia o disjuntor no meio do curto-circuito.\n\nSem esses limiares, cada incidente reabre a mesma discussão que o anterior já deveria ter fechado: quem decide, com que nível de certeza, sobre qual tipo de sistema. É o mesmo padrão medido no laboratório de autoridade pré-combinada — a diferença de dez vezes no tempo não vem do aprovador ser mais lento, vem de decidir sem critério prévio virar negociação a cada vez.",
+      "analogia": "O disjuntor elétrico não delibera durante o curto-circuito — o limite que o desliga foi decidido na instalação, uma vez, para todas as vezes seguintes.",
+      "erro_comum": "Escrever um playbook só com passos técnicos e esquecer de escrever os critérios que decidem quando cada passo se aplica.",
+      "fonte": "lab/autoridade_pre_combinada.py desta sessão; prática de definição de limiar operacional consolidada em gestão de risco."
+    },
+    {
+      "id": "4.7.t4",
+      "titulo": "Comunicação como parte técnica, não como anexo",
+      "texto": "Quem precisa saber, e quando, é uma decisão técnica tanto quanto isolar um host — errar a ordem custa tempo real. Uma cadeia serial, em que cada pessoa avisa a próxima, soma o tempo de cada etapa; uma cadeia em ondas, em que quem não depende de informação alheia é acionado em paralelo, corta esse tempo por um fator relevante — no modelo desta sessão, mais que o dobro.\n\nO risco oposto também é técnico: discutir detalhes do incidente num canal que o próprio adversário pode estar monitorando — uma caixa de e-mail comprometida, um chat na mesma rede afetada — avisa quem você está tentando conter, antes de qualquer ação de contenção surtir efeito.\n\nComunicação atrasada não é falha de etiqueta: é a mesma decisão sem dono do eixo anterior, aplicada a quem fala com quem — e o efeito é o mesmo, tempo perdido que nenhuma aprovação técnica recupera depois.",
+      "analogia": "Um posto de comando que só informa a linha de frente depois de decidir tudo sozinho perde o tempo todo que a linha de frente já poderia ter usado para se preparar.",
+      "erro_comum": "Tratar a comunicação como a última etapa, depois que 'tudo já estiver resolvido tecnicamente'.",
+      "fonte": "lab/cadeia_de_comunicacao.py desta sessão, executado em 02/09/2026."
+    },
+    {
+      "id": "4.7.t5",
+      "titulo": "A cadeia interna corre contra o mesmo relógio da obrigação externa",
+      "texto": "O curso já ensinou, no módulo sobre ética e lei, que existe um prazo legal contado a partir da ciência de um incidente com dados pessoais. Esse prazo não é o assunto deste módulo — o que importa aqui é onde ele começa a correr, e o que consome a folga antes de qualquer aprovador jurídico entrar na conversa.\n\nO relógio começa quando alguém, dentro da empresa, primeiro reconhece que há um incidente — não quando a investigação termina, não quando o sistema volta ao ar. Uma cadeia de comunicação interna que só escala depois de a equipe técnica \"ter certeza absoluta\" consome, sozinha, parte relevante do prazo, antes mesmo de o jurídico ou o encarregado de dados saberem que precisam agir.\n\nSincronizar as duas coisas significa que a comunicação interna começa no reconhecimento do incidente, em paralelo com a investigação técnica — não depois dela.",
+      "analogia": "A corrida contra o prazo legal já começou quando o cronômetro é acionado, não quando alguém finalmente olha para ele.",
+      "erro_comum": "Esperar o incidente estar tecnicamente resolvido para envolver jurídico e encarregado de dados — o prazo legal não espera essa resolução.",
+      "fonte": "Continuidade explícita do prazo já estabelecido em 0.4 (Resolução CD/ANPD nº 15/2024); lab/cadeia_de_comunicacao.py desta sessão."
+    },
+    {
+      "id": "4.7.t6",
+      "titulo": "Encerrar o chamado não é mudar o sistema",
+      "texto": "Um chamado fechado é um estado do sistema de tíquetes, preenchido por quem registra que terminou. Mudança de fato — uma credencial trocada, uma regra de detecção testada, uma porta de entrada corrigida — exige uma segunda verificação, independente de quem escreveu o registro, que confirme que o sistema realmente mudou.\n\nA lacuna entre os dois é onde a dívida técnica pós-incidente se esconde: uma regra de detecção \"criada\" para o padrão do ataque, mas nunca provocada de propósito para confirmar que dispara, carrega exatamente o mesmo risco de uma regra nunca testada em produção normal — só que ninguém percebe, porque o chamado já está fechado.\n\nUm relatório de pós-incidente que lista intenções (\"atualizar o playbook\") sem transformar cada uma em tarefa rastreável e verificável não fecha a lacuna — só a documenta.",
+      "analogia": "Assinar a ata de uma reunião não faz as decisões nela acontecerem — só registra que alguém prometeu que aconteceriam.",
+      "erro_comum": "Aceitar 'chamado fechado' como prova de que o problema foi corrigido, sem uma segunda verificação independente.",
+      "fonte": "lab/fechar_vs_mudar.py desta sessão, executado em 02/09/2026; mesmo mecanismo de 'regra nunca testada' já ensinado em 4.5.t5, aplicado ao processo pós-incidente."
+    }
+  ],
+  "questoes": [
+    {
+      "id": "4.7.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "O que separa \"ter acesso técnico para desligar um sistema\" de \"ter autoridade para decidir a contenção dele\"?",
+      "alternativas": [
+        "Acesso é uma permissão técnica no sistema; autoridade é um mandato organizacional sobre a decisão — os dois podem existir separadamente",
+        "Autoridade é apenas o nome mais formal do mesmo acesso técnico — separar os dois é uma formalidade sem efeito prático",
+        "Acesso técnico garante automaticamente a autoridade, porque quem consegue agir tecnicamente já assumiu a responsabilidade pela decisão",
+        "Autoridade é sempre maior do que acesso técnico — todo aprovador de negócio também costuma ter, por padrão, acesso técnico direto ao sistema que está autorizando a parar"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Autoridade e acesso resolvem perguntas diferentes — dizer que são o mesmo apaga exatamente a distinção que evita o problema.",
+        "2": "Ter acesso não transfere mandato de decisão; é a confusão que o texto aponta como o defeito mais caro.",
+        "3": "O aprovador de negócio raramente tem, ou precisa ter, acesso técnico ao sistema — a autoridade dele é sobre a decisão, não sobre o teclado."
+      },
+      "dicas": [
+        "Pense em duas perguntas separadas: quem consegue fazer, e quem pode decidir que se deve fazer.",
+        "O analista de plantão costuma responder sim à primeira. Isso responde à segunda também?",
+        "Só uma alternativa trata os dois como conceitos distintos, sem torná-los equivalentes nem uma hierarquia automática."
+      ],
+      "pergunta_socratica": "Antes de conferir: você já viu alguém com acesso total a um sistema hesitar em usá-lo sozinho? O que faltava ali, se não era acesso?",
+      "explicacao": "Acesso técnico e autoridade de decisão respondem perguntas diferentes: uma é sobre o que o sistema permite fazer, a outra é sobre quem tem mandato organizacional para decidir que aquilo deve ser feito. Um analista de plantão costuma ter o primeiro sem o segundo — pode desligar tecnicamente um sistema de pagamento, mas normalmente não deveria decidir isso sozinho. Confundir os dois é o defeito central: a pessoa certa tecnicamente age sem que ninguém, de fato, tenha autorizado a decisão.",
+      "fonte": "Distinção consolidada em modelos de comando de incidente (Incident Command System) e em práticas de gestão de mudança.",
+      "tags": [
+        "resposta-a-incidentes",
+        "autoridade",
+        "decisao",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "4.7.q2",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Uma equipe confirma comprometimento num sistema de folha de pagamento fora do horário comercial. Não existe critério prévio escrito dizendo quem pode autorizar a parada dele. O que a ausência desse critério provoca, na prática?",
+      "alternativas": [
+        "Cada aprovador precisa ser convencido do zero durante o incidente, multiplicando o tempo até a decisão sair",
+        "Nada relevante: um incidente real sempre atrai atenção suficiente para que alguém decida rápido de qualquer forma",
+        "A decisão passa automaticamente para quem tem o cargo mais alto disponível no momento, resolvendo a ambiguidade",
+        "O sistema é isolado por padrão até que um critério seja escrito, evitando qualquer atraso na decisão"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Atenção não substitui critério — o laboratório desta sessão mostrou uma diferença de dez vezes no tempo entre decidir com e sem mandato pré-combinado.",
+        "2": "Cargo mais alto disponível no momento não é o mesmo que critério definido — sem regra escrita, nem isso está combinado antecipadamente.",
+        "3": "Isolamento automático por ausência de critério não é comportamento padrão de sistema nenhum — é o oposto do problema, não a solução dele."
+      },
+      "dicas": [
+        "O laboratório desta sessão mediu essa diferença em minutos — não é opinião, é um número.",
+        "Pense no que muda quando cada aprovador precisa ouvir o caso inteiro antes de responder, em vez de só confirmar um critério já combinado.",
+        "Só uma alternativa descreve um efeito real, sem propor uma solução automática que o incidente por si só produziria."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você fosse o segundo aprovador dessa cadeia, o que precisaria ouvir antes de dizer sim?",
+      "explicacao": "Sem critério pré-combinado, cada aprovador da cadeia precisa ser convencido do caso específico antes de decidir — o que transforma uma confirmação rápida numa negociação. O laboratório desta sessão simulou exatamente essa diferença: a mesma cadeia de aprovadores leva, em média, um décimo do tempo quando cada um só confirma um mandato já definido. A urgência do incidente não resolve isso sozinha — ela só aumenta a pressão sobre uma decisão que continua sem dono.",
+      "fonte": "lab/autoridade_pre_combinada.py desta sessão, executado em 02/09/2026: 16,4 min com mandato pré-combinado contra 170,1 min sem ele, em 2.000 simulações.",
+      "tags": [
+        "resposta-a-incidentes",
+        "autoridade",
+        "cenario",
+        "decisao"
+      ]
+    },
+    {
+      "id": "4.7.q3",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "artefato": "=== tempo medio ate a decisao sair (simulacao, 2000 rodadas) ===\n  com autoridade pre-combinada:   16.4 min\n  sem autoridade pre-combinada:  170.1 min\n  razao sem/com:                 10.35x",
+      "enunciado": "Esta é a saída real de uma simulação com a mesma cadeia de três aprovadores, rodada duas vezes: uma vez supondo que cada um só confirma um critério já combinado, outra supondo que cada um precisa ser convencido do caso durante o incidente. O que a razão de 10,35x sustenta?",
+      "alternativas": [
+        "Que a lentidão não vem de nenhum aprovador individual — a cadeia de pessoas é idêntica nos dois casos",
+        "Que os aprovadores sem autoridade pré-combinada são, em média, dez vezes menos capacitados que os outros",
+        "Que a simulação provou que autoridade pré-combinada elimina qualquer necessidade de aprovação humana",
+        "Que o resultado só vale para cadeias de exatamente três aprovadores, e não generaliza para outros tamanhos ou composições de equipe de aprovação"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A simulação usa exatamente os mesmos três aprovadores nos dois cenários — nada na capacitação deles mudou, só a premissa sobre o que cada etapa exige.",
+        "2": "A simulação mantém aprovação humana nos dois casos — o que muda é confirmar contra convencer, não eliminar aprovação.",
+        "3": "O número de aprovadores é um parâmetro do modelo, não um limite da conclusão — confirmar é mais rápido que convencer independentemente do tamanho da cadeia."
+      },
+      "dicas": [
+        "Compare as duas listas de aprovadores no início da saída completa — o que muda entre elas, além do resultado final medido?",
+        "O que muda entre as duas simulações não é quem aprova, é o que cada aprovador precisa fazer antes de responder.",
+        "Uma das quatro alternativas é a única que atribui a diferença à premissa da simulação, não às pessoas nem ao tamanho da equipe."
+      ],
+      "pergunta_socratica": "Antes de conferir: os nomes dos três aprovadores mudam entre as duas simulações, ou só o que se pede a cada um deles?",
+      "explicacao": "A simulação mantém os mesmos três aprovadores e as mesmas faixas de tempo de resposta nos dois cenários — a única variável é se cada etapa exige apenas confirmar um mandato já definido ou convencer alguém do zero. A razão de 10,35x mede exatamente o custo dessa diferença, isolada de qualquer diferença de capacidade ou de tamanho de equipe.",
+      "fonte": "Saída real de lab/autoridade_pre_combinada.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "resposta-a-incidentes",
+        "artefato",
+        "autoridade",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.7.q4",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Segundo o modelo de custo de esperar por confirmação, por que \"espere ter certeza total antes de agir\" não funciona como regra fixa para todo incidente?",
+      "alternativas": [
+        "Porque o ponto de equilíbrio depende da razão entre os dois custos envolvidos em cada incidente, não é um valor fixo",
+        "Porque certeza total é impossível de definir matematicamente, então a regra não tem sentido em nenhum caso",
+        "Porque agir sem certeza costuma ser mais barato que esperar em qualquer incidente, o que tornaria esperar sempre uma escolha pior",
+        "Porque o custo de esperar é sempre zero quando o alarme é falso, então esperar é sempre a opção mais segura"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O modelo não depende de definir 'certeza total' matematicamente — ele compara dois custos esperados, uma conta possível mesmo sem esse conceito.",
+        "2": "'Sempre' é o erro do lado oposto: quando o custo por minuto de espera é baixo, esperar pode compensar mais — o modelo não elege um lado fixo.",
+        "3": "O custo de esperar ser zero num falso alarme é só metade da conta — a outra metade é o custo de esperar quando o incidente É real, que cresce com o tempo."
+      },
+      "dicas": [
+        "O ponto de equilíbrio do modelo muda de exemplo para exemplo, dependendo de dois números — quais?",
+        "Pense no que aconteceria com o ponto de equilíbrio se o custo por minuto de incidente real fosse mil vezes maior.",
+        "Só uma alternativa nega que exista uma regra fixa — as outras três tentam propor uma regra fixa, só que em direções diferentes."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o custo de um falso positivo fosse dez vezes maior, o que aconteceria com o ponto a partir do qual vale agir?",
+      "explicacao": "O modelo calcula, para cada probabilidade de o incidente ser real, o custo esperado de agir contra o de esperar — e o ponto em que as duas curvas se cruzam depende da razão entre o custo de um falso positivo e o custo por minuto de incidente real em curso. Quando essa razão muda, o ponto de equilíbrio muda junto: não existe um limiar de confiança único que sirva para todo incidente.",
+      "fonte": "lab/custo_de_esperar.py desta sessão, executado em 02/09/2026 — ponto de equilíbrio de 23,8% no exemplo do laboratório.",
+      "tags": [
+        "resposta-a-incidentes",
+        "decisao",
+        "informacao-incompleta",
+        "conceitual"
+      ]
+    },
+    {
+      "id": "4.7.q5",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "No modelo de custo de esperar, o tempo de confirmação total cai de 20 para 12 minutos porque uma nova fonte de dados chegou mais rápido. Mantidos os outros dois parâmetros do laboratório (R$ 5.000 de custo de falso positivo, R$ 800 por minuto de incidente real ativo), o que acontece com o ponto de equilíbrio?",
+      "alternativas": [
+        "Ele sobe para cerca de 34%: esperar ficou mais barato, e passa a exigir mais confiança antes de agir sem confirmação",
+        "Ele cai para cerca de 15%, porque menos tempo disponível sempre torna agir mais urgente, independentemente do custo",
+        "Ele não muda, porque o ponto de equilíbrio depende só do custo do falso positivo, e esse número continua exatamente o mesmo entre os dois cenários",
+        "O modelo deixa de se aplicar quando o tempo de confirmação é menor que 15 minutos, porque abaixo disso a decisão vira sempre agir"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "É o erro intuitivo: 'menos tempo, mais urgência' ignora que confirmar mais rápido também é mais barato, o que empurra o equilíbrio para cima, não para baixo.",
+        "2": "O ponto de equilíbrio depende dos dois custos e do tempo de confirmação juntos — mudar esse tempo muda a conta, mesmo com o custo do falso positivo igual.",
+        "3": "Nada no modelo impõe um limite de 15 minutos onde a fórmula deixa de valer — é uma regra que a conta não sustenta."
+      },
+      "dicas": [
+        "Refaça a conta: o tempo de confirmação entra multiplicado pelo custo por minuto — o que acontece com esse produto quando o tempo cai?",
+        "Confirmar em 12 minutos é mais barato que confirmar em 20 — isso torna esperar mais ou menos atraente, relativamente a agir?",
+        "Só uma alternativa dá um número compatível com refazer a conta do laboratório com os novos valores."
+      ],
+      "pergunta_socratica": "Antes de conferir: se confirmar ficou mais barato, isso deveria facilitar ou dificultar a decisão de agir sem esperar?",
+      "explicacao": "Recalculando a fórmula com 12 minutos de confirmação em vez de 20, o custo de esperar cai proporcionalmente, e o ponto de equilíbrio sobe de 23,8% para cerca de 34%. A leitura é contraintuitiva: confirmar mais rápido torna esperar mais atraente, o que exige mais confiança antes de justificar agir sem essa confirmação — não menos.",
+      "fonte": "Recálculo de lab/custo_de_esperar.py desta sessão com os parâmetros do enunciado.",
+      "tags": [
+        "resposta-a-incidentes",
+        "decisao",
+        "cenario",
+        "custo"
+      ]
+    },
+    {
+      "id": "4.7.q6",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "artefato": "=== custo esperado por probabilidade de ser incidente real ===\n P(real)   agir agora    esperar confirmar\n     0.2        4,000                3,200\n     0.3        3,500                4,800",
+      "enunciado": "Este recorte da tabela do modelo de custo de esperar mostra duas linhas, P(real)=0,2 e P(real)=0,3. Entre essas duas linhas, o que muda sobre qual decisão custa menos, em esperança?",
+      "alternativas": [
+        "Em 0,2 esperar ainda custa menos (3.200 contra 4.000); em 0,3 agir já custa menos (3.500 contra 4.800) — o ponto de virada fica entre as duas linhas",
+        "Nas duas linhas agir custa menos, porque agir nunca custa mais que R$ 5.000, que é justamente o teto fixado para qualquer falso positivo previsto neste modelo de decisão",
+        "Nas duas linhas esperar custa menos (3.200 e 4.800, contra 4.000 e 3.500), porque a probabilidade de incidente real ainda está abaixo da metade nos dois casos apresentados",
+        "As duas linhas empatam na prática, já que a diferença entre elas fica numa faixa estreita de R$ 1.600, pequena demais para mudar qualquer decisão real"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Custar no máximo R$ 5.000 não significa custar menos que a outra opção em toda linha — o teto é só o valor máximo, não uma garantia de vantagem.",
+        "2": "Citar os números não conserta a leitura: em 0,3 agir (3.500) já é menor que esperar (4.800) — o oposto do que a alternativa afirma para as 'duas linhas'.",
+        "3": "R$ 1.600 não é uma faixa pequena demais pra decisão — é exatamente onde a ordem das duas colunas se inverte, o que decide qual opção compensa."
+      },
+      "dicas": [
+        "Compare os dois números de cada linha separadamente — qual coluna é menor em cada uma?",
+        "O ponto de equilíbrio deste modelo já foi calculado antes nesta sessão. Ele cai entre 0,2 e 0,3?",
+        "Só uma alternativa descreve as duas linhas de forma diferente uma da outra, em vez de tratá-las como iguais."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual das duas linhas o número da coluna 'agir agora' já é menor que o da coluna ao lado?",
+      "explicacao": "Em P(real)=0,2, agir custa 4.000 e esperar custa 3.200 — esperar ainda é mais barato. Em P(real)=0,3, agir custa 3.500 e esperar custa 4.800 — a ordem já inverteu. O ponto de equilíbrio calculado para este modelo (23,8%) cai exatamente entre essas duas linhas, o que a tabela confirma numericamente.",
+      "fonte": "Saída real de lab/custo_de_esperar.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "resposta-a-incidentes",
+        "artefato",
+        "decisao",
+        "custo"
+      ]
+    },
+    {
+      "id": "4.7.q7",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Por que a ordem de quem é avisado primeiro, dentro da empresa, conta como decisão técnica da resposta, e não como formalidade posterior?",
+      "alternativas": [
+        "Porque o tempo até a pessoa certa ser avisada consome, na prática, parte do prazo disponível para agir",
+        "Porque a lei exige uma ordem específica de comunicação interna, sob pena de multa, independentemente do incidente",
+        "Porque quem avisa primeiro sempre se torna o responsável legal pelo incidente perante a diretoria e perante os órgãos reguladores externos",
+        "Porque comunicação interna substitui a comunicação externa exigida por lei, tornando-a desnecessária"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A lei trata da comunicação externa (autoridade e titulares), não impõe uma ordem interna de aviso dentro da empresa.",
+        "2": "Responsabilidade legal não se transfere pela ordem de quem avisa primeiro — isso não é como a governança interna funciona.",
+        "3": "Comunicação interna nunca substitui a externa — as duas correm em paralelo, e uma não dispensa a outra."
+      },
+      "dicas": [
+        "Pense no que acontece com o tempo restante até um prazo, quando a primeira etapa de aviso demora mais do que precisava.",
+        "A pergunta não é sobre quem é legalmente responsável — é sobre o que o atraso em avisar consome.",
+        "Só uma alternativa trata comunicação como algo que gasta tempo, igual a qualquer outra etapa técnica da resposta."
+      ],
+      "pergunta_socratica": "Antes de conferir: se ninguém souber de um incidente por duas horas depois de confirmado, o que já foi perdido, mesmo antes de qualquer decisão de contenção?",
+      "explicacao": "Cada minuto até a pessoa certa ser avisada é um minuto a menos disponível para decidir e agir — comunicação atrasada tem o mesmo efeito prático de uma aprovação atrasada. Tratá-la como formalidade que só importa depois de a parte técnica estar resolvida ignora que ela consome, silenciosamente, o mesmo tempo que qualquer outra etapa da resposta.",
+      "fonte": "Prática de gestão de crise e comando de incidente; lab/cadeia_de_comunicacao.py desta sessão.",
+      "tags": [
+        "resposta-a-incidentes",
+        "comunicacao",
+        "conceitual",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "4.7.q8",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ordene, da primeira para a última, as etapas do modelo de comunicação em duas ondas desta sessão (onda 1 em paralelo, onda 2 dependente do que a onda 1 decidiu liberar).",
+      "itens": [
+        "Líder técnico confirma que há um incidente",
+        "Diretoria e gerente de segurança são avisados, em paralelo",
+        "Jurídico é acionado, já sabendo o que a diretoria decidiu liberar",
+        "Encarregado de dados (LGPD) aciona a ANPD, se for o caso"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "dicas": [
+        "A segunda onda depende do que a primeira onda decidiu — ela não pode começar antes.",
+        "Só uma etapa não depende de nenhuma outra para começar — qual é o gatilho de tudo o resto?",
+        "O jurídico e o encarregado de dados vêm depois de alguém, mais alto na cadeia, já ter sido avisado — não antes."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro etapas precisa acontecer para que todas as outras façam sentido?",
+      "explicacao": "O modelo desta sessão usa duas ondas: a primeira roda em paralelo assim que o incidente é confirmado (diretoria e gerente de segurança avisados ao mesmo tempo), e a segunda só começa depois, porque depende do que a primeira decidiu liberar — jurídico avalia, e só então o encarregado de dados aciona a ANPD se for o caso. Inverter a ordem faria jurídico e encarregado de dados agir sem saber o que a diretoria já decidiu.",
+      "fonte": "lab/cadeia_de_comunicacao.py desta sessão, executado em 02/09/2026.",
+      "tags": [
+        "resposta-a-incidentes",
+        "comunicacao",
+        "ordenacao",
+        "cenario"
+      ]
+    },
+    {
+      "id": "4.7.q9",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Duas pessoas diferentes, cada uma achando que tinha autoridade, dão ordens conflitantes durante um incidente: uma manda isolar o sistema, a outra manda manter no ar para não perder uma venda em andamento. O que esse conflito revela sobre o processo da empresa?",
+      "alternativas": [
+        "Que a autoridade estava associada a pessoas, não a um papel único e claro para aquele tipo de decisão",
+        "Que uma das duas pessoas está mentindo sobre ter autoridade, e a solução é identificar qual delas é a impostora",
+        "Que o incidente é grave demais para qualquer processo prévio dar conta, e a improvisação nesse momento é inevitável",
+        "Que a empresa precisa de mais pessoas com autoridade de decisão, para que a responsabilidade fique mais distribuída"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nada no cenário indica má-fé — as duas podem genuinamente acreditar que decidem, o que é justamente o sintoma de um papel mal definido.",
+        "2": "Gravidade não é o problema aqui — mesmo incidentes graves podem ter autoridade clara se o papel foi definido antes; a improvisação é efeito da ausência de papel, não causa inevitável.",
+        "3": "Mais pessoas com autoridade tende a piorar exatamente esse conflito — o problema é ambiguidade de papel, não escassez de gente autorizada."
+      },
+      "dicas": [
+        "As duas pessoas provavelmente agem de boa-fé — o que faltava não era intenção, era clareza sobre quem decide o quê.",
+        "Pense no que muda quando a regra de decisão vale para um cargo, e não para uma pessoa específica indicada por nome.",
+        "Só uma alternativa aponta pra um defeito de desenho do processo, e não pra uma solução que piora ou ignora o problema."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o processo tivesse nomeado um único papel responsável por essa decisão, o conflito teria acontecido do mesmo jeito?",
+      "explicacao": "O conflito não nasce de má-fé — nasce de a autoridade estar amarrada a pessoas específicas, sem um papel único e claramente responsável por aquele tipo de decisão. Quando duas pessoas podem, cada uma de boa-fé, se considerar a decisora, o processo falhou antes do incidente começar. A correção não é ter mais gente com autoridade, é ter um papel único e explícito para cada categoria de decisão.",
+      "fonte": "Prática de comando de incidente único (Incident Commander), consolidada em frameworks de resposta a crise.",
+      "tags": [
+        "resposta-a-incidentes",
+        "autoridade",
+        "cenario",
+        "papel"
+      ]
+    },
+    {
+      "id": "4.7.q10",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "trecho": "POLÍTICA DE CONTENÇÃO — versão 1.2\n1. Qualquer isolamento de sistema crítico precisa ser aprovado por Carla Mendes, gerente de operações.\n2. Na ausência de Carla, aguardar o retorno dela antes de agir.\n3. Registrar a decisão no sistema de tíquetes após a aprovação.",
+      "enunciado": "Qual é o defeito mais grave desta política de contenção?",
+      "alternativas": [
+        "A autoridade está amarrada ao nome de uma pessoa específica, não a um papel",
+        "O registro no sistema de tíquetes deveria acontecer antes da aprovação, não depois",
+        "A política deveria exigir aprovação de duas pessoas em vez de uma, para reduzir o risco de erro individual",
+        "Falta um prazo máximo para Carla Mendes responder à solicitação de aprovação"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A ordem entre aprovar e registrar não é o problema central — registrar depois de decidir é prática comum e razoável.",
+        "2": "Duas aprovações tornariam a decisão mais lenta, não mais segura — mais aprovadores convencidos do zero piora o tempo, não melhora a qualidade.",
+        "3": "Um prazo de resposta não resolve o problema de fundo: mesmo com prazo, o processo trava até aquela pessoa específica responder — o defeito é nomear pessoa, não a ausência de prazo."
+      },
+      "dicas": [
+        "Releia o item 2 — o que ele manda fazer quando a pessoa nomeada no item 1 não está disponível?",
+        "Pense no que acontece se Carla Mendes sair de férias, mudar de emprego, ou simplesmente não atender o telefone durante o incidente.",
+        "Só uma alternativa aponta para o nome próprio no item 1 como a raiz do problema."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que a política faz quando a pessoa nomeada no item 1 não está acessível?",
+      "explicacao": "A política amarra a aprovação ao nome de uma pessoa, Carla Mendes, em vez de a um papel — como 'gerente de operações de plantão'. O item 2 confirma o problema: na ausência dela, o processo manda esperar, travando a contenção de um sistema crítico até uma pessoa específica responder, em vez de passar automaticamente para quem estiver ocupando aquele papel no momento.",
+      "fonte": "Padrão de autoridade por papel, não por pessoa, consolidado em modelos de comando de incidente.",
+      "tags": [
+        "resposta-a-incidentes",
+        "autoridade",
+        "caca-erro",
+        "processo"
+      ]
+    },
+    {
+      "id": "4.7.q11",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que definir autoridade de decisão por papel ('gerente de plantão') costuma ser mais robusto do que definir por nome de pessoa específica?",
+      "alternativas": [
+        "Porque pessoas saem de férias, trocam de emprego e ficam inacessíveis, enquanto um papel continua ocupado por alguém, independentemente de quem exerça ele num dado momento",
+        "Porque nomes de pessoas são informação confidencial, e não deveriam constar em um documento de política",
+        "Porque um papel sempre tem mais experiência técnica acumulada do que qualquer pessoa nomeada individualmente, já que o cargo em si concentra o conhecimento de quem passou por ele antes",
+        "Porque decisões tomadas por um papel não podem ser questionadas depois, enquanto decisões de uma pessoa podem"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Confidencialidade de nome não é o motivo da recomendação — é sobre continuidade da decisão, não sobre sigilo.",
+        "2": "Um papel não garante mais experiência técnica do que a pessoa que o ocupa — a vantagem é de disponibilidade e continuidade, não de competência.",
+        "3": "Nenhuma decisão de incidente fica imune a questionamento posterior, seja tomada por papel ou por pessoa nomeada."
+      },
+      "dicas": [
+        "Pense no que acontece com uma política amarrada a um nome quando essa pessoa está de férias, ou já não trabalha mais na empresa.",
+        "Um papel continua existindo mesmo quando a pessoa que o ocupa muda — o que isso garante que um nome não garante?",
+        "Só uma alternativa fala sobre disponibilidade e continuidade, sem inventar uma vantagem que o papel não tem por si só."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que acontece com uma política escrita em nome de uma pessoa quando essa pessoa deixa a empresa?",
+      "explicacao": "Um papel — 'gerente de plantão', 'incident commander' — continua ocupado por alguém mesmo quando a pessoa que o exercia hoje sai de férias, muda de cargo ou deixa a empresa. Nomear a pessoa em vez do papel cria uma dependência frágil: a política some junto com a pessoa. A vantagem é continuidade da decisão, não competência técnica superior nem sigilo de informação.",
+      "fonte": "Prática de governança organizacional e de comando de incidente (papel, não pessoa).",
+      "tags": [
+        "resposta-a-incidentes",
+        "autoridade",
+        "conceitual",
+        "papel"
+      ]
+    },
+    {
+      "id": "4.7.q12",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Um adversário que já mapeou o ambiente sabe que a empresa não tem autoridade de contenção pré-combinada, e que decisões desse tipo costumam travar em reuniões. Como ele explora isso a seu favor?",
+      "alternativas": [
+        "Prolongando a atividade dentro do ambiente enquanto a empresa negocia internamente quem pode autorizar a contenção — o atraso de decisão vira tempo extra de acesso",
+        "Invadindo o sistema de aprovação de tíquetes para forjar uma autorização de contenção falsa",
+        "Se identificando como gerente de plantão junto ao suporte técnico, para obter acesso administrativo direto ao ambiente sem precisar comprometer nenhuma credencial real",
+        "Explorando uma vulnerabilidade de software diferente, sem relação com o processo de decisão da empresa"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Forjar autorização exige acesso e conhecimento do sistema de tíquetes que o cenário não estabelece — é uma técnica possível, mas não a que explora especificamente a ausência de autoridade pré-combinada.",
+        "2": "Se passar por um papel interno é engenharia social, uma técnica distinta — não é o que a ausência de autoridade pré-combinada, por si, oferece de vantagem ao adversário.",
+        "3": "Explorar uma vulnerabilidade não relacionada não usa a informação específica do cenário — a ausência de autoridade combinada."
+      },
+      "dicas": [
+        "O modelo desta sessão mediu essa demora em minutos — o que o adversário ganha, exatamente, com cada minuto de atraso na decisão?",
+        "Pense no que o adversário faz durante o tempo que a empresa gasta debatendo quem pode autorizar a contenção.",
+        "Só uma alternativa usa diretamente a informação dada no enunciado — que a decisão de contenção costuma travar."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que um adversário ganha a cada minuto que uma empresa gasta decidindo quem pode autorizar a contenção?",
+      "explicacao": "A ausência de autoridade pré-combinada não é só um problema interno — é uma vantagem direta para quem já está dentro do ambiente: cada minuto gasto negociando quem decide é um minuto a mais de acesso, de movimento lateral ou de exfiltração possível. O adversário não precisa fazer nada tecnicamente novo para se beneficiar disso — só precisa que a empresa continue sem dono da decisão.",
+      "fonte": "Consequência direta do modelo de lab/autoridade_pre_combinada.py desta sessão, aplicada à perspectiva do adversário.",
+      "tags": [
+        "resposta-a-incidentes",
+        "autoridade",
+        "ataque-defesa",
+        "tempo"
+      ]
+    },
+    {
+      "id": "4.7.q13",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Ligue cada categoria de sistema ao papel que, tipicamente, deveria ter autoridade pré-combinada para autorizar a contenção dele.",
+      "pares": [
+        [
+          "sistema de teste, sem dado real",
+          "líder técnico de plantão decide sozinho"
+        ],
+        [
+          "sistema de produção com receita direta",
+          "diretor de operações, junto com o líder técnico"
+        ],
+        [
+          "sistema que processa dado pessoal sensível",
+          "jurídico e encarregado de dados envolvidos na decisão"
+        ],
+        [
+          "infraestrutura compartilhada entre várias equipes",
+          "comitê de mudança, não uma única pessoa"
+        ]
+      ],
+      "dicas": [
+        "Quanto maior o impacto de negócio ou legal de uma parada, mais gente tende a precisar estar envolvida na decisão.",
+        "Sistema de teste sem dado real é o caso de menor impacto — pense em qual papel isso libera para decidir sozinho.",
+        "Infraestrutura compartilhada afeta mais de uma equipe — isso pede decisão individual ou coletiva?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses quatro sistemas você desligaria sem pedir permissão a ninguém, e qual exigiria uma reunião?",
+      "explicacao": "A autoridade pré-combinada não é uniforme — ela escala com o impacto da parada. Um sistema de teste sem dado real pode ficar sob decisão de um único papel técnico; um sistema de produção com receita direta já pede uma segunda camada; dado pessoal sensível traz jurídico e encarregado de dados para dentro da decisão; e infraestrutura compartilhada entre equipes, por afetar mais de um dono, pede um comitê em vez de uma única pessoa.",
+      "fonte": "Prática de classificação de criticidade de sistema, aplicada à definição de autoridade de contenção.",
+      "tags": [
+        "resposta-a-incidentes",
+        "autoridade",
+        "pareamento",
+        "criticidade"
+      ]
+    },
+    {
+      "id": "4.7.q14",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "A diretoria aprova, por escrito, um documento dizendo que qualquer isolamento de sistema com risco de exfiltração ativa pode ser autorizado pelo líder técnico de plantão, sem esperar aprovação adicional. Seis meses depois, um incidente real acontece fora do horário comercial. O que essa decisão prévia muda no momento do incidente?",
+      "alternativas": [
+        "O líder técnico pode agir imediatamente dentro do critério já aprovado, sem precisar convencer ninguém durante o próprio incidente",
+        "Nada muda: toda decisão de contenção continua exigindo aprovação de um diretor no momento, independentemente do que foi combinado antes",
+        "O documento vira automaticamente inválido depois de seis meses, e precisa ser reaprovado a cada incidente",
+        "O líder técnico passa a ter autoridade sobre qualquer decisão da empresa, não só sobre contenção de sistemas"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Isso contradiz o próprio propósito do documento — se a aprovação prévia não valesse no momento do incidente, o exercício de combinar antes não teria efeito nenhum.",
+        "2": "Nada no cenário estabelece prazo de validade — inventar um limite de seis meses não está no enunciado nem é prática padrão desse tipo de documento.",
+        "3": "A autorização é específica para contenção de sistema com risco de exfiltração ativa — generalizar para 'qualquer decisão da empresa' extrapola o escopo combinado."
+      },
+      "dicas": [
+        "Pense no que o disjuntor elétrico da analogia deste módulo faz durante o curto-circuito — ele reabre a discussão, ou já age?",
+        "O documento define um critério específico (risco de exfiltração ativa) — o que muda quando esse critério específico é atendido?",
+        "Só uma alternativa descreve o efeito direto de ter combinado o critério antes, sem inventar prazo de validade nem ampliar o escopo."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual é a diferença prática entre esse incidente e o cenário do começo do módulo, em que não existia critério nenhum combinado?",
+      "explicacao": "Com o critério já combinado e aprovado, o líder técnico não precisa convencer ninguém durante o incidente — ele confirma que a situação bate com o critério pré-aprovado (risco de exfiltração ativa) e age. É exatamente o mecanismo que o laboratório desta sessão mediu: decidir com mandato pré-combinado é muito mais rápido do que decidir convencendo do zero, porque a negociação já aconteceu antes, com calma, e não durante a pressão do incidente.",
+      "fonte": "Aplicação direta do mecanismo de lab/autoridade_pre_combinada.py e do princípio de limiar pré-combinado (4.7.t3).",
+      "tags": [
+        "resposta-a-incidentes",
+        "autoridade",
+        "cenario",
+        "playbook"
+      ]
+    },
+    {
+      "id": "4.7.q15",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "A equipe vê um sinal fraco de possível exfiltração — um volume de tráfego de saída um pouco acima do normal, sem confirmação de que dado sensível está envolvido. O playbook da empresa já define: 'sinal de exfiltração, mesmo sem confirmação completa, autoriza isolamento imediato do host'. O que essa regra faz, na prática, com a decisão da equipe neste momento?",
+      "alternativas": [
+        "Tira da equipe a necessidade de calcular, sob pressão, se aquele nível específico de suspeita já justifica agir",
+        "Obriga a equipe a confirmar completamente que há exfiltração real antes de isolar, para não violar o playbook",
+        "Transfere a decisão para a diretoria, que precisa validar cada aplicação da regra individualmente",
+        "Não tem efeito prático, porque volume de tráfego acima do normal é ambíguo demais para qualquer regra prévia decidir"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "É o oposto do que o playbook diz — ele autoriza agir justamente sem confirmação completa, essa é a definição do limiar pré-combinado.",
+        "2": "O playbook autoriza diretamente a ação, sem citar validação individual da diretoria a cada aplicação — isso reintroduziria a negociação que o limiar existe para evitar.",
+        "3": "O playbook foi escrito exatamente para esse tipo de sinal ambíguo — dizer que ele não tem efeito ignora o propósito declarado da regra."
+      },
+      "dicas": [
+        "Releia o próprio playbook citado no enunciado — ele exige confirmação completa, ou dispensa ela para esse tipo de sinal?",
+        "Pense no que muda para a equipe quando o critério de 'suspeita suficiente' já foi decidido antes, e não precisa ser debatido agora.",
+        "Só uma alternativa descreve o efeito que um limiar pré-combinado tem por definição — liberar a decisão dos casos que ele já cobre."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a equipe precisasse debater se aquele volume de tráfego já é 'suspeito o suficiente', o que o playbook já teria feito por ela?",
+      "explicacao": "O playbook já decidiu, antes do incidente, que esse tipo de sinal — mesmo sem confirmação completa — justifica isolamento imediato. Isso tira da equipe, no momento de pressão, a necessidade de calcular do zero se aquele nível de suspeita já compensa agir: a conta já foi feita com calma, antes, e vale para todo caso daquele tipo.",
+      "fonte": "Aplicação de limiar pré-combinado (4.7.t3) ao modelo de custo de esperar (lab/custo_de_esperar.py).",
+      "tags": [
+        "resposta-a-incidentes",
+        "decisao",
+        "cenario",
+        "playbook"
+      ]
+    },
+    {
+      "id": "4.7.q16",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "O que um limiar de decisão pré-combinado faz com o julgamento humano durante um incidente — ele elimina o julgamento, ou faz outra coisa?",
+      "alternativas": [
+        "Ele decide de antemão os casos que se encaixam claramente no critério, e libera o julgamento humano para os casos ambíguos que o critério não cobre",
+        "Ele elimina totalmente a necessidade de julgamento humano durante qualquer incidente, porque toda decisão já está automatizada",
+        "Ele substitui o julgamento da equipe técnica pelo julgamento automático de uma ferramenta de segurança, que passa a decidir sozinha com base em regras configuradas previamente",
+        "Ele só se aplica a incidentes de baixa gravidade, porque incidentes graves sempre exigem decisão discricionária total"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Casos ambíguos, fora do critério exato, continuam exigindo julgamento humano — o limiar não cobre tudo, só os casos claros.",
+        "2": "Um limiar pré-combinado é uma decisão humana tomada com antecedência, não uma automação de ferramenta — quem decide continua sendo pessoa, só que antes.",
+        "3": "Nada limita a prática de limiares pré-combinados a incidentes de baixa gravidade — o próprio exemplo do módulo (autorizar contenção com risco de exfiltração ativa) é de alta gravidade."
+      },
+      "dicas": [
+        "Pense no disjuntor elétrico: ele decide um caso específico (corrente acima do limite). Isso cobre toda decisão elétrica possível, ou só aquele tipo?",
+        "Um caso 'claramente dentro do critério' e um caso 'ambíguo, fora do critério' recebem o mesmo tratamento?",
+        "Só uma alternativa distingue os casos que o limiar cobre dos casos que continuam exigindo julgamento."
+      ],
+      "pergunta_socratica": "Antes de conferir: um limiar como 'sinal de exfiltração autoriza isolamento' cobre todo tipo de incidente possível, ou só aquele padrão específico?",
+      "explicacao": "Um limiar pré-combinado não elimina julgamento humano — ele decide, com antecedência e calma, os casos que se encaixam claramente num critério declarado, liberando a atenção da equipe para os casos ambíguos, que são os que de fato exigem julgamento no momento do incidente. É a mesma lógica do disjuntor: ele resolve o caso previsto (corrente acima do limite), não decide sobre eletricidade em geral.",
+      "fonte": "4.7.t3, desta sessão.",
+      "tags": [
+        "resposta-a-incidentes",
+        "decisao",
+        "conceitual",
+        "playbook"
+      ]
+    },
+    {
+      "id": "4.7.q17",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "trecho": "PLAYBOOK DE RESPOSTA — RANSOMWARE\n1. Isolar o host afetado da rede.\n2. Capturar imagem de disco antes de qualquer outra ação.\n3. Notificar o time de segurança.\n4. Restaurar do backup mais recente.",
+      "enunciado": "O que este playbook deixa de fora, comparado ao que o módulo defende sobre decisão sob pressão?",
+      "alternativas": [
+        "Nenhum critério de quando cada passo se aplica ou quem decide entre alternativas",
+        "A ordem dos passos está errada — capturar imagem de disco deveria vir antes de isolar o host",
+        "Falta um passo de comunicação com a imprensa, que deveria vir logo após o isolamento",
+        "O playbook deveria listar o nome do software de backup usado, para ser mais específico tecnicamente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A ordem apresentada (isolar, depois capturar imagem) é defensável tecnicamente — o defeito apontado pelo módulo não é sobre sequência de ação técnica.",
+        "2": "Comunicação com imprensa é uma decisão de comunicação externa, fora do escopo técnico do playbook — não é o que falta segundo o eixo de decisão sob pressão do módulo.",
+        "3": "Nomear o software usado é detalhe de implementação, não o tipo de lacuna que o módulo trata como central — critério de decisão, não ferramenta."
+      },
+      "dicas": [
+        "Releia os quatro passos: em algum lugar ali diz quando parar e chamar alguém, ou é só a ordem técnica sozinha?",
+        "O módulo distingue 'o que fazer tecnicamente' de 'quem decide fazer, e quando' — qual das duas coisas este playbook cobre?",
+        "Só uma alternativa aponta para a ausência de critério de decisão, não para um detalhe técnico do playbook."
+      ],
+      "pergunta_socratica": "Antes de conferir: se dois passos deste playbook parecessem contraditórios num caso real, quem decidiria qual seguir?",
+      "explicacao": "O playbook lista quatro ações técnicas em sequência, mas não define nenhum critério de quando cada uma se aplica, nem quem tem autoridade para decidir entre elas quando o caso não é óbvio — por exemplo, se capturar a imagem de disco atrasa o isolamento o suficiente para o ransomware continuar cifrando. Um playbook técnico sem critério de decisão resolve o 'o quê', mas deixa o 'quem decide, e quando' — o assunto central deste módulo — sem resposta.",
+      "fonte": "Aplicação de 4.7.t1 e 4.7.t3 a um playbook técnico típico.",
+      "tags": [
+        "resposta-a-incidentes",
+        "decisao",
+        "caca-erro",
+        "playbook"
+      ]
+    },
+    {
+      "id": "4.7.q18",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Um adversário sabe, por experiência com empresas parecidas, que times de segurança costumam esperar confirmação completa antes de agir. Como ele explora essa política, especificamente?",
+      "alternativas": [
+        "Mantendo o comportamento malicioso deliberadamente ambíguo tempo suficiente para nunca cruzar o limiar de 'confirmação completa'",
+        "Explorando uma vulnerabilidade de software específica que nenhuma política de confirmação poderia prever",
+        "Se passando por um funcionário legítimo para obter credenciais válidas de acesso ao ambiente",
+        "Atacando fora do horário comercial, quando a equipe de segurança está reduzida ou ausente e a primeira resposta a qualquer alerta demora naturalmente mais para acontecer"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Explorar uma vulnerabilidade específica não depende da política de confirmação da equipe — é uma técnica independente do cenário descrito.",
+        "2": "Engenharia social para obter credenciais é uma técnica distinta, que não usa especificamente a política de 'esperar confirmação completa'.",
+        "3": "Atacar fora do horário explora ausência de gente, não a política de espera por confirmação em si — são dois problemas diferentes, mesmo que relacionados."
+      },
+      "dicas": [
+        "Pense no que o modelo de custo de esperar diz sobre um incidente que nunca fica 'claramente confirmado' — o que acontece com a decisão de agir?",
+        "Um adversário que sabe que a equipe só age com certeza total tem incentivo para parecer o quê, o tempo todo?",
+        "Só uma alternativa usa diretamente a informação do enunciado — que a equipe espera confirmação completa antes de agir."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a equipe só age com certeza total, o que um adversário esperto faz para nunca entregar essa certeza?",
+      "explicacao": "Sabendo que a equipe espera confirmação completa, um adversário tem incentivo direto para manter cada ação individualmente ambígua — nunca gerar o sinal inequívoco que dispararia ação, mesmo enquanto o objetivo geral (persistência, exfiltração lenta) avança. É o mesmo ponto do modelo de custo de esperar, visto do lado do atacante: quanto mais alto o limiar de certeza exigido pela defesa, mais espaço o adversário tem para operar sem nunca cruzá-lo.",
+      "fonte": "Leitura adversarial do modelo de lab/custo_de_esperar.py desta sessão.",
+      "tags": [
+        "resposta-a-incidentes",
+        "decisao",
+        "ataque-defesa",
+        "informacao-incompleta"
+      ]
+    },
+    {
+      "id": "4.7.q19",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Ordene, do primeiro ao último, os passos de uma decisão que usa um limiar pré-combinado corretamente.",
+      "itens": [
+        "Observar o sinal (ex.: volume de tráfego de saída acima do normal)",
+        "Comparar o sinal contra o critério já definido no playbook",
+        "Se o sinal bate com o critério, agir imediatamente sem esperar aprovação adicional",
+        "Se o sinal não bate com nenhum critério pré-definido, escalar para julgamento humano"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "dicas": [
+        "Antes de comparar um sinal a um critério, é preciso primeiro perceber que o sinal existe.",
+        "A decisão de agir sem aprovação só faz sentido depois de confirmar que o critério pré-definido foi atingido.",
+        "Escalar para julgamento humano é o que sobra depois de testar o sinal contra os critérios já definidos, não o primeiro passo."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para comparar um sinal contra um critério antes de perceber que o sinal existe?",
+      "explicacao": "A sequência lógica começa em observar o sinal, depois compará-lo contra o critério já definido no playbook. Se ele bate, o critério pré-combinado autoriza agir de imediato, sem reabrir negociação. Só quando o sinal não se encaixa em nenhum critério previsto é que a decisão precisa ser escalada para julgamento humano — o caso ambíguo que o limiar não cobre.",
+      "fonte": "4.7.t3, aplicado ao fluxo de decisão de lab/custo_de_esperar.py e lab/autoridade_pre_combinada.py.",
+      "tags": [
+        "resposta-a-incidentes",
+        "decisao",
+        "ordenacao",
+        "playbook"
+      ]
+    },
+    {
+      "id": "4.7.q20",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Por que tanto 'aja sempre rápido, sem esperar nada' quanto 'espere sempre ter certeza total' são regras que o modelo de custo desta sessão rejeita, e não só uma das duas?",
+      "alternativas": [
+        "Porque as duas tratam a decisão como se um único comportamento servisse para todo incidente, ignorando que o ponto de equilíbrio depende da razão entre custo de agir errado e custo de esperar",
+        "Porque agir rápido é sempre mais caro que esperar, já que reverter uma ação tomada sem necessidade real costuma exigir mais trabalho do que simplesmente aguardar mais alguns minutos",
+        "Porque esperar certeza total é sempre mais caro que agir rápido, então só a primeira regra está errada de fato",
+        "Porque as duas regras descrevem o mesmo comportamento com palavras diferentes, e por isso são igualmente inúteis"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O modelo mostra situações em que agir rápido É a opção mais barata, dependendo dos custos envolvidos — não é sempre mais caro.",
+        "2": "O modelo também mostra situações em que esperar é a opção mais barata — quando o custo por minuto de espera é baixo comparado ao custo do falso positivo.",
+        "3": "'Aja sempre rápido' e 'espere sempre certeza' descrevem comportamentos opostos, não o mesmo comportamento com outras palavras."
+      },
+      "dicas": [
+        "Volte à tabela de custo esperado por probabilidade — ela tem uma linha em que agir é mais barato e outra em que esperar é mais barato?",
+        "Pense em qual das duas regras erra quando o custo por minuto de espera é muito alto, e qual erra quando é muito baixo.",
+        "Só uma alternativa rejeita as duas regras pelo mesmo motivo — tratar a decisão como fixa, em vez de dependente da razão de custos."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe um único ponto de equilíbrio que sirva para todo incidente, com qualquer custo de falso positivo e qualquer custo de espera?",
+      "explicacao": "As duas regras fixas erram pelo mesmo motivo: tratam a decisão como se um único comportamento — sempre agir, ou sempre esperar — servisse para qualquer incidente. O modelo mostra que o ponto a partir do qual agir compensa depende da razão entre o custo de um falso positivo e o custo por minuto de um incidente real seguir ativo, e essa razão muda de caso para caso. Nenhuma das duas regras fixas acompanha essa variação.",
+      "fonte": "Síntese de lab/custo_de_esperar.py e 4.7.t2 desta sessão.",
+      "tags": [
+        "resposta-a-incidentes",
+        "decisao",
+        "conceitual",
+        "custo"
+      ]
+    },
+    {
+      "id": "4.7.q21",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Durante um incidente, a equipe técnica discute detalhes da investigação — quais contas foram comprometidas, o que já foi descoberto — usando o e-mail corporativo, sem saber ainda se a caixa de e-mail está entre os sistemas afetados. Qual é o risco técnico específico dessa escolha de canal?",
+      "alternativas": [
+        "Se o adversário tiver acesso à caixa de e-mail, ele acompanha a investigação em tempo real e ajusta o comportamento antes que a contenção aconteça",
+        "O e-mail corporativo não é um canal formal o suficiente para registrar decisões de um incidente grave",
+        "A discussão por e-mail deixa um registro permanente que pode ser usado contra a empresa numa investigação legal posterior",
+        "Trocar informações por e-mail é mais lento do que uma reunião presencial, e esse atraso adicional é o que mais compromete o tempo de resposta da equipe"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Formalidade de registro não é o risco técnico em questão — o risco é sobre quem mais pode estar lendo aquele canal.",
+        "2": "Registro permanente é geralmente desejável para investigação e auditoria — o problema aqui não é existir registro, é quem tem acesso a ele durante o incidente.",
+        "3": "Velocidade de e-mail comparada a uma reunião não é o risco específico levantado pelo cenário — o ponto é sobre monitoramento, não sobre lentidão."
+      },
+      "dicas": [
+        "O cenário deixa claro que ninguém sabe ainda se a caixa de e-mail está comprometida — o que isso implica sobre quem pode estar lendo aquela conversa?",
+        "Pense no que muda de estratégia quem está espionando essa conversa sem ninguém perceber.",
+        "Só uma alternativa liga o risco ao fato específico de não se saber se o canal está seguro."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você fosse o adversário e conseguisse ler essa conversa, o que faria de diferente na hora?",
+      "explicacao": "O risco não é sobre formalidade, registro ou velocidade — é sobre quem mais pode estar lendo aquele canal. Se o adversário tiver, sem que a equipe saiba, acesso à caixa de e-mail usada para discutir a investigação, ele acompanha em tempo real o que já foi descoberto e pode ajustar comportamento, apagar rastro ou acelerar a exfiltração antes que a contenção, planejada naquele mesmo canal, aconteça de fato.",
+      "fonte": "4.7.t4, desta sessão.",
+      "tags": [
+        "resposta-a-incidentes",
+        "comunicacao",
+        "cenario",
+        "canal-seguro"
+      ]
+    },
+    {
+      "id": "4.7.q22",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Por que este módulo trata a escolha de quem avisar, e quando, como parte técnica da resposta a incidente, e não como uma etapa administrativa separada?",
+      "alternativas": [
+        "Porque o tempo gasto nessa etapa consome o mesmo prazo disponível para conter e investigar, exatamente como qualquer outra ação técnica da resposta",
+        "Porque a lei brasileira classifica comunicação de incidente como ato técnico, e não administrativo, para fins de responsabilização",
+        "Porque só profissionais técnicos têm permissão para se comunicar durante um incidente, segundo a maioria dos playbooks",
+        "Porque comunicação e contenção sempre acontecem dentro da mesma ferramenta de tíquetes, o que as torna, por definição, partes de uma única atividade registrada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A classificação legal de um ato não é o argumento do módulo — o ponto é sobre consumo de tempo disponível, não sobre categoria jurídica.",
+        "2": "Restringir comunicação a profissionais técnicos não é prática nem playbook padrão — geralmente inclui jurídico, diretoria e comunicação/RP, que não são técnicos.",
+        "3": "Comunicação e contenção normalmente acontecem em ferramentas diferentes — não são a mesma atividade por usarem o mesmo sistema."
+      },
+      "dicas": [
+        "Volte à pergunta do início do bloco de teoria correspondente: o que duas horas sem avisar ninguém já custaram, mesmo antes de qualquer contenção?",
+        "Pense em outra etapa técnica qualquer — isolar um host, por exemplo. O que ela e avisar as pessoas certas têm em comum, em termos de tempo?",
+        "Só uma alternativa trata avisar as pessoas certas como algo que gasta o mesmo recurso escasso de qualquer outra etapa da resposta."
+      ],
+      "pergunta_socratica": "Antes de conferir: o relógio do incidente para de correr enquanto ninguém sabe que ele está acontecendo?",
+      "explicacao": "Comunicação consome o mesmo recurso escasso que qualquer ação técnica da resposta: tempo. Cada minuto até a pessoa certa ser avisada é um minuto a menos disponível para decidir, conter e investigar — o mesmo efeito prático de uma aprovação atrasada. Tratá-la como etapa administrativa, separada do 'trabalho de verdade', ignora que ela compete pelo mesmo prazo apertado que todo o resto da resposta.",
+      "fonte": "4.7.t4, desta sessão.",
+      "tags": [
+        "resposta-a-incidentes",
+        "comunicacao",
+        "conceitual",
+        "tempo"
+      ]
+    },
+    {
+      "id": "4.7.q23",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "artefato": "=== tempo total ===\n  serial (um avisa o proximo):        95 min (1.6 h)\n  paralelo em duas ondas dependentes: 45 min (0.8 h)\n  prazo externo de referencia (0.4):  3 dias uteis",
+      "enunciado": "O que esta saída real do modelo de comunicação sustenta sobre a diferença entre avisar em cadeia (um avisa o próximo) e avisar em ondas (paralelo, quando possível)?",
+      "alternativas": [
+        "Para a mesma lista de seis partes interessadas, avisar em ondas leva menos da metade do tempo de avisar em cadeia",
+        "Avisar em ondas é sempre impossível quando envolve jurídico e diretoria, porque essas partes exigem aprovação sequencial obrigatória",
+        "A diferença entre as duas formas só importa quando o prazo externo é menor que 24 horas",
+        "Avisar em cadeia é mais seguro, porque garante que cada pessoa recebeu a informação da pessoa certa"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A própria saída mostra a forma em ondas notificando as mesmas seis partes interessadas — jurídico e diretoria incluídos — em 45 minutos, o que já contradiz 'sempre impossível'.",
+        "2": "O prazo externo de referência (3 dias úteis) não muda a diferença de tempo entre as duas formas — ela existe independentemente do tamanho do prazo disponível.",
+        "3": "Segurança da informação recebida não depende de vir 'da pessoa certa' numa cadeia — a mesma informação pode chegar corretamente em paralelo."
+      },
+      "dicas": [
+        "Compare diretamente os dois números da saída: 95 minutos contra 45 minutos, para a mesma lista de pessoas.",
+        "Pense se o modelo, em algum momento, condiciona o uso de ondas a algum prazo específico.",
+        "Só uma alternativa é uma leitura numérica direta da saída, sem inventar uma condição que ela não estabelece."
+      ],
+      "pergunta_socratica": "Antes de conferir: as duas formas notificam as mesmas seis partes interessadas, ou listas diferentes?",
+      "explicacao": "A saída real do modelo mostra 95 minutos para a forma serial contra 45 minutos para a forma em duas ondas, notificando exatamente a mesma lista de seis partes interessadas — mais que o dobro de tempo economizado. A diferença vem só de deixar em paralelo quem não depende de informação alheia para começar, sem inventar restrição de segurança que a forma em ondas não teria.",
+      "fonte": "Saída real de lab/cadeia_de_comunicacao.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "resposta-a-incidentes",
+        "artefato",
+        "comunicacao",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.7.q24",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "O curso já ensinou, no módulo sobre ética e lei, que existe um prazo legal para comunicar incidentes com dados pessoais. Este módulo não recalcula esse prazo — o que ele acrescenta sobre o assunto?",
+      "alternativas": [
+        "Onde o relógio desse prazo começa a correr (na ciência do incidente, não na resolução técnica) e o que consome a folga disponível antes de o prazo ser cumprido",
+        "O número do prazo legal, porque a resolução que o define muda com frequência e precisa ser reconferida a cada módulo novo",
+        "Empresas que já têm plano de resposta a incidente formalizado e auditado por terceiros nos últimos doze meses ficam isentas do prazo padrão",
+        "Existe uma contagem de prazo separada, específica para incidentes técnicos, que substitui a legal em casos de urgência"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O módulo declara explicitamente que não recalcula o prazo — ele assume o que já foi ensinado antes, sem reconferir número de norma.",
+        "2": "Nenhuma exceção desse tipo é mencionada ou existe no que o curso já ensinou sobre a obrigação legal.",
+        "3": "Não existe uma segunda contagem de prazo técnica que substitua a legal — as duas coisas discutidas são o mesmo prazo, com o foco em onde ele começa."
+      },
+      "dicas": [
+        "Releia o bloco de teoria correspondente: ele fala em recalcular o número do prazo, ou em algo que acontece antes desse prazo começar a valer?",
+        "Pense na diferença entre 'quando a lei diz que o prazo vence' e 'quando, na prática, alguém dentro da empresa percebe que o prazo já começou a correr'.",
+        "Só uma alternativa fala sobre o início do relógio e o que consome tempo antes dele, sem inventar exceção ou segundo prazo."
+      ],
+      "pergunta_socratica": "Antes de conferir: o prazo legal já ensinado no curso começa quando a investigação termina, ou quando alguém primeiro reconhece que há um incidente?",
+      "explicacao": "O módulo não reensina o número do prazo legal — ele assume o que o curso já estabeleceu antes. O que ele acrescenta é onde esse relógio começa a correr: na ciência do incidente, não na conclusão da investigação nem na resolução técnica. E aponta o que consome a folga disponível: uma cadeia de comunicação interna que só escala depois de a equipe técnica ter certeza absoluta gasta, sozinha, parte relevante desse prazo antes mesmo de jurídico e encarregado de dados saberem que precisam agir.",
+      "fonte": "4.7.t5, desta sessão — continuidade explícita do prazo já estabelecido em 0.4.",
+      "tags": [
+        "resposta-a-incidentes",
+        "comunicacao",
+        "conceitual",
+        "sincronizacao"
+      ]
+    },
+    {
+      "id": "4.7.q25",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "trecho": "PROCEDIMENTO DE COMUNICAÇÃO INTERNA\n1. Equipe técnica investiga até ter certeza absoluta sobre o que aconteceu.\n2. Só então, o gerente de segurança é avisado.\n3. O gerente decide se vale a pena envolver jurídico.\n4. Se jurídico for envolvido, ele avalia a obrigação de comunicar externamente.",
+      "enunciado": "Qual passo deste procedimento contraria o que o módulo defende sobre sincronizar comunicação interna com a obrigação externa?",
+      "alternativas": [
+        "O passo 1: esperar certeza absoluta antes de avisar qualquer pessoa consome, sozinho, parte relevante do prazo que já começou a correr desde a ciência do incidente",
+        "O passo 2: o gerente de segurança não deveria ser avisado antes do jurídico, em nenhuma circunstância, já que decisões de comunicação externa deveriam sempre começar pelo departamento jurídico",
+        "O passo 3: a decisão de envolver jurídico nunca deveria caber ao gerente de segurança, só à diretoria",
+        "O passo 4: jurídico não deveria avaliar a obrigação de comunicar externamente, isso é sempre responsabilidade do encarregado de dados sozinho"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A ordem entre gerente de segurança e jurídico não é o defeito central apontado pelo módulo — times diferentes podem estruturar essa ordem de formas razoáveis.",
+        "2": "Nada no módulo estabelece que só a diretoria pode decidir envolver jurídico — essa é uma regra inventada, não o defeito que o trecho realmente contém.",
+        "3": "Jurídico e encarregado de dados trabalham juntos nessa avaliação segundo o que o módulo descreve — não é atribuição exclusiva de um deles."
+      },
+      "dicas": [
+        "Volte ao bloco de teoria sobre sincronizar as duas cadeias — o relógio dele espera a investigação técnica terminar, ou não?",
+        "Pense em quanto tempo o passo 1 pode levar, e no que isso já consome antes mesmo do passo 2 acontecer.",
+        "Só uma alternativa aponta para o passo que, sozinho, atrasa o início de toda a cadeia — os outros inventam regras que o trecho não contém."
+      ],
+      "pergunta_socratica": "Antes de conferir: o relógio do prazo legal espera a equipe técnica terminar de investigar, ou já está correndo desde a ciência do incidente?",
+      "explicacao": "O defeito está no passo 1: condicionar qualquer aviso interno a 'certeza absoluta' da equipe técnica atrasa o início de toda a cadeia de comunicação, exatamente o erro que o módulo descreve — o relógio do prazo legal já está correndo desde a ciência do incidente, não desde a conclusão da investigação. Os outros passos descrevem uma ordem razoável entre gerente, jurídico e encarregado de dados; o problema não está em quem decide o quê, está em quando a cadeia começa a se mover.",
+      "fonte": "4.7.t5, desta sessão.",
+      "tags": [
+        "resposta-a-incidentes",
+        "comunicacao",
+        "caca-erro",
+        "sincronizacao"
+      ]
+    },
+    {
+      "id": "4.7.q26",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um líder técnico confirma um incidente às 9h, mas só relata à diretoria às 13h porque quis 'ter mais clareza' antes de subir o assunto. O incidente envolve dados pessoais. O que essas quatro horas de atraso já consumiram, mesmo sem nenhuma decisão de contenção ter sido tomada ainda?",
+      "alternativas": [
+        "Parte da folga entre a ciência do incidente e o prazo legal de comunicação externa, mesmo que nenhuma outra decisão técnica tenha sido tomada nesse intervalo",
+        "Nada relevante, porque o prazo legal só começa a contar quando a diretoria formalmente reconhece o incidente, não quando o líder técnico o confirma",
+        "O direito da empresa de negociar prazo adicional com a ANPD, que passa a ser automaticamente negado depois de qualquer atraso interno registrado no chamado",
+        "A validade do próprio incidente como caso a ser reportado, que precisa ser recomunicado à ANPD como um novo evento se o prazo interno for excedido"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O relógio começa na ciência do incidente por quem quer que seja dentro da empresa que primeiro a obtenha — não espera formalização pela diretoria.",
+        "2": "Não existe esse mecanismo de negociação automaticamente perdida por atraso interno — é uma regra inventada, sem base no que o curso já ensinou.",
+        "3": "Um atraso interno não invalida o incidente nem cria a necessidade de reportá-lo como um evento novo — ele só consome parte do prazo já em curso."
+      },
+      "dicas": [
+        "Volte ao bloco de teoria sobre onde o relógio legal começa a correr — ele espera alguém formalizar o incidente, ou começa antes disso?",
+        "Pense no que já foi ensinado no 0.4: o prazo é contado a partir de quê, exatamente?",
+        "Só uma alternativa trata o atraso como consumo de um recurso já em contagem, sem inventar penalidade ou mecanismo que o curso nunca ensinou."
+      ],
+      "pergunta_socratica": "Antes de conferir: o líder técnico, ao confirmar o incidente às 9h, já tinha ciência dele — o relógio esperou a diretoria saber também?",
+      "explicacao": "O relógio do prazo legal, já ensinado no 0.4, começa a correr na ciência do incidente — e o líder técnico teve essa ciência às 9h, não às 13h. As quatro horas de atraso em subir o assunto consomem parte real da folga disponível até o prazo de comunicação externa, mesmo que nenhuma decisão de contenção tenha sido tomada nesse meio-tempo: o relógio não espera formalização interna para começar a correr.",
+      "fonte": "4.7.t5, desta sessão, aplicando o prazo já estabelecido em 0.4.",
+      "tags": [
+        "resposta-a-incidentes",
+        "comunicacao",
+        "cenario",
+        "sincronizacao"
+      ]
+    },
+    {
+      "id": "4.7.q27",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ligue cada parte interessada interna ao papel que ela tipicamente exerce na cadeia de comunicação de um incidente com dados pessoais.",
+      "pares": [
+        [
+          "líder técnico",
+          "confirma que há um incidente e dispara a cadeia de comunicação"
+        ],
+        [
+          "jurídico",
+          "avalia a obrigação legal e o risco de responsabilização"
+        ],
+        [
+          "comunicação/RP",
+          "prepara o posicionamento para público externo, se necessário"
+        ],
+        [
+          "encarregado de dados",
+          "aciona a autoridade de proteção de dados, quando aplicável"
+        ]
+      ],
+      "dicas": [
+        "Quem primeiro reconhece o incidente não é, em geral, quem fala com a imprensa nem quem aciona a autoridade.",
+        "Pense em qual desses quatro papéis é o único com competência jurídica formal sobre risco de responsabilização.",
+        "O papel que aciona a autoridade de proteção de dados tem um nome específico no vocabulário legal já ensinado no curso."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses quatro papéis dispara a cadeia inteira, só de confirmar que algo aconteceu?",
+      "explicacao": "Cada papel cumpre uma função distinta na cadeia: o líder técnico dispara a comunicação ao confirmar o incidente; o jurídico avalia obrigação legal e risco; comunicação/RP prepara o que será dito externamente, se for o caso; e o encarregado de dados — papel já definido no módulo sobre ética e lei — é quem aciona a autoridade de proteção de dados quando a lei exige.",
+      "fonte": "4.7.t4 e 4.7.t5, desta sessão, com o papel de encarregado de dados já definido em 0.4.",
+      "tags": [
+        "resposta-a-incidentes",
+        "comunicacao",
+        "pareamento",
+        "papeis"
+      ]
+    },
+    {
+      "id": "4.7.q28",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Por que um chamado marcado como 'fechado' não é, por si só, evidência de que o sistema mudou de fato?",
+      "alternativas": [
+        "Porque 'fechado' é um estado do sistema de tíquetes, preenchido por quem registra",
+        "Porque sistemas de tíquetes têm, com frequência, defeitos de software que impedem o fechamento correto de itens",
+        "Porque só chamados abertos há mais de trinta dias podem ser considerados confiáveis quanto ao que de fato aconteceu",
+        "Porque fechar um chamado exige, por definição do processo, duas assinaturas independentes de aprovação"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O argumento não é sobre defeito de software no sistema de tíquetes — é sobre o que o estado 'fechado' representa, mesmo quando o sistema funciona perfeitamente.",
+        "2": "Trinta dias não é um critério mencionado nem relevante — o que importa é se houve verificação independente, não o tempo que o chamado ficou aberto.",
+        "3": "Duas assinaturas de aprovação, se existissem, ainda seriam registros administrativos — não substituiriam a verificação técnica de que o sistema mudou."
+      },
+      "dicas": [
+        "Pense em quem escreve 'fechado' num chamado, e o que essa pessoa realmente verificou antes de escrever isso.",
+        "A pergunta não é sobre bug de software — é sobre o que o próprio ato de fechar representa, mesmo num sistema perfeito.",
+        "Só uma alternativa distingue registro administrativo de verificação técnica independente."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem escreveu 'fechado' neste chamado, e essa pessoa testou de novo o que deveria ter mudado?",
+      "explicacao": "'Fechado' é um estado que alguém preenche no sistema de tíquetes, refletindo a crença de que o trabalho terminou — não uma verificação técnica de que o sistema mudou. Confirmar a mudança de fato exige uma segunda ação independente: testar a regra criada, tentar de novo o caminho que deveria estar corrigido, reler o item contra o que realmente aconteceu. Sem essa segunda checagem, 'fechado' é só o registro de uma intenção cumprida, não a prova de um resultado.",
+      "fonte": "4.7.t6, desta sessão — mesmo mecanismo de 'regra nunca testada' já ensinado em 4.5.t5.",
+      "tags": [
+        "resposta-a-incidentes",
+        "pos-incidente",
+        "conceitual",
+        "verificacao"
+      ]
+    },
+    {
+      "id": "4.7.q29",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "artefato": "=== contagem ===\n  chamados fechados:      5 de 6\n  mudancas verificadas:   3 de 6\n  lacuna (fechado sem verificar mudanca): 2\n    - regra de deteccao criada para o padrao usado\n    - caminho de entrada (VPN sem MFA) corrigido",
+      "enunciado": "O que esta contagem real, de uma lista de seis itens de ação pós-incidente, sustenta sobre a diferença entre fechar um chamado e mudar o sistema?",
+      "alternativas": [
+        "Que dois dos seis itens foram marcados como concluídos sem que ninguém tenha confirmado, de forma independente, que a mudança correspondente de fato aconteceu",
+        "Que a maioria dos itens (quatro de seis) nunca foi sequer registrada como concluída no sistema de tíquetes",
+        "Que todos os seis itens têm o mesmo nível de risco, porque nenhum passou por uma auditoria externa formal depois do fechamento do chamado",
+        "Que a regra de detecção e a correção da VPN são, na verdade, o mesmo item, contado duas vezes por engano"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A contagem mostra 5 de 6 chamados fechados — a maioria FOI registrada como concluída; o problema é outro, é a verificação, não o registro.",
+        "2": "Três dos seis itens têm mudança verificada, segundo a contagem — não é verdade que nenhum foi verificado.",
+        "3": "São dois itens distintos, listados separadamente na saída — nada indica que sejam o mesmo item contado em duplicidade."
+      },
+      "dicas": [
+        "Compare os dois primeiros números da contagem: quantos estão fechados, e quantos têm mudança verificada?",
+        "A lacuna listada no final tem exatamente dois itens — o que eles têm em comum, olhando as duas primeiras linhas da saída?",
+        "Só uma alternativa lê a contagem exatamente como ela está, sem inventar um número que ela não mostra."
+      ],
+      "pergunta_socratica": "Antes de conferir: os dois itens da lacuna estão marcados como fechados, ou como abertos?",
+      "explicacao": "A contagem mostra 5 de 6 itens fechados no sistema de tíquetes, mas apenas 3 de 6 com mudança verificada de forma independente — uma lacuna de 2 itens que foram registrados como concluídos sem essa segunda checagem: a regra de detecção criada, mas nunca provocada de propósito, e a correção da VPN, cujo chamado fechou sem que ninguém tentasse de novo o caminho que deveria estar bloqueado.",
+      "fonte": "Saída real de lab/fechar_vs_mudar.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "resposta-a-incidentes",
+        "artefato",
+        "pos-incidente",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.7.q30",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "trecho": "RELATÓRIO PÓS-INCIDENTE — item de ações\n1. Trocar credencial comprometida — CONCLUÍDO\n2. Criar regra de detecção para o padrão usado — CONCLUÍDO\n3. Atualizar o playbook com o que faltou nesta resposta — A FAZER\n4. Revisar acesso de terceiros — CONCLUÍDO",
+      "enunciado": "Supondo que nenhum dos itens marcados 'CONCLUÍDO' teve uma segunda verificação independente depois de fechado, qual é o defeito mais grave deste relatório?",
+      "alternativas": [
+        "O item 2 é o mais grave, porque uma regra de detecção 'concluída' sem nunca ter sido provocada de propósito carrega o mesmo defeito de uma regra nunca testada, e ninguém percebe porque está marcada como pronta",
+        "O item 3 é o mais grave, porque um item ainda marcado como 'a fazer' prova que a diretoria não deu prioridade nenhuma às lições do incidente",
+        "O item 1 é o mais grave, porque trocar uma única credencial nunca é suficiente depois de um incidente",
+        "O item 4 é o mais grave, porque revisar acesso de terceiros deveria ter sido o primeiro item da lista, não o último"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Um item marcado 'a fazer' é visível e rastreável — o risco maior está no que parece pronto e não é, não no que ainda está declarado como pendente.",
+        "2": "Trocar a credencial comprometida é uma ação de resultado fácil de confirmar (a senha antiga não funciona mais) — o risco de verificação ausente é bem menor do que numa regra de detecção.",
+        "3": "A ordem dos itens na lista não é, por si, um defeito — nada no relatório indica dependência entre a posição de um item e sua eficácia."
+      },
+      "dicas": [
+        "Pense em qual desses quatro itens tem o resultado mais fácil de confirmar visualmente, e qual tem o resultado mais fácil de parecer pronto sem estar.",
+        "Uma credencial trocada falha visivelmente se a senha antiga ainda funcionar — o mesmo vale para uma regra de detecção nunca testada?",
+        "Só uma alternativa aponta para o item marcado como concluído que, sem verificação, pode estar silenciosamente quebrado."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses quatro itens, se estiver errado, avisa alguém sozinho — e qual fica quieto até o próximo incidente igual acontecer?",
+      "explicacao": "Trocar uma credencial é fácil de confirmar — a senha antiga simplesmente para de funcionar. Uma regra de detecção marcada como 'concluída', porém, pode ter sido escrita com um erro de sintaxe, um campo errado ou uma condição que nunca dispara — e nada nisso aparece até o próximo ataque igual acontecer e a regra continuar calada. É o mesmo defeito de 'regra nunca testada de propósito' já ensinado no 4.5, escondido atrás de um item marcado como pronto.",
+      "fonte": "4.7.t6, desta sessão, aplicando o mecanismo de 4.5.t5 ao relatório pós-incidente.",
+      "tags": [
+        "resposta-a-incidentes",
+        "pos-incidente",
+        "caca-erro",
+        "deteccao"
+      ]
+    },
+    {
+      "id": "4.7.q31",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Três meses depois de um incidente, uma auditoria tenta repetir, de forma controlada, o mesmo caminho de entrada que o atacante original usou. O caminho ainda funciona. O chamado que deveria ter corrigido isso está marcado como fechado há dois meses. O que esse resultado mostra?",
+      "alternativas": [
+        "Que o chamado foi fechado sem que ninguém verificasse, de forma independente, se a correção técnica de fato impedia o mesmo caminho de entrada",
+        "Que a auditoria cometeu um erro metodológico, porque repetir um ataque já corrigido nunca deveria funcionar de propósito",
+        "Que o chamado precisa ser reaberto e classificado como um incidente novo, já que o prazo interno de dois meses para revisão de correções já expirou",
+        "Que a correção técnica funcionou parcialmente, e o caminho testado pela auditoria é uma variação não coberta pela correção original"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O erro não é da auditoria — repetir de forma controlada o caminho original é exatamente a verificação independente que deveria ter acontecido antes de fechar o chamado.",
+        "2": "Nada estabelece prazo de expiração para chamados fechados incorretamente — reclassificar como incidente novo não é a leitura mais direta do resultado.",
+        "3": "O enunciado diz que é 'o mesmo caminho de entrada', não uma variação — supor uma variação não coberta contradiz a informação dada."
+      },
+      "dicas": [
+        "O enunciado diz que a auditoria repetiu 'o mesmo caminho', não um caminho parecido ou diferente — o que isso já responde sobre a hipótese de variação?",
+        "Pense no que 'chamado fechado' garantiu, e no que ele não garantiu, segundo o que este módulo já ensinou.",
+        "Só uma alternativa lê o resultado da auditoria como confirmação de que a verificação nunca aconteceu, sem inventar prazo, erro metodológico ou variação técnica."
+      ],
+      "pergunta_socratica": "Antes de conferir: se alguém tivesse tentado esse mesmo caminho antes de fechar o chamado, o chamado teria sido fechado daquele jeito?",
+      "explicacao": "O chamado foi fechado com base no registro de que a correção foi aplicada, não numa verificação independente de que ela funcionava contra o mesmo caminho usado originalmente. A auditoria, ao repetir esse caminho de forma controlada e conseguir o mesmo resultado, faz exatamente a segunda checagem que faltou antes do fechamento — e confirma que 'fechado' não equivaleu a 'corrigido', neste caso.",
+      "fonte": "4.7.t6, desta sessão.",
+      "tags": [
+        "resposta-a-incidentes",
+        "pos-incidente",
+        "cenario",
+        "verificacao"
+      ]
+    },
+    {
+      "id": "4.7.q32",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Por que o mesmo mecanismo por trás de 'uma regra de detecção nunca testada de propósito é uma regra sobre a qual existe opinião, não evidência' — já ensinado no módulo de SIEM — se aplica também a um item de ação pós-incidente qualquer, não só a regras de detecção?",
+      "alternativas": [
+        "Porque o defeito não está na natureza técnica do item, está em aceitar o registro de que algo foi feito como prova de que funcionou",
+        "Porque toda ação pós-incidente é, no fundo, uma forma de regra de detecção disfarçada de outro tipo de tarefa administrativa",
+        "Porque o módulo de SIEM e este módulo tratam do mesmo assunto técnico, só que em capítulos diferentes do curso",
+        "Porque regras de detecção são mais importantes do que qualquer outro item de ação pós-incidente, e por isso herdam o mesmo cuidado"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Uma credencial trocada ou um acesso revisado não são regras de detecção disfarçadas — são tipos de ação completamente diferentes que compartilham o mesmo risco de verificação ausente.",
+        "2": "SIEM e resposta a incidentes são assuntos relacionados, mas distintos — o argumento não é que sejam 'o mesmo assunto', é que compartilham um mecanismo de risco.",
+        "3": "Importância relativa entre tipos de item não é o motivo do paralelo — o mecanismo vale igualmente para itens menos críticos, não só para os mais importantes."
+      },
+      "dicas": [
+        "Pense no que 'regra nunca testada' e 'chamado fechado sem verificar' têm em comum, além do assunto técnico específico de cada um.",
+        "O mecanismo fala sobre o que sustenta a crença de que algo funciona — isso muda dependendo do tipo de item, ou é sempre a mesma lacuna?",
+        "Só uma alternativa generaliza o mecanismo para qualquer tipo de item, sem prender ele a 'ser uma regra de detecção' nem a importância relativa."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que uma regra de detecção nunca testada e uma credencial 'trocada' sem confirmação têm em comum, estruturalmente?",
+      "explicacao": "O mecanismo não é sobre regras de detecção especificamente — é sobre a diferença entre um registro de que algo foi feito e uma verificação independente de que aquilo funcionou. Uma regra nunca provocada de propósito, uma credencial que ninguém testou de novo, um acesso 'revisado' sem checar se a permissão realmente mudou — todos compartilham a mesma lacuna estrutural, só aplicada a tipos diferentes de item.",
+      "fonte": "4.7.t6, generalizando o mecanismo de 4.5.t5.",
+      "tags": [
+        "resposta-a-incidentes",
+        "pos-incidente",
+        "conceitual",
+        "verificacao"
+      ]
+    },
+    {
+      "id": "4.7.q33",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Ordene, do primeiro ao último, os passos de um processo pós-incidente que de fato verifica mudança, e não só fecha chamado.",
+      "itens": [
+        "Listar cada ação decidida durante o incidente, com um dono responsável",
+        "Definir, para cada ação, como a mudança será verificada de forma independente",
+        "Executar a mudança técnica",
+        "Confirmar, por uma segunda checagem, que a mudança realmente funciona",
+        "Só então marcar o item como concluído"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dicas": [
+        "Antes de verificar qualquer coisa, é preciso saber o que foi decidido e quem é responsável por cada item.",
+        "Definir COMO verificar vem antes de executar a mudança — senão a verificação vira uma ideia de última hora.",
+        "Marcar como concluído é o último passo, não o segundo — o que precisa acontecer entre executar a mudança e considerá-la pronta?"
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para confirmar que uma mudança funciona antes de ela ter sido executada?",
+      "explicacao": "O processo começa listando as ações com dono responsável, depois define como cada uma será verificada — antes de executar, para que a verificação não seja pensada só depois que já é tarde. Em seguida a mudança é executada, uma segunda checagem confirma que ela funciona de fato, e só então o item é marcado como concluído. Inverter os dois últimos passos — marcar como concluído antes de verificar — é exatamente o defeito que este módulo aponta como a lacuna mais comum.",
+      "fonte": "4.7.t6, desta sessão, com o padrão de lab/fechar_vs_mudar.py.",
+      "tags": [
+        "resposta-a-incidentes",
+        "pos-incidente",
+        "ordenacao",
+        "verificacao"
+      ]
+    },
+    {
+      "id": "4.7.q34",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Depois de um incidente, a melhor forma de confirmar que uma correção técnica realmente funciona é repetir, de forma controlada, o mesmo caminho que o adversário usou. Por que essa verificação — e não só reler a documentação da correção — é a que realmente conta como defesa?",
+      "alternativas": [
+        "Porque documentação descreve o que deveria ter mudado, mas só a repetição controlada do caminho original confirma que a mudança de fato bloqueia o mesmo comportamento observado no incidente",
+        "Porque repetir o ataque original sempre revela vulnerabilidades novas, além daquela que motivou a correção original, tornando o teste ainda mais valioso",
+        "Porque a documentação da correção normalmente contém erros de digitação que a repetição do ataque corrige automaticamente",
+        "Porque nenhuma equipe de segurança confia em documentação escrita por outra equipe, então a repetição é a única forma aceita de comunicação entre elas"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A repetição controlada testa especificamente o caminho já conhecido — encontrar vulnerabilidades novas seria um efeito colateral possível, não o motivo central da prática.",
+        "2": "Repetir um ataque não corrige erro de digitação em documentação nenhuma — as duas coisas não têm relação de causa e efeito.",
+        "3": "Confiança entre equipes não é o argumento — o argumento é sobre a diferença entre descrever uma mudança e comprovar tecnicamente que ela funciona."
+      },
+      "dicas": [
+        "Pense na diferença entre ler que uma porta foi trancada e realmente tentar abri-la para confirmar.",
+        "Documentação registra intenção — o que falta para virar prova de que a intenção virou fato?",
+        "Só uma alternativa liga a prática diretamente ao mesmo mecanismo de verificação independente já ensinado neste módulo."
+      ],
+      "pergunta_socratica": "Antes de conferir: ler que uma porta foi trancada é a mesma coisa que tentar abri-la e ela não abrir?",
+      "explicacao": "Documentação registra o que a equipe pretendia mudar, mas não prova, por si só, que a mudança de fato bloqueia o comportamento que causou o incidente. Repetir de forma controlada o mesmo caminho de entrada que o adversário usou é a verificação independente que transforma um registro de intenção em evidência técnica — o mesmo mecanismo de 'provocar o evento de propósito' já ensinado para regras de detecção, aplicado à correção como um todo.",
+      "fonte": "4.7.t6, desta sessão, com o mecanismo de validação por provocação já ensinado em 4.5.",
+      "tags": [
+        "resposta-a-incidentes",
+        "pos-incidente",
+        "ataque-defesa",
+        "verificacao"
+      ]
+    },
+    {
+      "id": "4.7.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "enunciado": "Você assume a resposta a incidentes de uma empresa que nunca teve um incidente grave. Não existe autoridade pré-combinada, não existem limiares de decisão, a comunicação nunca foi desenhada como cadeia, e todo chamado anterior fechado nunca foi verificado de novo. Você tem duas semanas antes de uma auditoria externa. O que produz o maior ganho real nesse prazo?",
+      "alternativas": [
+        "Definir, por escrito, quem decide o quê e sob qual critério para as categorias de sistema mais críticas",
+        "Escrever um playbook técnico detalhado de resposta a ransomware, por ser o tipo de incidente mais comum no setor",
+        "Auditar e verificar, de novo, todos os chamados fechados dos últimos dois anos, para eliminar qualquer lacuna histórica",
+        "Contratar uma ferramenta de comunicação de crise dedicada, para substituir e-mail e chat corporativo em qualquer incidente futuro"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Um playbook técnico sem quem decide sob qual critério ainda trava exatamente como o cenário do início do módulo — a mesma decisão sem dono, só com passos técnicos mais detalhados.",
+        "2": "Verificar dois anos de chamados fechados é trabalho real, mas é volume grande demais para duas semanas, e não resolve a ausência de autoridade nem de comunicação desenhada.",
+        "3": "Uma ferramenta nova não resolve a ausência de critério sobre quem avisa quem, e quando — o problema é de processo, não de tecnologia de comunicação."
+      },
+      "dicas": [
+        "Pense em qual das quatro frentes as outras três dependem para funcionar de verdade — sem ela, o playbook trava, a comunicação não sabe quem aciona, e a verificação não sabe quem aprova a correção.",
+        "Duas semanas é pouco tempo para auditar dois anos de histórico, mas é tempo suficiente para escrever um critério de decisão para os sistemas mais críticos.",
+        "Só uma alternativa ataca a causa que, sem ela, nenhuma das outras três frentes deste módulo consegue funcionar."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você escrevesse o melhor playbook técnico do mundo, mas ninguém tivesse autoridade combinada para executá-lo, o que aconteceria no próximo incidente?",
+      "explicacao": "As quatro frentes do módulo não têm o mesmo peso num prazo curto: autoridade de decisão é a que as outras três dependem para funcionar. Um playbook técnico sem quem decide trava; uma cadeia de comunicação sem critério de quando escalar não sabe quando começar; e verificação de mudança pós-incidente pressupõe que alguém tinha autoridade para aprovar a correção original. Duas semanas não bastam para reconstruir tudo, mas bastam para definir, por escrito, quem decide o quê nas categorias de sistema mais críticas — a base sobre a qual as outras três frentes deste módulo se apoiam.",
+      "fonte": "Síntese dos quatro eixos do módulo 4.7 (autoridade, decisão sob incerteza, comunicação, pós-incidente).",
+      "tags": [
+        "resposta-a-incidentes",
+        "cenario",
+        "sintese",
+        "priorizacao"
+      ]
+    }
+  ]
+}

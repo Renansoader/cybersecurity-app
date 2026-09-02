@@ -1,0 +1,26 @@
+=== partes a notificar, minutos estimados para cada etapa ===
+    5 min  lider tecnico confirma o incidente
+   15 min  gerente de seguranca avaliado
+   20 min  juridico avaliado
+   10 min  diretoria avisada
+   30 min  comunicacao/RP prepara posicionamento
+   15 min  encarregado de dados (LGPD) aciona ANPD
+
+=== tempo total ===
+  serial (um avisa o proximo):        95 min (1.6 h)
+  paralelo em duas ondas dependentes: 45 min (0.8 h)
+  prazo externo de referencia (0.4):  3 dias uteis
+
+=== folga ate o prazo externo ===
+  as duas formas terminam em menos de 1.6 h — uma fracao
+  pequena de 3 dias uteis, mesmo sem converter dia util em hora
+  corrida (a conversao exata depende de cair ou nao em fim de semana)
+
+=== leitura ===
+  As duas formas cabem dentro do prazo externo neste exemplo — a folga
+  existe porque a cadeia interna e curta comparada ao prazo legal, medido
+  em dias, nao em minutos. O ponto nao e o numero exato de horas de folga:
+  e que o prazo legal comeca a contar da
+  CIENCIA do incidente, e a cadeia interna so comeca depois que alguem
+  primeiro reconhece que ha um incidente. Um lider tecnico que demora
+  a escalar consome a folga antes de qualquer aprovador entrar na conta.

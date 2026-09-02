@@ -1,0 +1,24 @@
+=== itens de acao pos-incidente ===
+item                                                chamado fechado   mudanca verificada
+credencial comprometida trocada                                 sim                  sim
+regra de deteccao criada para o padrao usado                    sim                  nao
+caminho de entrada (VPN sem MFA) corrigido                      sim                  nao
+relatorio de incidente arquivado                                sim                  sim
+playbook atualizado com o que faltou desta vez                  nao                  nao
+acesso de terceiro revisado apos o incidente                    sim                  sim
+
+=== contagem ===
+  chamados fechados:      5 de 6
+  mudancas verificadas:   3 de 6
+  lacuna (fechado sem verificar mudanca): 2
+    - regra de deteccao criada para o padrao usado
+    - caminho de entrada (VPN sem MFA) corrigido
+
+=== leitura ===
+  'Fechado' e um estado do sistema de chamados, preenchido por quem
+  registra. 'Verificado' exige uma segunda acao independente que
+  confirma que o sistema mudou de fato — testar a regra, tentar a VPN
+  sem MFA de novo, reler o playbook contra o incidente. A lacuna e
+  exatamente os itens que alguem marcou como prontos sem essa segunda
+  checagem: o mesmo padrao de risco de 'regra nunca testada de proposito'
+  que o 4.5 ja ensinou, aplicado ao processo em vez de a deteccao.

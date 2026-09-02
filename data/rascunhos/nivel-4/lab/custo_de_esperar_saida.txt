@@ -1,0 +1,30 @@
+=== parametros do modelo ===
+  custo de um falso positivo (agir sem precisar): R$ 5,000
+  custo por minuto de incidente real em curso:    R$ 800
+  minutos que esperar por confirmacao total leva:  20
+
+=== custo esperado por probabilidade de ser incidente real ===
+ P(real)   agir agora    esperar confirmar
+     0.0        5,000                    0
+     0.1        4,500                1,600
+     0.2        4,000                3,200
+     0.3        3,500                4,800
+     0.4        3,000                6,400
+     0.5        2,500                8,000
+     0.6        2,000                9,600
+     0.7        1,500               11,200
+     0.8        1,000               12,800
+     0.9          500               14,400
+     1.0            0               16,000
+
+=== ponto de equilibrio ===
+  a partir de P(real) = 23.8%, agir agora custa menos, em esperanca,
+  do que esperar os 20 minutos de confirmacao total.
+
+=== leitura ===
+  O ponto de equilibrio nao e 50% nem 100% — depende da razao entre o
+  custo de errar por excesso de cautela e o custo de errar por excesso
+  de pressa. 'Espere ter certeza' so e a resposta certa quando o custo
+  por minuto de espera e baixo comparado ao custo do falso positivo;
+  quando a razao inverte, esperar certeza total e a decisao mais cara,
+  nao a mais segura.

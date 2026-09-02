@@ -1,0 +1,17 @@
+=== cadeia de aprovacao, minutos por etapa ===
+  gerente de TI        com autoridade pre-combinada: 2-5 min   sem: 15-40 min
+  diretor de operacoes com autoridade pre-combinada: 3-8 min   sem: 30-90 min
+  juridico             com autoridade pre-combinada: 5-10 min   sem: 45-120 min
+
+=== tempo medio ate a decisao sair (simulacao, 2000 rodadas) ===
+  com autoridade pre-combinada:   16.4 min
+  sem autoridade pre-combinada:  170.1 min
+  razao sem/com:                 10.35x
+
+=== leitura ===
+  A cadeia de aprovadores e a mesma nos dois casos. O que muda e
+  se cada um so CONFIRMA algo ja decidido de antemao (quem pode
+  autorizar o que, sob quais condicoes) ou se precisa ser
+  CONVENCIDO do zero durante o incidente. A diferenca nao vem de
+  um aprovador ser mais lento — vem de decisao sem dono virar
+  negociacao, e negociacao nao tem teto de tempo.
