@@ -1,0 +1,22 @@
+=== servidor real em 127.0.0.1:8093 ===
+  saldo antes: 1000
+
+=== login uma vez, cookie de sessão guardado pelo cliente ===
+  cookies guardados: ['<Cookie sessao=abc123 for 127.0.0.1/>']
+
+=== requisição de transferência, montada como se viesse de OUTRA página ===
+  (mesma lógica que um <form> escondido em outro site dispararia:
+  o navegador anexa o cookie sozinho, só porque o domínio bate)
+  status: 200
+  corpo:  transferencia de 1000 aceita. saldo: 0
+
+  saldo depois: 0
+
+=== leitura ===
+  O jar de cookies (a mesma lógica que um navegador usa) anexou o
+  cookie de sessão à requisição de transferência automaticamente —
+  não porque confirmou que o pedido veio da página legítima do banco,
+  só porque o domínio bateu. É exatamente esse reenvio automático,
+  cego a quem pediu, que um formulário escondido em outro site
+  exploraria: a vítima só precisa estar logada, em outra aba, quando
+  visita a página maliciosa.

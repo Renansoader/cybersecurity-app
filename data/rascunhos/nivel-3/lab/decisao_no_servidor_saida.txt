@@ -1,0 +1,15 @@
+=== servidor real em 127.0.0.1:8091 ===
+  usuarios antes: {42: 'ana.silva'}
+
+=== requisicao HTTP direta para /excluir, sem nunca ter carregado a pagina ===
+  status: 200
+  corpo:  usuario 42 excluido
+
+  usuarios depois: {}
+
+=== leitura ===
+  O botao nunca apareceu na tela — e nao precisou aparecer. A requisicao
+  HTTP direta, sem passar pela pagina nem pelo JS que esconde o botao,
+  teve exatamente o mesmo efeito. Esconder um controle na interface e
+  UX, nao autorizacao: o servidor e quem decide se aceita a requisicao,
+  e neste exemplo ele decidiu aceitar qualquer uma.

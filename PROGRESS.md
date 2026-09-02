@@ -3,10 +3,9 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-02 · módulo 4.8 (forense digital) escrito e
-publicado — nível 4 completo (8 de 8) · checkpoint de comprimento em três
-pontos e correção de qualificador absolutista, ambos registrados em §7 ·
-3.334 testes passando
+Última atualização: 2026-09-02 · módulo 3.4 (Web I) escrito e publicado —
+abre o nível 3 · evita_absoluto virou portão de qualidade (teto 40%,
+convergência estatística confirmada) · 3.444 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -16,18 +15,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 29 de 41 |
-| Questões | 1.016 |
-| Blocos de teoria | 176 |
-| Tags distintas | 800 |
-| Testes automatizados | 3.334 |
+| Módulos de conteúdo escritos | 30 de 41 |
+| Questões | 1.051 |
+| Blocos de teoria | 182 |
+| Tags distintas | 815 |
+| Testes automatizados | 3.444 |
 | Linhas de código Python | ~2.280 no app · ~3.830 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 140 (4 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
 
-Tipos de questão em uso: conceitual 424, cenário 217, ataque→defesa 78,
-caça ao erro 78, comando 56, artefato 67, pareamento 55, ordenação 41.
+Tipos de questão em uso: conceitual 433, cenário 225, ataque→defesa 82,
+caça ao erro 83, comando 56, artefato 71, pareamento 58, ordenação 43.
 
 ---
 
@@ -223,9 +222,9 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 4.5 SIEM e monitoramento · 4.6 MITRE ATT&CK e caça a ameaças ·
 4.7 Resposta a incidentes · 4.8 Forense digital
 
-**Nível 3 — Ofensivo** (105 questões, 3 de 9)
+**Nível 3 — Ofensivo** (140 questões, 4 de 9)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
-3.3 Varredura e enumeração
+3.3 Varredura e enumeração · 3.4 Web I
 
 **Nível 2 — Núcleo de segurança** (245 questões, completo)
 2.1 Criptografia I · 2.2 Criptografia II · 2.3 Criptografia III ·
@@ -245,9 +244,9 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 12 módulos
+### Conteúdo — 11 módulos
 
-- **Nível 3 — Ofensivo** (6 restantes): Web I/II/III, OWASP Top 10, quebra de
+- **Nível 3 — Ofensivo** (5 restantes): Web II/III, OWASP Top 10, quebra de
   senhas, engenharia social e redes sem fio
 - **Nível 4 — Defensivo**: completo (8 de 8)
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
@@ -333,6 +332,7 @@ real de requisição.
   | 0.4 | 35,5% | ok (era 45,2%) |
   | 1.5 | 35,5% | ok |
   | 1.7 | 34,4% | ok |
+  | 3.4 | 33,3% | ok (módulo novo, 02/09/2026 — 36,7% no checkpoint final da regra 7, baixou depois da revisão adversarial) |
   | 1.4 | 32,3% | ok |
   | 4.4 | 31,2% | ok |
   | 2.1 | 28,1% | ok |
@@ -346,9 +346,9 @@ real de requisição.
   | 4.6 | 15,6% | ok |
   | 4.8 | 12,9% | ok (módulo novo, 02/09/2026) |
 
-  **11 de 29 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
-  0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7 e 4.8, publicados depois
-  desta medição original, também ficaram abaixo). O teto não é palpite:
+  **11 de 30 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
+  0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8 e 3.4, publicados
+  depois desta medição original, também ficaram abaixo). O teto não é palpite:
   batia, módulo a módulo, com o critério estatístico independente de "o
   limite inferior do intervalo de Wilson (95%) da taxa passa de 25%" antes
   desta rodada — justificativa completa em `ferramentas/chutador_de_forma.py`,
@@ -399,6 +399,7 @@ real de requisição.
   | 2.1 | 28,1% (9/32) | 15,6% | ok |
   | 2.3 | 27,3% (9/33) | 15,1% | ok |
   | 2.2 · 4.8 | 25,8% (8/31) | 13,7% | ok |
+  | 3.4 | 23,3% (7/30) | 10,7% | ok (módulo novo, 02/09/2026) |
   | 2.4 | 18,2% (6/33) | 8,6% | ok |
   | 4.3 | 15,6% (5/32) | 6,9% | ok |
 
@@ -698,6 +699,55 @@ real de requisição.
   `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 29
   módulos). +35 questões, +1 bloco de teoria por módulo (6). **Nível 4
   completo, 8 de 8.**
+- **Módulo 3.4 escrito, 02/09/2026 — Web I, por que a aplicação web é
+  atacável por construção. Abre o nível 3 depois de 3.1-3.3.** Recorte
+  final: decisão de segurança sempre no servidor; reenvio automático de
+  cookie como o que torna CSRF possível; validação client-side como
+  conveniência, não controle; regra de mesma origem e CORS como exceção
+  controlada. Uma colisão severa achada no levantamento — o eixo 2
+  original ("sessão é invenção sobre HTTP sem estado") era quase o
+  objetivo declarado do 2.5, que já tem 8 questões sobre sessão e
+  cookie — reformulada antes de escrever para "reenvio automático" (a
+  consequência de CSRF, não a mecânica de sessão já ensinada); ver
+  `data/rascunhos/nivel-3/fontes/nao-repetir-3.4.md`.
+
+  Primeiro módulo escrito com o checkpoint de três estratégias completo
+  (`mais_longa`, `mais_curta`, `evita_absoluto`, ver item abaixo).
+  Checkpoints 1 e 2 repetiram o mesmo par de defeitos (comprimento e
+  qualificador absolutista) nas questões recém-escritas de cada lote —
+  100%/50% e 50%/50% respectivamente, corrigidos nos dois casos. O
+  checkpoint final (35ª questão) **não precisou de correção de forma
+  por si só**: 36,7% / 6,7% / 26,7%, as três já dentro do teto — primeira
+  vez nesta linha de módulos que isso acontece, ainda cedo para chamar
+  de hábito consolidado. A revisão adversarial (item abaixo) ainda assim
+  encontrou e corrigiu resíduos de forma que o portão numérico não pega
+  sozinho; depois dessas correções, o número final publicado é
+  33,3% / 10,0% / 23,3%.
+
+  Um dos quatro laboratórios (regra de mesma origem) foi verificado com
+  **navegador real** (Chrome, via automação desta sessão), não só
+  script Python — necessário porque a regra é aplicada pelo navegador,
+  e um script sozinho (como curl) não reproduz esse bloqueio. Console e
+  log de rede reais confirmam: sem cabeçalho CORS, leitura bloqueada
+  (`Failed to fetch`); com cabeçalho liberando a origem, leitura
+  normal — o servidor respondeu nos dois casos, a diferença é só o que
+  o navegador deixa o script ler.
+
+  A revisão adversarial achou uma variante nova do defeito de
+  frase-molde do 4.7/4.8: em 3 questões, um inciso de hedge solto
+  ("na maioria das versões recentes,", "em geral,") sobrevivia como
+  resíduo da correção automática dos checkpoints — mesma família de
+  problema (padrão de forma detectável sem ler conteúdo), forma
+  diferente da frase-molde completa do 4.7. Mais um achado de
+  justificativa citando evidência não mostrada ao aluno, e dois de
+  precisão textual (acento faltando num artefato, citação cruzada
+  exagerando o que o 2.5 realmente ensina) — todos corrigidos.
+  Relatório completo em `data/rascunhos/nivel-3/relatorios/3.4.md`.
+
+  Validação final: `pytest -q` (3.444 testes, 0 falhas) e
+  `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 30
+  módulos). +35 questões, +1 bloco de teoria por módulo (6). Nível 3
+  em 4 de 9.
 
 ---
 

@@ -1,0 +1,14 @@
+=== servidor real em 127.0.0.1:8092 ===
+  estoque inicial: 5
+  regra do formulario (só em JavaScript, no navegador): quantidade <= 5
+
+=== POST direto pedindo 9999 unidades, sem nunca executar o JavaScript da página ===
+  status: 200
+  corpo:  pedido aceito: 9999 unidades. estoque restante: -9994
+
+=== leitura ===
+  A regra 'quantidade <= 5' nunca existiu para o servidor — ela existia
+  só no JavaScript que roda dentro do navegador de quem usa a página
+  normalmente. Uma requisição que não passa pelo navegador não passa
+  por essa regra nenhuma. Validação no cliente é conveniência para o
+  usuário legítimo; não é, e nunca foi, um controle de segurança.

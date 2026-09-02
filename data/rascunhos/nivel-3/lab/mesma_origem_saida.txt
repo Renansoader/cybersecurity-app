@@ -1,0 +1,25 @@
+=== teste real em navegador (Chrome, via automação desta sessão) ===
+Página carregada em http://127.0.0.1:8094/ (origem A: esquema http, host 127.0.0.1, porta 8094)
+Duas chamadas fetch() da própria página, para http://127.0.0.1:8095/ (origem B: mesma host, porta DIFERENTE = origem diferente)
+
+--- console do navegador ---
+SEM-CORS BLOQUEADO PELO NAVEGADOR: Failed to fetch
+COM-CORS OK: {"dado":"segredo da API"}
+
+--- log de rede do navegador (mesma sessão, segunda rodada das mesmas chamadas) ---
+GET http://127.0.0.1:8095/sem-cors  -> status reportado pelo navegador: 503 (requisição não completada como resposta normal)
+GET http://127.0.0.1:8095/com-cors  -> status reportado pelo navegador: 200
+
+--- o que o servidor da API (porta 8095) devolve, por rota ---
+/sem-cors : 200, corpo {"dado":"segredo da API"}, SEM cabeçalho Access-Control-Allow-Origin
+/com-cors : 200, corpo {"dado":"segredo da API"}, COM cabeçalho Access-Control-Allow-Origin: http://127.0.0.1:8094
+
+--- leitura ---
+As duas rotas do servidor respondem 200 e devolvem o mesmo corpo — o servidor
+nunca recusa nada. A diferença inteira está em o que o NAVEGADOR deixa o
+JavaScript da página LER: sem o cabeçalho Access-Control-Allow-Origin, o
+fetch() falha do lado do cliente ("Failed to fetch"), mesmo a resposta tendo
+chegado pela rede. Com o cabeçalho liberando a origem 8094, o mesmo fetch()
+lê o corpo normalmente. A regra de mesma origem é aplicada pelo navegador,
+não pelo servidor — o servidor só declara, pelo cabeçalho, quem tem
+permissão de ler.

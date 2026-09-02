@@ -1,0 +1,1328 @@
+{
+  "id": "3.4",
+  "nivel": 3,
+  "titulo": "Web I — por que a aplicação web é atacável por construção",
+  "objetivos": [
+    "Explicar por que a decisão de segurança de uma ação sempre precisa acontecer no servidor, nunca na interface que a solicita",
+    "Descrever como o navegador reenvia o cookie de sessão automaticamente em qualquer requisição para o mesmo domínio, e como isso torna CSRF possível",
+    "Reconhecer que validação executada só no navegador é conveniência para o usuário legítimo, não controle contra quem decide contornar a interface",
+    "Explicar a regra de mesma origem, o que ela impede, e o que muda quando CORS a afrouxa de forma ampla demais"
+  ],
+  "pre_requisitos": [
+    "1.5",
+    "2.5",
+    "3.1"
+  ],
+  "teoria": [
+    {
+      "id": "3.4.t1",
+      "titulo": "O servidor decide — sempre, porque é o único que pode",
+      "texto": "Uma requisição HTTP pode ser montada por qualquer programa capaz de falar o protocolo — um navegador, um script numa linha de comando, uma ferramenta de teste. Nada na requisição em si prova que ela veio de uma tela específica, de um clique específico, ou sequer de um navegador. O servidor não vê a interface que gerou o pedido; vê só bytes chegando numa porta.\n\nPor isso a decisão de autorizar ou recusar uma ação — este usuário pode excluir aquele registro? este pedido excede o limite? — só pode acontecer no lado que controla os dados de verdade: o servidor. Esconder um botão na tela, desabilitar um campo, ocultar um link: nada disso impede a requisição equivalente de chegar direto, porque a tela nunca fez parte do caminho que a requisição percorre.\n\nA pergunta que separa segurança real de aparência de segurança é sempre a mesma: se essa requisição fosse montada à mão, sem passar pela tela, o que aconteceria?",
+      "analogia": "Um segurança que só verifica quem entra pela porta da frente não protege nada se existir uma janela destrancada nos fundos — a decisão de deixar entrar precisa valer em qualquer caminho, não só no caminho esperado.",
+      "erro_comum": "Esconder um controle na interface e considerar isso suficiente, sem checar de novo no servidor.",
+      "fonte": "lab/decisao_no_servidor.py desta sessão, executado em 02/09/2026."
+    },
+    {
+      "id": "3.4.t2",
+      "titulo": "Validação no cliente é para o usuário, não contra quem ataca",
+      "texto": "JavaScript que roda no navegador do usuário roda sob controle total desse usuário — ele pode abrir o console e reescrever a função, desativar o script, ou simplesmente nunca carregar a página e montar a requisição sozinho. Uma regra de validação escrita em JavaScript não é obstáculo para quem já decidiu contornar a interface; é conveniência para quem está usando o site normalmente.\n\nIsso não torna a validação no cliente inútil — ela poupa uma viagem de rede inteira quando o próprio usuário digita algo errado, e melhora a experiência. O erro é tratá-la como controle de segurança, e pular a validação equivalente no servidor porque 'o formulário já verifica isso'.\n\nToda regra que precisa valer de verdade — limite, formato, permissão — precisa existir nos dois lugares: no cliente, por conforto; no servidor, porque é o único lugar onde ela realmente vale.",
+      "analogia": "Uma placa pedindo 'não pise na grama' orienta quem já pretendia respeitar o jardim; não impede fisicamente ninguém — o controle real seria uma cerca.",
+      "erro_comum": "Aceitar no servidor qualquer valor que já 'passou' pela validação do formulário, sem checar de novo.",
+      "fonte": "lab/validacao_so_no_cliente.py desta sessão, executado em 02/09/2026."
+    },
+    {
+      "id": "3.4.t3",
+      "titulo": "O cookie volta sozinho, sem perguntar quem pediu",
+      "texto": "Depois do login, o navegador guarda um cookie de sessão e passa a anexá-lo automaticamente a toda requisição para aquele domínio — não importa qual página, aba ou script disparou a requisição. É esse comportamento, deliberado e documentado, que faz sessão funcionar sem o usuário reautenticar a cada clique.\n\nO problema é que 'toda requisição para aquele domínio' inclui requisições que o próprio usuário nunca quis fazer. Uma página aberta numa aba diferente pode conter um formulário que se autoenvia para o domínio onde o usuário está logado — e o navegador, seguindo a mesma regra de sempre, anexa o cookie de sessão a esse envio como se fosse legítimo.\n\nO mecanismo não tem defeito: ele faz exatamente o que foi projetado para fazer. O problema é que 'o cookie está presente' nunca foi prova de que o pedido veio de onde deveria vir.",
+      "analogia": "Um crachá que abre a porta sozinho, sem ninguém checar o rosto de quem o carrega, abre a porta pra qualquer um que o esteja segurando — inclusive quem o pegou emprestado sem avisar.",
+      "erro_comum": "Achar que a presença de um cookie de sessão válido já garante que o pedido é legítimo.",
+      "fonte": "lab/reenvio_automatico_de_cookie.py desta sessão, executado em 02/09/2026."
+    },
+    {
+      "id": "3.4.t4",
+      "titulo": "CSRF: a consequência, e a defesa que ataca a causa",
+      "texto": "Falsificação de requisição entre sites (CSRF) usa exatamente o mecanismo do bloco anterior: uma página em qualquer lugar da internet dispara uma requisição para um site onde a vítima já está logada, e o navegador anexa o cookie de sessão sozinho. O servidor recebe uma requisição com cookie válido e não tem, por padrão, como saber que ela não veio da própria interface do site.\n\nA defesa não tenta impedir o navegador de reenviar o cookie — isso quebraria sessão por completo. Ela ataca a origem do problema: um token imprevisível, gerado pelo servidor e exigido em cada ação sensível, que só a página legítima consegue incluir na requisição. O atributo `SameSite` do cookie, já visto como propriedade de sessão no módulo de autenticação, reforça a mesma defesa por outro ângulo: instrui o navegador a não anexar o cookie em requisições disparadas por outro site.\n\nAs duas defesas resolvem o mesmo problema por caminhos diferentes — imprevisibilidade do token, e a origem declarada no próprio cookie.",
+      "analogia": "Em vez de proibir o crachá de abrir a porta sozinho, a portaria passa a exigir também uma senha do dia, que só quem está autorizado de verdade recebeu.",
+      "erro_comum": "Confundir o cookie de sessão com prova de legitimidade da requisição, e não exigir nenhum token adicional em ações sensíveis.",
+      "fonte": "Continuidade de 3.4.t3; atributos de cookie já ensinados em 2.5.q13."
+    },
+    {
+      "id": "3.4.t5",
+      "titulo": "A regra de mesma origem: por que o navegador precisa de uma fronteira",
+      "texto": "Um navegador comum tem, ao mesmo tempo, abas abertas para um banco, um webmail e um site qualquer recém-descoberto. Sem nenhuma fronteira entre elas, um script rodando no site qualquer poderia ler o que aparece nas outras abas — inclusive dado carregado usando a sessão já autenticada do banco ou do webmail.\n\nA regra de mesma origem existe para isso: um script só pode ler livremente respostas de requisições feitas para o mesmo esquema, host e porta de onde ele foi carregado. Um site não lê o que outro responde, mesmo que a requisição de um para o outro tenha sido enviada com sucesso — o bloqueio não é sobre enviar, é sobre ler a resposta.\n\nÉ uma regra do navegador, não do servidor: o servidor continua respondendo normalmente a qualquer um que perguntar; é o navegador de quem está na outra origem que recusa entregar essa resposta ao script.",
+      "analogia": "Duas empresas no mesmo prédio podem ambas receber correspondência normalmente — a regra não impede a entrega, impede uma empresa de abrir a correspondência endereçada à outra.",
+      "erro_comum": "Achar que a regra de mesma origem impede a requisição de sair, quando na verdade ela impede a leitura da resposta.",
+      "fonte": "lab/mesma_origem_servidor.py desta sessão — teste real em navegador, executado em 02/09/2026."
+    },
+    {
+      "id": "3.4.t6",
+      "titulo": "CORS: a exceção explícita, e o risco de afrouxar demais",
+      "texto": "Existem casos legítimos em que um site precisa consumir dado de outro domínio — um site que consulta uma API separada, por exemplo. Para isso, o servidor da API pode declarar, por cabeçalho HTTP, quais origens têm permissão de ler suas respostas: é o compartilhamento de recursos entre origens (CORS), uma exceção controlada à regra de mesma origem, não a remoção dela.\n\nO risco aparece quando essa exceção é configurada de forma ampla demais — liberando qualquer origem, ou refletindo de volta qualquer origem que perguntar, sem lista de permissão real. Nesse caso, a fronteira que protegia dado sensível de ser lido por qualquer site desaparece, e o problema que a regra de mesma origem existia para evitar volta a existir, só que agora declarado como se fosse intencional.\n\nA pergunta de auditoria é sempre a mesma: quem, exatamente, essa configuração deixa entrar — e essa lista corresponde ao que realmente precisa de acesso?",
+      "analogia": "Uma portaria que aceita qualquer crachá que se apresente, em vez de checar contra uma lista de nomes autorizados, não é uma portaria mais flexível — é uma portaria sem função.",
+      "erro_comum": "Configurar CORS liberando qualquer origem por conveniência de desenvolvimento, e esquecer de restringir antes de publicar.",
+      "fonte": "lab/mesma_origem_servidor.py desta sessão, cabeçalho Access-Control-Allow-Origin."
+    }
+  ],
+  "questoes": [
+    {
+      "id": "3.4.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que o servidor não pode saber, só pela requisição chegando, se ela foi disparada por um clique real na tela ou montada à parte?",
+      "alternativas": [
+        "Porque a requisição chega ao servidor como bytes numa porta, sem identificação confiável de origem",
+        "Porque o protocolo HTTP embaralha a origem de cada requisição antes de enviar, como medida de segurança",
+        "Porque navegadores modernos removeram por completo a identificação de origem das requisições que enviam",
+        "Porque o servidor recebe primeiro a imagem renderizada da tela, e só depois os dados preenchidos pelo usuário"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "HTTP não embaralha nem criptografa a origem por padrão — a questão não é sigilo, é ausência de qualquer prova de proveniência.",
+        "2": "Navegadores incluem cabeçalhos como `Referer` e `Origin`, mas eles são informativos, não uma prova que o servidor deva confiar sem verificar.",
+        "3": "Não existe transmissão de 'imagem renderizada' em HTTP — o servidor nunca recebe a tela, só os dados que uma requisição carrega."
+      },
+      "dicas": [
+        "Pense no que realmente trafega pela rede quando um formulário é enviado: pixels da tela, ou só os valores dos campos?",
+        "Um script que monta a mesma requisição, sem nunca ter carregado a página, produz bytes diferentes dos que o navegador produziria?",
+        "Só uma alternativa descreve corretamente o que a requisição carrega, sem inventar criptografia ou transmissão de imagem que não existem."
+      ],
+      "pergunta_socratica": "Antes de conferir: dois formulários com os mesmos campos preenchidos, um enviado por um navegador e outro montado por um script, produzem requisições diferentes?",
+      "explicacao": "Uma requisição HTTP carrega método, cabeçalhos e corpo — nada disso identifica de forma confiável se foi um clique humano ou um script que a montou. O servidor recebe só esses bytes; a interface que talvez tenha existido antes nunca faz parte do que chega pela rede. É por isso que a decisão de autorizar precisa se basear em algo que o servidor de fato controla — sessão, permissão registrada — não na suposição de que a requisição veio de onde deveria.",
+      "fonte": "3.4.t1, desta sessão.",
+      "tags": [
+        "web",
+        "decisao-no-servidor",
+        "conceitual",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "3.4.q2",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Uma equipe remove o botão 'excluir usuário' da tela para quem não é administrador, usando uma regra de exibição no próprio código da página. A rota por trás desse botão não faz nenhuma verificação própria de quem está pedindo. O que essa escolha deixa em aberto?",
+      "alternativas": [
+        "Uma requisição direta ao endpoint de exclusão, sem passar pela tela, continua sendo aceita por quem a enviar",
+        "O botão volta a aparecer depois de algumas horas, mesmo para quem não é administrador",
+        "A tela passa a carregar mais lentamente, porque o código de exibição condicional consome mais processamento",
+        "Usuários administradores perdem a capacidade de excluir outros usuários, porque a regra afeta o sistema inteiro"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Esconder um elemento na tela não tem esse tipo de efeito temporal — a regra de exibição continua valendo enquanto o código não mudar.",
+        "2": "Uma condição de exibição no código do lado do cliente tem custo de processamento desprezível — não é esse o problema do cenário.",
+        "3": "Nada no cenário afeta administradores — a regra só esconde o botão de quem NÃO é administrador, e o endpoint continua respondendo a qualquer requisição."
+      },
+      "dicas": [
+        "Pense no laboratório desta sessão: o botão nunca apareceu na tela, e mesmo assim a exclusão aconteceu.",
+        "A pergunta é sobre o que continua alcançável, não sobre o que muda na aparência da tela.",
+        "Só uma alternativa descreve uma consequência de segurança real; as outras inventam efeitos que a mudança descrita não produz."
+      ],
+      "pergunta_socratica": "Antes de conferir: esconder um botão na tela impede que alguém monte, à parte, a requisição que esse botão dispararia?",
+      "explicacao": "Remover um botão da interface muda só o que aparece na tela — o endpoint por trás dele continua ativo e, sem checagem própria, aceita qualquer requisição que chegar, venha de onde vier. É exatamente o que o laboratório desta sessão demonstrou: a exclusão aconteceu por uma requisição direta, sem que o botão jamais tivesse sido exibido.",
+      "fonte": "lab/decisao_no_servidor.py desta sessão, executado em 02/09/2026.",
+      "tags": [
+        "web",
+        "decisao-no-servidor",
+        "cenario",
+        "autorizacao"
+      ]
+    },
+    {
+      "id": "3.4.q3",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "artefato": "=== requisicao HTTP direta para /excluir, sem nunca ter carregado a pagina ===\n  status: 200\n  corpo:  usuario 42 excluido\n\n  usuarios depois: {}",
+      "enunciado": "Este é o resultado real de uma requisição enviada direto para o endpoint de exclusão, sem a página com o botão escondido jamais ter sido carregada. O que ele sustenta?",
+      "alternativas": [
+        "Que o endpoint aceitou a exclusão sem exigir evidência de que a requisição partiu da interface",
+        "Que o navegador usado nesta sessão tem uma falha específica que permite pular etapas de segurança de outro site",
+        "Que a exclusão só teve efeito porque o script tinha, por coincidência, o mesmo endereço IP do servidor",
+        "Que o servidor detectou a ausência da interface e aplicou um modo de teste sem restrições"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nenhum navegador foi usado nesta requisição — ela foi montada diretamente, sem navegador nenhum envolvido, então não há falha de navegador a apontar.",
+        "2": "O endereço IP do script não é mencionado nem relevante no resultado — o que importa é que a requisição chegou pela rede normalmente.",
+        "3": "Nada no código do servidor (mostrado nos blocos de teoria) menciona detecção de interface ausente nem modo de teste — essa explicação não existe no cenário."
+      },
+      "dicas": [
+        "Releia a saída: ela usa navegador, ou só uma chamada HTTP direta?",
+        "Pense em quantas verificações o endpoint fez antes de aceitar o pedido, segundo o que os blocos de teoria já descreveram.",
+        "Só uma alternativa descreve o que realmente aconteceu, sem inventar falha de navegador, coincidência de endereço ou modo especial."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe alguma verificação, no código do endpoint, que dependa da página ter sido carregada antes?",
+      "explicacao": "A saída mostra uma requisição HTTP comum, sem navegador nenhum, aceita e executada com sucesso — porque o endpoint nunca verificou de onde a requisição veio, só que ela chegou no formato esperado. Não há falha de navegador, coincidência de endereço ou modo de teste especial: é simplesmente a ausência de qualquer checagem do lado do servidor.",
+      "fonte": "Saída real de lab/decisao_no_servidor.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "web",
+        "artefato",
+        "decisao-no-servidor",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "3.4.q4",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "trecho": "PLANO DE CORREÇÃO — controle de acesso da tela de administração\n1. Remover o link 'painel admin' do menu para usuários comuns.\n2. Ofuscar o nome da rota (/adm_x7 em vez de /admin) para dificultar adivinhação.\n3. Adicionar um aviso na documentação interna pedindo para não compartilhar a URL.",
+      "enunciado": "Qual é o defeito comum aos três itens deste plano?",
+      "alternativas": [
+        "Nenhum dos três faz a rota checar, na própria requisição, se quem pede é administrador",
+        "O item 2 deveria vir antes do item 1, porque ofuscar a rota importa mais do que remover o link",
+        "O item 3 é desnecessário, porque documentação interna dificilmente vaza para fora da empresa",
+        "Falta um item pedindo para trocar a senha dos administradores periodicamente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A ordem entre os itens não é o defeito central — nenhum dos três, em nenhuma ordem, resolve o problema de fundo.",
+        "2": "Vazamento de documentação interna é possível por vários caminhos (ex-funcionário, captura de tela, cópia) — dizer que 'nunca' acontece contraria a experiência comum.",
+        "3": "Troca periódica de senha não resolve o problema descrito, que é sobre a rota aceitar qualquer requisição, não sobre credencial de administrador."
+      },
+      "dicas": [
+        "Pense no que cada um dos três itens realmente impede: alguém enxergar o link, ou alguém acessar a rota diretamente?",
+        "Uma rota com nome difícil de adivinhar ainda responde normalmente a quem já sabe (ou descobre) o endereço exato?",
+        "Só uma alternativa aponta para a ausência de verificação na própria rota, o defeito que os três itens compartilham."
+      ],
+      "pergunta_socratica": "Antes de conferir: se alguém descobrir a URL /adm_x7 por qualquer meio, o que a impede de acessar o painel?",
+      "explicacao": "Os três itens tentam esconder o caminho até a funcionalidade administrativa — do menu, do nome da rota, do conhecimento de quem tem acesso à documentação — mas nenhum deles faz a própria rota verificar, a cada requisição, se quem está pedindo de fato tem permissão de administrador. Esconder um caminho não é o mesmo que trancar a porta no fim dele.",
+      "fonte": "3.4.t1, desta sessão.",
+      "tags": [
+        "web",
+        "decisao-no-servidor",
+        "caca-erro",
+        "autorizacao"
+      ]
+    },
+    {
+      "id": "3.4.q5",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Por que uma regra de validação escrita em JavaScript, rodando no navegador do usuário, não funciona como controle contra um atacante?",
+      "alternativas": [
+        "Porque o código roda sob controle de quem usa o navegador, que pode alterá-lo ou deixar de executá-lo",
+        "Porque JavaScript, sendo interpretado, tende a rodar mais devagar que código do servidor",
+        "Porque navegadores diferentes interpretam JavaScript de formas incompatíveis entre si",
+        "Porque a validação em JavaScript depende de bibliotecas externas que podem estar indisponíveis no momento"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Velocidade de execução não tem relação com o problema de segurança discutido — o ponto é sobre quem controla o código, não sobre desempenho.",
+        "2": "Incompatibilidade entre navegadores é um problema de compatibilidade de funcionalidade, não a razão pela qual a validação deixa de ser controle.",
+        "3": "Dependência de biblioteca externa é um risco de disponibilidade, mas não é o motivo central — mesmo sem bibliotecas, o código continua sob controle do usuário."
+      },
+      "dicas": [
+        "Pense em quem tem acesso ao console de desenvolvedor de um navegador comum.",
+        "Uma regra que roda inteiramente na máquina de quem pode ser o próprio atacante ainda é uma barreira contra esse atacante?",
+        "Só uma alternativa fala sobre controle do código pelo usuário, sem inventar problema de velocidade, compatibilidade ou dependência externa."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem decide se o JavaScript de uma página realmente executa, da forma como foi escrito, no navegador de quem visita?",
+      "explicacao": "O navegador executa o código sob total controle de quem o está usando — que pode abrir as ferramentas de desenvolvedor, editar a função de validação, ou simplesmente enviar a requisição sem passar pela página. Uma regra que só existe nesse ambiente controlado pelo próprio usuário não impede nada de quem já decidiu contornar a interface.",
+      "fonte": "3.4.t2, desta sessão.",
+      "tags": [
+        "web",
+        "validacao-cliente",
+        "conceitual",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "3.4.q6",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "artefato": "=== POST direto pedindo 9999 unidades, sem nunca executar o JavaScript da página ===\n  status: 200\n  corpo:  pedido aceito: 9999 unidades. estoque restante: -9994",
+      "enunciado": "A regra de que 'quantidade não pode passar de 5' só existia no JavaScript da página. O que esta saída sustenta?",
+      "alternativas": [
+        "Que o servidor aceitou o pedido acima do limite, porque não verificava esse limite sozinho",
+        "Que o JavaScript da página tinha um erro de programação que permitiu números negativos no estoque",
+        "Que o servidor detectou a ausência do JavaScript e aplicou um limite diferente, mais permissivo",
+        "Que a requisição precisou de uma senha especial para pular a validação de quantidade"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O estoque negativo é consequência direta de aceitar 9999 sem limite — não é um bug do JavaScript, que sequer foi executado nesta requisição.",
+        "2": "Nada no código do servidor, mostrado nos blocos de teoria, detecta ausência de JavaScript ou aplica um limite alternativo.",
+        "3": "A requisição foi um POST comum, sem nenhuma senha ou token especial — o servidor simplesmente não tinha limite nenhum configurado do próprio lado."
+      },
+      "dicas": [
+        "Pense em onde a regra de limite 5 estava escrita, segundo o enunciado — e se essa regra chegou a ser executada nesta requisição.",
+        "O estoque ficou negativo — isso é causa de algum bug, ou consequência simples de aceitar um número grande demais sem checar?",
+        "Só uma alternativa descreve exatamente o que a saída mostra, sem inventar bug, detecção especial ou senha que não existem no cenário."
+      ],
+      "pergunta_socratica": "Antes de conferir: o JavaScript da página chegou a rodar nesta requisição específica?",
+      "explicacao": "A requisição foi montada diretamente, sem carregar a página nem executar o JavaScript que continha a regra de limite — e o servidor, sem nenhuma verificação própria, aceitou 9999 unidades, deixando o estoque negativo. A regra 'no máximo 5' nunca existiu do ponto de vista do servidor: ela vivia inteiramente no código que roda no navegador de quem usa a página normalmente.",
+      "fonte": "Saída real de lab/validacao_so_no_cliente.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "web",
+        "artefato",
+        "validacao-cliente",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "3.4.q7",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um desenvolvedor argumenta: 'não precisamos validar o formato do e-mail no servidor, porque o formulário já faz isso antes de enviar'. Qual é o problema desse argumento?",
+      "alternativas": [
+        "Uma requisição pode chegar ao servidor sem passar pelo formulário, então a validação dele não cobre esse caso",
+        "Formulários HTML não têm capacidade técnica de validar formato de e-mail, o que já contraria a afirmação",
+        "O formato de e-mail muda com frequência entre países, o que torna a validação de formato rapidamente desatualizada",
+        "Validar e-mail no servidor deixaria o sistema mais lento do que validar só no formulário, sem ganho real"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Formulários HTML têm, sim, recursos nativos de validação de formato — a limitação não é técnica, é sobre quem pode contornar o formulário inteiro.",
+        "2": "O formato geral de um endereço de e-mail (algo@algo.algo) é estável entre países — essa não é a razão do problema apontado.",
+        "3": "O argumento não é sobre desempenho — é sobre a validação do formulário simplesmente não acontecer quando a requisição não passa por ele."
+      },
+      "dicas": [
+        "Pense no que acontece quando alguém monta a requisição de cadastro diretamente, sem preencher o formulário na tela.",
+        "A pergunta não é 'o formulário valida bem?' — é 'toda requisição de cadastro passa pelo formulário?'.",
+        "Só uma alternativa aponta para o caminho que contorna o formulário por completo, sem inventar limitação técnica ou custo de desempenho."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma requisição de cadastro montada por um script passa, obrigatoriamente, pelo formulário da tela?",
+      "explicacao": "A validação do formulário só roda quando alguém de fato usa o formulário — uma requisição montada por script, ou enviada de qualquer outra forma, nunca passa por ela. O argumento do desenvolvedor confunde 'a maioria dos usuários vai passar pelo formulário' com 'toda requisição obrigatoriamente passa', que são afirmações bem diferentes.",
+      "fonte": "3.4.t2, desta sessão.",
+      "tags": [
+        "web",
+        "validacao-cliente",
+        "cenario",
+        "cadastro"
+      ]
+    },
+    {
+      "id": "3.4.q8",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um atacante quer testar os limites reais de um sistema de compras online e percebe que o site inteiro depende de JavaScript para impedir pedidos inválidos. Como ele contorna essa proteção de forma direta?",
+      "alternativas": [
+        "Montando as requisições de compra direto por linha de comando, sem carregar a página nem rodar o JavaScript",
+        "Descobrindo a senha de administrador do site através de tentativa e erro no formulário de login",
+        "Explorando uma vulnerabilidade de rede para interceptar o tráfego entre o navegador de outro usuário e o servidor",
+        "Instalando uma extensão no próprio navegador do site para alterar o comportamento visual da página"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Adivinhar senha de administrador é uma técnica completamente diferente, sobre autenticação — não tem relação com contornar validação de JavaScript.",
+        "2": "Interceptar tráfego de outro usuário é um ataque de rede, que não precisa nem se relaciona com o fato de a validação estar só no JavaScript.",
+        "3": "Alterar a aparência da própria página, via extensão, não muda o que o servidor aceita — o servidor continua recebendo a mesma requisição de qualquer forma."
+      },
+      "dicas": [
+        "Pense na forma mais direta de pular um código que só roda dentro do navegador: usar o navegador, ou não usar?",
+        "O atacante não precisa quebrar nada — ele só precisa não depender da parte que faz a validação.",
+        "Só uma alternativa usa exatamente a informação do enunciado — que a proteção depende inteiramente de JavaScript."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe alguma forma de enviar uma requisição HTTP sem passar por um navegador?",
+      "explicacao": "Se toda a proteção depende de JavaScript rodando no navegador, a forma mais direta de contorná-la é simplesmente não usar um navegador — montar a requisição com uma ferramenta de linha de comando, reproduzindo os mesmos dados que o formulário enviaria, sem executar nenhum código de validação. É exatamente o que os laboratórios desta sessão demonstraram, sem exigir nenhuma técnica mais sofisticada.",
+      "fonte": "lab/validacao_so_no_cliente.py, desta sessão.",
+      "tags": [
+        "web",
+        "validacao-cliente",
+        "ataque-defesa",
+        "bypass"
+      ]
+    },
+    {
+      "id": "3.4.q9",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "O que faz o navegador anexar automaticamente o cookie de sessão numa requisição, mesmo quando essa requisição foi disparada por uma página diferente daquela onde o login aconteceu?",
+      "alternativas": [
+        "O cookie é associado ao domínio de destino da requisição, e não à página específica de onde a requisição partiu",
+        "O navegador consulta um registro de páginas confiáveis antes de decidir se anexa o cookie àquela requisição específica",
+        "O servidor envia, junto com cada resposta, uma lista de páginas autorizadas a reutilizar aquele cookie depois",
+        "O usuário precisa confirmar manualmente, numa caixa de diálogo, que autoriza o reenvio do cookie para aquele destino"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe esse registro de páginas confiáveis — o navegador não avalia de onde a requisição partiu, só para onde ela vai.",
+        "2": "O servidor não envia lista nenhuma de páginas autorizadas — o cookie é armazenado no navegador e reenviado por regra de domínio, não por permissão explícita por página.",
+        "3": "Não existe confirmação manual nesse processo — é exatamente a ausência dela que torna o mecanismo automático e, por isso, explorável."
+      },
+      "dicas": [
+        "Pense no laboratório desta sessão: o cookie foi anexado numa requisição que não teve relação nenhuma com a página de login.",
+        "O que o navegador confere antes de anexar um cookie — de onde a requisição saiu, ou para onde ela vai?",
+        "Só uma alternativa descreve o critério real (destino, não origem), sem inventar registro, lista ou confirmação que não existem."
+      ],
+      "pergunta_socratica": "Antes de conferir: o navegador pergunta 'de onde vem essa requisição' antes de anexar um cookie, ou só 'para onde ela vai'?",
+      "explicacao": "O navegador associa um cookie ao domínio que o definiu, e reenvia esse cookie em qualquer requisição para esse mesmo domínio — o critério é o destino da requisição, não a origem de onde ela partiu. Não existe lista de páginas autorizadas nem confirmação manual: é essa ausência de verificação de origem que torna o reenvio automático e, por consequência, explorável por CSRF.",
+      "fonte": "3.4.t3, desta sessão.",
+      "tags": [
+        "web",
+        "csrf",
+        "conceitual",
+        "cookie"
+      ]
+    },
+    {
+      "id": "3.4.q10",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "artefato": "=== login uma vez, cookie de sessão guardado pelo cliente ===\n  cookies guardados: ['<Cookie sessao=abc123 for 127.0.0.1/>']\n\n=== requisição de transferência, montada como se viesse de OUTRA página ===\n  status: 200\n  corpo:  transferencia de 1000 aceita. saldo: 0",
+      "enunciado": "O login aconteceu uma única vez. A requisição de transferência foi montada separadamente, simulando o que um formulário em outra página dispararia. O que esta saída sustenta?",
+      "alternativas": [
+        "Que o cookie guardado no login foi anexado à requisição de transferência, ainda que feita separadamente",
+        "Que o servidor exige duas transferências consecutivas para liberar o valor total, e a saída mostra só a segunda",
+        "Que o cookie precisou ser copiado manualmente do login para a requisição de transferência, pelo próprio script",
+        "Que o servidor identificou a origem simulada e aplicou um desconto no valor transferido, por segurança"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A saída mostra uma única transferência, aceita de uma vez — não há menção a duas etapas nem a essa exigência.",
+        "2": "O cookie foi reenviado pelo mecanismo automático do cliente de cookies, sem cópia manual feita pelo script para essa requisição específica.",
+        "3": "O valor transferido (1000) bate exatamente com o saldo inicial — não há desconto aplicado, nem indício de detecção de origem."
+      },
+      "dicas": [
+        "Releia a saída: existe algum passo de cópia manual do cookie entre o login e a transferência?",
+        "Compare o valor transferido com o saldo inicial mostrado antes — eles batem, ou há uma diferença que sugeriria desconto?",
+        "Só uma alternativa descreve o que realmente está documentado na saída, sem inventar exigência, cópia manual ou desconto."
+      ],
+      "pergunta_socratica": "Antes de conferir: entre o login e a transferência, o script precisou reler ou copiar o valor do cookie manualmente?",
+      "explicacao": "O cookie guardado no login foi reaproveitado automaticamente pelo cliente de cookies na requisição de transferência, sem cópia manual nem verificação de que as duas ações tinham relação entre si — exatamente o mecanismo que um formulário escondido em outra página exploraria contra uma vítima real.",
+      "fonte": "Saída real de lab/reenvio_automatico_de_cookie.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "web",
+        "artefato",
+        "csrf",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "3.4.q11",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Um site de e-commerce processa a troca de e-mail de contato do usuário através de uma requisição GET simples: /trocar-email?novo=endereco@x.com. O usuário está logado. Por que essa escolha de método facilita um ataque de CSRF, especificamente?",
+      "alternativas": [
+        "Porque uma requisição GET pode ser disparada por uma tag de imagem, sem exigir formulário nem clique",
+        "Porque requisições GET não são criptografadas, mesmo em conexões HTTPS, ao contrário de requisições POST",
+        "Porque o método GET impede o uso do atributo SameSite no cookie de sessão daquela conta",
+        "Porque servidores processam requisições GET com prioridade mais alta, antes de requisições POST pendentes"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "GET e POST recebem o mesmo tratamento de criptografia numa conexão HTTPS — o método não afeta isso.",
+        "2": "O atributo SameSite funciona igualmente para cookies em requisições GET e POST — o método não desativa esse atributo.",
+        "3": "Não existe ordem de prioridade por método HTTP no processamento de um servidor comum — essa afirmação não corresponde a como servidores web funcionam."
+      },
+      "dicas": [
+        "Pense em quais elementos comuns de uma página conseguem carregar um recurso sozinhos, sem que a pessoa precise fazer nada.",
+        "Uma requisição POST normalmente precisa de algo sendo submetido pelo usuário — o que dispensa esse requisito no outro método?",
+        "Só uma alternativa liga a facilidade do ataque ao mecanismo real de como uma tag comum dispara requisições GET sozinha."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma tag de imagem numa página consegue disparar uma requisição GET sem nenhuma ação do visitante?",
+      "explicacao": "Uma requisição GET pode ser disparada por elementos comuns de página, como uma tag de imagem apontando para a URL da ação — o navegador tenta carregar aquela 'imagem' automaticamente, disparando a requisição sem exigir clique nem formulário. Isso baixa ainda mais a barreira para o ataque: nem precisa de um formulário que se autoenvia via JavaScript, só de uma página que a vítima abra.",
+      "fonte": "3.4.t4, desta sessão.",
+      "tags": [
+        "web",
+        "csrf",
+        "cenario",
+        "get"
+      ]
+    },
+    {
+      "id": "3.4.q12",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Por que a defesa contra CSRF não tenta impedir o navegador de reenviar o cookie de sessão automaticamente?",
+      "alternativas": [
+        "Porque impedir esse reenvio quebraria o mecanismo que sustenta sessão sem reautenticação constante",
+        "Porque tecnicamente não é possível impedir um navegador de reenviar um cookie, em nenhuma circunstância",
+        "Porque servidores não têm permissão de instruir navegadores sobre como tratar cookies de sessão",
+        "Porque isso exigiria alterar o protocolo HTTP inteiro, o que nenhum navegador implementaria sozinho"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "É tecnicamente possível restringir o reenvio — é o que o atributo SameSite faz, de forma seletiva, não impedindo o cookie por completo.",
+        "2": "Servidores instruem navegadores sobre cookies o tempo todo, através de atributos como HttpOnly, Secure e SameSite — essa capacidade existe.",
+        "3": "SameSite é uma extensão de atributo de cookie, não uma mudança no protocolo HTTP em si — não exige alterar o protocolo inteiro."
+      },
+      "dicas": [
+        "Pense no que aconteceria com sessão se o cookie parasse de ser reenviado automaticamente a cada requisição.",
+        "O atributo SameSite já restringe parte desse reenvio — isso prova que restringir é possível?",
+        "Só uma alternativa aponta para o custo real de eliminar o reenvio (quebrar sessão), sem inventar impossibilidade técnica ou de protocolo."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o cookie parasse de ser reenviado automaticamente, o que aconteceria com o login do usuário a cada nova página?",
+      "explicacao": "Reenvio automático de cookie é o que sustenta sessão — eliminar esse comportamento por completo faria o usuário reautenticar a cada requisição, inviabilizando a própria ideia de sessão. Por isso a defesa contra CSRF ataca o problema por outro ângulo: token imprevisível e atributo SameSite, que restringe o reenvio de forma seletiva, sem eliminá-lo.",
+      "fonte": "3.4.t4, desta sessão.",
+      "tags": [
+        "web",
+        "csrf",
+        "conceitual",
+        "defesa"
+      ]
+    },
+    {
+      "id": "3.4.q13",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "trecho": "IMPLEMENTAÇÃO DA TRANSFERÊNCIA BANCÁRIA — versão atual\n1. Verificar se o cookie de sessão do usuário é válido.\n2. Executar a transferência do valor informado.\n3. Registrar a transferência no extrato do usuário.",
+      "enunciado": "Supondo que o site não usa token anti-CSRF nem atributo SameSite no cookie, qual é o defeito desta implementação?",
+      "alternativas": [
+        "Verificar só a validade do cookie não distingue uma requisição legítima de uma disparada por outra página",
+        "O passo 3 deveria vir antes do passo 2, para registrar a tentativa mesmo que a transferência falhe por algum motivo",
+        "Falta um passo de criptografia do valor transferido antes de enviá-lo pela rede",
+        "A implementação deveria verificar a senha do usuário novamente a cada transferência, além do cookie"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A ordem entre executar e registrar não é o defeito relevante aqui — o problema está em o que o passo 1 verifica, não em quando o passo 3 acontece.",
+        "2": "HTTPS já cuida da criptografia em trânsito — esse não é o defeito que o cenário, sem token anti-CSRF, está apontando.",
+        "3": "Pedir senha a cada transferência resolveria o problema, mas de um jeito custoso para o usuário — o defeito específico apontado é a ausência de token ou SameSite."
+      },
+      "dicas": [
+        "Pense no que 'cookie válido' realmente prova sobre quem disparou a requisição, segundo os blocos de teoria.",
+        "Releia o enunciado: ele já diz que faltam token anti-CSRF e SameSite — o que essa ausência específica permite?",
+        "Só uma alternativa aponta para a mesma falha que os blocos de teoria descrevem como o problema central do CSRF."
+      ],
+      "pergunta_socratica": "Antes de conferir: um cookie válido prova que a página legítima do banco disparou essa requisição, ou só que existe uma sessão ativa?",
+      "explicacao": "Verificar apenas se o cookie de sessão é válido não distingue uma requisição legítima, disparada pela própria interface do banco, de uma requisição disparada por uma página maliciosa que a vítima abriu em outra aba — o cookie está presente nos dois casos. Sem token anti-CSRF nem SameSite, a implementação fica vulnerável exatamente ao mecanismo que 3.4.t3 e t4 descrevem.",
+      "fonte": "3.4.t4, desta sessão.",
+      "tags": [
+        "web",
+        "csrf",
+        "caca-erro",
+        "autorizacao"
+      ]
+    },
+    {
+      "id": "3.4.q14",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Ligue cada defesa contra CSRF ao mecanismo que a torna eficaz.",
+      "pares": [
+        [
+          "token anti-CSRF imprevisível",
+          "uma página maliciosa não consegue ler nem incluir esse valor na requisição forjada"
+        ],
+        [
+          "atributo SameSite=Strict no cookie",
+          "instrui o navegador a não anexar o cookie quando a requisição parte de outro site"
+        ],
+        [
+          "reautenticação antes de ação sensível",
+          "exige uma prova recente de identidade que uma requisição forjada não consegue fornecer"
+        ],
+        [
+          "verificação do cabeçalho Origin/Referer",
+          "compara de onde a requisição realmente partiu contra o domínio esperado"
+        ]
+      ],
+      "dicas": [
+        "Pense em qual defesa depende de a página maliciosa não conseguir ler um valor gerado pelo servidor.",
+        "Uma das defesas atua sobre o comportamento do próprio navegador ao decidir anexar o cookie ou não.",
+        "Duas das defesas comparam algo contra a origem real da requisição — uma via cabeçalho, outra via atributo de cookie."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro defesas depende de o atacante não conseguir ler um valor específico, em vez de depender do comportamento do navegador?",
+      "explicacao": "As quatro defesas atacam o problema por ângulos diferentes: o token depende do atacante não conseguir ler um valor secreto; SameSite depende do próprio navegador recusar anexar o cookie fora de contexto; reautenticação exige prova de identidade que uma requisição forjada não tem como fornecer; e checar Origin/Referer compara a origem declarada contra a esperada. Nenhuma sozinha cobre todo caso, e por isso é comum combinar mais de uma.",
+      "fonte": "3.4.t4, desta sessão.",
+      "tags": [
+        "web",
+        "csrf",
+        "pareamento",
+        "defesa"
+      ]
+    },
+    {
+      "id": "3.4.q15",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Ordene, do primeiro ao último, os passos de um ataque CSRF bem-sucedido contra um site sem defesa anti-CSRF.",
+      "itens": [
+        "A vítima faz login no site alvo e recebe um cookie de sessão",
+        "A vítima, ainda logada, abre uma página maliciosa em outra aba",
+        "A página maliciosa dispara uma requisição para o site alvo, sem o conhecimento da vítima",
+        "O navegador anexa o cookie de sessão da vítima à requisição, por ela ter o domínio certo",
+        "O site alvo executa a ação, porque recebeu um cookie de sessão válido"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dicas": [
+        "A vítima precisa estar logada antes de qualquer outra coisa acontecer — sem sessão, não há cookie para reenviar.",
+        "A página maliciosa dispara a requisição antes de o navegador decidir o que anexar a ela.",
+        "O site alvo só executa a ação depois de receber a requisição já com o cookie anexado — não antes."
+      ],
+      "pergunta_socratica": "Antes de conferir: o cookie de sessão precisa existir antes ou depois de a vítima abrir a página maliciosa?",
+      "explicacao": "A sequência depende de a vítima já estar autenticada antes de visitar a página maliciosa — sem isso, não haveria cookie de sessão para reenviar. A página dispara a requisição, o navegador anexa o cookie automaticamente por bater o domínio, e só então o site alvo, vendo um cookie válido, executa a ação — sem nenhuma etapa verificar se a requisição partiu da própria interface do site.",
+      "fonte": "3.4.t3 e t4, desta sessão.",
+      "tags": [
+        "web",
+        "csrf",
+        "ordenacao",
+        "ataque"
+      ]
+    },
+    {
+      "id": "3.4.q16",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Uma aplicação usa SameSite=Lax no cookie de sessão (o padrão de vários navegadores) em vez de SameSite=Strict. Um atacante monta uma página com um link comum (não um formulário automático) que, se clicado pela vítima logada, dispara uma ação sensível por GET no site alvo. O que Lax permite, nesse caso específico, que Strict não permitiria?",
+      "alternativas": [
+        "Lax ainda anexa o cookie quando a requisição parte de uma navegação de nível superior, disparada por um clique comum",
+        "Lax desativa a proteção contra CSRF por completo, deixando a aplicação tão vulnerável quanto sem atributo nenhum",
+        "Lax permite que scripts de outra origem leiam o valor do cookie diretamente, mesmo sem o cookie ser anexado a requisições",
+        "Lax só afeta cookies definidos por sites com certificado HTTPS, então a diferença desapareceria numa aplicação sem HTTPS"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Lax ainda bloqueia o caso mais perigoso — requisições disparadas automaticamente por formulário ou script, sem clique — não é equivalente a não ter atributo nenhum.",
+        "2": "Nenhuma configuração de SameSite afeta a leitura direta do cookie por script — isso é papel do atributo HttpOnly, um mecanismo diferente.",
+        "3": "O comportamento de SameSite não depende de a conexão ser HTTPS — o atributo funciona da mesma forma independentemente disso."
+      },
+      "dicas": [
+        "Pense na diferença entre abrir um link por interação direta do usuário e uma página que envia algo sozinha, sem nenhuma ação da pessoa.",
+        "SameSite decide se o cookie é anexado — não decide se o cookie pode ser lido por outro script; são atributos diferentes.",
+        "Só uma alternativa descreve corretamente a diferença específica entre Lax e Strict, sem confundir com outro atributo nem inventar dependência de HTTPS."
+      ],
+      "pergunta_socratica": "Antes de conferir: um clique num link comum é mais parecido com uma navegação de nível superior, ou com um formulário se autoenviando escondido?",
+      "explicacao": "SameSite=Lax permite que o cookie ainda seja anexado quando a requisição vem de uma navegação de nível superior disparada por interação do usuário — como clicar num link — mesmo que a página que contém o link seja de outra origem. SameSite=Strict bloquearia mesmo esse caso. É uma diferença real, e por isso ações sensíveis via GET continuam arriscadas mesmo com Lax configurado.",
+      "fonte": "Continuidade de 3.4.t4, desta sessão — a distinção específica entre Lax e Strict não é abordada em 2.5.q13, que trata só do papel geral do atributo.",
+      "tags": [
+        "web",
+        "csrf",
+        "ataque-defesa",
+        "samesite"
+      ]
+    },
+    {
+      "id": "3.4.q17",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Uma equipe decide que a defesa contra CSRF de sua aplicação será só verificar o cabeçalho Referer de cada requisição sensível. Por que essa defesa isolada é considerada frágil?",
+      "alternativas": [
+        "Alguns navegadores e extensões removem o cabeçalho Referer por política de privacidade, causando recusas indevidas",
+        "O cabeçalho Referer é criptografado pelo navegador antes de ser enviado, tornando impossível para o servidor lê-lo corretamente",
+        "Navegadores atuais deixaram de enviar o cabeçalho Referer em requisições HTTPS, tornando essa defesa inútil",
+        "O cabeçalho Referer só existe em requisições GET, então a defesa não protegeria ações enviadas por POST"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Referer não é criptografado para esconder do servidor — é um cabeçalho de texto simples, lido normalmente quando presente.",
+        "2": "Navegadores continuam enviando Referer em muitas requisições HTTPS — a omissão acontece em situações específicas de política de privacidade, não de forma generalizada.",
+        "3": "Referer pode acompanhar requisições POST normalmente — a limitação não é sobre o método usado."
+      },
+      "dicas": [
+        "Pense em configurações de privacidade que um usuário ou navegador poderiam ativar por conta própria.",
+        "A fragilidade não é sobre o cabeçalho nunca existir — é sobre ele poder estar ausente em casos legítimos.",
+        "Só uma alternativa descreve uma limitação real e documentada do cabeçalho Referer, sem inventar criptografia ou exclusividade de método."
+      ],
+      "pergunta_socratica": "Antes de conferir: um usuário com configurações de privacidade mais restritivas envia o cabeçalho Referer da mesma forma que um usuário comum?",
+      "explicacao": "Extensões de privacidade e políticas de alguns navegadores podem remover ou reduzir o cabeçalho Referer em certas requisições — o que faria a defesa baseada só nesse cabeçalho recusar, por engano, requisições legítimas de usuários com essas configurações. É por isso que Referer costuma ser usado como sinal complementar, não como única defesa contra CSRF.",
+      "fonte": "3.4.t4, desta sessão.",
+      "tags": [
+        "web",
+        "csrf",
+        "cenario",
+        "referer"
+      ]
+    },
+    {
+      "id": "3.4.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Por que a regra de mesma origem é aplicada pelo navegador, e não pelo servidor que recebe a requisição?",
+      "alternativas": [
+        "Porque o problema que a regra resolve é sobre o que um script consegue ler de volta, dentro da própria aba",
+        "Porque servidores não têm capacidade técnica de processar cabeçalhos de origem, em circunstância nenhuma",
+        "Porque aplicar a regra no servidor exigiria reescrever o protocolo TCP usado pela comunicação de rede",
+        "Porque a regra foi originalmente criada para proteger servidores contra sobrecarga de requisições simultâneas"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Servidores processam cabeçalhos de origem normalmente — é assim que CORS funciona, com o servidor declarando quem pode ler a resposta.",
+        "2": "A regra opera na camada de aplicação (HTTP e JavaScript), sem exigir nenhuma mudança em TCP.",
+        "3": "A regra de mesma origem não tem relação com proteção contra sobrecarga — esse é um problema diferente, resolvido por outros mecanismos."
+      },
+      "dicas": [
+        "Pense em qual dos dois lados — quem envia a resposta, ou quem tenta ler ela na aba — decide se o script tem acesso ao conteúdo.",
+        "O servidor de destino continua respondendo normalmente a qualquer requisição — o que muda é o que o script consegue fazer com essa resposta.",
+        "Só uma alternativa localiza a regra no lugar certo (o navegador, que controla o que scripts podem ler), sem inventar limitação técnica ou motivo de origem."
+      ],
+      "pergunta_socratica": "Antes de conferir: o servidor de um site consegue impedir, sozinho, que um script em outro site tente ler a resposta dele?",
+      "explicacao": "O que a regra de mesma origem protege é a leitura de uma resposta dentro do navegador de quem está navegando — e só o navegador tem controle sobre o que um script rodando numa aba consegue ler. O servidor continua respondendo normalmente a qualquer requisição; ele não tem como impedir, do próprio lado, que alguém tente. A decisão de bloquear a leitura acontece inteiramente no navegador de quem fez a tentativa.",
+      "fonte": "3.4.t5, desta sessão.",
+      "tags": [
+        "web",
+        "mesma-origem",
+        "conceitual",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "3.4.q19",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "artefato": "SEM-CORS BLOQUEADO PELO NAVEGADOR: Failed to fetch\nCOM-CORS OK: {\"dado\":\"segredo da API\"}",
+      "enunciado": "Este é o console real de um navegador, depois de uma página em uma origem tentar ler dados de outra origem de duas formas: sem cabeçalho CORS e com cabeçalho CORS liberando aquela origem específica. O que essa saída sustenta?",
+      "alternativas": [
+        "Que a leitura da resposta dependeu de um cabeçalho de permissão declarado pelo próprio servidor",
+        "Que o servidor de destino recusou processar a primeira requisição, e só aceitou processar a segunda",
+        "Que a conexão de rede falhou na primeira tentativa por instabilidade, e funcionou normalmente na segunda",
+        "Que a página precisou pedir permissão explícita ao usuário antes da segunda tentativa funcionar"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O servidor não recusa nada do seu lado — 3.4.t5 já estabelece que a regra de mesma origem é aplicada pelo navegador, na leitura da resposta, não pelo servidor, no processamento da requisição.",
+        "2": "Não há indício de instabilidade de rede — a diferença entre as duas tentativas é a presença do cabeçalho CORS, não uma falha aleatória de conexão.",
+        "3": "Nenhuma caixa de permissão apareceu nesse processo — a decisão de bloquear ou permitir a leitura é automática, baseada no cabeçalho recebido."
+      },
+      "dicas": [
+        "Pense no que muda entre as duas rotas testadas, segundo o nome delas: 'sem-cors' e 'com-cors'.",
+        "Releia 3.4.t5: a regra de mesma origem age sobre o que o navegador deixa o script ler, ou sobre o que o servidor aceita processar?",
+        "Só uma alternativa liga a diferença de resultado diretamente ao cabeçalho declarado pelo servidor, sem inventar recusa de processamento, falha de rede ou permissão manual."
+      ],
+      "pergunta_socratica": "Antes de conferir: as duas rotas testadas tinham nomes que já indicavam a diferença entre elas?",
+      "explicacao": "A única diferença entre as duas chamadas foi a presença do cabeçalho Access-Control-Allow-Origin na resposta do servidor — sem ele, o navegador recusou entregar o conteúdo ao script mesmo a resposta tendo chegado pela rede; com ele, a leitura funcionou normalmente. É a demonstração direta de que a regra de mesma origem, e sua exceção via CORS, decide sobre leitura, não sobre entrega de rede.",
+      "fonte": "Teste real em navegador, lab/mesma_origem_servidor.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "web",
+        "artefato",
+        "mesma-origem",
+        "laboratorio",
+        "cors"
+      ]
+    },
+    {
+      "id": "3.4.q20",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O que o cabeçalho Access-Control-Allow-Origin, enviado pelo servidor, realmente controla?",
+      "alternativas": [
+        "Quais origens o navegador tem permissão de deixar um script ler a resposta daquela requisição específica",
+        "Quais endereços IP têm permissão de se conectar ao servidor pela rede, bloqueando os demais no nível de conexão",
+        "Se a resposta será ou não criptografada antes de ser enviada de volta ao navegador que fez a requisição",
+        "Qual formato de dado (JSON, XML, texto) o servidor deve usar ao responder àquela requisição específica"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Bloqueio por endereço IP é feito por firewall ou configuração de rede, camada diferente — o cabeçalho CORS não atua nesse nível.",
+        "2": "Criptografia da conexão é responsabilidade do TLS, não do cabeçalho CORS, que é lido depois da conexão já estabelecida.",
+        "3": "Formato de resposta é controlado pelo cabeçalho Content-Type, não por Access-Control-Allow-Origin, que trata só de permissão de leitura."
+      },
+      "dicas": [
+        "Pense no teste desta sessão: o servidor continuou aceitando a conexão nas duas rotas — o que mudou não foi conexão, foi outra coisa.",
+        "O nome do cabeçalho já dá uma pista forte: 'Allow-Origin' — permitir o quê, para quem?",
+        "Só uma alternativa descreve corretamente o papel do cabeçalho, sem confundir com bloqueio de rede, criptografia ou formato de resposta."
+      ],
+      "pergunta_socratica": "Antes de conferir: o nome do cabeçalho menciona conexão de rede, formato de dado, ou permissão de origem?",
+      "explicacao": "Access-Control-Allow-Origin declara, para o navegador, quais origens têm permissão de ler o conteúdo daquela resposta específica — é o mecanismo que torna CORS uma exceção controlada à regra de mesma origem. Ele não afeta conexão de rede, criptografia nem formato de dado; essas são responsabilidades de outras camadas e outros cabeçalhos.",
+      "fonte": "3.4.t6, desta sessão.",
+      "tags": [
+        "web",
+        "mesma-origem",
+        "conceitual",
+        "cors"
+      ]
+    },
+    {
+      "id": "3.4.q21",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que qualquer texto ou lógica escrita para rodar no navegador — HTML, CSS, JavaScript — deve ser tratada como visível para quem acessa a página?",
+      "alternativas": [
+        "Porque o navegador precisa baixar esse conteúdo por completo para executá-lo, e ver código-fonte ou as ferramentas de desenvolvedor mostram o que foi baixado",
+        "Porque navegadores compilam HTML e JavaScript num formato binário que só eles conseguem interpretar, mas o compilado ainda é público",
+        "Porque servidores modernos assinam digitalmente cada arquivo enviado, tornando pública apenas a assinatura, não o conteúdo",
+        "Porque normas de proteção de dados exigem que todo código enviado ao navegador fique disponível ao usuário para auditoria"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Navegadores não compilam HTML/CSS/JS num binário fechado — o que roda é o próprio texto-fonte, ou uma versão minificada dele, ainda legível.",
+        "2": "Assinatura digital de arquivo não é prática padrão de servidores web comuns, e não tem relação com o motivo de o conteúdo ser visível.",
+        "3": "Não existe essa exigência normativa específica — o conteúdo é visível por como o navegador funciona tecnicamente, não por obrigação legal."
+      },
+      "dicas": [
+        "Pense no que a opção 'inspecionar' ou 'ver origem' de um navegador realmente exibe — um resumo do que a página faz, ou tudo que ela recebeu?",
+        "O navegador precisa ter acesso total ao HTML/CSS/JS para conseguir renderizar a página — isso já responde se algo pode ficar oculto dele.",
+        "Só uma alternativa explica o motivo técnico real, sem inventar compilação fechada, assinatura ou exigência legal que não existem."
+      ],
+      "pergunta_socratica": "Antes de conferir: o navegador consegue executar um JavaScript que ele nunca recebeu por completo?",
+      "explicacao": "Para o navegador renderizar e executar uma página, ele precisa receber o HTML, CSS e JavaScript completos — não existe forma de enviar 'só a parte visível' e esconder o resto. Qualquer pessoa com acesso às ferramentas de desenvolvedor do próprio navegador consegue ler exatamente o que foi baixado, incluindo comentários, nomes de variável e lógica que o autor talvez quisesse manter fora de vista.",
+      "fonte": "Continuidade de 3.4.t1 e t2, desta sessão.",
+      "tags": [
+        "web",
+        "decisao-no-servidor",
+        "conceitual",
+        "codigo-fonte"
+      ]
+    },
+    {
+      "id": "3.4.q22",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Um formulário de compra envia o preço do produto por um elemento do tipo hidden, e esse valor é usado, sem nova conferência, para calcular o total da cobrança. O que um usuário com as ferramentas de desenvolvedor do navegador consegue fazer, nesse desenho?",
+      "alternativas": [
+        "Editar o valor do campo oculto antes de enviar o formulário, mudando o preço que o servidor vai cobrar",
+        "Nada além do que qualquer usuário já consegue fazer normalmente, porque campos ocultos não aparecem na tela",
+        "Apenas visualizar o preço, sem conseguir alterar nenhum valor antes do envio do formulário",
+        "Cancelar a compra inteira, já que campos ocultos têm proteção especial contra edição"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Campo oculto não aparecer na tela não impede edição via ferramentas de desenvolvedor — 'oculto' aqui é sobre exibição, não sobre proteção.",
+        "2": "As ferramentas de desenvolvedor permitem editar qualquer valor de campo do formulário antes do envio, visível ou não.",
+        "3": "Campos ocultos não têm proteção especial contra edição — o nome 'oculto' se refere só a não aparecer na interface visual."
+      },
+      "dicas": [
+        "Pense no que as ferramentas de desenvolvedor de um navegador permitem fazer com qualquer elemento da página, incluindo os que não aparecem visualmente.",
+        "O servidor, no cenário descrito, confia no valor recebido — o que isso implica sobre quem decide o preço final na prática?",
+        "Só uma alternativa reconhece que campo oculto ainda é editável, sem inventar proteção especial que ele não tem."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'oculto' na tela significa a mesma coisa que 'protegido contra edição'?",
+      "explicacao": "Um campo oculto (`type=\"hidden\"`) só não aparece visualmente na página — ele continua fazendo parte do HTML recebido pelo navegador, e pode ser editado como qualquer outro elemento através das ferramentas de desenvolvedor. Se o servidor confia nesse valor em vez de recalcular o preço a partir do próprio catálogo, quem decide o preço final passa a ser, na prática, quem está preenchendo o formulário.",
+      "fonte": "3.4.t1, desta sessão.",
+      "tags": [
+        "web",
+        "decisao-no-servidor",
+        "cenario",
+        "campo-oculto"
+      ]
+    },
+    {
+      "id": "3.4.q23",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "trecho": "PLANO DE SEGURANÇA — checkout da loja\n1. Remover o campo de preço editável da tela de checkout.\n2. Exibir o preço como texto fixo, sem possibilidade de edição visual.\n3. Adicionar validação em JavaScript que impede envio se o total exibido mudar.",
+      "enunciado": "Supondo que o servidor continue aceitando o preço recebido no formulário sem recalcular, o que este plano deixa sem solução?",
+      "alternativas": [
+        "O servidor continua confiando no valor de preço que a requisição envia, então uma requisição montada fora da tela ainda pode declarar qualquer preço",
+        "O item 2 deveria vir antes do item 1, porque exibir o preço fixo importa mais do que remover a edição visual",
+        "Falta adicionar uma imagem de cadeado ao lado do preço, para transmitir mais confiança ao cliente",
+        "O item 3 já resolve completamente o problema, porque JavaScript bloqueia qualquer alteração no total"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A ordem entre os itens 1 e 2 não é o problema central — os dois continuam sem tocar em como o servidor trata o preço recebido.",
+        "2": "Elemento visual de confiança não tem relação com o problema técnico de o servidor aceitar qualquer preço enviado.",
+        "3": "JavaScript roda no navegador de quem está usando o site — uma requisição montada fora da página não executa esse código."
+      },
+      "dicas": [
+        "Releia os três itens: algum deles muda o que o servidor faz com o valor de preço recebido na requisição?",
+        "Pense em quem decide o valor final quando ninguém usou o formulário para chegar até o servidor.",
+        "Só uma alternativa aponta para o que continua sem solução no lado do servidor, sem inventar prioridade de item ou elemento decorativo."
+      ],
+      "pergunta_socratica": "Antes de conferir: os três itens do plano mudam alguma coisa em como o servidor processa o preço recebido?",
+      "explicacao": "Os três itens do plano atuam só na interface — escondem, fixam e validam visualmente o preço — mas nenhum muda o que acontece no servidor, que continua aceitando o valor recebido na requisição sem recalculá-lo a partir do próprio catálogo. Uma requisição montada fora da tela, sem carregar a página nem executar o JavaScript de validação, ainda pode declarar qualquer preço.",
+      "fonte": "3.4.t1, desta sessão.",
+      "tags": [
+        "web",
+        "decisao-no-servidor",
+        "caca-erro",
+        "preco"
+      ]
+    },
+    {
+      "id": "3.4.q24",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Ligue cada medida de interface ao que ela realmente garante sobre segurança.",
+      "pares": [
+        [
+          "esconder um botão na tela",
+          "nada — o endpoint por trás continua respondendo normalmente a quem pedir direto"
+        ],
+        [
+          "validar um campo em JavaScript",
+          "nada contra quem monta a requisição sem passar pela página"
+        ],
+        [
+          "verificar sessão e permissão no servidor a cada requisição",
+          "a única garantia real, porque é o único lugar que toda requisição obrigatoriamente passa"
+        ],
+        [
+          "ofuscar o nome de uma rota administrativa",
+          "só atraso para quem tenta adivinhar, nenhuma barreira para quem já sabe o endereço"
+        ]
+      ],
+      "dicas": [
+        "Três das quatro medidas atuam só na interface — pense no que elas têm em comum quanto ao que realmente impedem.",
+        "Qual das quatro medidas é a única que toda requisição, de qualquer origem, precisa necessariamente passar por ela?",
+        "'Ofuscar' e 'esconder' parecem parecidos, mas cada um afeta uma coisa ligeiramente diferente — releia os dois com atenção."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro medidas continua valendo mesmo se alguém nunca carregar a tela?",
+      "explicacao": "Esconder, validar em JavaScript e ofuscar nomes de rota atuam todas na camada de interface, e nenhuma delas impede uma requisição que não passa por essa interface. A verificação no servidor, a cada requisição, é a única medida que toda requisição — não importa de onde venha — obrigatoriamente atravessa, o que a torna a única garantia real.",
+      "fonte": "3.4.t1, desta sessão.",
+      "tags": [
+        "web",
+        "decisao-no-servidor",
+        "pareamento",
+        "autorizacao"
+      ]
+    },
+    {
+      "id": "3.4.q25",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Um atacante usa as ferramentas de desenvolvedor do próprio navegador para editar o campo oculto de preço de um produto de R$500 para R$1, e então envia o formulário normalmente pela tela. O servidor aceita o pedido pelo preço editado. Qual defesa, no servidor, teria impedido esse resultado?",
+      "alternativas": [
+        "Recalcular o preço a partir do identificador do produto e do catálogo interno, ignorando o valor de preço vindo da requisição",
+        "Exigir que o campo de preço seja preenchido em letras maiúsculas, dificultando a edição por ferramentas automatizadas",
+        "Bloquear o acesso às ferramentas de desenvolvedor do navegador para os usuários do site",
+        "Adicionar um segundo campo oculto, também com o preço, para o servidor comparar os dois antes de aceitar"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Formato de letras não impede edição nenhuma — quem edita um campo via ferramentas de desenvolvedor edita o valor inteiro, maiúsculo ou não.",
+        "2": "Não existe forma de um site bloquear as ferramentas de desenvolvedor do navegador de quem o acessa — essa capacidade pertence ao navegador, não ao site.",
+        "3": "Um segundo campo oculto com o mesmo preço é editável do mesmo jeito que o primeiro — não resolve nada, só duplica o problema."
+      },
+      "dicas": [
+        "Pense na única fonte de preço que o atacante não consegue editar: o que está armazenado no próprio servidor.",
+        "A defesa real não tenta impedir a edição do campo — ela torna o valor do campo irrelevante para o cálculo final.",
+        "Só uma alternativa move a fonte da verdade do preço para dentro do servidor, em vez de tentar proteger um campo que o cliente sempre pode editar."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe algum valor, nessa transação, que o atacante não consegue editar de jeito nenhum?",
+      "explicacao": "A defesa que resolve o problema é o servidor não confiar no preço recebido — ele recalcula o valor a partir do identificador do produto, consultando seu próprio catálogo, e ignora qualquer preço que a requisição declare. Isso torna irrelevante qualquer edição de campo, oculto ou visível, feita do lado do cliente.",
+      "fonte": "3.4.t1, desta sessão.",
+      "tags": [
+        "web",
+        "decisao-no-servidor",
+        "ataque-defesa",
+        "preco"
+      ]
+    },
+    {
+      "id": "3.4.q26",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Qual é a diferença entre validar o FORMATO de um dado (por exemplo, se um e-mail tem @ e domínio) e reforçar uma PERMISSÃO (por exemplo, se este usuário pode editar este registro)?",
+      "alternativas": [
+        "Ignorar a permissão expõe dado de outra pessoa; um formato malformado, no pior caso, só quebra um processo interno",
+        "Formato só importa no cliente, e permissão só importa no servidor — são responsabilidades completamente separadas por desenho",
+        "Permissão costuma ser mais fácil de validar tecnicamente do que formato, porque envolve menos casos possíveis de checar",
+        "Formato de dado não precisa ser validado no servidor, porque o navegador já garante que só dados bem formados chegam até ele"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "As duas precisam de validação no servidor para valer de verdade — separar por 'onde importa' ignora que ambas são decisões de segurança ou integridade que o servidor precisa garantir.",
+        "2": "Facilidade de validação depende do caso específico — não existe regra geral de que permissão seja mais simples de checar do que formato.",
+        "3": "O navegador não garante nada sobre o que chega ao servidor — uma requisição pode ser montada com qualquer valor, bem formado ou não."
+      },
+      "dicas": [
+        "Pense no pior caso de cada erro: um e-mail mal formatado causa que tipo de problema, comparado a um usuário editando o registro de outra pessoa?",
+        "As duas exigem verificação no servidor — a pergunta é sobre o que está em jogo quando cada uma falha, não sobre onde cada uma 'pertence'.",
+        "Só uma alternativa reconhece que as duas precisam de checagem no servidor, diferenciando pelo risco de cada falha."
+      ],
+      "pergunta_socratica": "Antes de conferir: um e-mail com formato errado e um usuário lendo dado de outra conta têm a mesma gravidade de consequência?",
+      "explicacao": "Formato e permissão são checagens que precisam existir no servidor — nenhuma delas é garantida só pelo cliente. A diferença está no risco de cada falha: um formato malformado geralmente quebra um processo interno de forma contida, enquanto uma permissão não verificada pode expor dado de uma pessoa para outra, um problema de gravidade bem maior.",
+      "fonte": "3.4.t2, desta sessão.",
+      "tags": [
+        "web",
+        "validacao-cliente",
+        "conceitual",
+        "permissao"
+      ]
+    },
+    {
+      "id": "3.4.q27",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um aplicativo de celular, e não um site em navegador, também valida limites (como quantidade máxima de um pedido) só dentro do próprio código do aplicativo, sem o servidor conferir de novo. Por que o raciocínio de 3.4.t2 se aplica igualmente a esse aplicativo, mesmo sem navegador envolvido?",
+      "alternativas": [
+        "Porque o aplicativo também roda inteiramente na máquina de quem o instalou, que pode analisar seu comportamento e montar requisições diretamente para o servidor",
+        "Porque aplicativos de celular têm capacidade limitada de fazer qualquer tipo de validação de dado antes de enviar",
+        "Porque só sistemas operacionais móveis específicos permitem inspecionar o tráfego de rede de um aplicativo instalado",
+        "Porque a loja de aplicativos revisa cada versão publicada, o que garante que o código de validação seja sempre respeitado"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Aplicativos móveis fazem validação de dado normalmente — o ponto não é capacidade técnica, é sobre quem controla o ambiente de execução.",
+        "2": "Inspecionar tráfego de rede é possível em praticamente qualquer sistema operacional, com as ferramentas certas — não é exclusividade de um sistema específico.",
+        "3": "Revisão de loja de aplicativos avalia o comportamento declarado do app, mas não impede alguém de montar requisições diretas para o servidor por fora do aplicativo."
+      },
+      "dicas": [
+        "Pense no que 'rodar na máquina do usuário' significa, independentemente de ser navegador ou aplicativo instalado.",
+        "Um aplicativo, assim como uma página web, precisa enviar requisições reais para o servidor — essas requisições podem ser reproduzidas por fora do aplicativo?",
+        "Só uma alternativa generaliza o princípio (cliente sob controle do usuário) para qualquer tipo de cliente."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem tem mais controle sobre o comportamento de um aplicativo instalado — a empresa que o publicou, ou a pessoa que o instalou no próprio aparelho?",
+      "explicacao": "O princípio de 3.4.t2 não é específico de navegador — ele vale para qualquer cliente que roda na máquina de quem o usa, incluindo aplicativos de celular. Quem instala um aplicativo pode analisar seu tráfego de rede e reproduzir as mesmas requisições por fora dele, contornando qualquer validação que exista só no código do aplicativo. O servidor continua sendo o único lugar onde a validação vale de fato, independentemente do tipo de cliente.",
+      "fonte": "3.4.t2, desta sessão, generalizado para clientes não-navegador.",
+      "tags": [
+        "web",
+        "validacao-cliente",
+        "cenario",
+        "aplicativo"
+      ]
+    },
+    {
+      "id": "3.4.q28",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "trecho": "RELATÓRIO DE TESTE — módulo de cadastro\nTestamos o formulário de cadastro pela interface, tentando digitar CPF inválido, e-mail malformado e senha fraca. Em todos os casos, a tela bloqueou o envio com uma mensagem de erro. Conclusão: o módulo de cadastro está seguro contra dado inválido.",
+      "enunciado": "Qual é o defeito metodológico deste relatório de teste?",
+      "alternativas": [
+        "Testou só através da interface, sem verificar se o servidor rejeita os mesmos dados inválidos quando enviados diretamente, sem passar pela tela",
+        "As mensagens de erro deveriam ter sido testadas em mais de um idioma, para garantir clareza para os usuários",
+        "O teste deveria ter usado senhas ainda mais fracas, para cobrir mais casos possíveis de fraqueza",
+        "Faltou testar o formulário em navegadores diferentes, já que cada um pode processar o JavaScript de forma distinta"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Idioma da mensagem de erro é questão de usabilidade, não de segurança — não é o defeito metodológico relevante aqui.",
+        "2": "Testar senhas ainda mais fracas não muda o problema de fundo: o teste continua não verificando o que o servidor faz por fora da interface.",
+        "3": "Diferença de processamento entre navegadores é um problema real de compatibilidade, mas não é o que o relatório deveria ter verificado para concluir sobre segurança."
+      },
+      "dicas": [
+        "Releia a conclusão do relatório: ela fala sobre o que a tela bloqueia, ou sobre o que o servidor aceita quando a tela é ignorada?",
+        "Pense no que aconteceria se alguém enviasse esses mesmos dados inválidos direto para o servidor, sem passar pelo formulário.",
+        "Só uma alternativa aponta para a lacuna metodológica real — testar só pela interface e concluir sobre segurança geral."
+      ],
+      "pergunta_socratica": "Antes de conferir: o relatório chegou a testar o que acontece quando os dados inválidos são enviados sem passar pela tela?",
+      "explicacao": "O teste verificou só o comportamento da interface, que bloqueou os dados inválidos antes do envio — mas não verificou se o servidor, por trás dela, também rejeita esses mesmos dados quando a interface é contornada. Concluir que 'o módulo está seguro' a partir só do comportamento da tela é exatamente o erro que 3.4.t2 descreve: confundir conveniência do cliente com controle real.",
+      "fonte": "3.4.t2, desta sessão.",
+      "tags": [
+        "web",
+        "validacao-cliente",
+        "caca-erro",
+        "teste"
+      ]
+    },
+    {
+      "id": "3.4.q29",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ligue cada tipo de verificação ao que ela realmente garante.",
+      "pares": [
+        [
+          "validação de formato em JavaScript",
+          "melhora a experiência de quem usa o formulário normalmente, sem garantir nada contra quem monta a requisição à parte"
+        ],
+        [
+          "validação de formato repetida no servidor",
+          "garante que nenhum dado malformado entra no sistema, não importa de onde a requisição veio"
+        ],
+        [
+          "mensagem de erro amigável na tela",
+          "orienta o usuário legítimo a corrigir o próprio erro, sem efeito sobre segurança"
+        ],
+        [
+          "registro de log de toda requisição recebida no servidor",
+          "permite investigar depois quais dados realmente chegaram, mesmo os que nunca passaram pela tela"
+        ]
+      ],
+      "dicas": [
+        "Duas das quatro linhas falam sobre experiência do usuário; as outras duas falam sobre o que o servidor de fato garante ou registra.",
+        "Pense em qual verificação continua valendo mesmo quando a interface inteira é ignorada.",
+        "O registro de log não impede nada — ele serve para outra finalidade, diferente das outras três linhas."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro linhas descreve algo que acontece independentemente de a tela ter sido usada?",
+      "explicacao": "Validação em JavaScript e mensagem de erro na tela existem para melhorar a experiência de quem usa o formulário normalmente, sem efeito sobre quem contorna a interface. A validação repetida no servidor é o que de fato impede dado malformado de entrar no sistema. O registro de log não impede nada — serve para reconstruir depois o que realmente chegou ao servidor, útil para investigar tentativas que nunca passaram pela tela.",
+      "fonte": "3.4.t2, desta sessão.",
+      "tags": [
+        "web",
+        "validacao-cliente",
+        "pareamento",
+        "servidor"
+      ]
+    },
+    {
+      "id": "3.4.q30",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Por que dois sites rodando no mesmo host, mas em portas diferentes (por exemplo, http://127.0.0.1:8094 e http://127.0.0.1:8095), já contam como origens diferentes para a regra de mesma origem?",
+      "alternativas": [
+        "Porque origem é definida pela combinação de esquema, host e porta — qualquer diferença entre os três já torna as origens distintas",
+        "Porque portas diferentes indicam, por definição, empresas diferentes, mesmo compartilhando o mesmo host",
+        "Porque o navegador não consegue distinguir portas de forma confiável, e por segurança trata qualquer porta como suspeita",
+        "Porque a regra de mesma origem se aplica só a domínios com nome, e não a endereços numéricos como 127.0.0.1"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Duas portas no mesmo host podem pertencer à mesma empresa, rodando dois serviços diferentes — não há relação necessária com empresas distintas.",
+        "2": "O navegador distingue portas normalmente — é exatamente essa distinção técnica que faz a regra de mesma origem tratar 8094 e 8095 como origens diferentes.",
+        "3": "A regra de mesma origem se aplica a qualquer origem, incluindo endereços numéricos como 127.0.0.1, usados nos laboratórios desta sessão."
+      },
+      "dicas": [
+        "Releia a definição de origem em 3.4.t5: quais três componentes ela usa para decidir se duas origens são a mesma?",
+        "O teste real desta sessão usou o mesmo host (127.0.0.1) nas duas origens — o que fez o navegador tratá-las como diferentes mesmo assim?",
+        "Só uma alternativa cita corretamente os três componentes que definem origem, sem inventar regra de propriedade ou limitação de nome."
+      ],
+      "pergunta_socratica": "Antes de conferir: origem é definida só pelo endereço do host, ou por mais alguma coisa junto com ele?",
+      "explicacao": "Origem é a combinação de esquema (http ou https), host e porta — os três precisam bater exatamente para duas requisições contarem como da mesma origem. O teste real desta sessão usou o mesmo host (127.0.0.1) em duas portas diferentes, e o navegador tratou as duas como origens distintas mesmo assim, exatamente por causa da diferença de porta.",
+      "fonte": "3.4.t5, desta sessão; teste real em lab/mesma_origem_servidor.py.",
+      "tags": [
+        "web",
+        "mesma-origem",
+        "conceitual",
+        "definicao"
+      ]
+    },
+    {
+      "id": "3.4.q31",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Uma API configura o cabeçalho Access-Control-Allow-Origin: * (libera leitura para qualquer origem) e, ao mesmo tempo, Access-Control-Allow-Credentials: true (permite enviar cookies na requisição). Navegadores modernos recusam essa combinação específica. Por que essa combinação, se fosse aceita, seria particularmente arriscada?",
+      "alternativas": [
+        "Qualquer site poderia ler respostas de requisições feitas com o cookie de sessão do usuário, porque a origem está aberta e a credencial é aceita",
+        "A combinação deixaria a API mais lenta, porque o navegador precisaria verificar credenciais em cada requisição recebida",
+        "A combinação impediria o próprio site legítimo da API de funcionar, travando as requisições que ele mesmo faz",
+        "Navegadores recusam essa combinação por uma limitação técnica antiga, sem relação com risco real de segurança"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Desempenho não é a preocupação central dessa restrição — o motivo é sobre exposição de dado, não sobre velocidade.",
+        "2": "O site legítimo da API continuaria funcionando normalmente com uma configuração de origem específica em vez de curinga — a restrição não trava o funcionamento legítimo.",
+        "3": "A recusa dos navegadores é uma decisão deliberada de segurança, documentada na especificação de CORS, não uma limitação técnica incidental."
+      },
+      "dicas": [
+        "Pense em quem consegue ler a resposta se 'qualquer origem' está liberada — e o que o cookie de sessão anexado permitiria a essa origem ver.",
+        "Sem essa restrição, um site malicioso qualquer poderia fazer uma requisição autenticada como se fosse o usuário, e ainda ler a resposta.",
+        "Só uma alternativa liga a combinação diretamente ao risco real de exposição de dado autenticado."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um site pode ler a resposta e o cookie de sessão do usuário é enviado junto, o que esse site conseguiria ver?",
+      "explicacao": "Combinar 'qualquer origem pode ler' com 'credencial é enviada' significaria que um site malicioso qualquer poderia disparar uma requisição autenticada, usando o cookie de sessão da vítima, e ler a resposta — exatamente o dado sensível que a regra de mesma origem existe para proteger. É por isso que navegadores recusam essa combinação especificamente: origem curinga com credencial anularia a proteção por completo.",
+      "fonte": "3.4.t6, desta sessão.",
+      "tags": [
+        "web",
+        "mesma-origem",
+        "cenario",
+        "cors"
+      ]
+    },
+    {
+      "id": "3.4.q32",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "trecho": "CONFIGURAÇÃO DA API — middleware de CORS\nresposta.cabecalho('Access-Control-Allow-Origin', requisicao.cabecalho('Origin'))\n# reflete de volta a origem que a requisição declarar",
+      "enunciado": "A equipe descreve essa configuração como 'CORS restrito, porque só libera a origem que fez a requisição'. Qual é o defeito desse raciocínio?",
+      "alternativas": [
+        "Refletir de volta a origem recebida equivale, na prática, a liberar todas as origens — não existe restrição real sendo aplicada",
+        "O código tem um erro de sintaxe que impede o cabeçalho de ser enviado corretamente em algumas requisições",
+        "A configuração deveria usar o cabeçalho Access-Control-Allow-Methods em vez de Access-Control-Allow-Origin",
+        "Refletir a origem recebida só funciona para requisições GET, deixando POST e outros métodos bloqueados"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não há erro de sintaxe no trecho — o código funciona exatamente como escrito, o problema é o que ele decide fazer, não como está escrito.",
+        "2": "Access-Control-Allow-Methods controla métodos permitidos, um cabeçalho diferente — trocar por ele não resolveria o problema de origem.",
+        "3": "O comportamento de refletir a origem não depende do método HTTP usado — a reflexão acontece igualmente para qualquer método."
+      },
+      "dicas": [
+        "Pense em qual origem esse código recusaria — existe algum valor de Origin que o código rejeitaria antes de refletir de volta?",
+        "'Refletir qualquer valor recebido' e 'restringir a valores específicos' são a mesma coisa, ou o oposto uma da outra?",
+        "Só uma alternativa aponta para o efeito real do código — nenhuma origem é de fato recusada."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe, no código mostrado, alguma lista contra a qual a origem recebida é comparada antes de ser refletida?",
+      "explicacao": "O código copia o valor do cabeçalho Origin da requisição de volta na resposta, sem comparar contra nenhuma lista de origens permitidas — isso significa que qualquer origem recebe permissão de leitura. Chamar isso de 'restrito' inverte o sentido da configuração: na prática, é equivalente a liberar geral, só com um passo a mais que disfarça o resultado.",
+      "fonte": "3.4.t6, desta sessão.",
+      "tags": [
+        "web",
+        "mesma-origem",
+        "caca-erro",
+        "cors"
+      ]
+    },
+    {
+      "id": "3.4.q33",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Ordene, do primeiro ao último, os passos que o navegador segue ao decidir se libera a leitura de uma resposta de outra origem.",
+      "itens": [
+        "O script da página dispara uma requisição para uma origem diferente da própria",
+        "O navegador envia a requisição pela rede, normalmente",
+        "O servidor de destino processa a requisição e responde, com ou sem cabeçalho de CORS",
+        "O navegador confere se a resposta inclui permissão para a origem que fez a requisição",
+        "O navegador entrega o conteúdo da resposta ao script, ou bloqueia a leitura, conforme o resultado da conferência"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dicas": [
+        "A requisição precisa ser disparada antes de qualquer verificação de cabeçalho poder acontecer.",
+        "O servidor de destino responde antes de o navegador poder conferir o que veio nessa resposta.",
+        "A entrega, ou o bloqueio, da leitura é sempre o último passo, depois de a conferência já ter acontecido."
+      ],
+      "pergunta_socratica": "Antes de conferir: o navegador confere o cabeçalho de CORS antes ou depois de a resposta já ter chegado do servidor?",
+      "explicacao": "O script dispara a requisição, o navegador a envia normalmente pela rede — a requisição em si nunca é bloqueada. O servidor de destino processa e responde, com ou sem cabeçalho de CORS. Só então o navegador confere se a resposta autoriza a origem que fez a chamada, e decide, com base nisso, entregar o conteúdo ao script ou recusar a leitura — a decisão acontece por último.",
+      "fonte": "3.4.t5 e t6, desta sessão; teste real em lab/mesma_origem_servidor.py.",
+      "tags": [
+        "web",
+        "mesma-origem",
+        "ordenacao",
+        "cors"
+      ]
+    },
+    {
+      "id": "3.4.q34",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um site malicioso hospedado em outro domínio tenta ler dados sensíveis de uma API que responde com Access-Control-Allow-Origin: * para toda requisição, sem exigir cookie de sessão (a API usa uma chave fixa incluída diretamente na URL de cada chamada, visível no código-fonte da página legítima). O que o CORS aberto permite ao site malicioso, neste caso específico?",
+      "alternativas": [
+        "Ler a resposta da API diretamente, desde que consiga descobrir a mesma chave usada pela página legítima, já que a origem deixou de ser filtrada",
+        "Nada, porque uma chave fixa na URL impede outra origem de fazer chamadas válidas para a API",
+        "Alterar os dados armazenados no servidor da API, mesmo sem nenhuma credencial de escrita",
+        "Interceptar fisicamente a conexão de rede entre a página legítima e a API, mesmo sem estar no mesmo caminho de rede"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A chave, estando visível no código-fonte da página legítima como o cenário descreve, pode ser lida e reutilizada por qualquer site — ela não distingue quem está chamando.",
+        "2": "O cenário descreve leitura de dado, não escrita — CORS aberto para leitura não concede, por si só, permissão de alteração no servidor.",
+        "3": "CORS é uma regra do navegador sobre leitura de resposta — não tem relação com interceptação de rede, um problema de outra camada."
+      },
+      "dicas": [
+        "Pense em onde a chave usada pela página legítima está guardada, e se um visitante consegue lê-la do mesmo jeito que leria qualquer outro código-fonte.",
+        "CORS aberto remove a barreira de leitura — isso concede, sozinho, permissão de escrita no servidor?",
+        "Só uma alternativa combina corretamente os dois fatos do cenário — chave visível e CORS aberto."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma chave escrita diretamente no código-fonte de uma página é visível só para quem a página 'confia', ou para qualquer pessoa que veja o código-fonte?",
+      "explicacao": "Com CORS aberto para qualquer origem, a única barreira restante seria a chave usada para autenticar a chamada — mas se essa chave está visível no código-fonte da página legítima, qualquer site consegue lê-la e reutilizá-la, exatamente como qualquer outro visitante leria. O CORS aberto remove a barreira de origem; a chave exposta remove a barreira de credencial. Juntas, as duas falhas deixam a leitura completamente aberta.",
+      "fonte": "3.4.t6, desta sessão.",
+      "tags": [
+        "web",
+        "mesma-origem",
+        "ataque-defesa",
+        "cors"
+      ]
+    },
+    {
+      "id": "3.4.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "enunciado": "Você recebe uma aplicação web para revisar, com um prazo curto. Ela tem: um botão administrativo escondido via CSS mas sem checagem no servidor; formulários com JavaScript validando limites, sem validação equivalente no servidor; cookies de sessão sem SameSite nem token anti-CSRF; e uma API interna com CORS liberado para qualquer origem, incluindo credenciais. O que produz o maior ganho real no tempo disponível?",
+      "alternativas": [
+        "Adicionar verificação de autorização e de limite no servidor para as ações mais sensíveis — sem isso, qualquer uma das outras três falhas continua explorável",
+        "Corrigir primeiro a configuração de CORS, porque é a falha tecnicamente mais recente das quatro",
+        "Adicionar SameSite e token anti-CSRF ao cookie de sessão, porque CSRF costuma ser a falha mais fácil de explorar entre as quatro",
+        "Reescrever a interface inteira para remover elementos escondidos via CSS, resolvendo o problema pela raiz"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "'Mais recente tecnicamente' não é o critério de prioridade — o que importa é o que cada falha permite fazer, não a idade da tecnologia envolvida.",
+        "2": "Facilidade de exploração varia por aplicação — não existe uma regra fixa de que CSRF seja sempre a mais fácil das quatro.",
+        "3": "Remover elementos escondidos via CSS resolve só a aparência — se o servidor continuar sem checagem própria, a rota por trás continua alcançável de outras formas."
+      },
+      "dicas": [
+        "Pense em qual das quatro falhas, se corrigida sozinha, ainda deixaria as outras três totalmente exploráveis — e qual, corrigida, já reduz o efeito de pelo menos uma das outras.",
+        "Autorização e limite verificados no servidor é o que 3.4.t1 e t2 tratam como a única garantia real, independente da interface.",
+        "Só uma alternativa ataca a camada que sustenta as outras três, em vez de escolher uma das quatro falhas por critério de idade, facilidade ou aparência."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o servidor passasse a verificar autorização e limite em toda requisição sensível, o botão escondido e o formulário sem validação continuariam sendo um problema do mesmo tamanho?",
+      "explicacao": "Verificação de autorização e de limite no servidor é a camada que sustenta a segurança de toda ação sensível, independentemente de interface, JavaScript ou CORS — sem ela, qualquer uma das outras falhas continua totalmente explorável por uma requisição direta. Corrigi-la primeiro não elimina os outros três problemas, que continuam precisando de correção própria, mas reduz o dano que uma exploração de qualquer um deles causaria, porque a ação sensível por trás já exige uma verificação que antes não existia.",
+      "fonte": "Síntese dos quatro eixos do módulo 3.4 (decisão no servidor, validação de cliente, CSRF, mesma origem).",
+      "tags": [
+        "web",
+        "cenario",
+        "sintese",
+        "priorizacao"
+      ]
+    }
+  ]
+}
