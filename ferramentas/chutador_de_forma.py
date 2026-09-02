@@ -50,6 +50,16 @@ RE_ABSOLUTO = re.compile(r"\bsempre\b|\bnunca\b|\bqualquer\b|\btodo\w*\b", re.I)
 # mesmo corte é evidência melhor que qualquer um dos dois sozinho.
 TETO_MAIS_LONGA = 0.40
 
+# Mesmo portão, segundo eixo: "evita_absoluto" (rejeitar a alternativa com
+# sempre/nunca/qualquer/todo e escolher a mais longa entre as que sobram) é
+# sinal real, não ruído — medido contra os 29 módulos publicados em
+# 02/09/2026: mediana 35,5%, e o mesmo critério estatístico independente
+# (limite inferior do IC95 de Wilson passa de 25% de acaso) converge
+# EXATAMENTE no corte de 40%: o último módulo com sinal (4.1, 40,6%) fica
+# acima, o primeiro sem sinal (4.6, 38,7%) fica abaixo — a mesma coincidência
+# de dois critérios independentes que já validou o teto de mais_longa.
+TETO_EVITA_ABSOLUTO = 0.40
+
 
 def _unica(alternativas, padrao, quer_marca):
     marcas = [bool(padrao.search(a)) for a in alternativas]
@@ -139,12 +149,14 @@ def _questoes_mc(dados):
 
 
 def checar_modulo(caminho):
-    """Portão de qualidade de comprimento: taxa de mais_longa (viés medido) e
-    mais_curta (o mesmo viés no extremo oposto, criado quando se corta demais
-    a correta) de um módulo. Devolve (dados, resultado_mais_longa, resultado_mais_curta)."""
+    """Portão de qualidade de forma: taxa de mais_longa (viés de comprimento),
+    mais_curta (o mesmo viés no extremo oposto) e evita_absoluto (rejeitar a
+    alternativa com sempre/nunca/qualquer/todo) de um módulo. Devolve
+    (dados, resultado_mais_longa, resultado_mais_curta, resultado_evita_absoluto)."""
     dados = json.loads(Path(caminho).read_text(encoding="utf-8"))
     questoes = _questoes_mc(dados)
-    return dados, medir(mais_longa, questoes), medir(mais_curta, questoes)
+    return (dados, medir(mais_longa, questoes), medir(mais_curta, questoes),
+            medir(evita_absoluto, questoes))
 
 
 def main():
@@ -152,24 +164,27 @@ def main():
 
     linhas = []
     for caminho in alvos:
-        dados, r_longa, r_curta = checar_modulo(caminho)
+        dados, r_longa, r_curta, r_absoluto = checar_modulo(caminho)
         taxa = r_longa["acertos"] / r_longa["aplicacoes"] if r_longa["aplicacoes"] else 0.0
-        linhas.append((taxa, dados.get("id", "?"), caminho.name, r_longa, r_curta))
+        linhas.append((taxa, dados.get("id", "?"), caminho.name, r_longa, r_curta, r_absoluto))
 
     linhas.sort(key=lambda x: -x[0])  # pior (taxa mais alta) primeiro
 
-    print(f"{'modulo':10} {'mais_longa':>12} {'mais_curta':>12}   {'teto':>6}  status")
+    print(f"{'modulo':10} {'mais_longa':>12} {'mais_curta':>12} {'evita_absoluto':>16}   {'teto':>6}  status")
     reprovados = 0
-    for taxa, mod_id, nome, r_longa, r_curta in linhas:
+    for taxa, mod_id, nome, r_longa, r_curta, r_absoluto in linhas:
         taxa_curta = r_curta["acertos"] / r_curta["aplicacoes"] if r_curta["aplicacoes"] else 0.0
-        acima = taxa > TETO_MAIS_LONGA
+        taxa_absoluto = r_absoluto["acertos"] / r_absoluto["aplicacoes"] if r_absoluto["aplicacoes"] else 0.0
+        acima = taxa > TETO_MAIS_LONGA or taxa_absoluto > TETO_EVITA_ABSOLUTO
         reprovados += acima
         status = "ACIMA DO TETO" if acima else "ok"
         print(f"{mod_id:10} {taxa:11.1%} ({r_longa['acertos']:2}/{r_longa['aplicacoes']:2})"
               f"  {taxa_curta:10.1%} ({r_curta['acertos']:2}/{r_curta['aplicacoes']:2})"
+              f"  {taxa_absoluto:14.1%} ({r_absoluto['acertos']:2}/{r_absoluto['aplicacoes']:2})"
               f"  {TETO_MAIS_LONGA:5.0%}  {status}")
 
-    print(f"\n{reprovados}/{len(linhas)} módulo(s) acima do teto de {TETO_MAIS_LONGA:.0%}")
+    print(f"\n{reprovados}/{len(linhas)} módulo(s) acima do teto de {TETO_MAIS_LONGA:.0%} "
+          f"(mais_longa ou evita_absoluto)")
 
 
 if __name__ == "__main__":

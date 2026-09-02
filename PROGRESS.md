@@ -361,6 +361,67 @@ real de requisição.
   vale — os 11 módulos acima do teto são o alvo de correção, ainda não
   corrigidos.
 
+  **Segundo eixo de dívida medida — `evita_absoluto`, 02/09/2026.** A
+  revisão adversarial do módulo 4.8 achou qualificador absolutista
+  ("nunca", "sempre", "automaticamente", "por padrão") só em alternativas
+  **erradas**, nunca na correta — a mesma regra 6 do checklist do README
+  ("afirmação absoluta não serve de distrator"), violada porque nenhum
+  mecanismo automático a verificava. Diferente da regra 7 removida
+  (dígito/negação), este achado não precisou de nova investigação: a
+  estratégia `evita_absoluto` já existia no chutador desde 01/09/2026,
+  criada durante a investigação da regra 7, e já tinha sido medida como
+  sinal real contra o corpus inteiro (41-43%, bem acima do acaso). Só
+  faltava rodar contra os 29 módulos atuais e decidir o teto — feito
+  nesta rodada, **sem corrigir nenhuma questão**:
+
+  | módulo | taxa `evita_absoluto` | IC95 (limite inferior) | status (teto 40%) |
+  |---|---|---|---|
+  | 2.6 | 65,6% (21/32) | 48,3% | acima |
+  | 4.2 | 65,6% (21/32) | 48,3% | acima |
+  | 1.2 | 62,5% (20/32) | 45,3% | acima |
+  | 3.1 | 61,3% (19/31) | 43,8% | acima |
+  | 2.5 | 59,4% (19/32) | 42,3% | acima |
+  | 2.7 | 59,4% (19/32) | 42,3% | acima |
+  | 0.1 | 54,8% (17/31) | 37,8% | **acima — dívida nova, não vista na medição de `mais_longa`** |
+  | 1.3 | 53,1% (17/32) | 36,4% | acima |
+  | 3.3 | 50,0% (16/32) | 33,6% | acima |
+  | 1.1 | 45,2% (14/31) | 29,2% | acima |
+  | 3.2 | 43,8% (14/32) | 28,2% | acima |
+  | 4.1 | 40,6% (13/32) | 25,5% | acima |
+  | 4.6 | 38,7% (12/31) | 23,7% | ok |
+  | 4.4 | 37,5% (12/32) | 22,9% | ok |
+  | 0.3 · 0.4 · 1.4 · 4.5 | 35,5% (11/31) | 21,1% | ok |
+  | 4.7 | 34,5% (10/29) | 19,9% | ok |
+  | 1.7 | 34,4% (11/32) | 20,4% | ok |
+  | 1.6 | 33,3% (11/33) | 19,8% | ok |
+  | 1.5 | 32,3% (10/31) | 18,6% | ok |
+  | 0.2 | 29,0% (9/31) | 16,1% | ok |
+  | 2.1 | 28,1% (9/32) | 15,6% | ok |
+  | 2.3 | 27,3% (9/33) | 15,1% | ok |
+  | 2.2 · 4.8 | 25,8% (8/31) | 13,7% | ok |
+  | 2.4 | 18,2% (6/33) | 8,6% | ok |
+  | 4.3 | 15,6% (5/32) | 6,9% | ok |
+
+  **Mediana do corpus: 35,5%.** O teto de 40% não foi escolhido de novo —
+  foi conferido contra o mesmo critério estatístico independente já usado
+  para `mais_longa` (limite inferior do IC95 de Wilson passa de 25% de
+  acaso), e os dois critérios **convergem exatamente**: o último módulo
+  com sinal estatístico (4.1, 40,6%) fica acima de 40%, o primeiro sem
+  sinal (4.6, 38,7%) fica abaixo. Mesma coincidência de dois critérios
+  independentes que já validou o teto de `mais_longa` — não é palpite
+  reaplicado, é o mesmo teste rodado de novo com resultado igual.
+
+  **12 de 29 módulos acima do teto de 40% em `mais_longa` OU
+  `evita_absoluto`** — 11 já conhecidos por `mais_longa`, mais **0.1**,
+  que cruza só por `evita_absoluto` (54,8%) apesar de já ter sido
+  corrigido para `mais_longa` no piloto de 01/09/2026. `ferramentas/chutador_de_forma.py`
+  agora mede as três estratégias por padrão (`mais_longa`, `mais_curta`,
+  `evita_absoluto`) e reprova um módulo se qualquer uma cruzar o teto —
+  portão único, não três ferramentas separadas. **Nenhuma questão foi
+  corrigida nesta rodada**, incluindo em 0.1: é medição, o alvo de
+  correção fica para quando a dívida de forma for tratada como bloco,
+  junto com os 11 módulos de `mais_longa`.
+
   **Piloto de correção — módulo 0.1, 01/09/2026.** Escolhido por ser o
   primeiro módulo do curso (vazamento ali contamina a base inteira) e por
   ser pequeno o bastante para calibrar o método antes dos outros 14. Rodada
@@ -765,19 +826,27 @@ Seis hábitos, em ordem de retorno:
 4. Desafios práticos nunca vêm com a solução — só checklist e dicas.
 5. Nenhum conteúdo de estudo hardcoded em `.py`.
 6. Nada de acesso à rede em tempo de estudo.
-7. **Distribuição de comprimento da alternativa correta se mede em TRÊS
-   pontos de qualquer módulo novo — na 8ª questão, na 20ª e ao terminar —
-   nunca só no fim, e nunca só uma vez.** No 4.5 e no 4.6 a correta saiu
-   mais longa em 100% e 97% das questões na primeira escrita, mesmo com a
-   regra escrita no prompt as duas vezes, porque a medição só aconteceu
-   com o módulo inteiro pronto. No 4.7 o checkpoint da 8ª questão pegou o
-   defeito (100%) e a correção baixou pra 14,3% — mas o hábito não
-   generalizou, e o módulo terminou em 77% (23/30) antes da correção
-   final. Um único checkpoint antecipa o diagnóstico; não muda sozinho o
-   hábito de escrita ao longo de 35 questões. Rode
+7. **Forma da alternativa correta se mede em TRÊS pontos de qualquer
+   módulo novo — na 8ª questão, na 20ª e ao terminar — nunca só no fim, e
+   nunca só uma vez. A partir do 4.9, a medição cobre as três estratégias
+   do chutador (`mais_longa`, `mais_curta`, `evita_absoluto`), não só
+   comprimento.** No 4.5 e no 4.6 a correta saiu mais longa em 100% e 97%
+   das questões na primeira escrita, mesmo com a regra escrita no prompt
+   as duas vezes, porque a medição só aconteceu com o módulo inteiro
+   pronto. No 4.7 o checkpoint da 8ª questão pegou o defeito (100%) e a
+   correção baixou pra 14,3% — mas o hábito não generalizou, e o módulo
+   terminou em 77% (23/30) antes da correção final. No 4.8, a revisão
+   adversarial (que só roda depois do módulo pronto) achou qualificador
+   absolutista ("nunca", "sempre") em 20 de 35 questões — um defeito que
+   `evita_absoluto` já media desde 01/09/2026, mas que nenhum checkpoint
+   conferiu durante a escrita, porque o processo só olhava comprimento.
+   Um único checkpoint antecipa o diagnóstico; não muda sozinho o hábito
+   de escrita ao longo de 35 questões — e medir só um eixo de forma
+   deixa passar os outros. Rode
    `python -m ferramentas.chutador_de_forma <arquivo parcial>` na 8ª
    questão, de novo na 20ª, e de novo ao terminar — reportando as três
-   taxas — e ajuste o hábito de escrita a cada uma, não só na primeira.
+   taxas de cada vez — e ajuste o hábito de escrita a cada checkpoint,
+   não só na primeira.
 8. **Toda correção em lote (script, não edição questão a questão) se mede
    contra o defeito que ELA pode criar, não só contra o defeito que ela
    corrige.** No 4.7, um script que cortava a alternativa correta ou
