@@ -458,15 +458,61 @@ real de requisição.
   engordar um distrator ao lado de uma lista legal precisa confundiria o
   próprio ponto pedagógico da questão.
 
-  **Achado à parte, não corrigido nesta rodada (fora do escopo de
-  comprimento — mistura de correção repetiria o erro de rastreabilidade
-  do passado):** `mais_curta` do módulo 0.3 já estava em 32,3% (10/31)
-  **antes** desta edição — acima do acaso de 25%, e não criado pelas 2
-  questões tocadas nele (confirmado: nenhuma das duas virou a mais
-  curta). É dívida nova, do lado oposto do comprimento, que a tabela
-  acima não rastreia porque ela só mede `mais_longa`. Fica para decisão
-  do usuário: tratar como nova categoria de dívida medida, ou investigar
-  se é reflexo de outro padrão de escrita do módulo.
+  **Achado do 0.3 — resolvido em 02/09/2026, ruído, questão encerrada.**
+  `mais_curta` do módulo 0.3 estava em 32,3% (10/31), acima do acaso de
+  25%, medido antes da edição do 0.1-0.4 e não criado pelas 2 questões
+  tocadas nele. Para decidir se era caso isolado ou padrão de corpus,
+  rodei `mais_curta` contra os 27 módulos publicados e apliquei o mesmo
+  critério estatístico já usado para `mais_longa` (intervalo de Wilson
+  95%, "tem sinal" quando o limite inferior passa do acaso de 25%):
+
+  | módulo | `mais_curta` | IC95 (limite inferior) | sinal > acaso? |
+  |---|---|---|---|
+  | 4.3 | 46,9% (15/32) | 30,9% | **sim** |
+  | 4.4 | 37,5% (12/32) | 22,9% | não |
+  | 0.3 | 32,3% (10/31) | 18,6% | não |
+  | 1.4 | 32,3% (10/31) | 18,6% | não |
+  | 1.1 | 31,2% (10/32) | 18,0% | não |
+  | 1.7 | 28,1% (9/32) | 15,6% | não |
+  | 0.4 | 25,8% (8/31) | 13,7% | não |
+  | 1.6 | 24,2% (8/33) | 12,8% | não |
+  | 2.4 | 21,2% (7/33) | 10,7% | não |
+  | 0.2 | 19,4% (6/31) | 9,2% | não |
+  | 2.7 | 18,8% (6/32) | 8,9% | não |
+  | 1.2 | 18,8% (6/32) | 8,9% | não |
+  | 2.5 | 18,8% (6/32) | 8,9% | não |
+  | 1.5 | 16,1% (5/31) | 7,1% | não |
+  | 3.1 | 12,9% (4/31) | 5,1% | não |
+  | 1.3 | 12,5% (4/32) | 5,0% | não |
+  | 3.2 | 12,5% (4/32) | 5,0% | não |
+  | 4.1 | 12,5% (4/32) | 5,0% | não |
+  | 2.1 | 12,5% (4/32) | 5,0% | não |
+  | 2.3 | 12,1% (4/33) | 4,8% | não |
+  | 2.2 | 9,4% (3/32) | 3,2% | não |
+  | 0.1 | 6,5% (2/31) | 1,8% | não |
+  | 2.6 | 6,2% (2/32) | 1,7% | não |
+  | 4.2 | 6,2% (2/32) | 1,7% | não |
+  | 4.6 | 6,2% (2/32) | 1,7% | não |
+  | 3.3 | 0,0% (0/32) | 0,0% | não |
+  | 4.5 | 0,0% (0/31) | -0,0% | não |
+
+  **Mediana do corpus: 16,1%, abaixo do acaso de 25%** (não perto dele —
+  o corpus, como um todo, não tem viés de `mais_curta`, se é que tem
+  algum viés de comprimento é no sentido `mais_longa`, já rastreado).
+  Aplicando ao 0.3 o mesmo rigor estatístico que valida a lista de
+  `mais_longa` (evitar medir contra a amostra que já suspeita de si
+  mesma — o mesmo princípio da seção 7), **o IC95 do 0.3 inclui o
+  acaso: não é sinal, é ruído de amostra pequena (31 questões).**
+  Questão encerrada, nenhuma correção necessária.
+
+  **Achado novo, não relacionado ao 0.3: módulo 4.3 (Defesa em
+  profundidade) tem viés real de `mais_curta`, 46,9% (15/32), IC95
+  30,9%-62,9%, cruza inclusive o teto de 40% usado para `mais_longa`.**
+  É o único módulo do corpus com sinal estatístico independente nesse
+  eixo — e é justamente um dos módulos "limpos" pela métrica de
+  `mais_longa` (15,6%, ok). Dívida nova, medida, **não corrigida nesta
+  rodada** por decisão explícita: o foco atual é escrever os 14 módulos
+  que faltam, não polir os 11 (mais este) que já existem.
 
   **Nenhum defeito de conteúdo (fato errado, fonte desatualizada,
   gabarito discutível) foi notado durante a leitura de 0.2, 0.3 ou 0.4.**
