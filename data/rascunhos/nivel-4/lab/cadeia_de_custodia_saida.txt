@@ -1,0 +1,24 @@
+=== cadeia de custódia, como registrada ===
+  [0] 2026-09-02 09:00 perito A   imagem de disco criada, sha256 registrado
+      hash: d19f7ef373bfaf38...
+  [1] 2026-09-02 09:15 perito A   imagem transferida para cofre digital
+      hash: 1780028ccdbef6f9...
+  [2] 2026-09-03 14:00 perito B   imagem analisada em ambiente isolado
+      hash: 0f2a0f7f7a327663...
+  [3] 2026-09-03 16:30 perito B   relatorio de achados gerado
+      hash: 65fdecbce096c28f...
+
+=== verificação da cadeia original ===
+  íntegra: True
+
+=== simulando uma adulteração: alguém reescreve o evento [2] ===
+  íntegra: False
+  divergência detectada a partir do evento [2]
+
+=== leitura ===
+  Mudar UM campo de UM evento no meio da cadeia quebra o hash dele
+  e de todos os eventos seguintes — a verificação não depende de
+  confiar em quem assinou o formulário, depende de recalcular. É a
+  diferença entre 'cadeia de custódia' como registro cronológico de
+  papel — que qualquer um pode reescrever sem deixar rastro — e como
+  propriedade matemática verificável por qualquer terceiro.

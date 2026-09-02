@@ -1,0 +1,23 @@
+=== demonstração 1: coincidência temporal sem causa ===
+  90 dias, dois processos independentes (15% de chance cada, por dia)
+  coincidências observadas (os dois no mesmo dia): 2
+  coincidências esperadas só pelo acaso:           2.0
+  Os dois processos foram sorteados de forma totalmente independente
+  neste script — nenhum influencia o outro. Ainda assim, coincidem
+  em vários dias, porque coincidência ocasional é o comportamento
+  ESPERADO de dois eventos independentes, não uma anomalia.
+
+=== demonstração 2: ausência de log não é ausência de ação ===
+  janela coberta pelo log: horas 8h–19h
+  hora real em que o evento aconteceu: 3h
+  o log tem registro dessa hora? False
+  Um relatório que diz 'nenhum log mostra esse evento' está descrevendo
+  a cobertura do sistema de coleta, não o mundo real. A pergunta certa
+  não é 'o log mostra?', é 'o log SEQUER COBRIA esse horário e essa fonte?'.
+
+=== leitura ===
+  As duas demonstrações minam o mesmo tipo de conclusão apressada:
+  tratar uma correlação como prova de causa, e tratar um log vazio
+  como prova de ausência. As duas exigem a mesma disciplina —
+  perguntar o que a evidência de fato cobre antes de decidir o que
+  ela sustenta.

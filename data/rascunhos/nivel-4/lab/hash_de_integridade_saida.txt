@@ -1,0 +1,23 @@
+=== tamanho dos três arquivos (bytes) ===
+  original:        10240
+  copia identica:  10240
+  copia alterada:  10240  (mesmo tamanho — só 1 bit mudou)
+
+=== sha256 de cada arquivo ===
+  original:        e96760a87768717bcebcfd25ddc7d46b4dbc95a4b0014def080c08539f7d90d0
+  copia identica:  e96760a87768717bcebcfd25ddc7d46b4dbc95a4b0014def080c08539f7d90d0
+  copia alterada:  8cb7b777403c80b21227cf910c4d0f23f75beae157e6073cc9b51e08528fae62
+
+=== comparação ===
+  original == copia identica: True
+  original == copia alterada: False
+
+=== leitura ===
+  A copia alterada tem o MESMO tamanho do original — nada no
+  metadado (tamanho, nome, data) denuncia a alteração de um único
+  bit em 10.240 bytes. O hash muda por completo mesmo assim: é a
+  função criptográfica, não uma inspeção visual ou um formulário
+  assinado, que torna a integridade uma propriedade verificável —
+  qualquer pessoa com os dois arquivos e uma calculadora de hash
+  confirma a integridade sozinha, sem confiar na palavra de quem
+  coletou.

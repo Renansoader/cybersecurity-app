@@ -3,9 +3,10 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-02 · módulo 4.7 (resposta a incidentes) escrito e
-publicado · achado mais_curta do 0.3 fechado (ruído), 4.3 registrado como
-dívida nova · 3.223 testes passando
+Última atualização: 2026-09-02 · módulo 4.8 (forense digital) escrito e
+publicado — nível 4 completo (8 de 8) · checkpoint de comprimento em três
+pontos e correção de qualificador absolutista, ambos registrados em §7 ·
+3.334 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -15,18 +16,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 28 de 41 |
-| Questões | 981 |
-| Blocos de teoria | 170 |
-| Tags distintas | 794 |
-| Testes automatizados | 3.223 |
+| Módulos de conteúdo escritos | 29 de 41 |
+| Questões | 1.016 |
+| Blocos de teoria | 176 |
+| Tags distintas | 800 |
+| Testes automatizados | 3.334 |
 | Linhas de código Python | ~2.280 no app · ~3.830 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 245 (7 de 8 módulos).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 105 (3 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
 
-Tipos de questão em uso: conceitual 414, cenário 210, ataque→defesa 74,
-caça ao erro 74, comando 56, artefato 61, pareamento 53, ordenação 39.
+Tipos de questão em uso: conceitual 424, cenário 217, ataque→defesa 78,
+caça ao erro 78, comando 56, artefato 67, pareamento 55, ordenação 41.
 
 ---
 
@@ -217,10 +218,10 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
-**Nível 4 — Defensivo** (245 questões, 7 de 8)
+**Nível 4 — Defensivo** (280 questões, 8 de 8, completo)
 4.1 Hardening · 4.2 Segurança de rede · 4.3 Defesa em profundidade · 4.4 Malware ·
 4.5 SIEM e monitoramento · 4.6 MITRE ATT&CK e caça a ameaças ·
-4.7 Resposta a incidentes
+4.7 Resposta a incidentes · 4.8 Forense digital
 
 **Nível 3 — Ofensivo** (105 questões, 3 de 9)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
@@ -244,11 +245,11 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 13 módulos
+### Conteúdo — 12 módulos
 
 - **Nível 3 — Ofensivo** (6 restantes): Web I/II/III, OWASP Top 10, quebra de
   senhas, engenharia social e redes sem fio
-- **Nível 4 — Defensivo** (1 restante): forense
+- **Nível 4 — Defensivo**: completo (8 de 8)
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
 
@@ -343,10 +344,11 @@ real de requisição.
   | 4.5 | 19,4% | ok |
   | 4.3 | 15,6% | ok |
   | 4.6 | 15,6% | ok |
+  | 4.8 | 12,9% | ok (módulo novo, 02/09/2026) |
 
-  **11 de 28 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
-  0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, publicado depois desta
-  medição original, também ficou abaixo). O teto não é palpite:
+  **11 de 29 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
+  0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7 e 4.8, publicados depois
+  desta medição original, também ficaram abaixo). O teto não é palpite:
   batia, módulo a módulo, com o critério estatístico independente de "o
   limite inferior do intervalo de Wilson (95%) da taxa passa de 25%" antes
   desta rodada — justificativa completa em `ferramentas/chutador_de_forma.py`,
@@ -586,6 +588,55 @@ real de requisição.
   `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 28
   módulos). +35 questões, +1 bloco de teoria por módulo (6), nível 4 em
   7 de 8 (falta só forense).
+- **Módulo 4.8 escrito, 02/09/2026 — forense digital como evidência que
+  precisa se sustentar, fecha o nível 4 (8 de 8).** Recorte final:
+  aquisição sem alterar (efeito observador), integridade e cadeia de
+  custódia como propriedade matemática, o que uma evidência sustenta e o
+  que não sustenta, limites honestos (timestamp, atribuição). Uma
+  colisão real achada no levantamento — eixo de "ordem de volatilidade"
+  era quase o título literal de `4.4.q17` — reformulada antes de
+  escrever para "aquisição sem alterar" (custo físico da captura, não
+  ordem de prioridade); ver
+  `data/rascunhos/nivel-4/fontes/nao-repetir-4.8.md`.
+
+  **Mudança de processo desta sessão, aplicada pela primeira vez: regra
+  7 medida em TRÊS pontos** (8ª, 20ª, 35ª questão), não só uma — decisão
+  tomada depois do 4.7, em que um único checkpoint pegou o defeito cedo
+  mas o hábito não generalizou (14,3% → 77% entre a 8ª e a 35ª). No 4.8
+  os três checkpoints mediram 85,7%, 55,6% e 41,9% — o defeito voltou
+  nos três, mas em lotes menores (7, 10 e 13 questões por vez, contra 23
+  de uma vez no 4.7). Uma primeira correção automática no checkpoint 1
+  **overcorrigiu** para 85,7% `mais_curta` (o mesmo risco que a seção 5
+  já registrava desde o piloto do 0.1); ajustada manualmente para o meio
+  da faixa em cada questão. Taxa final: **6,5% mais_longa, 3,2%
+  mais_curta**.
+
+  **Achado novo da revisão adversarial, não visto no 4.7: qualificador
+  absolutista como pista de forma.** A lente 1 achou "nunca", "sempre",
+  "automaticamente" ou "por padrão" em pelo menos uma alternativa
+  **errada** de 20 das 35 questões, e em nenhuma correta — exatamente a
+  regra 6 do checklist do README ("afirmação absoluta não serve de
+  distrator... é curta por natureza e autorrefutável"), regra já
+  documentada no projeto, violada sistematicamente porque **nenhum
+  mecanismo automático a verifica** — só a leitura humana ou de agente
+  pega. Corrigidas as 30 ocorrências, substituindo o absoluto por
+  qualificação realista ("costuma", "raramente"). Fica registrado como
+  candidato a extensão futura do `chutador_de_forma.py` (uma estratégia
+  `unica_sem_absoluto`, no mesmo molde de `evita_absoluto`), não
+  construída nesta sessão — ver seção "Padrão aprendido" abaixo antes de
+  decidir se vale a pena: a lição da regra 7 removida é medir contra o
+  corpus inteiro antes de automatizar, não só contra este achado.
+
+  A lente 2 achou um defeito de paridade gramatical em `4.8.q16` (as
+  três erradas compartilhavam sujeito/verbo, a correta mudava de
+  sujeito) — corrigido igualando a forma sem mudar o conteúdo de cada
+  alternativa. Relatório completo em
+  `data/rascunhos/nivel-4/relatorios/4.8.md`.
+
+  Validação final: `pytest -q` (3.334 testes, 0 falhas) e
+  `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 29
+  módulos). +35 questões, +1 bloco de teoria por módulo (6). **Nível 4
+  completo, 8 de 8.**
 
 ---
 
@@ -714,15 +765,34 @@ Seis hábitos, em ordem de retorno:
 4. Desafios práticos nunca vêm com a solução — só checklist e dicas.
 5. Nenhum conteúdo de estudo hardcoded em `.py`.
 6. Nada de acesso à rede em tempo de estudo.
-7. **Distribuição de comprimento da alternativa correta se mede depois das
-   primeiras 8 questões de qualquer módulo novo, nunca só no fim.** No 4.5 e
-   no 4.6 a correta saiu mais longa em 100% e 97% das questões na primeira
-   escrita — mesmo com a regra escrita no prompt as duas vezes — porque a
-   medição só aconteceu com o módulo inteiro pronto, quando corrigir já
-   significava reescrever 30+ alternativas. Corrigir 8 é barato; corrigir 35
-   não é. Rode `python -m ferramentas.chutador_de_forma <arquivo parcial>`
-   assim que a oitava questão for escrita, ajuste o hábito de escrita ali, e
-   só então siga para as 27 restantes.
+7. **Distribuição de comprimento da alternativa correta se mede em TRÊS
+   pontos de qualquer módulo novo — na 8ª questão, na 20ª e ao terminar —
+   nunca só no fim, e nunca só uma vez.** No 4.5 e no 4.6 a correta saiu
+   mais longa em 100% e 97% das questões na primeira escrita, mesmo com a
+   regra escrita no prompt as duas vezes, porque a medição só aconteceu
+   com o módulo inteiro pronto. No 4.7 o checkpoint da 8ª questão pegou o
+   defeito (100%) e a correção baixou pra 14,3% — mas o hábito não
+   generalizou, e o módulo terminou em 77% (23/30) antes da correção
+   final. Um único checkpoint antecipa o diagnóstico; não muda sozinho o
+   hábito de escrita ao longo de 35 questões. Rode
+   `python -m ferramentas.chutador_de_forma <arquivo parcial>` na 8ª
+   questão, de novo na 20ª, e de novo ao terminar — reportando as três
+   taxas — e ajuste o hábito de escrita a cada uma, não só na primeira.
+8. **Toda correção em lote (script, não edição questão a questão) se mede
+   contra o defeito que ELA pode criar, não só contra o defeito que ela
+   corrige.** No 4.7, um script que cortava a alternativa correta ou
+   engordava o distrator mais curto resolveu o viés de comprimento (77%
+   → 23%) — mas usou um pool de só três frases genéricas de
+   "autorrejeição" ("leitura que soa plausível, mas...", e variantes), e
+   essa frase-molde vazou em 15 distratores, sempre a mesma família,
+   nunca na correta: um aluno atento ao padrão, não ao conteúdo, ganhava
+   eliminação grátis. Só a revisão adversarial (duas lentes, agentes sem
+   contexto da escrita) pegou isso — o validador automático não acusa,
+   porque não é eco de vocabulário da correta, é repetição de forma entre
+   distratores. Depois de qualquer correção em lote, meça explicitamente:
+   `mais_longa`, `mais_curta`, e repetição de molde/frase entre
+   distratores da mesma questão e entre questões do módulo — não assuma
+   que resolver uma métrica não criou outra.
 
 ### Padrão aprendido: regra nascida, medida e descartada
 

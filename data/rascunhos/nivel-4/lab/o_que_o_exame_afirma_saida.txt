@@ -1,0 +1,40 @@
+=== evidências coletadas neste caso ===
+  - hash do disco batendo com o hash da imagem original (cadeia intacta)
+  - arquivo malicioso encontrado com timestamp de criação de 03/09 02:14
+  - log de autenticação mostra login da conta 'ana.silva' às 02:10
+  - nenhum log de rede cobre o período entre 00h e 06h (fora da janela de retenção)
+  - o processo malicioso rodava sob o mesmo usuário do login das 02:10
+
+=== o que cada afirmação pode concluir a partir delas ===
+
+  afirmação: O arquivo encontrado é bit a bit idêntico ao que estava no disco original
+  veredito:  SUSTENTADA
+  razão:     o hash bate — é exatamente o que a verificação de integridade prova, e só isso
+
+  afirmação: O arquivo malicioso foi criado às 03/09 02:14
+  veredito:  NAO SUSTENTADA
+  razão:     timestamp de arquivo é atributo de metadado, alterável por quem tem acesso de escrita — sozinho, não prova quando o arquivo realmente chegou ali
+
+  afirmação: A pessoa dona da conta 'ana.silva' foi quem executou a ação
+  veredito:  NAO SUSTENTADA
+  razão:     a evidência mostra que a CONTA foi usada, não que a PESSOA titular da conta estava ao teclado — credencial comprometida produz o mesmo log
+
+  afirmação: Não houve atividade maliciosa de rede entre 00h e 06h
+  veredito:  NAO SUSTENTADA
+  razão:     a ausência de log nessa janela é ausência de cobertura, não ausência de evento — o sistema simplesmente não gravava nesse período
+
+  afirmação: O processo malicioso rodou com o mesmo contexto de usuário do login das 02:10
+  veredito:  SUSTENTADA
+  razão:     é uma correlação de contexto de execução, diretamente registrada pelo sistema operacional — não depende de inferir intenção nem autoria humana
+
+=== contagem ===
+  2 de 5 afirmações sustentadas diretamente pela evidência
+  3 soam plausíveis, mas exigem uma fonte independente a mais
+
+=== leitura ===
+  Duas das três afirmações não sustentadas envolvem exatamente os dois
+  pontos fracos que este módulo já demonstrou em laboratório: timestamp
+  como metadado alterável, e ausência de log como ausência de cobertura,
+  não de evento. A terceira — autoria humana a partir de uma conta —
+  é o mesmo problema que o curso já chamou de atribuição: usar uma
+  credencial não prova quem digitou a senha.

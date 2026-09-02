@@ -1,0 +1,1321 @@
+{
+  "id": "4.8",
+  "nivel": 4,
+  "titulo": "Forense digital — evidência como afirmação que precisa se sustentar",
+  "objetivos": [
+    "Reconhecer que o próprio ato de capturar evidência pode alterá-la, e por que copiar antes de examinar é a regra — sem repetir a ordem de volatilidade já ensinada no 4.4",
+    "Tratar integridade e cadeia de custódia como propriedade matematicamente verificável, não como formulário assinado",
+    "Distinguir o que uma evidência sustenta do que ela não sustenta — correlação temporal não é causa, ausência de log não é ausência de ação",
+    "Reconhecer os limites honestos de um exame forense — timestamp manipulável, atribuição de autoria via credencial, o que só se afirma com corroboração independente"
+  ],
+  "pre_requisitos": [
+    "4.4",
+    "4.5",
+    "4.7",
+    "0.4"
+  ],
+  "teoria": [
+    {
+      "id": "4.8.t1",
+      "titulo": "O efeito observador: examinar já é alterar",
+      "texto": "Um perito que abre um arquivo suspeito num sistema ligado, só para dar uma olhada, já mudou algo: pelo menos o horário de último acesso, às vezes mais. RAM lida por uma ferramenta de captura é RAM que a própria ferramenta ocupa, competindo com o processo que se quer preservar. Não existe exame totalmente neutro de um sistema vivo.\n\nA solução não é nunca examinar — é inverter a ordem: copiar primeiro, com um método que preserve o estado (imagem bit a bit, write-blocker que impede qualquer escrita no original), e só então examinar a cópia, quantas vezes for preciso, sem risco de alterar o que importa provar depois.\n\nEsse princípio vale para qualquer camada, da RAM ao disco — mas o assunto aqui não é qual camada perder primeiro (isso o 4.4 já ensina como decisão de contenção); é o custo físico do próprio ato de captura, camada por camada.",
+      "analogia": "É a diferença entre fotografar uma cena de crime antes de andar por ela, e andar por ela primeiro — a segunda ordem contamina o que a primeira preservaria.",
+      "erro_comum": "Examinar o original num sistema ao vivo achando que 'só olhar' não altera nada.",
+      "fonte": "Prática forense consolidada (write-blocker, imagem bit a bit); lab/custo_da_captura.py desta sessão."
+    },
+    {
+      "id": "4.8.t2",
+      "titulo": "Copiar antes de examinar, não decidir o que salvar primeiro",
+      "texto": "O 4.4 já ensinou que, sob prazo curto, a ordem de volatilidade decide o que capturar primeiro — RAM antes de disco, disco antes de log remoto. Este módulo assume essa ordem como resolvida e trata do passo seguinte: uma vez decidido o que capturar, como capturar sem que o próprio ato de captura vire a alteração que compromete a prova.\n\nWrite-blocker, imagem bit a bit com hash calculado antes e depois, ambiente de análise isolado da evidência original — são as ferramentas que resolvem o efeito observador, não a ordem de prioridade.\n\nQuando não existe write-blocker disponível e o sistema precisa continuar rodando, o exame documenta explicitamente o que foi tocado e quando — porque a alternativa, fingir que nada mudou, é pior que admitir a alteração.",
+      "analogia": "Um médico legista não decide 'o que examinar primeiro' e 'como preservar a cena' como se fossem a mesma pergunta — são duas decisões distintas, na mesma investigação.",
+      "erro_comum": "Confundir 'decidir o que capturar primeiro' (já ensinado no 4.4) com 'capturar sem alterar' (o assunto deste módulo).",
+      "fonte": "Continuidade explícita da ordem de volatilidade já ensinada em 4.4; lab/custo_da_captura.py desta sessão."
+    },
+    {
+      "id": "4.8.t3",
+      "titulo": "Cadeia de custódia como matemática, não formulário",
+      "texto": "Um formulário de papel que registra quem tocou numa evidência, quando e o quê, prova exatamente o que qualquer papel prova: que alguém escreveu aquilo ali. Nada impede reescrever, perder ou forjar uma página depois — a confiança recai inteira sobre a honestidade de quem preencheu.\n\nUma cadeia de custódia matematicamente verificável — cada evento carregando o hash do evento anterior mais os próprios dados — muda isso: alterar qualquer campo de qualquer evento no meio da cadeia quebra o hash daquele evento e de todos os que vêm depois. Qualquer terceiro, sem confiar em ninguém, recalcula e confirma.\n\nA diferença não é burocrática. É a diferença entre 'alguém assinou dizendo que isso é verdade' e 'qualquer pessoa pode verificar que isso é verdade', sem depender da palavra de quem coletou.",
+      "analogia": "Um recibo em papel prova que alguém o escreveu; um recibo em que cada linha trava matematicamente na anterior prova que ninguém o reescreveu depois.",
+      "erro_comum": "Tratar um formulário assinado como prova de integridade, sem nenhum hash por trás dele.",
+      "fonte": "lab/cadeia_de_custodia.py desta sessão, executado em 02/09/2026."
+    },
+    {
+      "id": "4.8.t4",
+      "titulo": "Correlação temporal não é causa",
+      "texto": "Dois eventos que acontecem perto um do outro no tempo parecem relacionados — e às vezes estão. Mas coincidência ocasional é o comportamento matemático esperado de dois processos totalmente independentes, não uma anomalia que pede explicação. Medir com que frequência isso aconteceria por puro acaso é o primeiro passo antes de declarar uma relação causal.\n\nUm relatório de incidente que aponta 'o pico de tráfego aconteceu na mesma hora que o login suspeito, logo um causou o outro' comete o mesmo erro de qualquer análise de dados sem controle: não perguntou qual seria a taxa de coincidência esperada só pelo acaso, antes de tratar a coincidência observada como prova.\n\nA pergunta certa não é 'os dois aconteceram juntos?' — é 'com que frequência os dois aconteceriam juntos mesmo sem nenhuma relação entre eles?'.",
+      "analogia": "Em qualquer cidade grande, o dia de maior venda de sorvete e o dia de maior afogamento em piscina tendem a coincidir — o calor causa os dois, nenhum causa o outro.",
+      "erro_comum": "Ver dois eventos próximos no tempo e concluir relação causal sem medir a taxa de coincidência esperada por acaso.",
+      "fonte": "lab/correlacao_nao_e_causa.py desta sessão, demonstração 1."
+    },
+    {
+      "id": "4.8.t5",
+      "titulo": "Ausência de log não é ausência de ação",
+      "texto": "'Não há registro desse evento nos logs' costuma ser lido como 'esse evento não aconteceu'. As duas frases não são equivalentes: a primeira descreve a cobertura do sistema de coleta, a segunda descreve o mundo real — e um sistema de log tem janela de retenção, fontes que não cobre e períodos em que simplesmente não grava.\n\nAntes de tratar um log vazio como prova de ausência, a pergunta que resolve o problema é: esse sistema sequer tinha capacidade de registrar esse tipo de evento, nessa fonte, nesse horário? Se a resposta for não, o log vazio não prova nada — só confirma que ele nunca teria mostrado, aconteça o que acontecer.\n\nÉ o mesmo princípio que o módulo de SIEM já ensinou sobre decidir o que coletar como decisão de orçamento: o que não foi coletado não pode, depois, virar evidência de nada — nem a favor, nem contra.",
+      "analogia": "Uma câmera de segurança apagada às 22h não prova que nada aconteceu depois das 22h — prova só que a câmera estava apagada.",
+      "erro_comum": "Concluir 'nada aconteceu' a partir de 'nenhum log mostra', sem checar se o sistema sequer cobria aquele horário ou fonte.",
+      "fonte": "lab/correlacao_nao_e_causa.py desta sessão, demonstração 2; continuidade de 4.5 (decisão do que coletar como orçamento)."
+    },
+    {
+      "id": "4.8.t6",
+      "titulo": "Limites honestos: o que um exame pode e não pode afirmar",
+      "texto": "Timestamp de arquivo é metadado, alterável por quem tem acesso de escrita — sozinho, nunca prova quando algo realmente aconteceu, só quando o sistema diz que aconteceu. Um exame honesto trata timestamp como pista a corroborar com outra fonte independente (log de rede, backup anterior, timestamp de outro sistema), nunca como prova isolada.\n\nO mesmo vale para autoria: uma conta comprometida produz exatamente os mesmos registros que o titular legítimo produziria. 'A conta X fez Y' é uma afirmação que a evidência sustenta; 'a pessoa dona da conta X fez Y' exige uma corroboração que quase nunca existe — o curso já chamou isso de atribuição, e por bom motivo é tratado como problema difícil.\n\nUm exame que reconhece esses limites é mais confiável, não menos: afirmar só o que a evidência de fato sustenta é o que distingue um laudo técnico de uma narrativa convincente.",
+      "analogia": "Uma testemunha honesta diz 'eu vi alguém com a chave de Ana entrar' — não 'eu vi Ana entrar', mesmo que a segunda frase soe mais decisiva.",
+      "erro_comum": "Escrever num laudo 'o usuário X fez Y' quando a evidência só sustenta 'a conta X foi usada para Y'.",
+      "fonte": "lab/o_que_o_exame_afirma.py desta sessão; continuidade do argumento de atribuição já ensinado em 0.3.q33."
+    }
+  ],
+  "questoes": [
+    {
+      "id": "4.8.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "O que o termo \"efeito observador\", aplicado a uma perícia digital, descreve?",
+      "alternativas": [
+        "O fato de que o simples ato de examinar um sistema pode alterar o estado que se quer preservar",
+        "O fato de que peritos diferentes costumam chegar a conclusões diferentes sobre o mesmo caso",
+        "O efeito psicológico de um perito já saber, de antemão, o que espera encontrar num exame específico",
+        "A tendência de um sistema de log registrar mais eventos quando está sendo monitorado ativamente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Divergência entre peritos é questão de julgamento profissional, não o mecanismo físico de captura alterar o que captura.",
+        "2": "Viés de expectativa é um problema real de análise, mas é outro fenômeno — não descreve o custo físico de examinar.",
+        "3": "Monitoramento ativo não altera a taxa de geração de eventos reais — só a capacidade de registrá-los, o que é assunto de outro bloco deste módulo."
+      },
+      "dicas": [
+        "Pense em ler um arquivo num sistema ligado — a leitura em si já é uma ação registrada pelo sistema operacional.",
+        "O termo vem da física, onde medir uma partícula pode mudar o próprio estado dela.",
+        "Só uma alternativa fala sobre o exame alterar o que examina, não sobre opinião ou expectativa de quem examina."
+      ],
+      "pergunta_socratica": "Antes de conferir: abrir um arquivo só para ler é uma ação neutra para o sistema operacional, ou é uma ação que ele registra?",
+      "explicacao": "O efeito observador em perícia descreve o custo físico de examinar: ler um arquivo atualiza metadado, capturar RAM ocupa RAM, conectar um disco sem bloqueio de escrita já grava alteração. Não é sobre divergência de opinião entre peritos nem sobre viés psicológico — é um fato de sistema de arquivos e de hardware, verificável e medido em laboratório nesta sessão.",
+      "fonte": "4.8.t1, desta sessão.",
+      "tags": [
+        "forense",
+        "efeito-observador",
+        "conceitual",
+        "fundamentos"
+      ]
+    },
+    {
+      "id": "4.8.q2",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Um analista encontra um host suspeito ainda ligado e, sem write-blocker disponível, abre diretamente um dos arquivos do disco original para conferir o conteúdo antes de decidir os próximos passos. O que essa ação já comprometeu, independentemente do que ele encontrar?",
+      "alternativas": [
+        "Pelo menos o metadado do arquivo aberto, como o horário de último acesso, já fica alterado depois",
+        "Nada, desde que o analista não tenha salvado nenhuma alteração no conteúdo do arquivo",
+        "Apenas a confiabilidade do relatório final, sem nenhum efeito sobre o estado técnico dos arquivos do disco",
+        "Só o valor do arquivo específico aberto, sem nenhum efeito mensurável sobre o restante da estrutura do disco"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não salvar alteração de conteúdo não impede o sistema de atualizar metadado de acesso — as duas coisas são independentes.",
+        "2": "A confiabilidade do relatório é consequência de um problema técnico real (o estado do disco mudou), não uma categoria separada do problema.",
+        "3": "O enunciado não dá base para afirmar que só um arquivo foi afetado — o sistema pode registrar acesso em outras estruturas (índices, journals) ao abrir qualquer arquivo."
+      },
+      "dicas": [
+        "Pense no laboratório desta sessão: o conteúdo não mudou, mas algum outro campo do arquivo mudou mesmo assim.",
+        "A pergunta não é sobre o que o analista decidiu salvar — é sobre o que o sistema operacional já fez sozinho ao processar a leitura.",
+        "Só uma alternativa descreve uma consequência técnica real, sem inventar limite nem transferir o problema pra outra categoria."
+      ],
+      "pergunta_socratica": "Antes de conferir: mesmo sem escrever nada de propósito, o sistema operacional registra alguma coisa só de um arquivo ser aberto?",
+      "explicacao": "Abrir um arquivo original, mesmo só para leitura, tende a atualizar pelo menos o metadado de último acesso — o laboratório desta sessão mediu exatamente isso num arquivo controlado. O conteúdo do arquivo não muda, mas o disco original deixa de ser idêntico ao estado anterior ao exame, o que compromete a comparação bit a bit contra uma cópia feita depois.",
+      "fonte": "lab/custo_da_captura.py desta sessão, executado em 02/09/2026.",
+      "tags": [
+        "forense",
+        "efeito-observador",
+        "cenario",
+        "cadeia-de-custodia"
+      ]
+    },
+    {
+      "id": "4.8.q3",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "artefato": "=== metadados logo apos criar o arquivo ===\n  tamanho:            50 bytes\n  modificado (mtime): Wed Sep  2 09:27:43 2026\n  acessado  (atime):  Wed Sep  2 09:27:43 2026\n\n=== metadados depois da leitura ===\n  tamanho:            50 bytes  (mudou: False)\n  modificado (mtime): Wed Sep  2 09:27:43 2026  (mudou: False)\n  acessado  (atime):  Wed Sep  2 09:27:45 2026  (mudou: True)",
+      "enunciado": "Esta é a saída real de um laboratório que cria um arquivo e depois só o lê (nenhuma escrita). O que ela sustenta?",
+      "alternativas": [
+        "Que ler um arquivo pode alterar seu metadado de acesso, mesmo sem alterar tamanho nem conteúdo do arquivo em si",
+        "Que o sistema operacional usado neste laboratório tem um defeito, já que leitura não deveria alterar metadado nenhum",
+        "Que o conteúdo do arquivo foi corrompido silenciosamente durante a leitura, mesmo com o tamanho reportado igual",
+        "Que este resultado só se aplica a arquivos de texto pequenos, como o de 50 bytes usado no teste"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O comportamento observado é padrão de sistema de arquivos, documentado e esperado — não é um defeito.",
+        "2": "A saída mostra tamanho e mtime idênticos antes e depois — nada sustenta corrupção de conteúdo.",
+        "3": "Nada no laboratório ou no mecanismo do sistema de arquivos limita esse comportamento a arquivos pequenos ou de texto."
+      },
+      "dicas": [
+        "Compare as três linhas de cada bloco: qual delas tem 'mudou: True', e qual campo é esse?",
+        "Tamanho e mtime continuam idênticos — o que isso já elimina como explicação?",
+        "Só uma alternativa lê exatamente o que a saída mostra, sem inventar defeito, corrupção ou limite de escopo."
+      ],
+      "pergunta_socratica": "Antes de conferir: dos três campos mostrados, quantos mudaram depois da leitura?",
+      "explicacao": "A saída mostra tamanho e mtime idênticos, e só o atime (horário de último acesso) mudou depois da leitura — exatamente o comportamento que 4.8.t1 descreve como efeito observador. Não é defeito de sistema nem corrupção: é o custo normal de examinar um arquivo original sem preservação prévia.",
+      "fonte": "Saída real de lab/custo_da_captura.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "forense",
+        "artefato",
+        "efeito-observador",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.8.q4",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "trecho": "PROCEDIMENTO DE EXAME — versão 1.0\n1. Conectar o disco suspeito diretamente à estação de análise.\n2. Abrir os arquivos de interesse e anotar os achados.\n3. Depois de concluída a análise, gerar uma imagem do disco para arquivo.\n4. Calcular o hash da imagem gerada no passo 3.",
+      "enunciado": "Qual é o defeito mais grave deste procedimento?",
+      "alternativas": [
+        "A análise acontece no disco original, antes de qualquer cópia preservada ser gerada para arquivo",
+        "O hash deveria ser calculado duas vezes, uma antes e outra depois do passo 4, não só uma",
+        "A conexão direta no passo 1 deveria usar um cabo USB específico em vez de uma conexão interna à placa-mãe",
+        "Faltou um passo 5 explicando onde a imagem final deve ser armazenada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O hash calculado uma vez, sobre a imagem já gerada, é suficiente para verificar integridade dali em diante — o problema não é a contagem de vezes.",
+        "2": "O tipo de cabo ou conexão não é o defeito central — a ordem das etapas é.",
+        "3": "Onde armazenar a imagem é relevante, mas secundário: a imagem já nasce comprometida pela ordem das etapas anteriores."
+      },
+      "dicas": [
+        "Releia a ordem dos quatro passos: a imagem do disco nasce antes ou depois de alguém já ter mexido no original?",
+        "Pense no laboratório desta sessão: o que já muda só de abrir um arquivo original antes de copiá-lo?",
+        "Só uma alternativa aponta pra ordem das etapas como o problema — as outras inventam detalhes secundários."
+      ],
+      "pergunta_socratica": "Antes de conferir: a imagem gerada no passo 3 representa o disco como ele estava antes do passo 2, ou depois?",
+      "explicacao": "O procedimento examina o disco original nos passos 1 e 2, e só gera a cópia preservada (imagem) depois, no passo 3 — invertendo a ordem que 4.8.t1 e t2 estabelecem. A imagem final já carrega qualquer alteração de metadado que o exame direto no passo 2 tenha produzido, comprometendo a comparação contra o estado anterior ao exame.",
+      "fonte": "4.8.t1 e 4.8.t2, desta sessão.",
+      "tags": [
+        "forense",
+        "efeito-observador",
+        "caca-erro",
+        "processo"
+      ]
+    },
+    {
+      "id": "4.8.q5",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "O que um write-blocker resolve, especificamente, num exame forense de disco?",
+      "alternativas": [
+        "Impede fisicamente qualquer comando de escrita de chegar ao disco original examinado",
+        "Acelera a velocidade de leitura do disco durante todo o processo de geração da imagem",
+        "Decide qual camada de volatilidade deve ser capturada primeiro, substituindo o julgamento do perito",
+        "Criptografa a imagem gerada para que só o perito responsável consiga abri-la depois"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Velocidade de leitura não é a função de um write-blocker — o dispositivo existe pra bloquear escrita, não pra otimizar performance.",
+        "2": "Prioridade de captura por volatilidade é decisão humana, já tratada no 4.4 — o write-blocker não decide nada, só impede escrita.",
+        "3": "Criptografia de imagem, quando usada, é uma etapa separada de controle de acesso — não é a função de um write-blocker."
+      },
+      "dicas": [
+        "O nome do dispositivo já indica a função — pense no que ele bloqueia.",
+        "A pergunta é sobre o que impede um comando específico de acontecer, não sobre desempenho ou decisão de prioridade.",
+        "Só uma alternativa descreve um bloqueio, não uma otimização, decisão ou proteção de acesso."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'write-blocker' — o nome já não sugere o que ele impede?",
+      "explicacao": "Um write-blocker é um dispositivo (ou modo de conexão) que impede fisicamente qualquer comando de escrita de chegar ao disco original, mesmo que o sistema operacional de análise tente escrever nele por engano. É o mecanismo concreto que resolve o efeito observador para discos — não decide prioridade, não acelera nada, não criptografa.",
+      "fonte": "4.8.t2, desta sessão.",
+      "tags": [
+        "forense",
+        "efeito-observador",
+        "conceitual",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "4.8.q6",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Um sistema de produção crítico precisa continuar rodando durante a investigação, e não existe write-blocker disponível para examinar arquivos nele diretamente. O que o exame deveria fazer, dado que alguma alteração é inevitável?",
+      "alternativas": [
+        "Documentar explicitamente cada arquivo tocado, o horário exato e o que foi feito durante o exame",
+        "Evitar qualquer exame até que um write-blocker esteja disponível, mesmo perdendo toda a janela de investigação disponível",
+        "Prosseguir normalmente sem registrar nada, já que a alteração de metadado é pequena demais para importar",
+        "Desligar o sistema de produção imediatamente para forçar a criação de condições ideais de exame"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Esperar indefinidamente descarta a investigação inteira por um recurso ausente — nem sempre é a opção disponível, e o enunciado já assume que o sistema precisa continuar rodando.",
+        "2": "Tratar a alteração como pequena demais pra registrar é exatamente o erro que compromete a defesa da integridade depois — 'pequeno' não é 'inexistente'.",
+        "3": "Desligar um sistema crítico é uma decisão de contenção que pertence ao 4.7 (autoridade pré-combinada), não uma resposta automática à falta de write-blocker."
+      },
+      "dicas": [
+        "O enunciado já assume que alguma alteração vai acontecer — a pergunta é sobre o que fazer com esse fato, não sobre como evitá-lo por completo.",
+        "Pense na diferença entre 'fingir que nada mudou' e 'admitir e registrar o que mudou'.",
+        "Só uma alternativa aceita a limitação real da situação e responde a ela, em vez de negar o problema ou empurrar a decisão para outro assunto."
+      ],
+      "pergunta_socratica": "Antes de conferir: entre negar que algo mudou e documentar exatamente o que mudou, qual sustenta mais a credibilidade do exame depois?",
+      "explicacao": "Quando write-blocker não está disponível e o sistema precisa continuar operando, a alternativa honesta não é fingir neutralidade — é documentar exatamente o que foi tocado, quando e por quem, para que qualquer contestação futura encontre um registro, não um vazio. É o mesmo princípio de 4.8.t1: a alternativa a 'não examinar' não é 'examinar sem cuidado', é 'examinar e registrar o custo'.",
+      "fonte": "4.8.t1 e 4.8.t2, desta sessão.",
+      "tags": [
+        "forense",
+        "efeito-observador",
+        "cenario",
+        "documentacao"
+      ]
+    },
+    {
+      "id": "4.8.q7",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Um adversário sabe que a equipe de resposta, sem write-blocker disponível, costuma examinar sistemas críticos ao vivo por não poder desligá-los. Como isso favorece o adversário, especificamente?",
+      "alternativas": [
+        "A investigação ao vivo produz alterações que podem ser usadas depois para contestar a integridade da evidência",
+        "O adversário consegue impedir fisicamente que a equipe acesse o sistema, já que ele está sendo examinado ao vivo",
+        "A ausência de write-blocker revela ao adversário, em tempo real, quais arquivos específicos estão sendo examinados",
+        "Sistemas examinados ao vivo perdem, como efeito colateral do exame, qualquer log gerado antes do início dele"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nada no exame ao vivo impede fisicamente o acesso da equipe ao sistema — são dois processos independentes.",
+        "2": "A ausência de write-blocker não vaza informação nenhuma ao adversário sobre quais arquivos estão sendo examinados.",
+        "3": "Logs anteriores ao exame não desaparecem por causa de um exame ao vivo — a alteração de metadado é local aos arquivos tocados, não ao histórico de log."
+      },
+      "dicas": [
+        "Pense no que uma defesa jurídica ou uma contestação técnica poderia alegar depois, usando o próprio exame como argumento.",
+        "O adversário não precisa fazer nada tecnicamente novo — ele se beneficia de um problema que a equipe já criou sozinha.",
+        "Só uma alternativa usa diretamente o que o exame ao vivo produz: alteração que pode ser questionada depois."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem se beneficia quando a integridade de uma evidência pode ser questionada depois?",
+      "explicacao": "O adversário não precisa agir contra o exame ao vivo — ele se beneficia passivamente, porque qualquer alteração de metadado produzida pela investigação vira munição para contestar a confiabilidade das evidências coletadas, num processo disciplinar ou judicial. É o mesmo risco de 4.8.q2 e q6, visto do lado de quem quer que a investigação falhe em sustentar suas conclusões.",
+      "fonte": "Leitura adversarial de 4.8.t1 e 4.8.t2, desta sessão.",
+      "tags": [
+        "forense",
+        "efeito-observador",
+        "ataque-defesa",
+        "cadeia-de-custodia"
+      ]
+    },
+    {
+      "id": "4.8.q8",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Ligue cada tipo de evidência ao método de captura que preserva a integridade dela, evitando o efeito observador.",
+      "pares": [
+        [
+          "memória RAM de um host ligado",
+          "ferramenta de captura validada, com hash calculado logo após a captura"
+        ],
+        [
+          "disco de um host desligado",
+          "imagem bit a bit através de write-blocker"
+        ],
+        [
+          "registro de log já armazenado num servidor remoto",
+          "exportação com hash do lote exportado"
+        ],
+        [
+          "tráfego de rede em trânsito",
+          "captura de pacote num ponto de espelhamento, sem tocar no host de origem"
+        ]
+      ],
+      "dicas": [
+        "Cada tipo de evidência tem um risco de alteração diferente — pense no que ameaça a integridade de cada um especificamente.",
+        "Disco desligado permite bloqueio físico de escrita; RAM de um host ligado não tem essa opção, porque precisa ser lida enquanto o sistema roda.",
+        "Tráfego em trânsito não pode ser 'capturado do host' sem arriscar alterá-lo — por isso o ponto de captura muda."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que o método de captura de RAM não pode ser o mesmo método usado para um disco desligado?",
+      "explicacao": "Cada tipo de evidência exige um método adequado à sua natureza: RAM de host ligado só pode ser lida em pleno funcionamento, então a integridade vem de validar a ferramenta e hashear logo depois; disco desligado permite bloqueio físico de escrita antes de qualquer leitura; log remoto já existe fora do sistema examinado, então o hash do lote exportado garante que nada mudou na transferência; tráfego em trânsito exige captura num ponto que não toca o host de origem, preservando-o intacto.",
+      "fonte": "4.8.t1 e 4.8.t2, desta sessão — métodos de captura, não ordem de prioridade (que é do 4.4).",
+      "tags": [
+        "forense",
+        "efeito-observador",
+        "pareamento",
+        "aquisicao"
+      ]
+    },
+    {
+      "id": "4.8.q9",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Por que o hash de um arquivo, e não a inspeção visual, é o que comprova integridade?",
+      "alternativas": [
+        "Porque um hash muda por completo mesmo com a alteração de um único bit no arquivo original",
+        "Porque a inspeção visual é mais lenta, e o hash existe para acelerar a análise de arquivos grandes",
+        "Porque o hash impede fisicamente que qualquer pessoa altere o arquivo depois de calculado",
+        "Porque a inspeção visual só funciona em arquivos de texto, e o hash funciona em qualquer formato de arquivo"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Velocidade não é o argumento — mesmo com tempo ilimitado, inspeção visual não detecta a alteração de um único bit num arquivo binário.",
+        "2": "Hash não impede alteração nenhuma — ele só detecta que uma alteração aconteceu, depois do fato.",
+        "3": "Inspeção visual falha em qualquer tipo de arquivo binário, não só em texto — a limitação não é de formato."
+      },
+      "dicas": [
+        "Pense no laboratório desta sessão: um único bit mudou em 10.240 bytes. Isso era visível olhando os dois arquivos?",
+        "O hash não trava o arquivo contra edição — o que ele faz é revelar a edição depois.",
+        "Só uma alternativa explica por que a detecção funciona, sem inventar uma função de prevenção ou de formato que o hash não tem."
+      ],
+      "pergunta_socratica": "Antes de conferir: no laboratório desta sessão, o tamanho do arquivo alterado era diferente do original?",
+      "explicacao": "Uma função de hash como sha256 produz uma saída completamente diferente mesmo com a menor alteração possível no conteúdo — um único bit invertido em milhares de bytes já muda o hash inteiro, mesmo que tamanho e aparência continuem idênticos. É essa propriedade, chamada de efeito avalanche, que torna o hash uma verificação de integridade confiável, ao contrário de inspecionar o arquivo a olho.",
+      "fonte": "lab/hash_de_integridade.py desta sessão, executado em 02/09/2026.",
+      "tags": [
+        "forense",
+        "integridade",
+        "conceitual",
+        "hash"
+      ]
+    },
+    {
+      "id": "4.8.q10",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "artefato": "=== sha256 de cada arquivo ===\n  original:        e96760a87768717bcebcfd25ddc7d46b4dbc95a4b0014def080c08539f7d90d0\n  copia identica:  e96760a87768717bcebcfd25ddc7d46b4dbc95a4b0014def080c08539f7d90d0\n  copia alterada:  8cb7b777403c80b21227cf910c4d0f23f75beae157e6073cc9b51e08528fae62\n\n=== comparação ===\n  original == copia identica: True\n  original == copia alterada: False",
+      "enunciado": "Os três arquivos deste laboratório têm exatamente 10.240 bytes cada um, e a cópia alterada difere do original por um único bit invertido. O que esta saída sustenta?",
+      "alternativas": [
+        "Que o hash detecta uma alteração de um único bit, mesmo quando o tamanho do arquivo não muda em nada",
+        "Que a cópia alterada tem tamanho diferente do original, o que já seria visível sem calcular hash nenhum",
+        "Que o algoritmo sha256 só funciona corretamente em arquivos de exatamente 10.240 bytes",
+        "Que a cópia idêntica e a cópia alterada têm o mesmo hash, provando que o algoritmo ignora pequenas diferenças"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O enunciado já informa que os três arquivos têm o mesmo tamanho — a alteração não muda tamanho nenhum.",
+        "2": "Sha256 funciona com qualquer tamanho de entrada — o tamanho usado no laboratório é só um exemplo, não uma limitação do algoritmo.",
+        "3": "A saída mostra o oposto: original e cópia alterada têm hashes diferentes; original e cópia idêntica têm o mesmo hash."
+      },
+      "dicas": [
+        "Releia o enunciado: qual é o tamanho dos três arquivos, e ele muda entre eles?",
+        "Compare os dois hashes da linha 'copia alterada' e 'original' — são iguais ou diferentes?",
+        "Só uma alternativa é compatível com o tamanho constante informado no enunciado e com os hashes mostrados na saída."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você olhasse só o tamanho dos três arquivos, conseguiria dizer qual foi alterado?",
+      "explicacao": "Os três arquivos têm exatamente o mesmo tamanho — 10.240 bytes — porque a alteração troca um bit, não adiciona nem remove dado. Ainda assim, o hash da cópia alterada é completamente diferente do original, enquanto o da cópia idêntica bate exatamente. É a prova de que hash detecta alteração de conteúdo independentemente de qualquer mudança de tamanho.",
+      "fonte": "Saída real de lab/hash_de_integridade.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "forense",
+        "artefato",
+        "integridade",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.8.q11",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Uma empresa decide controlar a cadeia de custódia de evidências digitais com uma planilha compartilhada, onde cada perito anota o que fez e quando. Qual é o problema técnico dessa abordagem, mesmo supondo que todos os peritos sejam honestos?",
+      "alternativas": [
+        "Uma planilha editável não impede, nem detecta, que uma linha antiga seja reescrita depois de registrada",
+        "Planilhas compartilhadas não permitem que mais de uma pessoa edite ao mesmo tempo, o que atrasa o registro de eventos simultâneos",
+        "Uma planilha não consegue armazenar texto longo o suficiente para descrever ações forenses complexas",
+        "Peritos honestos dificilmente cometeriam um erro que comprometesse o registro, então o problema só apareceria com peritos desonestos"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Concorrência de edição é um problema de produtividade, não de integridade do registro — não é o defeito técnico central aqui.",
+        "2": "Limite de tamanho de texto não é uma limitação real de planilhas modernas, e não é o ponto da pergunta.",
+        "3": "O enunciado já supõe honestidade — o problema é que a honestidade não é uma propriedade verificável tecnicamente, mesmo quando é real."
+      },
+      "dicas": [
+        "A pergunta já supõe honestidade — o defeito não é sobre confiar ou não nas pessoas.",
+        "Pense no laboratório de cadeia de custódia desta sessão: o que a mudança de UM campo faz com a verificação da cadeia inteira?",
+        "Só uma alternativa aponta pra ausência de uma propriedade técnica verificável, em vez de um problema de uso ou de confiança."
+      ],
+      "pergunta_socratica": "Antes de conferir: mesmo que todo perito seja honesto, alguém consegue provar, tecnicamente, que uma linha da planilha não foi editada depois?",
+      "explicacao": "O problema não é a honestidade dos peritos — é que uma planilha comum não tem nenhum mecanismo que torne uma edição posterior detectável. A integridade do registro depende inteiramente de confiar que ninguém mexeu nele, exatamente o oposto de uma cadeia de custódia matematicamente verificável, em que alterar qualquer evento quebra o hash de tudo que vem depois.",
+      "fonte": "4.8.t3, desta sessão.",
+      "tags": [
+        "forense",
+        "cadeia-de-custodia",
+        "cenario",
+        "integridade"
+      ]
+    },
+    {
+      "id": "4.8.q12",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "artefato": "=== verificação da cadeia original ===\n  íntegra: True\n\n=== simulando uma adulteração: alguém reescreve o evento [2] ===\n  íntegra: False\n  divergência detectada a partir do evento [2]",
+      "enunciado": "Nesta simulação, o evento [2] de uma cadeia de custódia de 4 eventos foi editado depois de registrado — só o horário desse evento mudou, os outros três eventos continuam exatamente como estavam. O que a saída sustenta sobre a extensão da divergência detectada?",
+      "alternativas": [
+        "A divergência aparece a partir do evento [2], porque o hash dele depende dos próprios dados registrados",
+        "A divergência aparece só no evento [2], porque os eventos [0], [1] e [3] têm hashes independentes entre si",
+        "A divergência não deveria ser detectável, já que só o horário mudou, não o conteúdo da ação registrada",
+        "A cadeia inteira, incluindo o evento [0], perde a integridade, porque qualquer alteração invalida todos os hashes desde o início"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Cada hash depende do hash do evento ANTERIOR — alterar o evento [2] muda o hash dele, o que também invalida o cálculo do evento [3], que depende desse hash.",
+        "2": "O modelo hasheia todos os campos do evento, incluindo o horário — qualquer campo alterado, não só o conteúdo da ação, quebra a verificação.",
+        "3": "Os eventos [0] e [1], anteriores ao alterado, continuam com hash íntegro — a divergência propaga só para frente na cadeia, não para trás."
+      },
+      "dicas": [
+        "Releia a saída: em que ponto da lista a verificação passa a discordar do que foi registrado originalmente?",
+        "Pense em como cada evento da cadeia é calculado — ele usa só os próprios campos, ou também alguma informação do evento anterior?",
+        "Só uma alternativa é consistente com a cadeia depender do encadeamento pra frente, não pra trás."
+      ],
+      "pergunta_socratica": "Antes de conferir: o hash do evento [3] usa, na sua fórmula, o hash do evento [2]?",
+      "explicacao": "Cada hash da cadeia incorpora o hash do evento imediatamente anterior — por isso, alterar o evento [2] muda o hash dele, e esse novo hash não bate mais com o valor que o evento [3] usou no seu próprio cálculo original, propagando a divergência para frente. Os eventos [0] e [1], que vêm antes do ponto alterado, continuam íntegros — a simulação confirma exatamente esse comportamento.",
+      "fonte": "Saída real de lab/cadeia_de_custodia.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "forense",
+        "artefato",
+        "cadeia-de-custodia",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.8.q13",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "trecho": "PROCEDIMENTO DE CUSTÓDIA — versão 1.0\n1. Cada perito registra, num documento compartilhado, o que fez e quando.\n2. O documento é assinado digitalmente pelo perito responsável pelo caso, ao final da investigação.\n3. Qualquer alteração no documento depois da assinatura é considerada suspeita.",
+      "enunciado": "Qual é o defeito deste procedimento de custódia?",
+      "alternativas": [
+        "A assinatura só acontece no final, deixando toda a investigação sem verificação evento por evento",
+        "Assinatura digital não deveria ser usada em documentos de custódia, porque ela pode ser falsificada com facilidade",
+        "O procedimento deveria exigir duas assinaturas em vez de uma, para reduzir a chance de fraude",
+        "Documentos compartilhados não deveriam ser usados para registrar eventos de uma investigação em andamento"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Assinatura digital, quando aplicada corretamente, é uma ferramenta válida — o problema não é a ferramenta, é o momento em que ela é aplicada.",
+        "2": "Duas assinaturas ao final não resolvem o problema de a verificação só existir depois de tudo já ter acontecido.",
+        "3": "Documento compartilhado não é o defeito por si só — é a ausência de verificação evento por evento, durante a investigação."
+      },
+      "dicas": [
+        "Releia o passo 2: quando a assinatura acontece, em relação aos passos 1 e 3?",
+        "Pense no laboratório de cadeia de custódia: a checagem roda a cada novo registro, ou só depois que tudo já terminou?",
+        "Só uma alternativa aponta pro momento da verificação como o problema, não pra ferramenta usada."
+      ],
+      "pergunta_socratica": "Antes de conferir: entre os passos 1 e 2, existe alguma verificação de que o registro de um evento não foi alterado antes do próximo evento acontecer?",
+      "explicacao": "O procedimento só verifica integridade uma vez, no final, com uma única assinatura — durante toda a investigação, qualquer evento registrado no passo 1 pode ser silenciosamente editado sem que nada detecte, porque a verificação só existe depois que tudo já aconteceu. Uma cadeia de custódia como a demonstrada em 4.8.t3 verifica evento por evento, no momento em que cada um é adicionado, não só ao final.",
+      "fonte": "4.8.t3, desta sessão.",
+      "tags": [
+        "forense",
+        "cadeia-de-custodia",
+        "caca-erro",
+        "processo"
+      ]
+    },
+    {
+      "id": "4.8.q14",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Por que alterar um único evento no meio de uma cadeia de custódia baseada em hash invalida também todos os eventos posteriores, e não só aquele evento?",
+      "alternativas": [
+        "Porque o hash de cada evento é calculado a partir dos próprios dados e do hash do evento anterior",
+        "Porque o sistema apaga todos os eventos posteriores ao detectar uma alteração, como medida de segurança programada",
+        "Porque a ordem cronológica dos eventos fica embaralhada assim que um deles é modificado",
+        "Porque cada evento da cadeia depende do conteúdo de todos os eventos anteriores, não só do imediatamente anterior"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nada no modelo apaga eventos — a verificação só reporta divergência, ela não altera nem remove nada da cadeia.",
+        "2": "A ordem dos eventos na lista não muda — o que muda é se a verificação de hash bate ou não, não a sequência em si.",
+        "3": "Cada evento depende só do hash do evento imediatamente anterior, não de todos — mas como esse hash já incorpora, em cadeia, os anteriores a ele, o efeito se propaga de qualquer forma."
+      },
+      "dicas": [
+        "Pense em como uma corrente física funciona: quebrar um elo no meio separa a corrente em duas partes — o que isso sugere sobre uma cadeia de hash?",
+        "Releia a função hash_evento do laboratório: ela recebe só os dados do próprio evento, ou também algo do evento anterior?",
+        "Só uma alternativa explica o mecanismo real (dependência encadeada) sem inventar apagamento ou reembaralhamento que o modelo não faz."
+      ],
+      "pergunta_socratica": "Antes de conferir: o hash do terceiro evento da cadeia usa, na fórmula, algum dado do segundo evento?",
+      "explicacao": "Cada hash incorpora o hash do evento anterior como parte do que é hasheado — é o que faz a cadeia ser uma cadeia, e não uma lista solta de registros independentes. Alterar um evento no meio muda o hash dele; como os eventos seguintes calcularam o próprio hash usando o valor antigo daquele hash, a verificação a partir dali sempre diverge, mesmo sem tocar em nenhum dado dos eventos posteriores.",
+      "fonte": "lab/cadeia_de_custodia.py desta sessão.",
+      "tags": [
+        "forense",
+        "cadeia-de-custodia",
+        "conceitual",
+        "hash"
+      ]
+    },
+    {
+      "id": "4.8.q15",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Ordene, do primeiro ao último, os passos para estabelecer uma cadeia de custódia digital verificável, a partir do momento em que uma evidência é coletada.",
+      "itens": [
+        "Coletar a evidência e calcular o hash dela",
+        "Registrar o evento (quem, quando, o quê) junto com o hash da evidência e o hash do evento anterior",
+        "Repetir o registro a cada novo evento que envolva a evidência (transferência, análise, etc.)",
+        "Recalcular a cadeia inteira sempre que a integridade precisar ser confirmada, comparando com os hashes registrados"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "dicas": [
+        "Antes de registrar qualquer evento, é preciso ter a evidência e o hash dela — o que vem primeiro, coletar ou registrar?",
+        "Cada novo evento repete o mesmo padrão do primeiro registro — isso acontece antes ou depois do primeiro evento existir?",
+        "Verificar a cadeia é sempre a última etapa, feita quando alguém precisa confirmar a integridade — não durante a coleta."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para calcular o hash de uma evidência antes de ela ter sido coletada?",
+      "explicacao": "A cadeia começa com a coleta da evidência e o cálculo do hash dela — sem isso, não há o que registrar. Cada evento subsequente (transferência, análise) é registrado do mesmo jeito, encadeado ao anterior. A verificação, que recalcula a cadeia inteira e compara com os hashes registrados, é a etapa final, usada sempre que a integridade precisa ser confirmada — não uma etapa da coleta em si.",
+      "fonte": "lab/cadeia_de_custodia.py desta sessão.",
+      "tags": [
+        "forense",
+        "cadeia-de-custodia",
+        "ordenacao",
+        "processo"
+      ]
+    },
+    {
+      "id": "4.8.q16",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Um insider com acesso ao sistema de registro de custódia tenta encobrir um gap de 29 horas entre a coleta de uma evidência e sua análise, editando o horário de um evento no meio da cadeia baseada em hash. O que a cadeia de hash faz contra essa tentativa, especificamente?",
+      "alternativas": [
+        "A edição muda o hash do evento alterado, invalidando o que os eventos seguintes registraram",
+        "A edição é bloqueada fisicamente pela cadeia de hash, que impede qualquer alteração do campo de horário",
+        "A edição dispara um aviso automático da cadeia de hash para todos os peritos, assim que é tentada",
+        "A edição é revertida sozinha pela cadeia de hash, que restaura o valor original do campo alterado"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A cadeia de hash não impede edição — o modelo desta sessão simula justamente uma edição que acontece e é detectada depois, não impedida no ato.",
+        "2": "Nada no modelo envia aviso automático — a verificação precisa ser executada por alguém, ela não roda sozinha em segundo plano.",
+        "3": "A cadeia não reverte nada — ela só reporta divergência quando alguém verifica; a correção do dado é ação humana, não automática."
+      },
+      "dicas": [
+        "Pense no que o laboratório desta sessão realmente demonstrou: a cadeia impediu a edição, ou revelou ela depois de acontecer?",
+        "A verificação da cadeia é uma ação que alguém executa, ou um processo automático rodando o tempo todo?",
+        "Só uma alternativa descreve detecção passiva por recálculo, sem inventar prevenção, aviso automático ou reversão que o modelo não tem."
+      ],
+      "pergunta_socratica": "Antes de conferir: no laboratório desta sessão, a função de verificação impediu a edição do evento [2], ou só revelou que ela tinha acontecido?",
+      "explicacao": "A cadeia de hash não é uma trava contra edição — é um mecanismo de detecção. O insider consegue editar o campo normalmente; o que muda é que, a partir dali, qualquer verificação da cadeia recalcula os hashes e encontra divergência, porque o hash do evento editado não bate mais com o que os eventos seguintes esperavam como 'hash anterior'. A defesa é revelar a adulteração depois, não impedi-la no momento.",
+      "fonte": "lab/cadeia_de_custodia.py desta sessão.",
+      "tags": [
+        "forense",
+        "cadeia-de-custodia",
+        "ataque-defesa",
+        "integridade"
+      ]
+    },
+    {
+      "id": "4.8.q17",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Duas equipes de investigação registram a mesma cadeia de custódia de formas diferentes: a equipe A usa um documento assinado por um responsável ao final; a equipe B usa uma cadeia de eventos encadeados por hash, verificável por qualquer terceiro a qualquer momento. As duas cadeias são contestadas numa revisão externa. Qual delas resiste melhor, e por quê?",
+      "alternativas": [
+        "A cadeia B resiste melhor, porque a integridade dela pode ser confirmada de forma totalmente independente",
+        "A cadeia A resiste melhor, porque uma assinatura de um responsável tem mais peso legal do que um cálculo técnico",
+        "As duas resistem igualmente, porque contestação numa revisão externa raramente depende do formato do registro",
+        "A cadeia B resiste pior, porque hash é um conceito técnico difícil de explicar para quem revisa o caso"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Peso legal de uma assinatura não substitui verificação técnica de integridade — as duas coisas resolvem perguntas diferentes, e a pergunta aqui é sobre resistir à contestação técnica.",
+        "2": "O formato do registro é justamente o que determina se a integridade pode ser verificada de forma independente ou não — não é irrelevante.",
+        "3": "Dificuldade de explicação não é o critério de qual cadeia resiste mais — resistência técnica à contestação é sobre o que pode ser verificado, não sobre facilidade de comunicação."
+      },
+      "dicas": [
+        "Pense no que uma revisão externa cética faria: aceitaria a palavra de quem assinou, ou pediria pra verificar por conta própria?",
+        "A cadeia B permite que qualquer terceiro recalcule e confirme — a cadeia A depende de confiar em quem assinou.",
+        "Só uma alternativa liga a resistência à contestação à possibilidade de verificação independente, não a peso legal, neutralidade de formato ou facilidade de explicação."
+      ],
+      "pergunta_socratica": "Antes de conferir: se você fosse o revisor externo, cético por padrão, qual das duas cadeias você conseguiria verificar sem confiar em ninguém?",
+      "explicacao": "A cadeia B resiste melhor porque sua integridade não depende de confiar na palavra de quem assinou — qualquer terceiro pode recalcular os hashes e confirmar, de forma independente, que nada foi alterado. A cadeia A depende inteiramente da credibilidade do responsável que assinou ao final, o que é exatamente o tipo de dependência que uma revisão externa cética vai questionar.",
+      "fonte": "4.8.t3, desta sessão.",
+      "tags": [
+        "forense",
+        "cadeia-de-custodia",
+        "cenario",
+        "integridade"
+      ]
+    },
+    {
+      "id": "4.8.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Segundo o laboratório de correlação temporal desta sessão, por que observar dois eventos acontecendo perto um do outro no tempo não é, por si só, evidência de que um causou o outro?",
+      "alternativas": [
+        "Porque coincidência ocasional é o resultado matematicamente esperado de dois processos independentes",
+        "Porque eventos que acontecem perto no tempo não costumam ter relação causal real entre si",
+        "Porque medir coincidência temporal exige acesso a dados que um investigador comum dificilmente consegue obter",
+        "Porque só correlações que se repetem por mais de um ano contam como evidência válida de causa"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Tratar isso como regra absoluta é o erro oposto — às vezes a correlação temporal reflete uma causa real; o ponto é que ela sozinha não distingue os dois casos.",
+        "2": "O laboratório desta sessão mediu exatamente esse tipo de coincidência com dados simples, sem nenhum acesso especial.",
+        "3": "Não existe esse critério de um ano — a questão é sobre a taxa de coincidência esperada por acaso, não sobre duração da observação."
+      },
+      "dicas": [
+        "O laboratório mediu quantas coincidências aconteceriam só pelo acaso, entre dois processos que o próprio script sorteou de forma independente.",
+        "Pense na diferença entre 'os dois eventos aconteceram no mesmo dia' e 'um evento causou o outro'.",
+        "Só uma alternativa fala sobre o comportamento normal de dois processos sem relação nenhuma entre si, sem inventar regra de tempo ou de acesso a dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: se dois processos são totalmente independentes, coincidir de vez em quando é esperado ou é uma anomalia?",
+      "explicacao": "O laboratório desta sessão simulou dois processos totalmente independentes e mediu quantas coincidências aconteceriam só pelo acaso — o número observado bateu com o número esperado pela matemática. Isso confirma que coincidência ocasional não é sinal de causa: é o comportamento normal de eventos sem relação nenhuma entre si, o que a análise de qualquer incidente precisa descontar antes de declarar uma relação causal.",
+      "fonte": "lab/correlacao_nao_e_causa.py desta sessão, demonstração 1.",
+      "tags": [
+        "forense",
+        "evidencia",
+        "conceitual",
+        "correlacao"
+      ]
+    },
+    {
+      "id": "4.8.q19",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "artefato": "=== demonstração 1: coincidência temporal sem causa ===\n  90 dias, dois processos independentes (15% de chance cada, por dia)\n  coincidências observadas (os dois no mesmo dia): 2\n  coincidências esperadas só pelo acaso:           2.0",
+      "enunciado": "Esta é a saída real de uma simulação de 90 dias com dois processos independentes. O que ela sustenta?",
+      "alternativas": [
+        "Que o total medido de vezes em que os dois marcadores caíram no mesmo dia bateu quase exatamente com a previsão da fórmula",
+        "Que os dois processos, na verdade, têm alguma relação causal escondida, já que coincidiram duas vezes em 90 dias",
+        "Que a simulação tem um erro de implementação, porque o número de coincidências deveria ser bem menor que dois",
+        "Que o resultado só é válido para exatamente 90 dias de observação, e mudaria de padrão com qualquer outro período"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O script sorteia os dois processos de forma matematicamente independente — não existe relação causal escondida possível dentro do próprio modelo.",
+        "2": "Zero coincidências não é o valor esperado com 15% de chance cada — o valor esperado calculado (2,0) já prevê coincidências ocasionais.",
+        "3": "O período de 90 dias é um parâmetro do modelo, não uma condição especial — a mesma lógica de cálculo vale pra qualquer número de dias."
+      },
+      "dicas": [
+        "Compare os dois números da saída: coincidências observadas e coincidências esperadas — eles são parecidos ou muito diferentes?",
+        "O script define os dois processos como independentes por construção — isso deixa espaço pra uma relação causal escondida?",
+        "Só uma alternativa lê a proximidade entre os dois números como confirmação do modelo, sem inventar causa, erro ou dependência de período."
+      ],
+      "pergunta_socratica": "Antes de conferir: o número observado (2) está próximo ou muito distante do número esperado (2,0)?",
+      "explicacao": "A saída mostra 2 coincidências observadas contra 2,0 esperadas — praticamente idênticas, confirmando que o modelo se comporta exatamente como a matemática prevê para dois processos independentes. Isso é a demonstração direta de que coincidência ocasional não pede explicação causal: é o resultado normal, não uma anomalia.",
+      "fonte": "Saída real de lab/correlacao_nao_e_causa.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "forense",
+        "artefato",
+        "correlacao",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.8.q20",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Por que a frase 'nenhum log mostra esse evento' não é equivalente a 'esse evento não aconteceu'?",
+      "alternativas": [
+        "Porque a primeira frase descreve a cobertura do sistema de coleta, e a segunda descreve o mundo real",
+        "Porque um sistema de log costuma ter uma taxa de falha aleatória de cerca de 10% dos eventos, segundo estudos do setor",
+        "Porque logs costumam ser apagados a cada 24 horas nas configurações mais comuns de sistema",
+        "Porque a frase só é falsa quando o evento é malicioso — eventos legítimos costumam aparecer no log corretamente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe essa taxa fixa de 10% — o problema não é falha aleatória, é cobertura estruturalmente limitada (janela de retenção, fontes não monitoradas).",
+        "2": "Retenção de 24 horas não é padrão universal nenhum — varia por configuração, e não é o ponto do argumento.",
+        "3": "A cobertura de um sistema de log não distingue evento malicioso de legítimo — a limitação é sobre o que e quando o sistema grava, não sobre a natureza do evento."
+      },
+      "dicas": [
+        "Pense no laboratório desta sessão: o log tinha uma janela de horas específica coberta — o que acontece com um evento fora dela?",
+        "A pergunta certa não é 'o log mostra?' — é sobre o que o sistema sequer tinha capacidade de mostrar.",
+        "Só uma alternativa separa o que o sistema tinha capacidade de gravar do que de fato aconteceu, sem inventar taxa de falha, prazo fixo ou distinção por tipo de evento."
+      ],
+      "pergunta_socratica": "Antes de conferir: um sistema que só grava eventos das 8h às 19h consegue mostrar alguma coisa sobre um evento às 3h da manhã?",
+      "explicacao": "Um sistema de log tem cobertura limitada por desenho: janela de retenção, fontes monitoradas, horários de operação. 'Nenhum log mostra' pode significar apenas que o sistema nunca teria capacidade de mostrar aquele evento, independentemente de ele ter acontecido ou não — a pergunta que resolve a ambiguidade é se o sistema sequer cobria aquela fonte, horário e tipo de evento.",
+      "fonte": "4.8.t5, desta sessão.",
+      "tags": [
+        "forense",
+        "evidencia",
+        "conceitual",
+        "log"
+      ]
+    },
+    {
+      "id": "4.8.q21",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "artefato": "=== demonstração 2: ausência de log não é ausência de ação ===\n  janela coberta pelo log: horas 8h–19h\n  hora real em que o evento aconteceu: 3h\n  o log tem registro dessa hora? False",
+      "enunciado": "O que esta saída sustenta sobre a relação entre a janela de cobertura do log e o horário real do evento?",
+      "alternativas": [
+        "Que o evento, por ter acontecido fora da janela coberta pelo log, não deixou nenhum registro possível",
+        "Que o log tem um defeito de configuração, já que a prática recomendada é cobrir as 24 horas do dia",
+        "Que o evento não aconteceu de fato, já que nenhum sistema de log registrou nada sobre ele",
+        "Que a janela de 8h às 19h é insuficiente e deveria ser ampliada para 6h às 21h em qualquer caso"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nada estabelece 24 horas como padrão universal de cobertura — janelas de retenção variam por decisão de orçamento, como 4.5 já ensinou.",
+        "2": "O evento aconteceu de fato, segundo os dados do próprio laboratório — a ausência no log é sobre cobertura, não sobre ocorrência real.",
+        "3": "Não existe um horário 'correto' universal de cobertura — o ponto não é qual janela é ideal, é reconhecer os limites da que existe."
+      },
+      "dicas": [
+        "Compare a janela coberta pelo log com a hora real do evento — elas se sobrepõem?",
+        "Pense no que aconteceria se o evento tivesse ocorrido às 14h em vez de às 3h — o log mostraria?",
+        "Só uma alternativa lê a saída como limite de cobertura, sem inventar defeito, negar o evento ou propor um horário ideal."
+      ],
+      "pergunta_socratica": "Antes de conferir: a hora do evento real cai dentro ou fora da janela coberta pelo log?",
+      "explicacao": "O evento aconteceu às 3h, fora da janela de cobertura do log (8h–19h) — por isso o log não tem registro dele, independentemente de o evento ter de fato ocorrido. A saída confirma exatamente o argumento de 4.8.t5: ausência de log é ausência de cobertura, não prova de ausência de ação.",
+      "fonte": "Saída real de lab/correlacao_nao_e_causa.py, demonstração 2, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "forense",
+        "artefato",
+        "log",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.8.q22",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um relatório de incidente afirma: 'o pico de uso de CPU no servidor A e o alerta de login suspeito no servidor B aconteceram no mesmo minuto, portanto um evento causou o outro'. O que essa conclusão ignora?",
+      "alternativas": [
+        "Que coincidência no mesmo minuto pode acontecer só por acaso, sem nenhuma relação causal real",
+        "Que servidores diferentes não deveriam ser comparados num mesmo relatório de incidente",
+        "Que pico de CPU e login suspeito são, por definição, a mesma categoria de evento técnico",
+        "Que o relatório deveria ter sido escrito por dois analistas diferentes, um para cada servidor"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Comparar servidores diferentes num mesmo relatório é prática normal de correlação — o problema não é comparar, é concluir causa sem medir a chance de coincidência.",
+        "2": "Pico de CPU e login suspeito são categorias de evento completamente diferentes — a frase inverte causa e categoria.",
+        "3": "Divisão de autoria entre analistas não resolve o problema lógico da conclusão apressada."
+      },
+      "dicas": [
+        "Pense no laboratório desta sessão: dois processos totalmente independentes ainda coincidem de vez em quando, só pelo acaso.",
+        "A pergunta não é sobre quem escreveu o relatório — é sobre o que a conclusão de causa exigiria antes de ser válida.",
+        "Só uma alternativa aponta pra ausência de uma medida de chance de coincidência, sem inventar regra de autoria ou de categoria."
+      ],
+      "pergunta_socratica": "Antes de conferir: o relatório mediu, em algum momento, com que frequência esses dois tipos de evento coincidiriam por puro acaso?",
+      "explicacao": "A conclusão trata uma coincidência de horário como prova de causa, sem medir a taxa de coincidência esperada só pelo acaso entre os dois tipos de evento — exatamente o erro que 4.8.t4 e o laboratório de correlação desta sessão demonstram. Sem essa medida, a coincidência observada não distingue relação causal de acaso.",
+      "fonte": "4.8.t4, desta sessão.",
+      "tags": [
+        "forense",
+        "evidencia",
+        "cenario",
+        "correlacao"
+      ]
+    },
+    {
+      "id": "4.8.q23",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "trecho": "RELATÓRIO DE INCIDENTE — trecho de conclusão\nNenhum log de rede registra tráfego de exfiltração entre 00h e 06h, período em que o invasor teria agido segundo a linha do tempo suspeita. Concluímos, portanto, que não houve exfiltração de dados neste incidente.",
+      "enunciado": "Qual é o defeito lógico desta conclusão?",
+      "alternativas": [
+        "Trata a ausência de registro no log como prova de que o evento não aconteceu, sem checar a cobertura",
+        "A linha do tempo suspeita entre 00h e 06h está incorreta e deveria ser recalculada antes de qualquer conclusão",
+        "O relatório deveria ter citado o nome da ferramenta de log usada para ser tecnicamente válido",
+        "Não houve defeito lógico — a conclusão está correta, já que log é a fonte mais confiável disponível"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nada no trecho indica erro na linha do tempo em si — o defeito está na inferência a partir do log, não no horário suspeito.",
+        "2": "Nomear a ferramenta é detalhe de completude, não o defeito lógico central da conclusão.",
+        "3": "Log ser a fonte mais confiável disponível não resolve o problema de cobertura — mesmo a fonte mais confiável tem limite de cobertura."
+      },
+      "dicas": [
+        "Pense no laboratório desta sessão: um log que só cobre 8h–19h consegue dizer algo sobre um evento às 3h?",
+        "O trecho não informa se o sistema de log de rede sequer registrava tráfego durante a madrugada — isso importa?",
+        "Só uma alternativa aponta pro mesmo erro que 4.8.t5 já nomeou, sem inventar problema de linha do tempo ou de nomenclatura."
+      ],
+      "pergunta_socratica": "Antes de conferir: o trecho informa, em algum momento, se o sistema de log cobria o período da madrugada?",
+      "explicacao": "O relatório conclui ausência de exfiltração a partir de um log vazio, sem verificar se aquele sistema de log sequer tinha cobertura para o período da madrugada — o mesmo erro que 4.8.t5 nomeia. Um log vazio só prova ausência de evento quando se confirma, separadamente, que o sistema tinha capacidade de registrá-lo naquele horário e fonte.",
+      "fonte": "4.8.t5, desta sessão.",
+      "tags": [
+        "forense",
+        "evidencia",
+        "caca-erro",
+        "log"
+      ]
+    },
+    {
+      "id": "4.8.q24",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um adversário que conhece a janela de retenção de log da vítima (8h às 19h) programa a exfiltração de dados para acontecer às 3h da manhã. Por que essa escolha de horário é vantajosa para ele, especificamente?",
+      "alternativas": [
+        "Porque a ação cai fora da janela que o log cobre, e por isso nenhum registro dela chega a existir",
+        "Porque sistemas de segurança costumam desligar durante a madrugada, numa configuração comum de economia de recursos",
+        "Porque analistas de segurança raramente trabalham durante a madrugada, o que atrasa qualquer resposta em tempo real",
+        "Porque tráfego de rede costuma ser mais lento de madrugada, o que dificulta a detecção por volume"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Sistemas de segurança não desligam automaticamente de madrugada por padrão nenhum — isso não é prática real.",
+        "2": "O enunciado não estabelece ausência de analistas — o ponto é sobre o que o log grava, não sobre quem está de plantão.",
+        "3": "Velocidade de tráfego de madrugada não é o mecanismo em jogo — o ponto é a cobertura do sistema de log, não o volume de dados."
+      },
+      "dicas": [
+        "Pense no laboratório desta sessão: o que acontece com um evento que cai fora da janela que o log cobre?",
+        "A vantagem do adversário não depende de ninguém estar de plantão — depende só do que o sistema tecnicamente grava.",
+        "Só uma alternativa usa diretamente a informação dada — a janela de retenção conhecida pelo adversário."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o adversário agisse às 14h em vez de às 3h, o log teria capturado alguma coisa?",
+      "explicacao": "Ao agir às 3h, fora da janela de 8h às 19h que o log cobre, o adversário garante que nenhum registro técnico da ação existirá — não porque ninguém estava vendo, mas porque o sistema nunca teve capacidade de gravar aquele horário. É a mesma lacuna estrutural de 4.8.t5, explorada deliberadamente.",
+      "fonte": "Leitura adversarial de 4.8.t5 e do laboratório de correlação desta sessão.",
+      "tags": [
+        "forense",
+        "evidencia",
+        "ataque-defesa",
+        "log"
+      ]
+    },
+    {
+      "id": "4.8.q25",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ligue cada erro de raciocínio sobre evidência ao exemplo que o ilustra.",
+      "pares": [
+        [
+          "tratar correlação temporal como causa",
+          "dois eventos raros coincidem no mesmo dia, e o relatório declara relação direta entre eles"
+        ],
+        [
+          "tratar ausência de log como ausência de ação",
+          "nenhum registro aparece durante um período em que o sistema simplesmente não coletava dados"
+        ],
+        [
+          "tratar timestamp de arquivo como prova de quando algo aconteceu",
+          "um arquivo malicioso tem data de criação que, sozinha, vira a data do ataque no relatório"
+        ],
+        [
+          "tratar uso de credencial como prova de autoria humana",
+          "um laudo afirma que uma pessoa específica agiu, baseado só no login da conta dela"
+        ]
+      ],
+      "dicas": [
+        "Cada erro tem um exemplo que usa exatamente o tipo de evidência nomeado no erro — pense no que cada afirmação usa como base.",
+        "Dois dos erros são sobre o que a evidência NÃO cobre; dois são sobre atribuir demais a partir do que ela cobre.",
+        "O exemplo sobre credencial e o exemplo sobre timestamp são os mais parecidos entre si — releia com atenção qual afirma o quê."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses quatro exemplos fala sobre um período que o sistema nunca cobriu?",
+      "explicacao": "Os quatro erros aparecem repetidamente em laudos malfeitos: coincidência tratada como causa, silêncio de log tratado como prova de nada ter acontecido, metadado de arquivo tratado como fato do mundo real, e uso de credencial tratado como identidade confirmada da pessoa. Os quatro compartilham o mesmo defeito — afirmar mais do que a evidência específica sustenta.",
+      "fonte": "4.8.t4, t5 e t6, desta sessão.",
+      "tags": [
+        "forense",
+        "evidencia",
+        "pareamento",
+        "raciocinio"
+      ]
+    },
+    {
+      "id": "4.8.q26",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "O que os dois laboratórios desta sessão sobre correlação e ausência de log têm em comum, como lição para quem escreve um laudo?",
+      "alternativas": [
+        "Os dois mostram que uma leitura apressada da evidência confunde o que os dados mostram com o que aconteceu de fato",
+        "Os dois provam que sistemas de log são, de modo geral, ferramentas pouco confiáveis para qualquer investigação forense",
+        "Os dois mostram que estatística deveria ser evitada num laudo forense, por ser fácil de manipular",
+        "Os dois só se aplicam a incidentes de rede, não a outros tipos de evidência digital"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nenhum dos dois laboratórios conclui que logs são pouco confiáveis em geral — o ponto é sobre os limites do que um log específico cobre.",
+        "2": "O laboratório de correlação usa estatística justamente para evitar conclusão apressada, não para manipular — é ferramenta de rigor, não de engano.",
+        "3": "Os dois princípios (correlação, cobertura) valem para qualquer tipo de evidência digital, não só tráfego de rede."
+      },
+      "dicas": [
+        "Pense no que as duas demonstrações têm em comum: uma trata coincidência como se fosse mais do que é, a outra trata ausência como se fosse mais.",
+        "A lição não é sobre confiabilidade geral de log nem sobre proibir estatística — é sobre o que cada evidência especificamente sustenta.",
+        "Só uma alternativa generaliza a lição pra qualquer laudo, sem restringir a um tipo de sistema nem exagerar a conclusão."
+      ],
+      "pergunta_socratica": "Antes de conferir: as duas demonstrações erram na mesma direção, ou em direções opostas?",
+      "explicacao": "As duas demonstrações desta sessão apontam pro mesmo tipo de erro, em direções opostas: tratar uma coincidência como se ela sozinha provasse causa, e tratar um log vazio como se ele sozinho provasse ausência. A lição comum é a mesma disciplina — perguntar o que os dados especificamente cobrem antes de decidir o que eles sustentam.",
+      "fonte": "Síntese de 4.8.t4 e 4.8.t5, desta sessão.",
+      "tags": [
+        "forense",
+        "evidencia",
+        "conceitual",
+        "sintese"
+      ]
+    },
+    {
+      "id": "4.8.q27",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Por que um timestamp de arquivo, sozinho, nunca prova quando um evento realmente aconteceu?",
+      "alternativas": [
+        "Porque timestamp é um metadado de software, alterável por qualquer processo com acesso de escrita",
+        "Porque relógios de sistema costumam ter erro de sincronização de vários minutos, mesmo em computadores bem configurados",
+        "Porque timestamps só existem em sistemas Windows, e não em outros sistemas operacionais",
+        "Porque arquivos criados por ferramentas automatizadas costumam receber timestamp incorreto, por limitação da própria ferramenta"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Erro de sincronização de relógio é um problema real, mas menor e mensurável — não é o motivo central de desconfiar de um timestamp isolado.",
+        "2": "Timestamp de arquivo existe em praticamente todo sistema de arquivos moderno, não só no Windows.",
+        "3": "Não existe essa limitação — ferramentas automatizadas recebem timestamp normalmente, como qualquer outro processo."
+      },
+      "dicas": [
+        "Pense em quem tem o poder de mudar esse campo — é um valor fixo pelo hardware, ou algo que um programa pode reescrever?",
+        "A questão não é sobre erro de relógio nem sobre sistema operacional — é sobre quem controla o valor do campo.",
+        "Só uma alternativa fala sobre o timestamp ser um dado que um software qualquer pode alterar deliberadamente."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe algum comando comum de sistema que permite mudar o timestamp de um arquivo pra qualquer valor escolhido?",
+      "explicacao": "Timestamp de arquivo é metadado gerenciado pelo sistema operacional, e qualquer processo com permissão de escrita pode alterá-lo pra um valor arbitrário — não é um registro imutável de quando algo realmente aconteceu, é o que o sistema diz que aconteceu, e o sistema pode ser instruído a dizer outra coisa.",
+      "fonte": "4.8.t6, desta sessão.",
+      "tags": [
+        "forense",
+        "limites",
+        "conceitual",
+        "timestamp"
+      ]
+    },
+    {
+      "id": "4.8.q28",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "artefato": "=== contagem ===\n  2 de 5 afirmações sustentadas diretamente pela evidência\n  3 soam plausíveis, mas exigem uma fonte independente a mais",
+      "enunciado": "Esta é a contagem final de um laboratório que avalia cinco afirmações contra um conjunto fixo de evidências de um caso. O que ela sustenta sobre a proporção entre o que parece razoável e o que a evidência realmente comprova?",
+      "alternativas": [
+        "Que a maioria das afirmações plausíveis, três de cinco, ainda não pode ser tomada como certeza sem mais alguma checagem",
+        "Que o caso não tem evidência suficiente para sustentar nenhuma conclusão, já que menos da metade foi confirmada",
+        "Que as cinco afirmações deveriam ser descartadas, porque nenhuma delas é totalmente confiável",
+        "Que o laboratório encontrou um erro na coleta de evidências, já que a maioria não pôde ser confirmada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "2 de 5 sustentadas não é 'nenhuma conclusão' — é uma conta que separa o que se pode afirmar do que não se pode, não uma reprovação total do caso.",
+        "2": "Descartar as cinco ignora que duas delas são sustentadas diretamente — a lição não é descartar tudo, é distinguir.",
+        "3": "A contagem não indica erro de coleta — as evidências estão corretas, o que falta é corroboração pra certas afirmações específicas."
+      },
+      "dicas": [
+        "Releia a contagem: quantas afirmações são sustentadas, e o que a saída diz sobre as outras três?",
+        "A saída não fala em descartar evidência — fala em precisar de mais uma fonte pra certas afirmações.",
+        "Só uma alternativa lê a contagem como ela está, sem inventar reprovação total do caso ou erro de coleta."
+      ],
+      "pergunta_socratica": "Antes de conferir: a saída diz que as três afirmações não sustentadas são falsas, ou que precisam de mais alguma coisa?",
+      "explicacao": "A contagem mostra 2 de 5 afirmações diretamente sustentadas e 3 que soam plausíveis mas exigem uma fonte independente adicional — não é reprovação do caso nem indício de erro de coleta, é exatamente a disciplina que 4.8.t6 defende: separar o que a evidência comprova do que apenas parece razoável.",
+      "fonte": "Saída real de lab/o_que_o_exame_afirma.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "forense",
+        "artefato",
+        "limites",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "4.8.q29",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um laudo afirma: 'o usuário Carlos Mendes acessou o servidor financeiro às 2h da manhã', baseado unicamente no registro de login da conta dele. O que essa afirmação extrapola em relação ao que a evidência realmente mostra?",
+      "alternativas": [
+        "A evidência mostra que a conta de Carlos foi usada — afirmar que foi ele exige uma corroboração a mais",
+        "A evidência é insuficiente até para afirmar que a conta foi usada, já que um registro de login sozinho raramente prova acesso real",
+        "O laudo deveria ter usado o nome completo da empresa em vez do nome do servidor, por precisão técnica",
+        "A afirmação está correta como está, porque login de conta já é, por si só, identidade confirmada da pessoa"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Login é justamente o tipo de evidência que comprova acesso via aquela conta — a evidência não é insuficiente pra essa parte, só pra atribuição de pessoa.",
+        "2": "Nome da empresa ou do servidor não é o problema de precisão em questão — o problema é sobre autoria humana, não nomenclatura.",
+        "3": "É o oposto do que 4.8.t6 ensina — login de conta não é equivalente a identidade confirmada, é o mesmo problema de atribuição já citado no 0.3."
+      },
+      "dicas": [
+        "Pense na diferença entre 'a conta X foi usada' e 'a pessoa dona da conta X estava ao teclado'.",
+        "Uma credencial comprometida produziria exatamente o mesmo registro de login que o dono legítimo produziria.",
+        "Só uma alternativa separa o que o login comprova (uso da conta) do que ele não comprova sozinho (identidade da pessoa)."
+      ],
+      "pergunta_socratica": "Antes de conferir: um login registrado prova que a senha certa foi digitada, ou prova quem digitou a senha?",
+      "explicacao": "O registro de login comprova que a conta de Carlos foi usada para acessar o servidor — não que Carlos, a pessoa, estava fisicamente ao teclado. Uma credencial comprometida produz o mesmo registro. Afirmar autoria humana a partir de uso de conta é o mesmo problema de atribuição que o curso já tratou como difícil, e o laudo precisaria de uma fonte independente pra sustentar a afirmação como está.",
+      "fonte": "4.8.t6, desta sessão, com continuidade de 0.3.q33.",
+      "tags": [
+        "forense",
+        "limites",
+        "cenario",
+        "atribuicao"
+      ]
+    },
+    {
+      "id": "4.8.q30",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "trecho": "LAUDO PERICIAL — trecho de conclusão\nO arquivo malicioso apresenta timestamp de criação de 15/08 às 03h22. Concluímos que o ataque começou exatamente nesse horário, e a defesa da empresa falhou em detectar por mais de 40 horas.",
+      "enunciado": "Qual é o defeito deste trecho de laudo?",
+      "alternativas": [
+        "Trata o timestamp do arquivo como prova do horário do ataque, sem citar nenhuma fonte que confirme esse valor",
+        "O cálculo de 40 horas está matematicamente errado e precisa ser refeito com mais precisão",
+        "O laudo deveria ter usado apenas o horário local da empresa, não um horário genérico sem fuso especificado",
+        "Não há defeito — timestamp de criação de arquivo é a fonte mais confiável disponível para determinar início de um ataque"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nada no trecho indica erro de cálculo — o problema é a premissa usada no cálculo, não a aritmética em si.",
+        "2": "Fuso horário é detalhe de precisão, não o defeito central — o problema é confiar no timestamp sem corroboração.",
+        "3": "É o oposto do que 4.8.t6 ensina — timestamp de arquivo é metadado alterável, não a fonte mais confiável disponível."
+      },
+      "dicas": [
+        "Releia o trecho: ele cita alguma outra fonte além do próprio timestamp do arquivo?",
+        "Pense no laboratório de integridade desta sessão — timestamp é um campo que qualquer processo com acesso pode reescrever.",
+        "Só uma alternativa aponta pra ausência de corroboração independente, sem inventar erro de cálculo ou de fuso horário."
+      ],
+      "pergunta_socratica": "Antes de conferir: o laudo cita alguma fonte além do próprio arquivo pra confirmar o horário de 03h22?",
+      "explicacao": "O laudo usa o timestamp do próprio arquivo malicioso como prova do horário do ataque, sem nenhuma fonte independente que confirme esse valor — exatamente o erro que 4.8.t6 descreve. Timestamp é metadado alterável por qualquer processo com acesso de escrita; um laudo rigoroso corrobora esse valor com log de rede, outro sistema ou backup anterior antes de afirmar o horário como fato.",
+      "fonte": "4.8.t6, desta sessão.",
+      "tags": [
+        "forense",
+        "limites",
+        "caca-erro",
+        "timestamp"
+      ]
+    },
+    {
+      "id": "4.8.q31",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Por que a atribuição de autoria — dizer quem, especificamente, executou uma ação — é considerada um problema mais difícil do que confirmar que uma ação aconteceu?",
+      "alternativas": [
+        "Porque confirmar a ação tem evidência técnica direta, enquanto ligar a ação a uma pessoa exige inferência extra",
+        "Porque ações técnicas deixam menos rastro do que a identidade de quem as executou",
+        "Porque sistemas de log são projetados para esconder a identidade de quem realiza uma ação",
+        "Porque atribuir autoria é uma decisão jurídica, não técnica, e por isso está fora do escopo de qualquer exame forense"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "É o oposto — ações técnicas costumam deixar mais rastro direto (log, hash, timestamp) do que a ligação entre uma conta e a pessoa física por trás dela.",
+        "2": "Sistemas de log não são projetados pra esconder identidade — eles registram o que o sistema sabe, que é a conta usada, não a pessoa.",
+        "3": "Atribuição tem consequência jurídica, mas a dificuldade técnica de ligar evidência a pessoa é real e é, sim, parte do que um exame forense discute."
+      },
+      "dicas": [
+        "Pense na diferença entre provar que algo aconteceu e provar quem, especificamente, foi o responsável por isso.",
+        "O que um log realmente registra — a conta usada, ou a identidade da pessoa que digitou a senha?",
+        "Só uma alternativa localiza a dificuldade na distância entre evidência técnica e identidade humana."
+      ],
+      "pergunta_socratica": "Antes de conferir: um log prova que uma ação aconteceu através de uma conta, ou prova quem estava fisicamente usando aquela conta?",
+      "explicacao": "Confirmar que uma ação aconteceu costuma ter evidência técnica direta — um log, um hash, um artefato. Ligar essa ação a uma pessoa específica exige um passo a mais: confirmar que só aquela pessoa poderia ter usado aquela conta, naquele momento, o que raramente tem evidência tão direta. É por isso que o curso já tratou atribuição como problema difícil, e por isso um exame honesto separa 'a conta fez X' de 'a pessoa fez X'.",
+      "fonte": "Continuidade de 0.3.q33; 4.8.t6, desta sessão.",
+      "tags": [
+        "forense",
+        "limites",
+        "conceitual",
+        "atribuicao"
+      ]
+    },
+    {
+      "id": "4.8.q32",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um investigador nota que o registro de acesso de um sistema comprometido está anormalmente limpo — sem os eventos de rotina que normalmente apareceriam num período de dias. O que essa limpeza anormal, por si só, sugere sobre a confiabilidade do que resta no log?",
+      "alternativas": [
+        "Que o log pode ter sido alterado ou apagado em parte, reduzindo a confiança no que restou dele",
+        "Que o sistema estava com pouco uso durante aquele período, o que é a explicação mais provável para poucos eventos",
+        "Que o log está funcionando de forma otimizada, registrando só eventos realmente relevantes",
+        "Que a limpeza do log não afeta a confiabilidade do que resta, já que os eventos remanescentes continuam válidos"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Baixo uso é uma explicação possível, mas o enunciado já qualifica a limpeza como 'anormal' — descartar a hipótese de alteração sem investigar é o erro que este eixo aponta.",
+        "2": "Otimização de log não costuma remover eventos de rotina de forma seletiva — essa leitura ignora o padrão anormal descrito.",
+        "3": "Se parte do log foi apagada ou alterada, a confiança no que resta cai — um log parcialmente comprometido não garante que o restante está intacto."
+      },
+      "dicas": [
+        "Pense no que 4.8.t3 já ensinou sobre integridade — um registro anormal ainda pode ser tratado como confiável sem checagem adicional?",
+        "O enunciado já qualifica a limpeza como anormal, não como baixo uso comum — isso já elimina uma das alternativas.",
+        "Só uma alternativa reconhece o padrão como motivo de desconfiança, sem inventar explicação benigna nem ignorar o problema."
+      ],
+      "pergunta_socratica": "Antes de conferir: um log anormalmente limpo é mais consistente com pouco uso, ou com alguém tendo apagado parte dele?",
+      "explicacao": "Um padrão anormal de ausência de eventos de rotina é o tipo de sinal que um exame honesto trata como motivo de desconfiança, não como coincidência benigna — se parte do log foi alterada ou removida, a integridade do que resta fica em dúvida. Reconhecer esse padrão é parte dos limites honestos de um exame: nem tudo que sobra num log comprometido merece confiança automática.",
+      "fonte": "4.8.t3 e t6, desta sessão — reconhecimento de padrão, não técnica de alteração.",
+      "tags": [
+        "forense",
+        "limites",
+        "ataque-defesa",
+        "antiforense"
+      ]
+    },
+    {
+      "id": "4.8.q33",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Ordene, do primeiro ao último, os passos de um laudo forense honesto sobre o que a evidência sustenta.",
+      "itens": [
+        "Coletar e preservar a evidência, com integridade verificável",
+        "Listar, para cada evidência, o que ela especificamente comprova",
+        "Separar as afirmações diretamente sustentadas das que exigem corroboração adicional",
+        "Buscar corroboração independente para as afirmações que ainda não têm",
+        "Escrever a conclusão só com o que ficou sustentado, mesmo que menos decisivo"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dicas": [
+        "Antes de listar o que uma evidência comprova, é preciso ter a evidência coletada e preservada.",
+        "Separar o sustentado do não sustentado só faz sentido depois de listar o que cada evidência comprova individualmente.",
+        "Buscar corroboração adicional é uma tentativa de resolver o que ficou 'não sustentado' — isso vem antes ou depois de identificar essa categoria?"
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para separar afirmações sustentadas de não sustentadas antes de saber o que cada evidência comprova?",
+      "explicacao": "O processo começa com coleta e preservação íntegra, segue listando o que cada evidência especificamente comprova, depois separa o que está diretamente sustentado do que só parece plausível, busca corroboração adicional pro segundo grupo, e só então escreve a conclusão — com o que ficou sustentado, mesmo que isso produza uma conclusão menos decisiva do que a narrativa completa sugeriria.",
+      "fonte": "Síntese de 4.8.t3 a t6, desta sessão.",
+      "tags": [
+        "forense",
+        "limites",
+        "ordenacao",
+        "processo"
+      ]
+    },
+    {
+      "id": "4.8.q34",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O que distingue um laudo técnico honesto de uma narrativa convincente sobre o mesmo incidente?",
+      "alternativas": [
+        "O laudo técnico afirma só o que a evidência sustenta, mesmo com a história ficando incompleta",
+        "O laudo técnico usa linguagem mais formal, enquanto a narrativa usa linguagem acessível para leigos",
+        "O laudo técnico costuma ser mais longo, porque documenta cada passo do processo em detalhe",
+        "O laudo técnico evita qualquer interpretação, incluindo só listas de dados brutos sem julgamento humano"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Formalidade de linguagem é estilo, não o critério que separa as duas coisas — um laudo pode ser acessível e ainda ser honesto.",
+        "2": "Tamanho não é o critério — um laudo curto que afirma só o sustentado é mais honesto que um longo cheio de inferência não corroborada.",
+        "3": "Um laudo honesto inclui julgamento e interpretação — o que ele evita é afirmar além do que a evidência sustenta, não evitar julgamento nenhum."
+      },
+      "dicas": [
+        "Pense nos laboratórios desta sessão: o que separava as afirmações 'sustentadas' das 'plausíveis'?",
+        "A diferença não é sobre tamanho, formalidade ou ausência de julgamento — é sobre onde a linha entre evidência e suposição é traçada.",
+        "Só uma alternativa fala sobre o conteúdo da afirmação, não sobre estilo ou formato."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma história completa e satisfatória é sempre sinal de um laudo mais rigoroso, ou às vezes é sinal do oposto?",
+      "explicacao": "Um laudo técnico honesto aceita deixar lacunas quando a evidência não sustenta mais do que isso — mesmo que a história fique incompleta. Uma narrativa convincente preenche essas lacunas com o que parece razoável, produzindo uma versão mais satisfatória de contar, mas menos ancorada no que de fato pode ser provado. É a mesma disciplina demonstrada nos laboratórios desta sessão: contar o que é sustentado, não o que completaria a história.",
+      "fonte": "Síntese de 4.8.t6, desta sessão.",
+      "tags": [
+        "forense",
+        "limites",
+        "conceitual",
+        "sintese"
+      ]
+    },
+    {
+      "id": "4.8.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "enunciado": "Você assume a perícia de um caso em que a equipe técnica já examinou o sistema comprometido ao vivo, sem write-blocker, antes de você chegar; a cadeia de custódia é uma planilha compartilhada sem hash; o relatório preliminar já conclui causa a partir de duas coincidências de horário; e o laudo afirma autoria de uma pessoa específica baseado só em login de conta. Você tem uma semana antes da entrega final. O que produz o maior ganho real nesse prazo?",
+      "alternativas": [
+        "Reescrever a seção de conclusões pra separar o que a evidência já coletada sustenta do que ela não sustenta",
+        "Refazer a coleta de evidência do zero com write-blocker, descartando tudo que já foi examinado ao vivo",
+        "Convencer a equipe técnica a assinar um novo formulário de custódia, reconhecendo os erros do processo anterior",
+        "Focar toda a semana em provar a atribuição de autoria com mais certeza, já que é o ponto mais contestável do laudo"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O sistema já foi examinado ao vivo — refazer a coleta não desfaz a alteração já produzida, e pode não ser fisicamente possível se o estado mudou desde então.",
+        "2": "Um novo formulário assinado não resolve o problema estrutural de a planilha não ser verificável — é o mesmo defeito, só com mais uma assinatura em cima.",
+        "3": "Investir a semana inteira em atribuição, o ponto mais frágil e difícil de resolver, deixa as outras conclusões igualmente apressadas sem correção."
+      },
+      "dicas": [
+        "Pense no que já é irreversível (a evidência já examinada) e no que ainda pode ser corrigido (o que o laudo afirma sobre ela).",
+        "As quatro coisas erradas do cenário têm gravidades diferentes — qual delas ainda está sob seu controle total nesta semana?",
+        "Só uma alternativa aceita o que já aconteceu como irreversível e foca no que ainda pode mudar: a honestidade das conclusões escritas."
+      ],
+      "pergunta_socratica": "Antes de conferir: examinar o sistema de novo, com write-blocker, desfaz a alteração que o primeiro exame já produziu?",
+      "explicacao": "A evidência já foi tocada, e isso não se desfaz com uma segunda coleta — mas as conclusões escritas ainda estão inteiramente sob controle. Separar o que a evidência de fato sustenta do que ela não sustenta é o que produz o maior ganho real: um laudo mais honesto, mesmo que menos decisivo, é defensável; um laudo confiante mas mal fundamentado não é.",
+      "fonte": "Síntese dos quatro eixos do módulo 4.8 (efeito observador, cadeia de custódia, o que a evidência sustenta, limites honestos).",
+      "tags": [
+        "forense",
+        "cenario",
+        "sintese",
+        "priorizacao"
+      ]
+    }
+  ]
+}

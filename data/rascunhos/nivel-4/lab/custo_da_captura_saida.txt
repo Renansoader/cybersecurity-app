@@ -1,0 +1,20 @@
+=== metadados logo apos criar o arquivo ===
+  tamanho:            50 bytes
+  modificado (mtime): Wed Sep  2 09:27:43 2026
+  acessado  (atime):  Wed Sep  2 09:27:43 2026
+
+=== abrindo o arquivo só para leitura (nenhuma escrita) ===
+
+=== metadados depois da leitura ===
+  tamanho:            50 bytes  (mudou: False)
+  modificado (mtime): Wed Sep  2 09:27:43 2026  (mudou: False)
+  acessado  (atime):  Wed Sep  2 09:27:45 2026  (mudou: True)
+
+=== leitura ===
+  O conteudo e o mtime nao mudaram — ninguem escreveu no arquivo.
+  O atime, quando o sistema de arquivos o mantem, muda so de LER.
+  Um perito que abre um arquivo suspeito num sistema ao vivo, sem
+  write-blocker nem copia forense antes, corre o risco de ele mesmo
+  produzir a alteracao que depois vira objeto de duvida sobre a
+  integridade da evidencia. A ordem certa e sempre copiar primeiro,
+  examinar a copia depois — nunca o inverso.
