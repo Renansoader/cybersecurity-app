@@ -1,0 +1,21 @@
+=== servidor real em 127.0.0.1:8103 ===
+  sessao: bruno, papel=usuario (comum, nao admin)
+
+=== HORIZONTAL: bruno le a mensagem 9001, que e da carla ===
+  status: 200
+  corpo:  {'dono': 'carla', 'texto': 'combinar reajuste com RH'}
+
+  sistema antes: {'modo_manutencao': False}
+
+=== VERTICAL: bruno (usuario comum) ativa modo manutencao ===
+  status: 200
+  corpo:  modo manutencao ativado
+  sistema depois: {'modo_manutencao': True}
+
+=== leitura ===
+  As duas requisicoes passaram pela MESMA funcao autorizado(), que
+  so confere 'existe sessao?'. No primeiro caso faltou comparar o
+  dono do recurso (horizontal: outra CONTA do mesmo nivel). No
+  segundo faltou comparar o papel exigido (vertical: um NIVEL
+  acima). Sao a mesma lacuna -- 'autenticado' tratado como sinonimo
+  de 'autorizado' -- vista por dois angulos diferentes.

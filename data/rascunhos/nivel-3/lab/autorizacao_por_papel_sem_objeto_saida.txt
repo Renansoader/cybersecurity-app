@@ -1,0 +1,17 @@
+=== servidor real em 127.0.0.1:8101 ===
+  sessao: carla, papel=gerente, departamento=marketing
+  despesa 501 antes: {'departamento': 'engenharia', 'valor': 4200, 'status': 'pendente'}
+
+=== carla (gerente de marketing) aprova a despesa 501, da engenharia ===
+  status: 200
+  corpo:  {"departamento": "engenharia", "valor": 4200, "status": "aprovada"}
+
+  despesa 501 depois: {'departamento': 'engenharia', 'valor': 4200, 'status': 'aprovada'}
+
+=== leitura ===
+  O servidor checou o papel a cada requisicao -- nao confiou na tela,
+  a licao do 3.4 esta presente. E mesmo assim aprovou uma despesa de
+  outro departamento: a condicao avaliada foi 'e gerente?', nunca
+  'e gerente DESTE departamento, sobre ESTA despesa?'. Autenticacao e
+  papel respondem quem decide; autorizacao por objeto responde sobre
+  que recurso especifico a decisao vale -- e sao perguntas diferentes.

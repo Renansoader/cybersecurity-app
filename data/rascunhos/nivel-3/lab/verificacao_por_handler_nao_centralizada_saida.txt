@@ -1,0 +1,21 @@
+=== servidor real em 127.0.0.1:8102, rota /pedido (id 77) ===
+
+=== GET /pedido sem sessao (checagem presente) ===
+  status: 401 (recusado, como esperado)
+
+  pedidos antes do DELETE: {77: {'cliente': 'ana.silva', 'status': 'confirmado'}}
+
+=== DELETE /pedido, mesma rota, sem sessao nenhuma ===
+  status: 200
+  corpo:  pedido 77 cancelado
+
+  pedidos depois do DELETE: {}
+
+=== leitura ===
+  GET recusou sem sessao; DELETE, na mesma rota, sobre o mesmo
+  recurso, aceitou. A checagem foi colada no metodo, nao na rota --
+  cada porta nova (metodo, versao, endpoint legado) precisa que
+  alguem lembre de repetir a checagem, e uma vez esquecida a porta
+  fica aberta. Um ponto central -- um decorador aplicado a toda a
+  rota, ou um middleware antes de qualquer handler -- nao depende
+  de lembranca por porta.

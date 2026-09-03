@@ -1,0 +1,18 @@
+=== servidor real em 127.0.0.1:8104 ===
+  pedido 1 antes: {'valor': 899.9, 'pago_no_servidor': False, 'status': 'carrinho'}
+
+=== /confirmar chamado direto, sem nunca passar por /pagar, ===
+=== mandando {'pago': true} no corpo da propria requisicao    ===
+  status: 200
+  corpo:  pedido confirmado
+
+  pedido 1 depois: {'valor': 899.9, 'pago_no_servidor': False, 'status': 'confirmado'}
+
+=== leitura ===
+  'pago_no_servidor' continua False -- /pagar nunca foi chamado --
+  e ainda assim o pedido virou 'confirmado'. Nao ha caractere
+  especial nem parametro malformado nesta requisicao: ela e
+  sintaticamente perfeita, so chegou fora de ordem, e o servidor
+  aceitou um campo que o proprio cliente inventou como se fosse
+  o registro dele mesmo. Nenhum filtro de entrada pega isso --
+  o defeito e o servidor nao guardar (e checar) o proprio estado.

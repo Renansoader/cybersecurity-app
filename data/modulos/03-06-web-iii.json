@@ -1,0 +1,1018 @@
+{
+  "id": "3.6",
+  "nivel": 3,
+  "titulo": "Web III — a requisição que o servidor não deveria ter atendido",
+  "objetivos": [
+    "Reconhecer que autorização precisa avaliar o objeto específico pedido em cada requisição — não a tela que pediu, e não só o papel de quem pede",
+    "Reconhecer que toda porta de entrada de uma aplicação — rota, verbo HTTP, versão, endpoint esquecido — precisa da mesma verificação, e explicar por que ela deve morar num ponto central, não repetida por handler",
+    "Reconhecer escalada horizontal e escalada vertical como a mesma falha — checagem incompleta de autorização — vista por ângulos diferentes",
+    "Reconhecer falha de lógica de negócio — requisição sintaticamente válida, fora de ordem ou com valor que a interface legítima nunca ofereceria — e aplicar o contraponto defensivo: autorização centralizada, estado checado no servidor, menor privilégio como camada complementar"
+  ],
+  "pre_requisitos": ["2.6", "3.4", "3.5"],
+  "teoria": [
+    {
+      "id": "3.6.t1",
+      "titulo": "Autenticado não é autorizado",
+      "texto": "O 3.4 já estabeleceu que a decisão de segurança mora no servidor, nunca na tela. Este módulo pergunta o que falta depois disso: decidir sobre o quê, exatamente? Uma sessão válida responde \"quem é\". Um papel confirmado responde \"o que essa pessoa, em geral, pode fazer\". Nenhum dos dois responde \"ela pode fazer isso com ESTE recurso específico\" — e é essa terceira pergunta que a maioria das falhas de autorização deixa sem resposta.\n\nUm gerente autenticado, com o papel certo, checado a cada requisição como o 3.4 exige, ainda pode aprovar uma despesa que não é da equipe dele — se o servidor só perguntou \"é gerente?\" e nunca perguntou \"é gerente DESTA despesa?\". A verificação existir não basta; ela precisa mirar o objeto certo.",
+      "analogia": "Um crachá de gerente abre a porta com a etiqueta \"gerência\" — mas não diz qual sala, dentre todas com essa etiqueta, é a dele.",
+      "erro_comum": "Achar que checar \"está logado\" ou \"tem o papel X\" já é autorização completa. É autenticação e controle por papel — autorização por objeto é uma terceira pergunta, separada das outras duas.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção Description — conferido em 03/09/2026"
+    },
+    {
+      "id": "3.6.t2",
+      "titulo": "A verificação por objeto, a cada requisição",
+      "texto": "A pergunta \"é dessa pessoa?\" não pode ser respondida uma vez e guardada. Cada requisição chega isolada, e o servidor recomeça a checagem do zero — o mesmo princípio do 3.4 (a decisão é sempre por requisição), agora aplicado ao escopo, não só à identidade. Ter visto a lista de pedidos do próprio usuário não autoriza a próxima requisição sobre um pedido específico: essa também precisa verificar de quem é o pedido.\n\nA prática recomendada é negar por padrão: qualquer recurso que não seja explicitamente público exige a checagem de propriedade antes de responder, e não depois. Um sistema que responde primeiro e audita depois já vazou o dado no momento em que audita.",
+      "analogia": "Um porteiro que já liberou alguém pela manhã não deveria deixar de perguntar de novo à tarde, numa porta diferente do mesmo prédio.",
+      "erro_comum": "Liberar o acesso a um recurso numa tela (por exemplo, uma listagem que já filtra pelo dono) e assumir que a ação seguinte sobre o mesmo item herda essa mesma checagem.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção How to Prevent (\"deny by default\") — conferido em 03/09/2026"
+    },
+    {
+      "id": "3.6.t3",
+      "titulo": "Mais portas do que telas",
+      "texto": "Uma aplicação real tem mais formas de ser chamada do que a interface sugere: a API que o aplicativo de celular consome direto, sem passar pelo site; o endpoint antigo que sobreviveu a uma reescrita porque ninguém teve certeza se algo ainda o usava; o verbo HTTP que ninguém testou na mesma rota que já tem GET protegido. O OWASP Top 10:2025 nomeia isso de forma direta: \"uma API acessível com controle de acesso ausente para POST, PUT e DELETE\".\n\nSe a verificação de autorização é colada em cada handler, cada porta nova é uma chance nova de esquecimento — e o esquecimento não é hipotético: é o padrão mais comum de como esse tipo de falha aparece em produção. A recomendação do próprio documento é implementar o mecanismo de controle de acesso uma vez e reutilizá-lo em toda a aplicação, não repeti-lo rota por rota.",
+      "analogia": "Um prédio com a porta principal bem trancada e uma porta dos fundos que não entrou na ronda do zelador porque foi instalada depois, numa reforma.",
+      "erro_comum": "Colar a checagem de autorização dentro de cada função de rota, em vez de um ponto único — middleware, decorador aplicado à tabela de rotas, ou camada de borda — que toda requisição atravessa antes de chegar à lógica de negócio.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seções Description e How to Prevent — conferido em 03/09/2026"
+    },
+    {
+      "id": "3.6.t4",
+      "titulo": "Escalada horizontal e vertical: mesma lacuna, ângulo diferente",
+      "texto": "Escalada horizontal é alcançar o recurso de outra conta do mesmo nível — ler a mensagem de outro usuário comum. Escalada vertical é alcançar uma ação de um nível acima — um usuário comum acionando uma função de administrador. São descritas como duas categorias, mas nascem da mesma lacuna: uma checagem que confirma \"existe sessão\" e para por aí, sem perguntar \"desta conta?\" (horizontal) nem \"deste papel?\" (vertical).\n\nTratar as duas como problemas separados leva a corrigir só a que foi descoberta primeiro — e a outra continua aberta, porque a causa raiz nunca foi tocada. A correção é a mesma nos dois casos: a checagem precisa comparar o pedido contra o dono do recurso E contra o papel que a ação exige, sempre, não uma das duas.",
+      "analogia": "A mesma fechadura quebrada abre tanto o apartamento do vizinho do lado (mesmo andar, horizontal) quanto a cobertura do síndico (andar de cima, vertical) — é uma fechadura só, dois lugares onde ela falha.",
+      "erro_comum": "Corrigir a escalada horizontal (comparar o dono) e achar que a vertical (comparar o papel exigido) já está resolvida, ou vice-versa — são duas comparações independentes sobre a mesma checagem.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção Description (\"gaining privileges beyond those expected\") — conferido em 03/09/2026"
+    },
+    {
+      "id": "3.6.t5",
+      "titulo": "Lógica de negócio: a requisição perfeita, fora de ordem",
+      "texto": "Nada neste eixo é injetado — diferente do 3.5, aqui a requisição é sintaticamente perfeita: JSON bem formado, tipo de dado correto, nenhum caractere fora do esperado. O defeito é semântico: a etapa de confirmar um pedido acontece antes da etapa de pagar, ou um campo que o formulário legítimo só oferece entre 1 e 10 chega com valor negativo, porque a interface nunca ofereceria isso, mas a API aceita qualquer inteiro que receber.\n\nO OWASP Top 10:2025 descreve isso como falha de design: \"a falta de definir mudanças de estado indesejadas ou inesperadas dentro de uma aplicação\" — e cita o exemplo de uma rede de cinemas com desconto por grupo até 15 pessoas, onde um atacante reserva 600 assentos em poucas requisições porque o limite nunca foi verificado no servidor, só sugerido pela interface.",
+      "analogia": "Pular direto para o balcão de retirada de um restaurante self-service, sem nunca ter passado pelo caixa — nenhuma regra de digitação foi violada, só a ordem das etapas.",
+      "erro_comum": "Achar que validar o FORMATO de um valor (é um número, está no campo certo) garante que o VALOR faz sentido para o fluxo de negócio.",
+      "fonte": "OWASP Top 10:2025, A06 Insecure Design, seção Description (definição de falha de lógica de negócio) e Example Attack Scenarios (exemplo do cinema) — conferido em 03/09/2026"
+    },
+    {
+      "id": "3.6.t6",
+      "titulo": "O contraponto defensivo: onde a verificação precisa morar",
+      "texto": "Os quatro eixos deste módulo têm a mesma raiz e corretivos que se somam, não se substituem: autorização por objeto verificada a cada requisição (t1, t2); um único ponto de aplicação para toda rota, verbo e versão, em vez de checagem por handler (t3); a mesma comparação de dono e de papel cobrindo horizontal e vertical ao mesmo tempo (t4); e estado de negócio que o servidor guarda e consulta, nunca aceito de um campo que o próprio cliente enviou (t5).\n\nCorrigir o eixo mais grave — tipicamente a ausência total de checagem — não resolve os outros três: um sistema pode ter checagem de objeto perfeita e ainda faltar a checagem de papel, ou ter as duas e ainda confiar em estado enviado pelo cliente. Nenhuma camada sozinha cobre o que as outras cobrem, o mesmo princípio que fechou o 3.5.",
+      "analogia": "Um único porteiro treinado para todas as portas do prédio, em vez de cada morador decidir sozinho quem deixa entrar pela própria porta.",
+      "erro_comum": "Tratar a correção de um eixo (por exemplo, fechar o IDOR) como se isso também cobrisse os outros três — são quatro checagens independentes, cada uma com seu próprio jeito de falhar.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção How to Prevent — conferido em 03/09/2026"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "3.6.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Um endpoint confirma a sessão do usuário e confere que o papel é \"gerente\" antes de aprovar uma despesa. Isso já garante autorização sobre a despesa pedida?",
+      "alternativas": [
+        "Não — falta confirmar que a despesa pertence ao escopo desse gerente, não só ao papel dele",
+        "Sim — o papel confirmado a cada requisição já é a autorização completa que a aplicação precisa",
+        "Não — falta pedir a senha de novo, logo antes de aprovar a despesa em questão",
+        "Sim, desde que a sessão tenha menos de trinta minutos de idade"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Papel responde 'o que essa pessoa pode fazer em geral', não 'sobre qual recurso específico'; confirmar o papel a cada requisição resolve a lição do 3.4, não este eixo.",
+        "2": "Repetir a senha prova identidade de novo, mas identidade e papel já estavam confirmados — o que falta é comparar o recurso pedido, não a pessoa.",
+        "3": "Idade da sessão não tem relação com autorização por objeto: uma sessão de um minuto e uma de vinte e nove passam pela mesma checagem incompleta."
+      },
+      "dicas": [
+        "Um 'sim' pra pergunta 'ela é gerente?' ainda deixa uma segunda pergunta em aberto.",
+        "Pense na despesa do laboratório: departamento diferente do gerente que aprovou.",
+        "Repetir senha e contar minutos de sessão não tocam no campo 'departamento' de coisa nenhuma."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o papel já foi checado a cada requisição, que pergunta ainda não foi feita sobre o recurso pedido?",
+      "explicacao": "Papel responde quem pode fazer, em geral. Autorização por objeto responde se pode fazer isso sobre este recurso específico — uma terceira pergunta que a checagem de papel sozinha não faz. O laboratório desta sessão mostrou exatamente esse caso: papel confirmado a cada requisição, e mesmo assim uma despesa de outro departamento foi aprovada.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção Description; lab/autorizacao_por_papel_sem_objeto.py desta sessão",
+      "tags": ["autorizacao", "controle-de-acesso", "escopo-de-objeto", "owasp-a01"]
+    },
+    {
+      "id": "3.6.q2",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Uma gerente de marketing, autenticada e com papel confirmado no servidor a cada requisição, consegue aprovar uma despesa cadastrada pela equipe de engenharia. O código do endpoint já aplica a lição do 3.4 — decide no servidor, não na tela. O que falta corrigir?",
+      "alternativas": [
+        "Adicionar uma verificação no navegador que esconda o botão de aprovar quando o departamento não bate",
+        "Comparar, no servidor, o departamento da despesa com o departamento da gerente antes de aprovar",
+        "Exigir autenticação de dois fatores para qualquer aprovação de despesa",
+        "Reduzir o valor máximo que qualquer gerente pode aprovar sozinha"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Esconder o botão é controle de interface — o 3.4 já mostrou que isso não impede a requisição direta ao endpoint.",
+        "2": "Dois fatores prova quem está pedindo com mais força, mas não muda o que o servidor confere sobre a despesa em si.",
+        "3": "Reduzir o teto limita o estrago de um problema que continua existindo — é mitigação de impacto, não a correção da causa."
+      },
+      "dicas": [
+        "A falha não é de identidade nem de força de autenticação.",
+        "Esconder botão e cortar o teto de valor mudam a superfície, não o que o servidor compara.",
+        "O que o servidor precisa comparar não é quem pede, é sobre o quê."
+      ],
+      "pergunta_socratica": "Antes de conferir: o servidor já sabe quem é a gerente e qual o departamento dela. O que ele nunca comparou?",
+      "explicacao": "A checagem existente confirma papel, não escopo. A correção compara o departamento do recurso pedido com o departamento de quem pede, no servidor, antes de aprovar — a mesma verificação de propriedade que o eixo de autorização por objeto exige.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção How to Prevent",
+      "tags": ["autorizacao", "cenario", "escopo-de-objeto", "despesa"]
+    },
+    {
+      "id": "3.6.q3",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "artefato": "$ python autorizacao_por_papel_sem_objeto.py\n=== servidor real em 127.0.0.1:8101 ===\n  sessao: carla, papel=gerente, departamento=marketing\n  despesa 501 antes: {'departamento': 'engenharia', 'valor': 4200, 'status': 'pendente'}\n\n=== carla (gerente de marketing) aprova a despesa 501, da engenharia ===\n  status: 200\n  corpo:  {\"departamento\": \"engenharia\", \"valor\": 4200, \"status\": \"aprovada\"}\n\n  despesa 501 depois: {'departamento': 'engenharia', 'valor': 4200, 'status': 'aprovada'}",
+      "enunciado": "Essa saída real mostra a requisição de carla (gerente de marketing) aprovando a despesa 501, do departamento de engenharia, com status HTTP 200. O que essa saída prova sobre a checagem do servidor?",
+      "alternativas": [
+        "Que o servidor aprova a despesa sem checar sessão nem token de autenticação nenhum",
+        "Que a checagem confirma o papel, mas não compara o departamento da despesa com o da sessão",
+        "Que a rota /aprovar aceita qualquer requisição, mesmo sem cabeçalho de autenticação",
+        "Que o valor da despesa, 4200, ultrapassou algum limite que o servidor deveria ter validado antes"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Se não conferisse sessão nenhuma, qualquer token funcionaria — o código exige papel 'gerente' presente na sessão, o que está no script.",
+        "2": "O código do handler exige papel 'gerente' presente na sessão para qualquer requisição — uma requisição sem token correspondente não encontraria sessão nenhuma e seria recusada, ainda que esta execução específica não tenha testado esse caso.",
+        "3": "Nada no código ou na saída compara o valor da despesa com um teto — o defeito mostrado é sobre departamento, não sobre valor."
+      },
+      "dicas": [
+        "Repare que a despesa aprovada não é do mesmo departamento de quem aprovou.",
+        "O código exige papel 'gerente' — isso está sendo checado. O que não está?",
+        "Nem falta de sessão, nem limite de valor: releia o que a saída realmente exibe."
+      ],
+      "pergunta_socratica": "Antes de conferir: o campo 'departamento' aparece duas vezes nesta história — na sessão de carla e na despesa. Eles foram comparados?",
+      "explicacao": "O servidor exige papel 'gerente' a cada requisição — essa parte funciona. O que nunca acontece é comparar o departamento da despesa com o departamento de quem está aprovando, e por isso uma gerente de marketing aprova uma despesa de engenharia.",
+      "fonte": "lab/autorizacao_por_papel_sem_objeto.py desta sessão, executado em 03/09/2026",
+      "tags": ["artefato", "autorizacao", "escopo-de-objeto", "laboratorio"]
+    },
+    {
+      "id": "3.6.q4",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Por que um endpoint antigo, mantido no ar depois de uma reescrita do sistema, costuma ser um risco maior de autorização do que um endpoint novo?",
+      "alternativas": [
+        "Porque a checagem central de autorização pode não cobrir uma rota que já existia antes dela ser escrita",
+        "Porque endpoints antigos costumam usar um formato de dado que o navegador atual não interpreta mais direito",
+        "Porque o registro em log de endpoints antigos costuma vir desativado por padrão, dificultando auditoria",
+        "Porque a equipe de suporte também documenta o endpoint antigo para atender clientes externos antigos"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Formato de dado incompatível quebraria a integração e seria notado rápido — não é o padrão de risco que mantém um endpoint esquecido vivo silenciosamente.",
+        "2": "Log desativado é um problema de visibilidade, não a razão pela qual a autorização em si ficaria ausente naquela rota.",
+        "3": "Documentar para clientes externos não muda se a checagem de autorização foi ou não aplicada ao código daquela rota."
+      },
+      "dicas": [
+        "Pense em quando, na linha do tempo do projeto, o mecanismo de autorização foi construído.",
+        "O risco não está em formato de dado nem em documentação.",
+        "O que decide a resposta é uma questão de calendário — não de formato de dado nem de papelada."
+      ],
+      "pergunta_socratica": "Antes de conferir: quando a checagem central de autorização foi implementada, o endpoint antigo ainda existia no sistema?",
+      "explicacao": "Se a autorização central foi construída junto com a reescrita, ela cobre as rotas que existiam quando foi escrita. Um endpoint antigo, mantido por compatibilidade, pode ter ficado fora dessa cobertura — não porque alguém decidiu deixá-lo aberto, mas porque ninguém garantiu que ele também passasse pelo mesmo ponto de verificação.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção Description",
+      "tags": ["autorizacao", "superficie", "endpoint-legado", "owasp-a01"]
+    },
+    {
+      "id": "3.6.q5",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "A rota /pedido tem GET protegido por uma checagem de sessão. O mesmo endpoint aceita DELETE, mas o método foi implementado numa sprint posterior e ninguém colou a mesma checagem nele — DELETE /pedido cancela qualquer pedido, sem sessão nenhuma. Qual correção fecha esse tipo de falha de verdade, e não só neste caso?",
+      "alternativas": [
+        "Copiar a checagem de sessão do GET e colar também no DELETE",
+        "Mover a checagem de sessão para um ponto central que toda rota atravessa, antes do handler",
+        "Remover o verbo DELETE da rota atual e criar uma rota totalmente separada e nova só para tratar exclusões",
+        "Registrar em log todo uso do verbo DELETE para auditoria posterior"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Copiar resolve esse handler, mas o próximo verbo ou rota nova volta a depender de alguém lembrar de colar a checagem de novo — não muda o padrão que causou o esquecimento.",
+        "2": "Criar uma rota separada só desloca o problema: a nova rota também precisa da checagem, e nada garante que ela venha aplicada por padrão.",
+        "3": "Log ajuda a descobrir depois que o problema aconteceu; não impede a exclusão sem sessão de acontecer."
+      },
+      "dicas": [
+        "Pense em qual correção não depende de alguém lembrar da próxima vez.",
+        "Copiar a checagem ou criar rota nova resolvem hoje — e deixam o próximo verbo na mesma armadilha.",
+        "Log é útil para investigar, mas não impede nada no momento da requisição."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um terceiro verbo, como PUT, for adicionado amanhã, a correção escolhida cobre ele automaticamente?",
+      "explicacao": "Colar a checagem em cada handler resolve o caso encontrado, mas repete o padrão que causou o esquecimento. Um ponto central — middleware ou decorador aplicado à rota inteira, não a um verbo — cobre qualquer método futuro sem depender de lembrança.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção How to Prevent",
+      "tags": ["autorizacao", "superficie", "verbo-http", "ponto-central"]
+    },
+    {
+      "id": "3.6.q6",
+      "tipo": "artefato",
+      "dificuldade": 1,
+      "objetivos": [1],
+      "artefato": "$ python verificacao_por_handler_nao_centralizada.py\n=== servidor real em 127.0.0.1:8102, rota /pedido (id 77) ===\n\n=== GET /pedido sem sessao (checagem presente) ===\n  status: 401 (recusado, como esperado)\n\n  pedidos antes do DELETE: {77: {'cliente': 'ana.silva', 'status': 'confirmado'}}\n\n=== DELETE /pedido, mesma rota, sem sessao nenhuma ===\n  status: 200\n  corpo:  pedido 77 cancelado\n\n  pedidos depois do DELETE: {}",
+      "enunciado": "Nesta saída real, GET /pedido sem sessão foi recusado (401), e DELETE /pedido, na mesma rota, sem sessão nenhuma, foi aceito (200) e cancelou o pedido. O que essa diferença de comportamento revela sobre como a verificação de sessão foi organizada no código do servidor?",
+      "alternativas": [
+        "Que a checagem foi implementada por verbo dentro do handler, não pela rota como um todo",
+        "Que o servidor tem uma falha de rede que afeta só requisições DELETE",
+        "Que o cliente que fez a requisição DELETE tinha uma sessão válida, só não visível na saída",
+        "Que pedidos com status 'confirmado' são liberados para exclusão sem sessão por design"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não há nada de rede envolvido — os dois verbos chegam ao mesmo processo, na mesma rota; a diferença é de código, não de transporte.",
+        "2": "A requisição DELETE do script não envia nenhum cabeçalho Authorization — a saída mostra a requisição inteira, e o resultado (200) confirma que a ausência de sessão não foi barrada.",
+        "3": "Não existe essa regra no código do laboratório; o handler de DELETE não checa sessão para nenhum pedido, independente do status."
+      },
+      "dicas": [
+        "Os dois verbos chegam ao mesmo servidor, na mesma porta — não é sobre rede.",
+        "O script mostra a requisição inteira; nenhum cabeçalho de sessão foi enviado no DELETE.",
+        "A pergunta é sobre onde a checagem foi escrita, não sobre uma regra de negócio nova."
+      ],
+      "pergunta_socratica": "Antes de conferir: GET e DELETE apontam para o mesmo recurso. Por que um pede sessão e o outro não?",
+      "explicacao": "Os dois métodos apontam para o mesmo recurso, mas a checagem de sessão foi escrita dentro do handler de GET, não em um ponto que qualquer verbo daquela rota atravessa. Por isso o comportamento diverge entre dois métodos do mesmo endpoint.",
+      "fonte": "lab/verificacao_por_handler_nao_centralizada.py desta sessão, executado em 03/09/2026",
+      "tags": ["artefato", "autorizacao", "verbo-http", "laboratorio"]
+    },
+    {
+      "id": "3.6.q7",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "ROTAS = {\n  (\"GET\", \"/relatorio\"): [exige_sessao, handler_ler_relatorio],\n  (\"POST\", \"/relatorio/exportar\"): [exige_sessao, handler_exportar],\n  (\"POST\", \"/relatorio_exportar_v1\"): [handler_exportar],  # rota antiga, mantida por compatibilidade\n}",
+      "enunciado": "Esta tabela de rotas tem três entradas para funcionalidades de relatório. Qual delas expõe a falha deste eixo?",
+      "alternativas": [
+        "GET /relatorio, porque exige_sessao aparece antes do handler",
+        "POST /relatorio/exportar, porque a lista com dois itens indica duplicação desnecessária de checagem de sessão",
+        "POST /relatorio_exportar_v1, porque não tem exige_sessao, apesar de levar ao mesmo handler_exportar",
+        "Nenhuma das três, porque handler_exportar é o mesmo código nos dois casos"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "GET /relatorio tem exige_sessao na lista — essa rota está corretamente protegida, não é onde a falha está.",
+        "1": "Dois itens na lista (exige_sessao e o handler) é o padrão correto de todas as rotas protegidas, não duplicação nem erro.",
+        "3": "O handler ser o mesmo código é exatamente o que torna a rota antiga perigosa: ela chega ao mesmo efeito sem passar pela checagem — mesmo handler, portas diferentes, só uma trancada."
+      },
+      "dicas": [
+        "Compare as três listas: quantos itens cada uma tem antes do nome do handler.",
+        "Compare o tamanho das três listas antes do nome de cada handler.",
+        "O comentário 'rota antiga, mantida por compatibilidade' é uma pista, não decoração."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das três rotas tem uma lista de verificações mais curta que as outras duas?",
+      "explicacao": "POST /relatorio_exportar_v1 chama o mesmo handler_exportar que a rota nova, mas sem exige_sessao na lista — é uma porta antiga para a mesma funcionalidade, sem a mesma tranca. O handler ser idêntico não protege nada: a checagem precisa estar na rota que dá acesso a ele, e aqui uma delas não tem.",
+      "fonte": "Padrão de tabela de rotas equivalente ao usado em lab/verificacao_por_handler_nao_centralizada.py",
+      "tags": ["caca-erro", "autorizacao", "endpoint-legado", "superficie"]
+    },
+    {
+      "id": "3.6.q8",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Uma aplicação tem (a) checagem de papel sem checagem de objeto em uma rota, e (b) um verbo HTTP sem checagem nenhuma em outra rota. Qual defesa cobre os dois problemas ao mesmo tempo?",
+      "alternativas": [
+        "Centralizar a autorização, exigindo sessão, papel adequado e o dono do recurso em toda rota e verbo",
+        "Aumentar bastante o tempo de expiração da sessão, para que o usuário precise fazer login com menos frequência",
+        "Adicionar autenticação de dois fatores obrigatória em todas as rotas administrativas da aplicação inteira",
+        "Migrar toda a aplicação para HTTPS, incluindo rotas internas que hoje ainda usam conexão sem criptografia"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Tempo de sessão não afeta se a checagem, quando existe, compara papel e dono do recurso — os dois problemas continuam abertos com qualquer duração de sessão.",
+        "2": "Dois fatores fortalece a prova de identidade; não resolve a ausência de comparação de objeto nem a ausência de checagem no verbo esquecido.",
+        "3": "HTTPS protege o tráfego contra interceptação; não tem relação com o que o servidor decide autorizar depois de receber a requisição."
+      },
+      "dicas": [
+        "A resposta certa precisa resolver dois problemas com uma mudança só.",
+        "Sessão mais longa, mais fator, mais criptografia: nenhuma delas olha pro departamento ou pro verbo esquecido.",
+        "Pense num único lugar no código por onde toda requisição, de qualquer verbo e rota, precisa passar."
+      ],
+      "pergunta_socratica": "Antes de conferir: um ponto central de verificação, aplicado a toda rota, também cobriria a rota que não tinha checagem nenhuma?",
+      "explicacao": "Um ponto central que aplica sessão, papel e comparação de objeto a toda rota e verbo cobre os dois casos ao mesmo tempo: a rota que já tinha checagem de papel ganha a comparação de objeto que faltava, e a rota sem checagem nenhuma passa a ter as três, porque nenhuma rota escapa do ponto central.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção How to Prevent (\"implement access control mechanisms once and reuse them\")",
+      "tags": ["ataque-defesa", "autorizacao", "ponto-central", "sintese"]
+    },
+    {
+      "id": "3.6.q9",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [2],
+      "enunciado": "No mesmo sistema, um usuário lê a mensagem privada de outro usuário comum, e outro usuário comum aciona uma função reservada a administradores. Como essas duas falhas se relacionam?",
+      "alternativas": [
+        "São duas categorias totalmente separadas, cada uma exigindo uma investigação e uma correção próprias, sem relação entre si",
+        "São a mesma lacuna — sessão confirmada sem comparar dono nem papel — vista por dois ângulos diferentes",
+        "A primeira costuma ser mais grave que a segunda, por afetar diretamente dados de outra pessoa",
+        "A segunda só passa a acontecer depois que a primeira já tiver sido corrigida no sistema"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Tratar como independentes é o erro que este eixo evita: as duas nascem de checar só 'existe sessão', sem comparar dono nem papel.",
+        "2": "Gravidade depende do que cada ação alcança — vazar uma mensagem e ligar modo manutenção têm impactos diferentes, e não há regra fixa dizendo que uma sempre supera a outra.",
+        "3": "As duas podem existir juntas ou separadas: corrigir uma não muda se a comparação que falta na outra foi feita."
+      },
+      "dicas": [
+        "Pense na função autorizado() do laboratório: ela é uma só, usada nos dois casos.",
+        "Nem uma é 'mais grave por natureza', nem uma depende de a outra ter acontecido antes.",
+        "Mensagem lida e manutenção ligada são os EFEITOS — a causa mora uma linha de código antes disso."
+      ],
+      "pergunta_socratica": "Antes de conferir: as duas requisições passaram pela mesma função de verificação. O que ela nunca perguntou, nos dois casos?",
+      "explicacao": "As duas nascem de uma checagem que só confirma 'existe sessão válida', sem perguntar de quem é o recurso (horizontal) nem qual papel a ação exige (vertical). É a mesma lacuna, em dois ângulos — não duas falhas independentes.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção Description; lab/escalada_horizontal_e_vertical.py desta sessão",
+      "tags": ["autorizacao", "escalada", "horizontal", "vertical"]
+    },
+    {
+      "id": "3.6.q10",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Bruno, usuário comum autenticado, faz uma requisição GET /mensagem?id=9001 e recebe o conteúdo de uma mensagem que pertence a Carla, outra usuária comum. O servidor confirmou a sessão de Bruno antes de responder. O que caracteriza esse caso como escalada horizontal?",
+      "alternativas": [
+        "Bruno alcançou o recurso de outra conta do mesmo nível de privilégio, não uma ação de papel maior",
+        "Bruno explorou uma vulnerabilidade na camada de rede para interceptar a mensagem antes dela chegar até Carla",
+        "Bruno recebeu, por engano de configuração, um papel de administrador sem que ninguém percebesse isso",
+        "O servidor liberou o acesso porque a conta de Bruno é mais antiga e tem mais tempo de uso que a de Carla"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nada foi interceptado em trânsito — a requisição foi direta ao servidor, que respondeu normalmente; o problema é o que o servidor decidiu responder, não como o dado viajou.",
+        "2": "O cenário não menciona papel elevado para Bruno; ele segue 'usuário comum', só alcançou um recurso de outra conta do mesmo nível.",
+        "3": "Tempo de conta não é critério de autorização em lugar nenhum deste sistema — essa alternativa inventa uma regra que não existe no caso."
+      },
+      "dicas": [
+        "Bruno e Carla têm o mesmo papel — nenhum dos dois é admin aqui.",
+        "O problema não está em como o dado trafegou, está em o que o servidor decidiu responder.",
+        "Compare o papel das duas contas envolvidas nesta história — mudou, ou ficou igual?"
+      ],
+      "pergunta_socratica": "Antes de conferir: Bruno e Carla têm o mesmo papel no sistema. O que mudou foi o nível de acesso, ou o dono do recurso?",
+      "explicacao": "Escalada horizontal é alcançar o recurso de outra conta do mesmo nível de privilégio — Bruno não subiu de papel, só leu algo que não era dele porque o servidor nunca comparou o dono da mensagem com quem pediu.",
+      "fonte": "lab/escalada_horizontal_e_vertical.py desta sessão, executado em 03/09/2026",
+      "tags": ["autorizacao", "escalada-horizontal", "cenario", "mensagem"]
+    },
+    {
+      "id": "3.6.q11",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "No mesmo sistema, Bruno (papel 'usuario', não administrador) faz POST /manutencao e o servidor ativa o modo de manutenção do sistema inteiro — a mesma checagem de sessão que liberou a leitura da mensagem também liberou essa ação. Por que este é um caso de escalada vertical, e não horizontal?",
+      "alternativas": [
+        "Porque Bruno alcançou uma ação que exige um papel acima do dele, não o recurso de uma conta igual",
+        "Porque a ação de ativar manutenção afeta todos os usuários do sistema de uma vez, não uma conta específica",
+        "Porque o endpoint de modo manutenção conversa com um serviço de rede diferente do endpoint de mensagens",
+        "Porque Bruno precisou enviar duas requisições HTTP separadas para conseguir o mesmo efeito final"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Abrangência do efeito (uma conta ou o sistema todo) não é o que distingue horizontal de vertical — a distinção é sobre nível de privilégio exigido, não sobre quantas contas o efeito atinge.",
+        "2": "Não há protocolo diferente em jogo — as duas rotas são HTTP comum, no mesmo servidor; a diferença está na checagem de papel, não na camada de rede.",
+        "3": "O cenário usa uma única requisição POST — número de requisições não é o que caracteriza escalada vertical."
+      },
+      "dicas": [
+        "Pense no nível da ação: leitura de mensagem de outro usuário comum, ou ação de administrador?",
+        "Abrangência do efeito e protocolo de rede não mudam se o papel exigido foi ou não comparado.",
+        "Vertical é sobre subir de nível — comparar com o papel que a ação deveria exigir."
+      ],
+      "pergunta_socratica": "Antes de conferir: que papel deveria ser exigido para ativar o modo manutenção, e qual papel Bruno realmente tem?",
+      "explicacao": "Escalada vertical é alcançar uma ação que exige um papel acima do que a conta possui — aqui, 'ativar manutenção' deveria exigir admin, e Bruno, com papel 'usuario', conseguiu porque a checagem nunca comparou o papel exigido pela ação com o papel da sessão.",
+      "fonte": "lab/escalada_horizontal_e_vertical.py desta sessão, executado em 03/09/2026",
+      "tags": ["autorizacao", "escalada-vertical", "cenario", "manutencao"]
+    },
+    {
+      "id": "3.6.q12",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "artefato": "$ python escalada_horizontal_e_vertical.py\n=== servidor real em 127.0.0.1:8103 ===\n  sessao: bruno, papel=usuario (comum, nao admin)\n\n=== HORIZONTAL: bruno le a mensagem 9001, que e da carla ===\n  status: 200\n  corpo:  {'dono': 'carla', 'texto': 'combinar reajuste com RH'}\n\n  sistema antes: {'modo_manutencao': False}\n\n=== VERTICAL: bruno (usuario comum) ativa modo manutencao ===\n  status: 200\n  corpo:  modo manutencao ativado\n  sistema depois: {'modo_manutencao': True}",
+      "enunciado": "As duas requisições desta saída passaram pela mesma função autorizado() do servidor, que só confirma se existe uma sessão válida. O que essa saída, lida em conjunto, demonstra sobre a causa raiz das duas falhas?",
+      "alternativas": [
+        "Existem dois defeitos de código totalmente independentes, um específico para cada uma das duas rotas",
+        "A mesma checagem incompleta — só 'existe sessão?' — abre os dois casos mostrados",
+        "Bruno tem, na verdade, um papel de administrador oculto, mesmo que a sessão dele declare outra coisa",
+        "O servidor sofre de uma falha de concorrência entre as duas requisições feitas em sequência"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "As duas rotas chamam a mesma função autorizado() — não são dois defeitos de código separados, é uma lacuna reaproveitada em dois lugares.",
+        "2": "A sessão de Bruno declara papel 'usuario' o tempo todo; nada na saída sugere um papel diferente do declarado — o problema é que o papel nunca foi comparado com o exigido pela ação.",
+        "3": "As requisições acontecem em sequência, uma depois da outra, sem sobreposição de tempo — não há nada de concorrência nesta saída."
+      },
+      "dicas": [
+        "As duas rotas chamam a mesma função de verificação — repare no nome dela na saída do laboratório.",
+        "A sessão de Bruno só aparece uma vez na saída, e diz 'usuario' — não há segundo papel escondido nela.",
+        "A pergunta pede a causa raiz comum, não o efeito de cada requisição isolada."
+      ],
+      "pergunta_socratica": "Antes de conferir: as duas rotas usam a mesma função de autorização. Isso torna as duas falhas independentes, ou a mesma falha em dois lugares?",
+      "explicacao": "As duas requisições passam pela mesma função autorizado(), que só confirma sessão. Faltando comparar dono (horizontal) e papel exigido (vertical), a mesma lacuna abre os dois casos — não são dois bugs, é um bug reaproveitado.",
+      "fonte": "lab/escalada_horizontal_e_vertical.py desta sessão, executado em 03/09/2026",
+      "tags": ["artefato", "autorizacao", "escalada", "laboratorio"]
+    },
+    {
+      "id": "3.6.q13",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "trecho": "def autorizado(requisicao):\n    token = requisicao.headers.get(\"Authorization\", \"\").replace(\"Bearer \", \"\")\n    sessao = SESSOES.get(token)\n    return sessao is not None\n\ndef ler_mensagem(requisicao, msg_id):\n    if not autorizado(requisicao):\n        return 401\n    return MENSAGENS[msg_id]\n\ndef ativar_manutencao(requisicao):\n    if not autorizado(requisicao):\n        return 401\n    SISTEMA[\"modo_manutencao\"] = True\n    return 200",
+      "enunciado": "Este código tem uma única função autorizado(), usada nas duas rotas abaixo dela. Qual é a falha que ela introduz nas duas ao mesmo tempo?",
+      "alternativas": [
+        "Ela só confirma que existe sessão, sem comparar dono do recurso ou papel exigido",
+        "Ela remove o prefixo 'Bearer ' de um jeito que falha silenciosamente em alguns formatos de token",
+        "Ela consulta o dicionário de sessões antes de checar se o token recebido não é uma string vazia",
+        "Ela devolve código 401 em vez de 403 quando não encontra nenhuma sessão correspondente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O replace('Bearer ', '') está correto e faz exatamente o esperado — remover o prefixo antes de consultar o dicionário de sessões.",
+        "2": "SESSOES.get(token) com token vazio simplesmente não encontra nenhuma sessão e devolve None — não é um erro de ordem, o resultado final está correto.",
+        "3": "O código de status HTTP (401 em vez de 403) é detalhe de convenção, e não a causa de mensagem ou ação de admin vazarem para quem não deveria."
+      },
+      "dicas": [
+        "A função devolve True ou False — o que ela nunca examina sobre a requisição além de 'existe sessão'?",
+        "O replace() e o SESSOES.get() fazem exatamente o que deveriam — o problema mora depois disso.",
+        "Compare o que autorizado() confere com o que cada rota precisaria confirmar além disso."
+      ],
+      "pergunta_socratica": "Antes de conferir: autorizado() recebe a requisição inteira, mas o que ela de fato examina dentro dela?",
+      "explicacao": "autorizado() só confirma 'existe sessão válida' — não recebe nem compara o dono do recurso pedido, nem o papel que cada ação exige. As duas rotas herdam essa mesma lacuna, cada uma expondo um ângulo diferente da mesma falha.",
+      "fonte": "Padrão de código equivalente ao usado em lab/escalada_horizontal_e_vertical.py",
+      "tags": ["caca-erro", "autorizacao", "escalada", "codigo"]
+    },
+    {
+      "id": "3.6.q14",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Dado o código da questão anterior, qual mudança corrige tanto a escalada horizontal quanto a vertical, sem duplicar lógica em cada rota?",
+      "alternativas": [
+        "Generalizar autorizado() para comparar a sessão contra o dono esperado e o papel mínimo exigido",
+        "Criar uma segunda função, autorizado_admin(), usada apenas na rota de ativar o modo manutenção",
+        "Aumentar bastante o tamanho mínimo exigido para o token de sessão, dificultando adivinhação",
+        "Adicionar um pequeno atraso de resposta quando a mesma rota recebe requisições repetidas em sequência"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Uma função nova só para a rota de admin resolve o vertical daquela rota específica, mas não resolve o horizontal em nenhuma rota — duplica lógica em vez de generalizar a checagem.",
+        "2": "Tamanho do token afeta a dificuldade de adivinhar uma sessão alheia, não o que a função autorizado() compara depois de a sessão já existir.",
+        "3": "Atraso de resposta dificulta automação, não corrige o que é ou não autorizado — a mesma requisição, mais lenta, ainda teria o mesmo efeito."
+      },
+      "dicas": [
+        "A correção precisa mexer na função única que as duas rotas compartilham.",
+        "Token maior e atraso de resposta dificultam o ataque; não mudam nada sobre quem autorizado() aceita.",
+        "Pense no que falta passar para autorizado() para ela poder comparar."
+      ],
+      "pergunta_socratica": "Antes de conferir: para autorizado() comparar dono e papel, o que ela precisa receber além da requisição?",
+      "explicacao": "Generalizar autorizado() para receber o dono esperado do recurso e o papel mínimo da ação, comparando os dois contra a sessão, corrige as duas escaladas de uma vez — porque as duas rotas continuam chamando a mesma função, só que agora ela compara o que faltava.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção How to Prevent",
+      "tags": ["ataque-defesa", "autorizacao", "escalada", "refatoracao"]
+    },
+    {
+      "id": "3.6.q15",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Ligue cada situação ao conceito que ela descreve.",
+      "pares": [
+        ["Um usuário comum lê o arquivo privado de outro usuário comum", "escalada horizontal"],
+        ["Um usuário comum aciona uma função reservada a administradores", "escalada vertical"],
+        ["A checagem confirma só 'existe sessão', sem comparar dono nem papel", "causa raiz compartilhada pelas duas escaladas"],
+        ["Esconder o botão de uma ação na tela, sem checar de novo no servidor", "eixo de autorização por objeto, não escalada"]
+      ],
+      "dicas": [
+        "Duas linhas descrevem o efeito de cada escalada; as outras duas descrevem causa ou um conceito relacionado, não escalada em si.",
+        "Pense em 'mesmo nível' contra 'nível acima' para diferenciar as duas primeiras.",
+        "A última linha lembra um eixo já visto neste módulo — não force ela para 'horizontal' ou 'vertical'."
+      ],
+      "pergunta_socratica": "Antes de conferir: das quatro linhas, quais duas são exemplos de escalada, e quais duas são conceito relacionado?",
+      "explicacao": "Horizontal é mesmo nível, conta diferente; vertical é nível acima. A causa raiz das duas é a mesma checagem incompleta. E esconder botão na tela é o eixo de autorização por objeto — relacionado, mas não é escalada.",
+      "fonte": "Síntese dos eixos 1 e 3 deste módulo",
+      "tags": ["pareamento", "escalada", "sintese"]
+    },
+    {
+      "id": "3.6.q16",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Ordene os passos para corrigir um sistema que tem escalada horizontal e vertical causadas pela mesma função de autorização.",
+      "itens": [
+        "Identificar a função de autorização compartilhada pelas rotas afetadas",
+        "Definir o dono esperado e o papel mínimo exigido para cada rota",
+        "Alterar a função para comparar a sessão contra dono e contra papel exigido",
+        "Testar as duas direções — outra conta do mesmo nível, e uma ação de nível acima — antes de publicar"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "Não dá para comparar contra 'dono' e 'papel exigido' antes de saber quais são, para cada rota.",
+        "O teste final precisa cobrir os dois ângulos, não só o que foi descoberto primeiro.",
+        "A função raiz é encontrada antes de qualquer mudança nela."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para alterar a função de autorização antes de saber qual é o dono esperado de cada recurso?",
+      "explicacao": "Primeiro se identifica onde a checagem compartilhada vive, depois se define o que falta comparar em cada rota, então a função é alterada, e por fim os dois ângulos — horizontal e vertical — precisam ser testados, porque corrigir um não garante o outro.",
+      "fonte": "Síntese do eixo 3 deste módulo",
+      "tags": ["ordenacao", "escalada", "processo", "correcao"]
+    },
+    {
+      "id": "3.6.q17",
+      "tipo": "comando",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma equipe suspeita que a rota /pedido protege GET, mas pode ter esquecido o verbo DELETE. Qual comando testa essa hipótese sem exigir sessão nenhuma?",
+      "alternativas": [
+        "curl -X DELETE http://127.0.0.1:8102/pedido?id=77",
+        "curl -X GET http://127.0.0.1:8102/pedido?id=77 -H \"Authorization: Bearer sessao-valida\"",
+        "curl -X DELETE http://127.0.0.1:8102/pedido?id=77 -H \"Authorization: Bearer sessao-valida\"",
+        "ping 127.0.0.1 -c 4"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Esse comando testa GET com sessão válida — não testa a hipótese sobre DELETE sem sessão, testa a rota que já se sabe protegida.",
+        "2": "Enviar Authorization junto não testa se DELETE aceita requisição sem sessão — é justamente o cabeçalho cuja ausência a hipótese quer testar.",
+        "3": "Ping confirma que o host responde na rede, mas não faz nenhuma requisição HTTP à rota /pedido nem testa verbo algum."
+      },
+      "dicas": [
+        "A hipótese é sobre um verbo específico, sem sessão nenhuma.",
+        "Se a requisição leva Authorization, ela não está testando o que acontece SEM ele.",
+        "Ping não fala HTTP — não serve para testar uma rota web."
+      ],
+      "pergunta_socratica": "Antes de conferir: para testar se DELETE está desprotegido, a requisição precisa levar algum cabeçalho de sessão?",
+      "explicacao": "Para testar a hipótese, a requisição precisa usar o verbo DELETE, na rota certa, sem nenhum cabeçalho de sessão — exatamente o que expõe se a checagem foi esquecida naquele método.",
+      "fonte": "lab/verificacao_por_handler_nao_centralizada.py desta sessão",
+      "tags": ["comando", "autorizacao", "verbo-http", "teste"]
+    },
+    {
+      "id": "3.6.q18",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [3],
+      "enunciado": "Uma requisição chega ao servidor com JSON bem formado, tipos de dado corretos, e nenhum caractere que quebre um parser. Mesmo assim, ela não deveria ter sido atendida. O que caracteriza esse tipo de falha?",
+      "alternativas": [
+        "É falha de lógica de negócio: válida na forma, só fora de ordem ou de valor esperado",
+        "É injeção, porque algum campo do corpo da requisição contém um dado interpretado como comando",
+        "É falha de configuração do servidor, porque o analisador de sintaxe aceitou um tipo de dado incorreto",
+        "É falha de autenticação, porque o token da sessão do usuário não chegou a ser verificado direito"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Injeção depende de dado virar instrução dentro de um parser — aqui o problema é a ordem ou o valor da requisição, e nada é interpretado como comando.",
+        "2": "O enunciado já descarta isso: tipos de dado estão corretos e o JSON é bem formado — não há erro de parsing envolvido.",
+        "3": "O caso não menciona nada sobre token ou sessão — a requisição pode estar perfeitamente autenticada e ainda assim ser logicamente inválida."
+      },
+      "dicas": [
+        "O enunciado já descarta problema de sintaxe ou de tipo de dado.",
+        "Nem parser quebrado, nem token: o enunciado já fechou essas duas portas antes de você escolher.",
+        "As pistas de sintaxe já foram descartadas no enunciado — o que sobra não é sobre a forma do dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: se nada foi injetado e nada está malformado, o que exatamente está errado nesta requisição?",
+      "explicacao": "Falha de lógica de negócio é isso: a requisição é sintaticamente perfeita, mas fora de ordem (uma etapa pulada) ou com um valor que o formulário legítimo jamais enviaria — nenhum filtro de entrada pega isso, porque não há nada de errado na forma do dado.",
+      "fonte": "OWASP Top 10:2025, A06 Insecure Design, seção Description",
+      "tags": ["logica-de-negocio", "conceitual", "owasp-a06"]
+    },
+    {
+      "id": "3.6.q19",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um checkout tem duas etapas: /pagar (registra o pagamento no servidor) e /confirmar (deveria só aceitar se o pagamento foi registrado). Um cliente chama /confirmar diretamente, sem nunca ter chamado /pagar, enviando {\"pago\": true} no corpo da própria requisição — e o pedido é confirmado. Qual é a causa raiz?",
+      "alternativas": [
+        "O servidor decidiu o estado do pedido pelo campo que o cliente enviou, não pelo que ele mesmo registrou",
+        "O JSON enviado veio malformado, e o servidor aceitou o pedido mesmo assim, por engano de validação",
+        "O cliente incluiu um caractere especial dentro do campo 'pago' para tentar burlar a validação de entrada",
+        "A rota /confirmar não exige conexão HTTPS, o que permitiu alterar o valor do campo em trânsito"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O JSON está perfeitamente formado — {\"pago\": true} é um valor booleano válido no campo certo; não há erro de formato envolvido.",
+        "2": "Não há caractere especial nem string manipulada — o valor 'true' é exatamente o tipo de dado esperado pelo campo, só que ele nunca deveria ter sido a fonte da decisão.",
+        "3": "Ausência de HTTPS permitiria interceptar ou alterar dados em trânsito; aqui o cliente enviou o valor diretamente, de propósito, sem precisar interceptar nada."
+      },
+      "dicas": [
+        "O defeito não está na sintaxe do JSON nem no transporte da requisição.",
+        "Pense em qual dos dois lados — cliente ou servidor — deveria ser dono do fato 'o pagamento aconteceu'.",
+        "O campo 'pago' chegou dentro do corpo de quem está pedindo a confirmação — não de /pagar."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem deveria ser a fonte da verdade sobre 'este pedido foi pago' — o campo que o cliente envia, ou um registro que o próprio servidor mantém?",
+      "explicacao": "O defeito é confiar num campo que o cliente controla para decidir um fato que só o servidor deveria conhecer. O servidor precisa consultar seu próprio registro de pagamento — 'pago_no_servidor' —, não um valor que chegou dentro do corpo da requisição de /confirmar.",
+      "fonte": "lab/logica_de_negocio_pulo_de_etapa.py desta sessão, executado em 03/09/2026",
+      "tags": ["logica-de-negocio", "cenario", "checkout", "estado-no-servidor"]
+    },
+    {
+      "id": "3.6.q20",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "artefato": "$ python logica_de_negocio_pulo_de_etapa.py\n=== servidor real em 127.0.0.1:8104 ===\n  pedido 1 antes: {'valor': 899.9, 'pago_no_servidor': False, 'status': 'carrinho'}\n\n=== /confirmar chamado direto, sem nunca passar por /pagar, ===\n=== mandando {'pago': true} no corpo da propria requisicao    ===\n  status: 200\n  corpo:  pedido confirmado\n\n  pedido 1 depois: {'valor': 899.9, 'pago_no_servidor': False, 'status': 'confirmado'}",
+      "enunciado": "Nesta saída real, o campo 'pago_no_servidor' continua False depois da confirmação, e o status do pedido virou 'confirmado' mesmo assim. O que essa divergência entre os dois campos prova?",
+      "alternativas": [
+        "Que /confirmar decidiu com o campo do cliente, sem consultar o próprio registro do servidor",
+        "Que houve um erro de sincronização entre dois bancos de dados distintos usados pelo sistema de pagamento",
+        "Que o campo pago_no_servidor ficou desatualizado por causa de um atraso na rede entre cliente e servidor",
+        "Que a requisição foi enviada duas vezes seguidas, e a segunda sobrescreveu o valor gravado pela primeira"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O laboratório usa um único dicionário em memória, sem nenhum segundo banco de dados envolvido — não há dois sistemas para dessincronizar.",
+        "2": "Não existe rede nem atraso aqui: cliente e servidor rodam no mesmo processo, na mesma máquina, e a resposta chega antes de qualquer função seguinte ser chamada.",
+        "3": "O script faz uma única chamada a /confirmar — não há segunda requisição nem sobrescrita envolvida neste laboratório."
+      },
+      "dicas": [
+        "Não há segundo banco de dados nem rede neste laboratório — é um servidor local, uma única chamada.",
+        "Repare que o campo que o servidor controla ('pago_no_servidor') nunca mudou.",
+        "A pergunta é sobre o que a divergência entre os dois campos prova, não sobre uma causa técnica externa."
+      ],
+      "pergunta_socratica": "Antes de conferir: se /confirmar tivesse consultado pago_no_servidor em vez do campo do cliente, qual seria o status final do pedido?",
+      "explicacao": "pago_no_servidor permanece False porque /pagar nunca foi chamado — é o único registro que o servidor de fato controla. O pedido virou 'confirmado' porque /confirmar leu o campo 'pago' do corpo da requisição, que o cliente pode escrever com qualquer valor, em vez de consultar seu próprio estado.",
+      "fonte": "lab/logica_de_negocio_pulo_de_etapa.py desta sessão, executado em 03/09/2026",
+      "tags": ["artefato", "logica-de-negocio", "estado-no-servidor", "laboratorio"]
+    },
+    {
+      "id": "3.6.q21",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Ligue cada situação ao tipo de verificação que ela representa.",
+      "pares": [
+        ["O servidor confirma que existe uma sessão válida antes de responder", "autenticação"],
+        ["O servidor confirma que o papel da sessão é 'gerente' antes de aprovar", "autorização por papel"],
+        ["O servidor compara o departamento da despesa com o departamento de quem aprova", "autorização por objeto"],
+        ["Um recurso não listado como público é recusado até prova em contrário", "negar por padrão"]
+      ],
+      "dicas": [
+        "As quatro linhas correspondem a quatro perguntas diferentes que um servidor pode fazer.",
+        "Pense na ordem em que essas perguntas costumam aparecer: quem é, o que pode, sobre o quê, e o que fazer na dúvida.",
+        "Só uma das quatro compara o recurso pedido com quem pede — as outras são identidade, papel ou postura padrão."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das quatro perguntas é a única que examina o recurso específico pedido?",
+      "explicacao": "Autenticação confirma identidade; autorização por papel confirma o que a pessoa pode fazer em geral; autorização por objeto compara o recurso pedido com quem pede; negar por padrão é a postura de recusar quando a checagem não foi feita ou não se aplica claramente.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seções Description e How to Prevent",
+      "tags": ["pareamento", "autorizacao", "sintese", "conceitos"]
+    },
+    {
+      "id": "3.6.q22",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Ordene os passos para implementar a verificação de autorização por objeto num endpoint que hoje só confirma sessão e papel.",
+      "itens": [
+        "Identificar qual campo do recurso indica o dono ou o escopo esperado (departamento, conta, projeto)",
+        "Comparar esse campo com o dono ou escopo da sessão que fez a requisição",
+        "Negar a requisição por padrão quando a comparação falhar ou não puder ser feita",
+        "Testar com uma sessão de dono diferente para confirmar que o acesso é recusado"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "Não dá para comparar um campo que ainda não foi identificado.",
+        "A postura padrão diante de uma comparação que falha vem antes do teste que confirma isso.",
+        "O teste final usa uma sessão diferente da esperada, de propósito."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para testar acesso negado com outro dono antes de a comparação sequer existir no código?",
+      "explicacao": "Primeiro se identifica o campo que representa o dono do recurso, depois ele é comparado com a sessão, a postura padrão é negar quando a comparação falha, e por fim isso é testado com uma sessão de dono diferente — confirmando que a negação realmente acontece.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção How to Prevent",
+      "tags": ["ordenacao", "autorizacao", "escopo-de-objeto", "processo"]
+    },
+    {
+      "id": "3.6.q23",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Num sistema escolar, um professor autenticado, com papel 'professor' confirmado a cada requisição, consegue abrir o boletim de uma turma que não é dele, só trocando o número da turma na URL. O que esse caso tem em comum com o caso da despesa aprovada por outro departamento?",
+      "alternativas": [
+        "As duas confirmam papel, mas não comparam o recurso pedido com o escopo de quem pede",
+        "As duas envolvem o mesmo tipo de dado sensível, tratando informação financeira nos dois casos",
+        "As duas exigem exatamente os mesmos dois fatores de autenticação para poder funcionar",
+        "As duas só aconteceriam em sistemas que nunca usam conexão criptografada entre cliente e servidor"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Boletim escolar não é dado financeiro — o paralelo entre os dois casos não é sobre o tipo de dado, e sim sobre o tipo de checagem que falta.",
+        "2": "Nenhum dos dois cenários menciona autenticação de dois fatores; o paralelo está na comparação de escopo, não no método de login.",
+        "3": "Nenhum dos dois casos depende do canal de transporte — cifrado ou não, o servidor continuaria comparando (ou deixando de comparar) exatamente as mesmas coisas."
+      },
+      "dicas": [
+        "Pense no que os dois papéis confirmados — 'gerente' e 'professor' — têm em comum quanto ao que não checam depois.",
+        "Boletim e despesa não têm nada em comum como DADO — o que se repete é outra coisa.",
+        "O paralelo está no padrão da falha, não no domínio — despesa ou boletim."
+      ],
+      "pergunta_socratica": "Antes de conferir: em ambos os casos, o papel foi confirmado. O que nenhum dos dois comparou depois disso?",
+      "explicacao": "Os dois casos repetem o mesmo padrão do eixo de autorização por objeto: papel confirmado, mas o recurso pedido — a turma, a despesa — nunca foi comparado com o escopo de quem está pedindo.",
+      "fonte": "Generalização do eixo de autorização por objeto deste módulo",
+      "tags": ["autorizacao", "cenario", "escopo-de-objeto", "boletim"]
+    },
+    {
+      "id": "3.6.q24",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "O que significa, na prática, 'negar por padrão' como recomendação de autorização?",
+      "alternativas": [
+        "Tratar recurso não marcado como público como recusado, até uma checagem provar o contrário",
+        "Recusar toda tentativa de login que já erre a senha logo na primeira vez digitada",
+        "Bloquear o endereço de origem depois de um número fixo de requisições feitas em pouco tempo",
+        "Exigir dois fatores de autenticação quando o valor de uma transação parecer alto demais"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Isso é postura sobre tentativas de login — controla força bruta de senha, não decide se um recurso já autenticado deve ou não ser mostrado.",
+        "2": "Bloqueio por volume de requisições é limitação de taxa, útil contra varredura em massa, mas não é a definição de 'negar por padrão'.",
+        "3": "Exigir mais fator conforme o valor é uma política de risco adicional, e não a postura de recusar por padrão o que não foi explicitamente liberado."
+      },
+      "dicas": [
+        "A recomendação é sobre o que fazer quando a checagem de autorização não foi feita ou falhou.",
+        "Duas alternativas descrevem defesas contra senha ou volume de requisições, não postura padrão de acesso.",
+        "As outras três dicas já descartam senha e volume — o que resta é a postura padrão diante de dúvida."
+      ],
+      "pergunta_socratica": "Antes de conferir: se uma checagem de autorização falhar ou não existir para um recurso, qual deveria ser o resultado padrão?",
+      "explicacao": "Negar por padrão significa que um recurso não explicitamente marcado como público começa recusado, e só é liberado quando uma checagem de autorização o autoriza explicitamente — o oposto de liberar por padrão e confiar em alguém lembrar de restringir depois.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção How to Prevent",
+      "tags": ["autorizacao", "conceitual", "negar-por-padrao", "owasp-a01"]
+    },
+    {
+      "id": "3.6.q25",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma aplicação web faz sua verificação de sessão dentro de cada página. O aplicativo de celular consome uma API própria, que chega direto ao servidor por outro caminho. Por que isso é um risco de autorização, mesmo que nenhuma rota web tenha sido alterada?",
+      "alternativas": [
+        "Porque é outro caminho para o mesmo dado, sem passar pelo ponto onde a verificação foi colocada",
+        "Porque aplicativos de celular costumam usar uma versão bem mais antiga do protocolo HTTP",
+        "Porque o celular armazena a sessão do usuário de forma menos protegida que o navegador",
+        "Porque a tela do celular é bem menor e por isso exibe menos informação de cada vez"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não há nada no cenário sobre versão de protocolo — apps móveis usam HTTP normalmente; a questão é sobre cobertura da checagem, não sobre versão técnica de transporte.",
+        "2": "Segurança de armazenamento de sessão no dispositivo é um risco diferente (roubo de token local), não o motivo pelo qual esta porta específica escapa da checagem de autorização.",
+        "3": "Tamanho de tela é sobre interface, e o 3.4 já mostrou que esconder informação na tela não é controle de autorização de qualquer forma."
+      },
+      "dicas": [
+        "A checagem foi escrita dentro de algo que a API do celular nunca atravessa.",
+        "Duas alternativas falam de características técnicas do dispositivo, não de cobertura de checagem.",
+        "Pense em quantos caminhos diferentes levam ao mesmo dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: a API do celular passa pelo mesmo código onde a checagem de autorização foi escrita?",
+      "explicacao": "A checagem escrita dentro dos controladores da aplicação web só se aplica a requisições que passam por eles. A API que o aplicativo de celular consome é outra porta para o mesmo dado, e se a checagem não foi movida para um ponto que todas as portas atravessam, essa porta fica livre mesmo sem nenhuma mudança nas rotas web.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção Description",
+      "tags": ["autorizacao", "superficie", "api-movel", "owasp-a01"]
+    },
+    {
+      "id": "3.6.q26",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma equipe descobre que /api/interno/relatorio_financeiro responde sem nenhuma checagem de sessão, enquanto a mesma informação, acessada pela tela do sistema, exige login. A rota /api/interno foi criada para uma integração interna que nunca chegou a ser usada. O que essa descoberta ilustra?",
+      "alternativas": [
+        "Uma rota esquecida, fora do fluxo normal, pode escapar da mesma checagem do caminho principal",
+        "Rotas com o prefixo /api/ nunca precisam de autenticação, por convenção do protocolo HTTP",
+        "O sistema tem uma falha de criptografia, porque o relatório financeiro deveria estar cifrado em repouso",
+        "A equipe de integração nunca documentou a rota, e documentação ausente é a causa raiz do problema"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe essa convenção — o prefixo /api/ é só uma escolha de nomenclatura; nada em HTTP isenta uma rota de autenticação por causa do nome dela.",
+        "2": "O problema descrito é sobre quem pode chamar a rota, não sobre como o dado é armazenado — criptografia em repouso não teria evitado uma resposta a uma requisição não autenticada.",
+        "3": "Falta de documentação explica por que ninguém notou a rota, mas a causa do risco é a ausência da checagem em si, não o fato de não estar documentada."
+      },
+      "dicas": [
+        "Pense em quando essa rota foi criada, e se ela passou pelo mesmo ponto de verificação que a tela principal.",
+        "Duas alternativas inventam uma regra de nomenclatura ou confundem o problema com criptografia.",
+        "A causa do risco não é a falta de papel escrito sobre a rota, é a falta de checagem nela."
+      ],
+      "pergunta_socratica": "Antes de conferir: a rota /api/interno passou pelo mesmo ponto de verificação que a tela principal do sistema atravessa?",
+      "explicacao": "Uma rota criada fora do fluxo principal — para uma integração que nunca foi usada — só fica protegida se passar pelo mesmo ponto central de autorização que as demais. Sem isso, ela é uma porta esquecida para o mesmo dado sensível.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção Description (\"an accessible API with missing access controls\")",
+      "tags": ["autorizacao", "superficie", "endpoint-esquecido", "cenario"]
+    },
+    {
+      "id": "3.6.q27",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Uma equipe de QA quer garantir que nenhuma rota nova introduza escalada horizontal nem vertical. Quais dois testes automatizados, juntos, cobrem os dois ângulos?",
+      "alternativas": [
+        "Testar com outra conta do mesmo papel, e com um papel inferior ao que a rota exige",
+        "Chamar a rota duas vezes seguidas com a mesma sessão, medindo o tempo total de resposta",
+        "Chamar a rota sem nenhum cabeçalho de autenticação, conferindo se o servidor continua de pé",
+        "Chamar a rota com um corpo de requisição maior que o normal, e verificar o código de status"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Repetir a mesma sessão e medir tempo testa desempenho ou repetição, não se outra conta ou outro papel conseguem o mesmo acesso.",
+        "2": "Testar sem autenticação nenhuma cobre um caso mais básico, diferente de escalada, que pressupõe uma sessão válida, só do escopo ou papel errado.",
+        "3": "Corpo de requisição maior testa robustez de leitura de dados, sem relação com quem pode acessar o quê."
+      },
+      "dicas": [
+        "A resposta certa usa duas sessões, cada uma testando um dos dois ângulos já vistos neste eixo.",
+        "Duas alternativas testam desempenho ou robustez de entrada, não autorização.",
+        "Pense nas duas sessões diferentes que precisam ser usadas nos testes."
+      ],
+      "pergunta_socratica": "Antes de conferir: para testar escalada vertical, a sessão usada no teste precisa ter o papel exigido pela rota, ou um papel menor?",
+      "explicacao": "Escalada horizontal se testa com a sessão de outra conta do mesmo papel, pedindo um recurso que não é dela; escalada vertical se testa com a sessão de um papel inferior ao exigido, pedindo uma ação que deveria estar fora do alcance dela. Os dois testes juntos cobrem os dois ângulos da mesma lacuna.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control, seção How to Prevent (testes funcionais de controle de acesso)",
+      "tags": ["ataque-defesa", "escalada", "teste", "qa"]
+    },
+    {
+      "id": "3.6.q28",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [3],
+      "enunciado": "Por que o estado 'este pedido foi pago' deveria morar num registro que só o servidor escreve, e nunca num campo que o cliente envia dentro da própria requisição?",
+      "alternativas": [
+        "Porque o cliente escreve o que quiser nesse campo, tenha a etapa realmente acontecido ou não",
+        "Porque campos enviados pelo cliente costumam chegar corrompidos por causa da compressão HTTP",
+        "Porque o servidor tem menos espaço em disco disponível do que o dispositivo do cliente",
+        "Porque o navegador remove automaticamente qualquer campo booleano antes de enviar"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Compressão HTTP não corrompe campos — é uma transformação sem perdas, revertida antes de o servidor ler o corpo da requisição.",
+        "2": "Espaço em disco não tem relação nenhuma com quem deveria ser a fonte da verdade sobre um estado de negócio.",
+        "3": "Navegadores não removem campos booleanos automaticamente; o cliente decide o que envia, e é exatamente por isso que confiar nesse campo é arriscado."
+      },
+      "dicas": [
+        "Pense em quem controla o conteúdo de um campo dentro do corpo de uma requisição.",
+        "Duas alternativas inventam um comportamento técnico que não acontece de verdade.",
+        "A questão não é sobre corrupção de dado, é sobre quem decide o que aquele campo diz."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem escreve o valor de um campo dentro do corpo de uma requisição — o cliente, ou o servidor?",
+      "explicacao": "Um campo dentro do corpo de uma requisição é escrito por quem manda a requisição. Se o cliente controla esse campo, ele pode declarar qualquer coisa, tenha ela acontecido ou não — por isso um fato de que o negócio depende, como 'foi pago', precisa morar num registro que só o próprio servidor escreve.",
+      "fonte": "lab/logica_de_negocio_pulo_de_etapa.py desta sessão",
+      "tags": ["logica-de-negocio", "conceitual", "estado-no-servidor"]
+    },
+    {
+      "id": "3.6.q29",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Uma rede de cinemas permite reserva em grupo com desconto, e exige um depósito acima de quinze ingressos — mas esse limite só é aplicado pela interface do site, nunca conferido de novo no servidor que processa a reserva. Segundo o OWASP Top 10:2025, o que um atacante pode fazer com esse desenho?",
+      "alternativas": [
+        "Reservar centenas de assentos numa sequência de requisições diretas ao servidor, ignorando a tela",
+        "Alterar remotamente o preço do ingresso armazenado no banco de dados do cinema",
+        "Ler dados de cartão de crédito de outros clientes através de uma falha na mesma reserva",
+        "Executar comandos no sistema operacional do servidor através do campo de quantidade de ingressos"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O exemplo do OWASP é sobre volume de reservas fora do limite pretendido, não sobre alterar preço armazenado — são falhas diferentes.",
+        "2": "Não há nada no cenário sobre exposição de dado de cartão; o exemplo é sobre contornar um limite de negócio, não sobre vazamento de dado de terceiros.",
+        "3": "Isso descreveria injeção de comando, o mecanismo do 3.5 — não uma falha de lógica de negócio sobre limite de reserva."
+      },
+      "dicas": [
+        "O limite de quinze ingressos existe só na interface — o que isso implica sobre uma requisição direta ao servidor?",
+        "Duas alternativas descrevem falhas de outro tipo, como preço no banco ou dado de cartão, não o exemplo citado.",
+        "Pense em como um script consegue disparar pedidos muito mais rápido do que um dedo clicando na tela."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o limite de quinze só existe na tela, quantas requisições diretas ao servidor seriam necessárias para reservar seiscentos assentos?",
+      "explicacao": "O documento descreve exatamente esse ataque: reservar seiscentos assentos em poucas requisições, porque o limite de quinze ingressos por reserva nunca foi verificado no servidor — só sugerido pela interface, o mesmo princípio que o 3.4 já ensinou sobre qualquer decisão que more só na tela.",
+      "fonte": "OWASP Top 10:2025, A06 Insecure Design, seção Example Attack Scenarios — conferido em 03/09/2026",
+      "tags": ["logica-de-negocio", "cenario", "owasp-a06", "exemplo-real"]
+    },
+    {
+      "id": "3.6.q30",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "trecho": "def aprovar_reembolso(requisicao):\n    dados = json.loads(requisicao.corpo)\n    if dados.get(\"aprovado_pelo_gestor\"):\n        liberar_pagamento(dados[\"valor\"])\n        return 200\n    return 402",
+      "enunciado": "Este handler libera um reembolso quando o corpo da requisição traz \"aprovado_pelo_gestor\": true. Que falha este código repete, na mesma família do laboratório de checkout desta sessão?",
+      "alternativas": [
+        "Decide uma aprovação a partir de um campo que o próprio solicitante do pagamento pode escrever",
+        "Usa JSON em vez de um formato binário mais compacto para transportar o valor do reembolso",
+        "Não fecha a conexão HTTP depois de enviar a resposta, causando vazamento de socket",
+        "Aceita valores de reembolso maiores que o limite de precisão de ponto flutuante"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Formato de transporte, JSON ou binário, é escolha de eficiência, sem relação com quem decide se o gestor de fato aprovou algo.",
+        "2": "O trecho não mostra nada sobre gerenciamento de conexão; esse tipo de falha existiria independente de como a aprovação é decidida.",
+        "3": "Precisão de ponto flutuante é problema de representação numérica, não de quem tem autoridade para declarar que o gestor aprovou."
+      },
+      "dicas": [
+        "Repare de onde vem o valor de 'aprovado_pelo_gestor' — de um registro do servidor, ou do corpo da própria requisição?",
+        "Duas alternativas apontam para detalhes de formato ou desempenho, não para quem decide o fato de negócio.",
+        "Compare com o laboratório de checkout: o campo 'pago' também vinha de onde?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quem enviou o valor de 'aprovado_pelo_gestor' nesta requisição — o gestor, ou quem está pedindo o reembolso?",
+      "explicacao": "O código confia num campo do próprio corpo da requisição para decidir se um gestor aprovou algo — a mesma falha do laboratório de checkout, aplicada a reembolso: quem pede o pagamento pode simplesmente declarar que foi aprovado, porque o servidor nunca consulta um registro próprio da aprovação real.",
+      "fonte": "Padrão de código equivalente ao usado em lab/logica_de_negocio_pulo_de_etapa.py",
+      "tags": ["caca-erro", "logica-de-negocio", "estado-no-servidor", "reembolso"]
+    },
+    {
+      "id": "3.6.q31",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Qual correção fecha, na raiz, a falha do handler aprovar_reembolso da questão anterior?",
+      "alternativas": [
+        "Consultar um registro que só o gestor autenticado grava, nunca o corpo do próprio pedido",
+        "Exigir que o campo aprovado_pelo_gestor venha acompanhado de uma assinatura digital do próprio cliente",
+        "Reduzir bastante o limite de valor permitido numa única requisição de reembolso",
+        "Registrar em log toda vez que o campo aprovado_pelo_gestor chegar com o valor true"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Assinatura do cliente ainda deixa o cliente sendo a fonte do fato — uma assinatura só prova que ele escreveu aquilo, não que o gestor aprovou de verdade.",
+        "2": "Reduzir o limite diminui o estrago de um reembolso indevido, mas não impede que ele aconteça — é mitigação de impacto, não correção da causa.",
+        "3": "Log ajuda a investigar depois; não impede a liberação indevida de acontecer no momento da requisição."
+      },
+      "dicas": [
+        "A correção precisa mudar quem escreve o fato 'o gestor aprovou', não como o cliente prova o que escreveu.",
+        "Duas alternativas reduzem o dano ou ajudam a investigar depois, sem impedir o problema de acontecer.",
+        "Pense numa rota separada, que só o gestor de verdade consegue acionar."
+      ],
+      "pergunta_socratica": "Antes de conferir: se existisse uma rota separada, só acionável pelo gestor autenticado, o handler de reembolso ainda precisaria confiar no corpo do pedido?",
+      "explicacao": "A correção move o fato 'o gestor aprovou' para um registro que só uma ação do próprio gestor, autenticado, pode gravar — o handler de reembolso passa a consultar esse registro, e não mais um campo dentro do pedido de quem quer receber o reembolso.",
+      "fonte": "OWASP Top 10:2025, A06 Insecure Design, seção How to Prevent",
+      "tags": ["ataque-defesa", "logica-de-negocio", "estado-no-servidor", "reembolso"]
+    },
+    {
+      "id": "3.6.q32",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Ligue cada padrão de falha de lógica de negócio ao exemplo que o ilustra.",
+      "pares": [
+        ["Pular uma etapa obrigatória do fluxo", "Confirmar um pedido sem ter passado pela etapa de pagamento"],
+        ["Valor fora do intervalo que a interface ofereceria", "Enviar quantidade negativa num campo que o formulário só mostra de 1 a 10"],
+        ["Repetir uma ação sem limite de negócio", "Reservar seiscentos assentos contornando o limite de quinze por reserva"],
+        ["Confiar em campo que o cliente escreve para um fato do servidor", "Aceitar 'aprovado_pelo_gestor': true vindo do corpo do próprio pedido"]
+      ],
+      "dicas": [
+        "Cada linha da esquerda é um padrão; cada linha da direita é um caso concreto já visto neste módulo.",
+        "Dois dos padrões vieram dos laboratórios de checkout e de reembolso; um veio do exemplo do cinema.",
+        "Pense em qual exemplo tem a ver com ordem, qual com valor, e qual com fonte do dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual desses quatro exemplos você já viu num laboratório real desta sessão, e qual veio de uma fonte externa citada?",
+      "explicacao": "Pular etapa é o laboratório de checkout; valor fora do intervalo é o caso genérico de quantidade negativa; repetir sem limite é o exemplo do cinema, citado do OWASP Top 10:2025; e confiar em campo do cliente para um fato do servidor é o caso do reembolso.",
+      "fonte": "Síntese do eixo 4 deste módulo",
+      "tags": ["pareamento", "logica-de-negocio", "sintese"]
+    },
+    {
+      "id": "3.6.q33",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Ordene as camadas do contraponto defensivo deste módulo, da verificação mais próxima da requisição até a mais próxima do impacto, caso as anteriores falhem.",
+      "itens": [
+        "Ponto central de autorização aplicado a toda rota, verbo e versão",
+        "Comparação do recurso pedido com o dono ou escopo da sessão",
+        "Registro de estado de negócio mantido e consultado só pelo servidor",
+        "Menor privilégio limitando o alcance de qualquer ação que ainda assim passe"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "A primeira camada decide se a requisição sequer chega perto de qualquer lógica de negócio.",
+        "A última camada não impede nada sozinha — ela limita o estrago quando as outras já falharam.",
+        "Pense na ordem em que uma requisição passaria por cada checagem, do ponto de entrada até o efeito final."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual camada ainda protege alguma coisa se todas as outras três já tiverem falhado?",
+      "explicacao": "O ponto central de autorização é o primeiro filtro; depois vem a comparação de objeto; o estado de negócio guardado no servidor protege a lógica de fluxo; e menor privilégio é a última rede, limitando o alcance mesmo que as três primeiras falhem — nenhuma sozinha basta, mas a ordem reflete onde cada uma atua.",
+      "fonte": "Síntese do contraponto defensivo (3.6.t6)",
+      "tags": ["ordenacao", "contraponto", "defesa-em-camadas", "sintese"]
+    },
+    {
+      "id": "3.6.q34",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um sistema corrige completamente a ausência de checagem de objeto — o eixo 1 deste módulo. Isso também resolve os eixos de superfície de rotas, escalada e lógica de negócio?",
+      "alternativas": [
+        "Não — cada eixo nasce de uma checagem própria, que pode faltar sem depender das outras",
+        "Sim — autorização por objeto é a checagem mais ampla, e cobre automaticamente as demais",
+        "Sim, desde que o sistema também use conexão criptografada em todas as rotas",
+        "Não, mas só porque a ordem de implementação importa mais que o conteúdo da checagem"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Uma checagem de objeto correta numa rota não garante que outra rota (superfície), outro papel (escalada vertical) ou o estado de um fluxo (lógica de negócio) estejam cobertos — são comparações diferentes.",
+        "2": "Conexão criptografada protege o tráfego contra interceptação; não tem relação com se as quatro comparações de autorização deste módulo foram implementadas.",
+        "3": "A ordem de implementação não é o motivo — mesmo implementadas na ordem certa, as quatro continuam sendo checagens distintas, cada uma com seu próprio jeito de faltar."
+      },
+      "dicas": [
+        "Pense nos quatro eixos deste módulo como quatro perguntas diferentes, não uma pergunta com quatro nomes.",
+        "Duas alternativas dizem que sim, mas por motivos que não resolvem os outros três eixos.",
+        "Um verbo HTTP esquecido em outra rota não tem nada a ver com o campo 'departamento' desta."
+      ],
+      "pergunta_socratica": "Antes de conferir: corrigir a comparação de dono do recurso muda alguma coisa sobre um verbo HTTP esquecido em outra rota?",
+      "explicacao": "Os quatro eixos deste módulo — objeto, superfície, escalada, lógica de negócio — nascem de comparações diferentes. Corrigir uma não implementa as outras: um sistema pode ter autorização por objeto perfeita e ainda ter uma rota legada sem checagem nenhuma, ou aceitar estado de negócio vindo do cliente.",
+      "fonte": "Síntese do contraponto defensivo (3.6.t6)",
+      "tags": ["conceitual", "contraponto", "sintese", "autorizacao"]
+    },
+    {
+      "id": "3.6.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma auditoria encontra estes quatro achados no mesmo sistema: (1) um endpoint compara papel, mas não departamento; (2) uma rota antiga responde sem nenhuma checagem; (3) um usuário comum aciona uma função de administrador; (4) um fluxo de compra aceita confirmação sem registro de pagamento. A equipe corrige só o achado (1) e declara o sistema seguro. O que essa declaração ignora?",
+      "alternativas": [
+        "Que os outros três achados vêm de checagens diferentes, nenhuma tocada pela correção do achado (1)",
+        "Que o achado (1) é o mais grave dos quatro, e por isso os outros podem esperar",
+        "Que os quatro achados, juntos, formam uma única falha de criptografia que a correção de (1) já resolveu",
+        "Que a auditoria deveria ter sido feita por uma ferramenta automatizada, e não por leitura manual"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Gravidade relativa entre os quatro depende do que cada um alcança num sistema real — não há base no caso para afirmar que (1) supera os outros três, e isso nem seria motivo para ignorá-los.",
+        "2": "Nenhum dos quatro achados é sobre criptografia — todos são sobre autorização, em quatro ângulos diferentes, e não se resolvem como uma coisa só.",
+        "3": "A questão não é sobre como a auditoria foi feita, manual ou automatizada — é sobre o que a correção aplicada deixou de cobrir."
+      },
+      "dicas": [
+        "Releia os quatro achados: cada um corresponde a um eixo diferente deste módulo.",
+        "Duas alternativas tentam justificar ignorar os outros três achados; a terceira muda de assunto para o método da auditoria.",
+        "Cada um dos quatro achados aponta pra um bloco de teoria diferente deste módulo."
+      ],
+      "pergunta_socratica": "Antes de conferir: os achados (2), (3) e (4) passam pela mesma checagem que o achado (1) corrigiu?",
+      "explicacao": "Os quatro achados correspondem aos quatro eixos deste módulo — objeto, superfície, escalada, lógica de negócio — e nascem de checagens independentes. Corrigir o achado (1) não toca a rota sem checagem (2), a comparação de papel ausente (3), nem o estado de pagamento aceito do cliente (4). Declarar o sistema seguro depois de corrigir só um deles ignora que nenhuma camada sozinha cobre o que as outras cobrem.",
+      "fonte": "Síntese final do módulo — contraponto defensivo (3.6.t6)",
+      "tags": ["cenario", "contraponto", "sintese", "auditoria"]
+    }
+  ]
+}

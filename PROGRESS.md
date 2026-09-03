@@ -3,10 +3,11 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-02 · módulo 3.5 (Web II) escrito e publicado —
-SQL injection, XSS e injeção de comando ensinados como um único mecanismo
-(dado sem fronteira em relação à instrução) em três canais · 3.552 testes
-passando
+Última atualização: 2026-09-03 · módulo 3.6 (Web III) escrito e publicado —
+autorização como quatro checagens independentes (objeto, superfície de
+rotas, escalada, lógica de negócio), fecha o bloco Web · medida (e não
+corrigida) uma quarta ferramenta de triagem de forma, `medidor_molde_dica.py`
+· 3.661 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -16,18 +17,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 31 de 41 |
-| Questões | 1.086 |
-| Blocos de teoria | 188 |
-| Tags distintas | 822 |
-| Testes automatizados | 3.552 |
-| Linhas de código Python | ~2.280 no app · ~3.830 com ferramentas e testes |
+| Módulos de conteúdo escritos | 32 de 41 |
+| Questões | 1.121 |
+| Blocos de teoria | 194 |
+| Tags distintas | 846 |
+| Testes automatizados | 3.661 |
+| Linhas de código Python | ~2.280 no app · ~3.950 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 175 (5 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 210 (6 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
 
-Tipos de questão em uso: conceitual 442, cenário 232, ataque→defesa 86,
-caça ao erro 87, comando 56, artefato 75, pareamento 62, ordenação 46.
+Tipos de questão em uso: conceitual 450, cenário 241, ataque→defesa 90,
+caça ao erro 90, comando 57, artefato 79, pareamento 65, ordenação 49.
 
 ---
 
@@ -60,6 +61,7 @@ C:\Dev\cybersecurity-app\
 ├── ferramentas/
 │   ├── validar_modulo.py    valida um módulo antes de ele entrar em data/modulos/
 │   ├── chutador_de_forma.py portão de comprimento: taxa de "mais_longa" por módulo
+│   ├── medidor_molde_dica.py triagem (não portão) de molde de frase repetido em dicas
 │   ├── avisos_aceitos.json  casos já lidos e justificados, que não viram aviso
 │   └── gerar_icone.py       redesenha o app.ico (precisa de pillow)
 ├── tests/                   7 arquivos de teste
@@ -223,9 +225,9 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 4.5 SIEM e monitoramento · 4.6 MITRE ATT&CK e caça a ameaças ·
 4.7 Resposta a incidentes · 4.8 Forense digital
 
-**Nível 3 — Ofensivo** (175 questões, 5 de 9)
+**Nível 3 — Ofensivo** (210 questões, 6 de 9)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
-3.3 Varredura e enumeração · 3.4 Web I · 3.5 Web II
+3.3 Varredura e enumeração · 3.4 Web I · 3.5 Web II · 3.6 Web III
 
 **Nível 2 — Núcleo de segurança** (245 questões, completo)
 2.1 Criptografia I · 2.2 Criptografia II · 2.3 Criptografia III ·
@@ -245,18 +247,19 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 10 módulos
+### Conteúdo — 9 módulos
 
-- **Nível 3 — Ofensivo** (4 restantes): Web III, OWASP Top 10, quebra de
-  senhas, engenharia social e redes sem fio
+- **Nível 3 — Ofensivo** (3 restantes): OWASP Top 10, quebra de senhas,
+  engenharia social e redes sem fio
 - **Nível 4 — Defensivo**: completo (8 de 8)
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
 
 O próximo bloco natural é o nível 3, que desbloqueia com 70% no nível 2 —
-agora completo. Os laboratórios de verificação ficam em pé: quebra de senhas
-(3.8) reaproveita o material de 2.4 e 2.5, e Web I–III (3.4–3.6) pede captura
-real de requisição.
+agora completo. Bloco Web (3.4–3.6) fechado. O 3.7 (OWASP Top 10) já pode
+assumir que o aluno reconhece o mecanismo por trás de cada sigla — IDOR,
+injeção, quebra de controle de acesso — sem reensinar nenhum deles; quebra
+de senhas (3.8) reaproveita o material de 2.4 e 2.5.
 
 ### Funcionalidades
 
@@ -346,6 +349,7 @@ real de requisição.
   | 4.5 | 19,4% | ok |
   | 4.3 | 15,6% | ok |
   | 4.6 | 15,6% | ok |
+  | 3.6 | 13,8% | ok (módulo novo, 03/09/2026 — o viés reapareceu nos três checkpoints da regra 7, corrigido a cada vez antes de seguir) |
   | 4.8 | 12,9% | ok (módulo novo, 02/09/2026) |
 
   **11 de 31 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
@@ -405,6 +409,7 @@ real de requisição.
   | 3.4 | 23,3% (7/30) | 10,7% | ok (módulo novo, 02/09/2026) |
   | 2.4 | 18,2% (6/33) | 8,6% | ok |
   | 4.3 | 15,6% (5/32) | 6,9% | ok |
+  | 3.6 | 13,8% (4/29) | 5,5% | ok (módulo novo, 03/09/2026) |
 
   **Mediana do corpus: 35,5%.** O teto de 40% não foi escolhido de novo —
   foi conferido contra o mesmo critério estatístico independente já usado
@@ -425,6 +430,51 @@ real de requisição.
   corrigida nesta rodada**, incluindo em 0.1: é medição, o alvo de
   correção fica para quando a dívida de forma for tratada como bloco,
   junto com os 11 módulos de `mais_longa`.
+
+  **Terceiro eixo medido — molde de dica, 03/09/2026 — triagem, não
+  portão.** A revisão adversarial do 3.5 achou a mesma frase de abertura
+  em `dicas[2]` nas 28 de 28 questões de múltipla escolha do módulo —
+  quarta variante desta família nesta sessão (frase de autorrejeição no
+  4.7, qualificador absolutista no 4.8, hedge solto no 3.4). Antes de
+  virar regra, medido contra o corpus inteiro, seguindo a lição da seção
+  abaixo: `ferramentas/medidor_molde_dica.py` conta, por módulo e por
+  índice de dica (0, 1 ou 2), a maior família de questões cujas dicas
+  começam com as mesmas 5 palavras (N=5 escolhido e testado contra N=3 e
+  N=8 sem mudar o ranking — ver comentário no arquivo).
+
+  Resultado nos 31 módulos publicados até então: mediana 5,7%, a maioria
+  abaixo de 6%, com três destaques reais — **3.4, 20,0% (7/35,
+  "só uma alternativa aponta para" em `dicas[2]`, achado NOVO, não
+  reportado na revisão adversarial daquele módulo)**, **4.8, 17,1%**
+  ("pense no laboratório desta sessão" em `dicas[0]`) e **4.7, 11,4%**
+  (resíduo do mesmo molde do 3.4, depois de já corrigido em 15 questões
+  na publicação original).
+
+  **Veredito, honesto: sustenta como ferramenta de triagem — não como
+  teto automático de reprovação como `mais_longa`/`evita_absoluto`.**
+  Diferença do caso da regra 7 (dígito/negação): aqui não há "acaso" a
+  vencer — cinco palavras idênticas por coincidência linguística é quase
+  impossível, então qualquer família ≥2 já é sinal real, não ruído
+  estatístico. O motivo de não virar portão é outro, e seguindo a mesma
+  disciplina desta seção — nomear o limite conhecido, como já existe para
+  a regra 6 (README, "a leitura humana continua sendo a rede" para o que
+  a regra 6 não alcança): **o medidor só pega o PREFIXO EXATO repetido.
+  Trocar uma palavra ("alternativa"→"opção") zera a família de forma
+  inteira sem eliminar o molde** — um módulo pode pontuar 0% aqui e ainda
+  ter o defeito inteiro, só variado. Baixa contagem (2-3) também pode ser
+  convenção legítima de tipo de questão, não vazamento (ex.: "compare as
+  quatro opções pelo" em 3.1/3.2/3.3). Os dois casos exigem leitura para
+  decidir — a régua automática não distingue.
+
+  Adotado como parte do checklist de checkpoint (8ª, 20ª, final) a partir
+  do 3.6, reportando a taxa junto com as outras três, mas sem reprovar
+  módulo por ela sozinha.
+
+  **Achado do 3.4 registrado como dívida medida e NÃO corrigida nesta
+  rodada**: "Só uma alternativa aponta para" idêntico em `dicas[2]` de 7
+  questões (`3.4.q4`, `q7`, `q12`, `q13`, `q23`, `q28`, `q32`) — 20,0% de
+  família, a maior do corpus. É medição, não correção: fica registrado
+  aqui para quando a dívida de forma do 3.4 for tratada como bloco.
 
   **Piloto de correção — módulo 0.1, 01/09/2026.** Escolhido por ser o
   primeiro módulo do curso (vazamento ali contamina a base inteira) e por
@@ -807,6 +857,72 @@ real de requisição.
   `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 31
   módulos). +35 questões, +1 bloco de teoria por módulo (6). Nível 3
   em 5 de 9.
+- **Módulo 3.6 escrito, 03/09/2026 — Web III, a requisição que o servidor
+  não deveria ter atendido. Fecha o bloco Web (3.4-3.6).** Recorte final:
+  escopo da autorização sobre o objeto pedido (autenticado ≠ autorizado
+  para este recurso); mais portas de entrada do que telas (API móvel,
+  endpoint legado, verbo HTTP esquecido) e por que a verificação precisa
+  morar num ponto central; escalada horizontal e vertical como a mesma
+  falha por ângulos diferentes; lógica de negócio (requisição perfeita,
+  fora de ordem), fechando com o contraponto defensivo.
+
+  O levantamento de não-repetição corrigiu um erro do próprio pedido do
+  usuário — RBAC/menor privilégio foi atribuído a "2.3 e 2.4", mas o
+  dono real, conferido no conteúdo, é o **2.6** — e achou a colisão mais
+  severa desta série até agora: o eixo de IDOR proposto era, palavra por
+  palavra, o mesmo enquadramento que **6 das 35 questões do 2.6** já
+  ensinam (mecanismo, correção certa, priorização por explorabilidade).
+  Removido como conteúdo novo, não reformulado — a primeira vez nesta
+  linha de módulos que um eixo inteiro sai do recorte em vez de ser
+  reescrito. O espaço vago foi para o eixo de superfície de rotas
+  proposto pelo usuário, confirmado livre por varredura contra 3.2, 3.3
+  e 4.1; ver `data/rascunhos/nivel-3/fontes/nao-repetir-3.6.md`.
+
+  Quatro laboratórios HTTP reais (`127.0.0.1`, portas 8101-8104, cada um
+  derrubado pelo próprio script): checagem de papel correta que nunca
+  compara departamento (escopo); mesma rota com GET protegido e DELETE
+  sem checagem nenhuma (superfície); uma única função `autorizado()` que
+  abre, ao mesmo tempo, leitura de mensagem alheia e ativação de modo
+  manutenção por usuário comum (escalada); e `/confirmar` decidindo o
+  estado do pedido por um campo que o próprio cliente envia, em vez de
+  consultar o que `/pagar` registraria (lógica de negócio). Citação
+  factual verificada por `WebFetch` em 03/09/2026: **OWASP Top 10:2025
+  existe e A01 continua "Broken Access Control"** — módulos anteriores
+  (2.5, 2.6) citavam a edição 2021; A06 "Insecure Design" cita
+  explicitamente o exemplo de reserva de cinema usado no eixo 4.
+
+  Os três checkpoints da regra 7 mediram, pela primeira vez, as quatro
+  taxas (incluindo a nova triagem de molde de dica — ver seção 5 acima):
+  o viés de comprimento (correta mais longa) reapareceu nas três rodadas
+  — 75,0%, 50,0% e 41,4% respectivamente, cada vez acima do teto e cada
+  vez corrigido antes de seguir. Diferente do 3.4 e do 3.5, cujo
+  checkpoint final já nasceu dentro do teto, o hábito não generalizou
+  neste módulo mesmo depois de duas correções — registrado como recaída
+  de processo, não regressão da regra. Publicado em **13,8% mais_longa /
+  27,6% mais_curta / 13,8% evita_absoluto / 2,9% molde de dica**.
+
+  A revisão adversarial (duas lentes, com o pedido explícito desta
+  rodada de procurar molde em distratores, dicas, enunciados e perguntas
+  socráticas) achou a **quinta variante** desta família nesta sessão: o
+  molde **"Duas alternativas [verbo], não/sem [conceito]"** em `dicas[1]`
+  de **18 das 35 questões**, mais uma variante ("A resposta certa
+  fala/nomeia X, não Y") em 5 — reescritas as 23 ocorrências com
+  referência ao conteúdo específico de cada questão, quebrando o molde.
+  Achou também um banco reciclado de distratores-arquétipo (2FA, HTTPS,
+  reduzir limite, log) com justificativa quase idêntica entre questões
+  de eixos diferentes (9 questões), uma dica que entregava o gabarito
+  por paráfrase em vez de eco literal (5 questões, mais sutil que o que
+  o validador automático pega), uma justificativa citando um fato que o
+  laboratório não chegou a demonstrar na execução mostrada ao aluno
+  (`3.6.q3`), uma questão em que a correta se distinguia dos distratores
+  pela forma gramatical (substantivo vs. infinitivo, `3.6.q8`), e uma
+  atribuição de seção OWASP imprecisa em `3.6.t5` — todos corrigidos.
+  Relatório completo em `data/rascunhos/nivel-3/relatorios/3.6.md`.
+
+  Validação final: `pytest -q` (3.661 testes, 0 falhas) e
+  `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 32
+  módulos). +35 questões, +1 bloco de teoria por módulo (6). Nível 3
+  em 6 de 9. **Bloco Web (3.4-3.6) fechado.**
 
 ---
 
@@ -939,7 +1055,10 @@ Seis hábitos, em ordem de retorno:
    módulo novo — na 8ª questão, na 20ª e ao terminar — nunca só no fim, e
    nunca só uma vez. A partir do 4.9, a medição cobre as três estratégias
    do chutador (`mais_longa`, `mais_curta`, `evita_absoluto`), não só
-   comprimento.** No 4.5 e no 4.6 a correta saiu mais longa em 100% e 97%
+   comprimento; a partir do 3.6, soma-se a triagem de molde de dica
+   (`ferramentas/medidor_molde_dica.py`, seção 5 acima) — reportada
+   junto, mas como leitura obrigatória sobre o achado, não como quarta
+   trava de reprovação.** No 4.5 e no 4.6 a correta saiu mais longa em 100% e 97%
    das questões na primeira escrita, mesmo com a regra escrita no prompt
    as duas vezes, porque a medição só aconteceu com o módulo inteiro
    pronto. No 4.7 o checkpoint da 8ª questão pegou o defeito (100%) e a
