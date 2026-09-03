@@ -1,0 +1,18 @@
+=== servidor real em 127.0.0.1:8096 ===
+  comentário enviado pelo usuário: '<b>ótimo produto</b>'
+
+=== rota /sem-escape (entrada colada direto no HTML) ===
+  HTML devolvido: <html><body><p>Comentário: <b>ótimo produto</b></p></body></html>
+
+=== rota /com-escape (entrada escapada antes de entrar no HTML) ===
+  HTML devolvido: <html><body><p>Comentário: &lt;b&gt;ótimo produto&lt;/b&gt;</p></body></html>
+
+=== leitura ===
+  Na rota sem escape, as tags <b> chegam intactas no HTML — o navegador
+  de quem lê o comentário vai renderizar como negrito de verdade, porque
+  não existe diferença, para o navegador, entre 'marcação da página' e
+  'texto que um usuário digitou'. Na rota com escape, os mesmos caracteres
+  < e > viram &lt; e &gt; — o navegador exibe a tag como TEXTO literal,
+  porque ela deixou de ter forma de instrução. A tag usada aqui só deixa
+  texto em negrito; a mesma lacuna aceita qualquer tag, inclusive as que
+  executam código.

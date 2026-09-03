@@ -1,0 +1,1329 @@
+{
+  "id": "3.5",
+  "nivel": 3,
+  "titulo": "Web II — a confusão entre dado e instrução",
+  "objetivos": [
+    "Explicar por que misturar dado do usuário com instrução no mesmo canal quebra a fronteira entre os dois, e por que isso é falha de construção, não descuido pontual",
+    "Reconhecer o mesmo mecanismo em canais diferentes — consulta a banco, marcação renderizada no navegador, chamada ao sistema operacional — como uma família, não três assuntos",
+    "Distinguir filtrar entrada (defesa fraca) de separar estruturalmente dado e instrução (defesa forte), e explicar o que contexto de saída significa",
+    "Aplicar o contraponto defensivo: por que nenhuma camada sozinha — separação estrutural, validação, menor privilégio — é suficiente sem as outras"
+  ],
+  "pre_requisitos": [
+    "1.6",
+    "3.4"
+  ],
+  "teoria": [
+    {
+      "id": "3.5.t1",
+      "titulo": "Dado e instrução no mesmo canal: por que a fronteira quebra",
+      "texto": "Toda consulta a banco, toda página HTML, todo comando de sistema é, no fundo, uma string — uma sequência de caracteres que um interpretador lê e executa. Quando o dado que o usuário forneceu é colado dentro dessa mesma string, sem nenhuma marcação especial, o interpretador não tem como saber onde a instrução original termina e o dado começa: ele só vê uma string só, do início ao fim.\n\nUm apóstrofo dentro de um nome de usuário e um apóstrofo que fecha uma string SQL são, para o interpretador, exatamente o mesmo caractere. Uma tag dentro de um comentário e uma tag da própria página são, para o navegador, exatamente a mesma marcação. Não existe diferença técnica entre os dois — a diferença que importa (isto é dado, isto é instrução) só existe na cabeça de quem escreveu o código, e se essa distinção nunca foi codificada de algum jeito, ela simplesmente não existe para a máquina.\n\nÉ por isso que a falha não depende de o dado ser malicioso: um nome legítimo com apóstrofo já quebra uma consulta concatenada, exatamente como um valor escrito de propósito quebraria.",
+      "analogia": "Um contrato onde o preenchimento do cliente e o texto da cláusula usam a mesma caligrafia, sem aspas nem campo demarcado, deixa qualquer um ler a assinatura como parte da cláusula seguinte.",
+      "erro_comum": "Achar que o problema só aparece com entrada maliciosa, quando dado legítimo comum já expõe a falha.",
+      "fonte": "lab/sql_concatenacao_vs_parametros.py desta sessão, executado em 02/09/2026."
+    },
+    {
+      "id": "3.5.t2",
+      "titulo": "Não é descuido pontual — é decisão de construção",
+      "texto": "Um erro de digitação é corrigido revisando aquela linha específica. A confusão entre dado e instrução não é esse tipo de erro: ela nasce de uma decisão estrutural — construir a instrução como uma string comum, e colar o dado dentro dela — que se repete em toda consulta, toda página, todo comando escrito daquele jeito. Revisar uma linha não resolve as outras cem que usam o mesmo padrão.\n\nÉ por isso que a defesa eficaz não é 'ter mais cuidado': cuidado individual falha porque a próxima pessoa que escrever código, ou a mesma pessoa num dia cansado, repete o padrão que a linguagem e a biblioteca deixam mais fácil de escrever. A defesa que funciona muda o padrão disponível — usa uma forma de construir a instrução que não permite misturar dado com instrução, mesmo que ninguém se lembre da regra naquele momento.\n\nEsse é o motivo de o mecanismo valer a pena entender como família, não como lista de casos: quem reconhece 'aqui um dado está sendo colado dentro de uma instrução' já identifica a falha antes de saber o nome dela.",
+      "analogia": "Corrigir um parafuso frouxo numa linha de montagem não conserta a máquina que aperta todos os parafusos frouxos demais — o defeito está na calibração, não no parafuso.",
+      "erro_comum": "Corrigir a consulta onde o problema apareceu e considerar o trabalho terminado, sem revisar o resto do código escrito no mesmo padrão.",
+      "fonte": "Continuidade de 3.5.t1, desta sessão."
+    },
+    {
+      "id": "3.5.t3",
+      "titulo": "A mesma falha, três canais: banco, marcação, comando",
+      "texto": "Uma consulta SQL montada por concatenação, uma página HTML que devolve um comentário sem tratamento, e um comando de sistema montado a partir de um valor externo têm, na superfície, quase nada em comum — bancos de dados, navegadores e sistemas operacionais são coisas diferentes. Mas o mecanismo por trás dos três é idêntico: dado do usuário entra numa string que vai virar instrução, sem fronteira entre os dois papéis.\n\nOs laboratórios desta sessão provam isso com o mesmo formato nos três canais: a mesma entrada, tratada de duas formas — concatenada (quebra ou é explorável) e separada estruturalmente (segura). O caractere que demarca a fronteira muda (apóstrofo no SQL, `<` e `>` no HTML, `;` ou `&` no shell, dependendo do sistema), mas o mecanismo que permite a confusão é o mesmo nos três.\n\nQuem entende esse mecanismo — não decorou os três exemplos, entende por que eles são o mesmo problema — reconhece a família inteira, inclusive uma quarta variante em outro canal (um interpretador de LDAP, um motor de template) que segue a mesma lógica.",
+      "analogia": "Um cadeado, uma porta giratória e uma catraca resolvem o mesmo problema — controlar quem passa — com mecanismos físicos completamente diferentes; reconhecer 'isso é controle de acesso' não depende de decorar os três objetos.",
+      "erro_comum": "Tratar SQL injection, XSS e injeção de comando como três matérias separadas para decorar, em vez de uma família com o mesmo mecanismo.",
+      "fonte": "lab/sql_concatenacao_vs_parametros.py, lab/html_sem_escape_vs_com_escape.py e lab/comando_concatenado.py, desta sessão."
+    },
+    {
+      "id": "3.5.t4",
+      "titulo": "Filtrar é defesa fraca; separar estruturalmente é defesa forte",
+      "texto": "Filtrar significa tentar reconhecer e remover ou escapar os caracteres perigosos antes de colar o dado na string — uma lista de 'isso não pode aparecer'. O problema é que a lista de caracteres perigosos depende do canal, do contexto dentro do canal, e às vezes de detalhes de implementação do próprio interpretador; uma lista incompleta, ou uma forma diferente de escrever o mesmo caractere, contorna o filtro sem quebrar nenhuma regra escrita.\n\nSeparar estruturalmente significa nunca deixar o dado competir com a instrução pelo mesmo canal: parâmetros (`?` ou `:nome`) numa consulta SQL, que o driver do banco envia por um canal diferente da instrução; contexto de saída correto no HTML; lista de argumentos, não string de shell, numa chamada de sistema — o exemplo já demonstrado com código real e testado no módulo de Python para segurança.\n\nA diferença entre as duas abordagens não é grau de cuidado — é categoria: filtrar tenta prever todo caso perigoso de antemão; separar estruturalmente torna a categoria inteira de ataque impossível, porque o dado nunca chega a ocupar a posição de instrução.",
+      "analogia": "Uma lista de palavras proibidas numa moderação de texto é sempre alcançável por sinônimo ou erro de digitação proposital; separar quem pode postar de quem só pode ler resolve a categoria inteira, sem depender de prever cada palavra.",
+      "erro_comum": "Escrever uma lista de caracteres a remover ou escapar, achando que cobre todos os casos possíveis daquele canal.",
+      "fonte": "Continuidade de 3.5.t1 a t3; defesa de comando já demonstrada com código real em 1.6.t6."
+    },
+    {
+      "id": "3.5.t5",
+      "titulo": "O que 'contexto' significa: a mesma string, segura aqui, perigosa ali",
+      "texto": "'O'Brien' quebra uma consulta SQL concatenada, porque o apóstrofo é o delimitador de string naquele canal — mas o mesmo texto, dentro de uma página HTML, é só um nome comum, sem nenhum caractere especial para o navegador. '<b>oi</b>' faz o oposto: inofensivo para o SQL, que não reconhece `<` como delimitador de nada, e uma instrução de formatação real dentro do HTML.\n\nEssa é a razão de 'contexto de saída' ser o termo certo, e não 'dado perigoso': perigo não é uma propriedade que uma string carrega sozinha, é uma relação entre o que ela contém e o que o canal de destino trata como caractere especial naquele ponto específico. O mesmo valor pode precisar de tratamentos diferentes dependendo de onde, dentro da mesma página, ele é inserido — texto comum, atributo HTML, bloco de JavaScript embutido — porque cada um tem seu próprio conjunto de caracteres especiais.\n\nTratar contexto como detalhe secundário é o erro que sobra depois de resolver o caso óbvio: escapar corretamente para texto HTML e ainda inserir o mesmo dado, sem tratamento, dentro de um atributo, deixa a porta aberta de novo, por um caminho ligeiramente diferente.",
+      "analogia": "A mesma chave abre uma porta e não abre outra — a chave não é 'perigosa' ou 'seguraʼ sozinha, o que importa é a fechadura específica que ela encontra.",
+      "erro_comum": "Escapar um dado corretamente para um contexto (texto HTML) e reaproveitar o mesmo tratamento para outro contexto (atributo, JavaScript) sem checar se ele ainda vale ali.",
+      "fonte": "lab/mesma_string_dois_contextos.py desta sessão, executado em 02/09/2026."
+    },
+    {
+      "id": "3.5.t6",
+      "titulo": "O contraponto defensivo: nenhuma camada é suficiente sozinha",
+      "texto": "Separação estrutural — parâmetros, contexto de saída, lista de argumentos — é a defesa que realmente fecha a categoria de falha, mas tratá-la como a única camada necessária é otimismo caro. Validação de entrada continua valendo como segunda camada: rejeitar um valor que não deveria ter um apóstrofo (um código de produto, por exemplo) antes mesmo de ele chegar perto de qualquer consulta reduz a superfície, mesmo sem substituir a parametrização.\n\nMenor privilégio é a terceira camada: a conta que o sistema usa para consultar o banco não precisa de permissão para apagar tabelas; o processo que renderiza HTML não precisa de acesso ao sistema de arquivos inteiro; o usuário que roda um comando de sistema não precisa ter privilégio administrativo. Se a separação estrutural falhar — por um bug na biblioteca, por uma exceção não coberta — o dano ainda possível fica limitado pelo que aquela conta específica tem permissão de fazer.\n\nNenhuma camada sozinha é o objetivo — é a combinação, cada uma cobrindo o que a anterior deixaria passar se falhasse, que sustenta defesa de verdade contra uma falha que, por ser de construção, tende a reaparecer.",
+      "analogia": "Um cofre dentro de uma sala trancada, dentro de um prédio com portaria, não depende de nenhuma das três camadas ser perfeita sozinha — cada uma cobre a falha possível da anterior.",
+      "erro_comum": "Implementar parametrização e considerar o problema resolvido por completo, sem revisar privilégio da conta de banco nem validação básica de entrada.",
+      "fonte": "Continuidade de 3.5.t4 e t5, desta sessão."
+    }
+  ],
+  "questoes": [
+    {
+      "id": "3.5.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que um apóstrofo dentro de um nome de usuário legítimo e um apóstrofo que fecha uma string SQL são, para o banco de dados, exatamente o mesmo caractere?",
+      "alternativas": [
+        "Porque o banco recebe a consulta inteira como uma string única, sem marcação prévia separando comando de dado digitado",
+        "Porque bancos de dados modernos removem apóstrofos de nomes automaticamente antes de processar a consulta recebida",
+        "Porque o apóstrofo só quebra a consulta quando o nome pertence a uma conta sem permissão de leitura naquela tabela",
+        "Porque o driver de conexão aplica uma criptografia diferente a nomes com apóstrofo, comparado a nomes sem esse caractere"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Bancos não removem caracteres de dado automaticamente — isso alteraria o valor armazenado, contrariando a própria finalidade de guardar o nome correto do usuário.",
+        "2": "Permissão de leitura não tem relação com o apóstrofo quebrar ou não a consulta — o problema acontece na interpretação da string, antes de qualquer verificação de permissão.",
+        "3": "Criptografia de valor armazenado é um assunto completamente diferente, sem relação com o motivo de a consulta concatenada quebrar."
+      },
+      "dicas": [
+        "Antes de o banco processar o texto, existe alguma marca separando o que foi escrito pelo sistema do que foi digitado por alguém?",
+        "O laboratório desta sessão usou um nome real, sem intenção maliciosa — e mesmo assim a consulta quebrou.",
+        "O que diferencia a resposta certa das outras três é explicar o motivo técnico real, sem recorrer a remoção automática, permissão ou criptografia estranhas ao caso."
+      ],
+      "pergunta_socratica": "Antes de conferir: antes da consulta ser executada, existe algum passo que separa, dentro da string montada, o que é comando do que é dado?",
+      "explicacao": "O banco recebe a consulta como uma única string de texto — não existe, nessa string, nenhuma marcação prévia dizendo 'isto é a instrução original' e 'isto é o valor que o usuário digitou'. Um apóstrofo de dado e um apóstrofo de sintaxe são, caractere por caractere, idênticos; o banco só sabe interpretar a string inteira seguindo as regras de sintaxe SQL, sem noção da intenção de quem escreveu cada parte dela.",
+      "fonte": "3.5.t1, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "conceitual",
+        "sql"
+      ]
+    },
+    {
+      "id": "3.5.q2",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "artefato": "=== busca por concatenação, agora pelo nome legítimo \"O'Brien\" ===\n  consulta montada: SELECT nome, email FROM usuarios WHERE nome = 'O'Brien'\n  ERRO DE SINTAXE: near \"Brien\": syntax error",
+      "enunciado": "O nome usado nesta consulta não foi escolhido como ataque — é um sobrenome real e comum. O que esta saída sustenta sobre a origem do problema?",
+      "alternativas": [
+        "Que o apóstrofo do próprio nome fechou a marcação de texto da consulta antes do previsto, quebrando a sintaxe",
+        "Que o banco de dados usado neste laboratório tem um defeito de implementação que trata mal certos sobrenomes",
+        "Que o nome deveria ter sido convertido para maiúsculas antes de entrar na consulta, evitando esse tipo de erro",
+        "Que a tabela de usuários estava corrompida antes da consulta ser executada, o que já explicaria o erro reportado"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O comportamento é do SQL padrão, não um defeito do banco usado no laboratório — qualquer banco relacional trataria o apóstrofo do mesmo jeito nessa mesma consulta concatenada.",
+        "2": "Maiúsculas ou minúsculas não têm relação nenhuma com o apóstrofo ser o delimitador de string que quebrou a sintaxe.",
+        "3": "Nada na saída indica corrupção de tabela — o erro é de sintaxe na consulta montada, antes mesmo de qualquer dado ser lido."
+      },
+      "dicas": [
+        "Releia a mensagem de erro: ela aponta pra um problema na tabela, ou na forma como o texto da consulta foi montado?",
+        "Pense em qual caractere do nome 'O'Brien' também aparece delimitando o valor dentro da consulta SQL mostrada.",
+        "A resposta certa liga o erro à colisão entre o apóstrofo do dado e o apóstrofo da sintaxe; as outras recorrem a defeito, formatação ou corrupção que não aconteceram."
+      ],
+      "pergunta_socratica": "Antes de conferir: o apóstrofo que aparece no meio do nome é o mesmo caractere usado para abrir e fechar o valor na consulta?",
+      "explicacao": "O apóstrofo do sobrenome 'O'Brien' é, para o interpretador SQL, idêntico ao apóstrofo que deveria só delimitar o início e o fim do valor — ao ser colado sem tratamento, ele fecha a string antes do previsto, deixando o resto ('Brien') como texto solto que a sintaxe SQL não reconhece, gerando o erro mostrado.",
+      "fonte": "Saída real de lab/sql_concatenacao_vs_parametros.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "web",
+        "artefato",
+        "injecao",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "3.5.q3",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Um desenvolvedor diz: 'nossa consulta está segura, porque nenhum atacante conhecido testou entrada maliciosa nela ainda'. Por que esse raciocínio está errado, segundo o mecanismo demonstrado nos laboratórios desta sessão?",
+      "alternativas": [
+        "Porque um dado legítimo, sem intenção de ataque, já pode quebrar a consulta — a falha não depende de exploração deliberada",
+        "Porque sistemas recebem tentativa de ataque com frequência, então é questão de tempo até essa consulta ser testada",
+        "Porque consultas SQL costumam ser mais vulneráveis do que páginas HTML, independente de como cada uma foi construída",
+        "Porque o desenvolvedor deveria ter testado a consulta pessoalmente antes de declarar que ela segue algum padrão de segurança"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Frequência de tentativa de ataque é sobre exposição ao risco, não sobre a causa real do problema — o mecanismo já demonstrado não depende de intenção maliciosa para existir.",
+        "2": "A vulnerabilidade não depende do tipo de canal (SQL versus HTML) ser 'mais perigoso' — depende de como cada consulta ou página específica foi construída.",
+        "3": "O argumento não é sobre quem testou o quê — é sobre o próprio raciocínio do desenvolvedor confundir ausência de exploração observada com ausência de falha real."
+      },
+      "dicas": [
+        "Pense no laboratório desta sessão: o nome usado para quebrar a consulta era um ataque, ou um sobrenome real?",
+        "A pergunta não é sobre estatística de ataques — é sobre o que já foi demonstrado como suficiente para quebrar a consulta.",
+        "O laboratório já provou o ponto: dado comum, sem intenção, já expõe a falha — é isso que separa a resposta certa das outras três."
+      ],
+      "pergunta_socratica": "Antes de conferir: o nome 'O'Brien', usado no laboratório desta sessão, foi escolhido como ataque, ou é um nome comum de verdade?",
+      "explicacao": "O raciocínio do desenvolvedor confunde 'nenhum ataque observado ainda' com 'a consulta é segura' — mas o laboratório desta sessão já provou que nem precisa de intenção maliciosa: um sobrenome legítimo e comum já quebra a consulta concatenada. A ausência de exploração até agora não diz nada sobre a presença ou ausência da falha estrutural.",
+      "fonte": "3.5.t1, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "cenario",
+        "raciocinio"
+      ]
+    },
+    {
+      "id": "3.5.q4",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "trecho": "def buscar_produto(nome):\n    consulta = \"SELECT * FROM produtos WHERE nome = '\" + nome + \"'\"\n    return banco.executar(consulta)",
+      "enunciado": "Este código foi testado com nomes de produto comuns (\"parafuso\", \"martelo\") e funcionou perfeitamente. Qual é o defeito real, apesar do teste ter passado?",
+      "alternativas": [
+        "A concatenação deixa um nome de produto com apóstrofo quebrar a consulta, mesmo sendo um dado comum e legítimo",
+        "A consulta deveria registrar em log cada nome buscado, antes de ser executada, para fins de auditoria",
+        "O nome da função está incorreto — o correto seria 'consultar_produto', por convenção de nomenclatura do projeto",
+        "Falta um bloco de tratamento de exceção ao redor da chamada 'banco.executar', para capturar erro de conexão"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Registrar em log é uma prática de auditoria, sem relação com o defeito de concatenar dado na instrução.",
+        "2": "Nome de função é convenção de estilo, sem relação nenhuma com o defeito de construção da consulta.",
+        "3": "Tratamento de exceção de conexão é boa prática geral, mas não resolve o problema específico de a consulta quebrar por causa do próprio texto do nome."
+      },
+      "dicas": [
+        "Pense em nomes de produto reais que poderiam conter um apóstrofo, mesmo sem nenhuma intenção de ataque.",
+        "O teste passou porque os nomes usados não continham o caractere que quebra a consulta — isso prova que o código está correto, ou só que o teste foi incompleto?",
+        "A resposta certa aponta para o defeito de construção que o teste não chegou a expor; as outras miram em pontos que não são o problema real."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'parafuso' e 'martelo' têm algum caractere em comum com o apóstrofo que fecha o valor na consulta?",
+      "explicacao": "O código concatena o nome do produto diretamente na string da consulta — funciona para nomes sem apóstrofo, mas qualquer nome real que contenha esse caractere (como 'chave d'água') já quebra a sintaxe, do mesmo jeito que 'O'Brien' quebrou no laboratório desta sessão. O teste passar não prova ausência de falha — só prova que os casos testados não continham o caractere problemático.",
+      "fonte": "3.5.t1 e t2, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "caca-erro",
+        "sql"
+      ]
+    },
+    {
+      "id": "3.5.q5",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que a confusão entre dado e instrução é descrita como uma decisão de construção, e não como um erro pontual de digitação?",
+      "alternativas": [
+        "Porque o padrão de concatenar dado dentro da instrução, uma vez adotado, tende a se repetir em código escrito do mesmo jeito",
+        "Porque erros de digitação raramente acontecem em código relacionado a banco de dados, por características da própria linguagem",
+        "Porque decisões de construção costumam ser tomadas por uma única pessoa, enquanto erro de digitação envolve a equipe inteira",
+        "Porque o compilador ou interpretador da linguagem detecta esse tipo de erro automaticamente antes do código rodar"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Erros de digitação acontecem em qualquer tipo de código, incluindo consultas a banco — essa distinção não é sobre onde erros de digitação ocorrem.",
+        "2": "Quem toma a decisão (uma pessoa ou uma equipe) não é o critério que separa decisão de construção de erro pontual — o critério é se o padrão se repete estruturalmente.",
+        "3": "Interpretadores de linguagens como Python ou SQL não detectam esse tipo de falha automaticamente — o código concatenado roda normalmente até quebrar com uma entrada específica."
+      },
+      "dicas": [
+        "Pense na diferença entre corrigir uma linha específica e corrigir um padrão que se repete em cem linhas parecidas.",
+        "Um erro de digitação, uma vez corrigido, não volta a acontecer na mesma linha — o mesmo vale para concatenar dado numa instrução?",
+        "O que resolve aqui é reconhecer a repetição do padrão estrutural — as outras opções inventam detecção automática ou alguma distinção por quem decide."
+      ],
+      "pergunta_socratica": "Antes de conferir: corrigir uma consulta específica impede que a próxima consulta escrita, no mesmo estilo, tenha o mesmo problema?",
+      "explicacao": "Concatenar dado dentro da string de instrução é um padrão de construção — uma vez adotado como forma habitual de escrever consultas, páginas ou comandos, ele se repete em cada novo trecho de código escrito daquele jeito, porque a linguagem e a biblioteca deixam esse caminho mais direto de seguir. Corrigir uma linha específica não muda o padrão que gerou as outras.",
+      "fonte": "3.5.t2, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "conceitual",
+        "construcao"
+      ]
+    },
+    {
+      "id": "3.5.q6",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Uma revisão de código encontra cinquenta consultas SQL diferentes, todas construídas por concatenação de dado do usuário, espalhadas por um sistema grande. Por que corrigir só a primeira consulta encontrada não resolve o problema real?",
+      "alternativas": [
+        "Porque as outras quarenta e nove continuam vulneráveis, já que o defeito está no padrão de construção repetido",
+        "Porque bancos de dados param de funcionar corretamente quando existe mais de uma consulta vulnerável no sistema",
+        "Porque revisão de código só tem valor quando cobre cem por cento das linhas do sistema numa única passagem",
+        "Porque a primeira consulta corrigida propaga a correção para as outras quarenta e nove, por herança de código"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe esse comportamento em bancos de dados — múltiplas consultas vulneráveis não afetam o funcionamento umas das outras.",
+        "2": "Revisão parcial ainda tem valor real, mesmo sem cobrir cem por cento do código de uma vez — o ponto não é sobre cobertura total numa única passagem.",
+        "3": "Não existe propagação automática de correção entre consultas independentes — cada uma precisa ser corrigida separadamente, a menos que compartilhem a mesma função."
+      },
+      "dicas": [
+        "Pense no que as cinquenta consultas têm em comum: foram escritas de jeitos diferentes, ou todas do mesmo jeito, uma por uma?",
+        "Corrigir uma consulta específica muda alguma coisa nas outras quarenta e nove, que foram escritas separadamente?",
+        "A causa comum às cinquenta consultas é o que a resposta certa nomeia; as demais inventam propagação automática de correção ou comportamento especial do banco."
+      ],
+      "pergunta_socratica": "Antes de conferir: as cinquenta consultas compartilham código entre si, ou cada uma foi escrita de forma independente?",
+      "explicacao": "Se as cinquenta consultas foram escritas de forma independente, cada uma repetindo o mesmo padrão de concatenação, corrigir só a primeira deixa as outras quarenta e nove exatamente como estavam — o defeito não está numa consulta específica, está no padrão de construção que se repetiu cinquenta vezes. Resolver o problema de verdade exige mudar o padrão, não apenas o primeiro exemplo encontrado.",
+      "fonte": "3.5.t2, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "cenario",
+        "construcao"
+      ]
+    },
+    {
+      "id": "3.5.q7",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Um atacante encontra um campo de busca vulnerável a SQL injection num site. Por que ele testa, em seguida, se os campos de comentário e de nome de arquivo do mesmo site também têm problema parecido, em vez de considerar o trabalho terminado?",
+      "alternativas": [
+        "Porque, se o padrão apareceu num lugar do sistema, é provável que a mesma equipe tenha repetido em pontos parecidos",
+        "Porque o mesmo desenvolvedor certamente nunca reaproveita trechos de código entre partes diferentes de um sistema",
+        "Porque campos de comentário e nome de arquivo raramente são vulneráveis, então testar serve só para descartar essa hipótese",
+        "Porque o site provavelmente bloqueia o endereço IP do atacante depois da primeira tentativa, então ele testa tudo de uma vez"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Reaproveitar trechos entre partes do sistema é uma prática comum — a alternativa inverte o que costuma acontecer na prática.",
+        "2": "Campos de comentário e nome de arquivo podem, sim, ser vulneráveis ao mesmo mecanismo — nada os torna imunes por natureza.",
+        "3": "Bloqueio de endereço IP, quando existe, não é o motivo de testar vários campos de uma vez — o motivo é o padrão de construção repetido."
+      },
+      "dicas": [
+        "Pense no que 3.5.t2 já ensinou sobre o padrão de construção se repetir em várias partes de um mesmo sistema.",
+        "Quem escreveu essa consulta concatenada fez isso uma única vez em todo o sistema, ou pode ter repetido a mesma forma em outros pontos?",
+        "O argumento de padrão repetido é o que sustenta a resposta certa — as outras recorrem a ideias sem relação com o caso."
+      ],
+      "pergunta_socratica": "Antes de conferir: encontrar uma consulta concatenada revela algo sobre o hábito de quem escreveu o código, além daquela consulta específica?",
+      "explicacao": "Encontrar um campo vulnerável revela algo sobre como a equipe que escreveu aquele código costuma construir consultas — se o padrão de concatenação apareceu ali, é razoável esperar que apareça em outros pontos escritos pela mesma equipe, no mesmo estilo. É a mesma lógica de 3.5.t2 aplicada do ponto de vista de quem procura a falha, não de quem a corrige.",
+      "fonte": "3.5.t2, desta sessão, sob perspectiva ofensiva.",
+      "tags": [
+        "web",
+        "injecao",
+        "ataque-defesa",
+        "reconhecimento"
+      ]
+    },
+    {
+      "id": "3.5.q8",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Ligue cada canal ao caractere que tipicamente demarca a fronteira entre dado e instrução nele.",
+      "pares": [
+        [
+          "consulta SQL montada por concatenação",
+          "apóstrofo, que delimita onde uma string de texto começa e termina"
+        ],
+        [
+          "página HTML sem escape de saída",
+          "os sinais de menor e maior que, que abrem e fecham uma tag de marcação"
+        ],
+        [
+          "comando de sistema montado com shell",
+          "o separador de comando do shell usado (por exemplo, ponto e vírgula ou &, dependendo do sistema)"
+        ],
+        [
+          "atributo HTML preenchido com dado do usuário",
+          "as aspas que delimitam o valor do próprio atributo"
+        ]
+      ],
+      "dicas": [
+        "Cada canal tem seu próprio conjunto de caracteres especiais — pense no que demarca início e fim de um valor em cada um.",
+        "SQL e atributo HTML usam um tipo de caractere parecido (aspas ou apóstrofo) para o mesmo propósito, mas em contextos diferentes.",
+        "O caractere do canal de comando muda dependendo de qual shell está processando a string."
+      ],
+      "pergunta_socratica": "Antes de conferir: o caractere que demarca a fronteira no SQL é o mesmo que demarca no HTML, ou cada canal tem o seu próprio?",
+      "explicacao": "Cada canal reserva seus próprios caracteres especiais: SQL usa apóstrofo para delimitar string; HTML usa `<` e `>` para demarcar tags, e aspas para demarcar valor de atributo — um contexto ligeiramente diferente dentro do mesmo canal; comandos de shell usam um separador que depende do shell específico em uso. Reconhecer qual caractere importa em cada canal é o primeiro passo para saber qual defesa estrutural se aplica.",
+      "fonte": "3.5.t3 e t5, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "pareamento",
+        "canais"
+      ]
+    },
+    {
+      "id": "3.5.q9",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "artefato": "=== rota /sem-escape (entrada colada direto no HTML) ===\n  HTML devolvido: <html><body><p>Comentário: <b>ótimo produto</b></p></body></html>",
+      "enunciado": "Um usuário digitou um comentário contendo a tag <b>...</b>, esperando só destacar uma palavra. O que esta saída real sustenta sobre o que aconteceu com essa marcação?",
+      "alternativas": [
+        "Que a tag foi inserida sem tratamento no HTML, e o navegador vai renderizá-la como formatação real",
+        "Que o servidor rejeitou o comentário automaticamente, por conter caracteres reservados de marcação HTML",
+        "Que a tag foi convertida em texto simples antes de ser armazenada no banco de dados do sistema",
+        "Que o navegador do próprio usuário que escreveu o comentário bloqueou o envio por conter uma tag"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A saída mostra o HTML devolvido com a tag intacta — não houve rejeição por parte do servidor.",
+        "2": "A tag aparece na saída exatamente como foi digitada, sem conversão para texto — não foi tratada antes de ser servida.",
+        "3": "O laboratório usou uma requisição direta, sem navegador — e bloqueio no envio não é o que a saída documenta."
+      },
+      "dicas": [
+        "Releia a saída: a tag <b> aparece entre os símbolos de menor/maior que, ou já convertida em outra coisa?",
+        "Pense no que um navegador faz, por padrão, ao encontrar uma tag <b> dentro do HTML de uma página.",
+        "Descrever o que a saída realmente mostra — a tag intacta — é o que diferencia a resposta certa; as outras inventam rejeição, conversão ou bloqueio que a saída não registra."
+      ],
+      "pergunta_socratica": "Antes de conferir: a saída mostra os símbolos < e > da tag, ou alguma versão alterada deles?",
+      "explicacao": "A saída mostra a tag <b>ótimo produto</b> exatamente como foi digitada, sem nenhum tratamento — quando um navegador carregar essa página, ele vai interpretar essa marcação como uma instrução de formatação real, deixando o texto em negrito, porque não existe, no HTML devolvido, nada que diferencie essa tag da marcação original da página.",
+      "fonte": "Saída real de lab/html_sem_escape_vs_com_escape.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "web",
+        "injecao",
+        "artefato",
+        "xss",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "3.5.q10",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Substituindo a tag inofensiva do laboratório por uma tag capaz de executar código no navegador de quem lê o comentário, o que muda no mecanismo que permite o problema?",
+      "alternativas": [
+        "Nada no mecanismo muda — segue sendo a mesma ausência de tratamento na saída, apenas a tag específica é diferente",
+        "O mecanismo muda por completo, porque tags que executam código exigem um tipo de vulnerabilidade diferente da tag de negrito",
+        "O servidor passaria a bloquear a tag automaticamente, mesmo sem nenhum tratamento explícito ter sido configurado",
+        "O navegador de quem lê o comentário exigiria uma confirmação manual antes de executar qualquer código embutido na página"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O mecanismo (dado sem tratamento vira marcação interpretada) é o mesmo — a diferença está só no efeito da tag específica, não no mecanismo que permite ela existir na página.",
+        "2": "Não existe bloqueio automático de tags específicas por parte do servidor, a menos que ele trate a entrada explicitamente — o que o cenário já descarta.",
+        "3": "Navegadores não pedem confirmação manual para executar código embutido numa página comum — a execução acontece ao carregar."
+      },
+      "dicas": [
+        "Pense no que realmente causa o problema: o tipo específico de tag, ou a ausência de tratamento da entrada antes de entrar no HTML?",
+        "O laboratório desta sessão usou uma tag inofensiva de propósito — isso muda o mecanismo, ou só o exemplo escolhido para demonstrar?",
+        "Reconhecer que o mecanismo é o mesmo, independente da tag específica usada, é o que separa a resposta certa das outras três."
+      ],
+      "pergunta_socratica": "Antes de conferir: o motivo de a tag de negrito aparecer intacta na saída tem relação com ela ser especificamente uma tag de negrito, ou com a ausência de tratamento da entrada?",
+      "explicacao": "O mecanismo demonstrado — entrada sem tratamento entra no HTML e é interpretada como marcação — não depende de qual tag específica é usada. Uma tag capaz de executar código seguiria o mesmo caminho que a tag de negrito seguiu no laboratório: seria inserida intacta, porque a ausência de tratamento é a mesma, independentemente da gravidade do que a tag específica faz depois de interpretada.",
+      "fonte": "3.5.t3, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "cenario",
+        "xss"
+      ]
+    },
+    {
+      "id": "3.5.q11",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "trecho": "def exibir_comentario(texto):\n    html = f\"<p>Comentário: {texto}</p>\"\n    return html",
+      "enunciado": "Esta função foi testada com comentários comuns (\"gostei muito\", \"chegou rápido\") e funcionou normalmente. Qual é o defeito real, apesar do teste ter passado?",
+      "alternativas": [
+        "A função cola o texto do comentário no HTML sem tratamento, e a tag é renderizada como marcação real",
+        "A função deveria limitar comentários a apenas texto em letras minúsculas, rejeitando qualquer maiúscula",
+        "O nome da variável 'html' conflita com o nome da linguagem de marcação, o que pode confundir quem lê o código",
+        "Falta uma anotação de tipo (type hint) no parâmetro 'texto', o que impede a função de funcionar corretamente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Restringir a caixa das letras não tem relação com o problema — maiúsculas não são o que torna a tag interpretável.",
+        "2": "Nome de variável é estilo de código, sem efeito sobre o comportamento real da função nem sobre o problema descrito.",
+        "3": "Python não impõe anotação de tipo em tempo de execução — a ausência dela não impede a função de rodar nem tem relação com o defeito real."
+      },
+      "dicas": [
+        "Pense em comentários que poderiam conter os caracteres < e >, mesmo sem intenção de ataque.",
+        "Os comentários testados não tinham tag nenhuma — isso prova que a função trata tags corretamente, ou só que o teste não cobriu esse caso?",
+        "A resposta certa nomeia o defeito estrutural — inserção sem escape — sem inventar limite de tamanho ou de capitalização."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe algum comentário comum, sem tag nenhuma, capaz de revelar este defeito nos testes que a equipe já fez?",
+      "explicacao": "A função insere o texto do comentário direto dentro da string de HTML, sem escape — funciona para comentários sem `<` ou `>`, mas qualquer comentário real que contenha esses caracteres é interpretado como marcação pelo navegador de quem ler a página, do mesmo jeito que a tag de negrito foi interpretada no laboratório desta sessão.",
+      "fonte": "3.5.t1 e t3, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "caca-erro",
+        "xss"
+      ]
+    },
+    {
+      "id": "3.5.q12",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "artefato": "=== entrada com '&' embutido, via shell (concatenação) ===\n  comando montado: 'echo mensagem: oi & echo comando extra rodou'\n  saída: 'mensagem: oi \\ncomando extra rodou'",
+      "enunciado": "A entrada original era só um texto de mensagem contendo o caractere '&'. O que esta saída real sustenta sobre o que aconteceu quando o comando foi montado por concatenação?",
+      "alternativas": [
+        "Que o '&' da entrada foi lido pelo shell como separador, executando um segundo comando além do pretendido",
+        "Que o comando falhou completamente, sem produzir saída nenhuma, por causa do caractere especial na entrada",
+        "Que o '&' foi removido da entrada automaticamente antes do comando ser montado, por segurança padrão do sistema",
+        "Que o sistema operacional bloqueou a segunda parte do comando, permitindo só a execução da primeira"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A saída mostra duas linhas de resultado, prova de que o comando produziu saída — não houve falha completa.",
+        "2": "Nada indica remoção automática — a saída confirma que o '&' teve efeito real, não que foi descartado.",
+        "3": "A segunda parte do comando ('comando extra rodou') aparece na saída — ela não foi bloqueada, foi executada."
+      },
+      "dicas": [
+        "Conte as linhas de saída: uma, ou duas? O que isso sugere sobre quantos comandos realmente rodaram?",
+        "Pense no papel do '&' num shell comum — ele é só um caractere de texto, ou tem um significado especial reservado?",
+        "Ler a saída como ela está — dois comandos executados — é o que a resposta certa faz; as outras inventam falha, remoção automática ou bloqueio."
+      ],
+      "pergunta_socratica": "Antes de conferir: a saída tem uma linha só, ou mais de uma?",
+      "explicacao": "A saída mostra duas linhas — 'mensagem: oi' e 'comando extra rodou' — provando que o shell executou dois comandos separados, não um só. O '&' que fazia parte do texto de entrada foi interpretado como o separador de comando que o shell usa para essa finalidade, exatamente o mesmo mecanismo do apóstrofo no SQL e da tag no HTML, aplicado ao canal de comando de sistema.",
+      "fonte": "Saída real de lab/comando_concatenado.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "web",
+        "injecao",
+        "artefato",
+        "comando",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "3.5.q13",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "O módulo de Python para segurança já demonstrou a defesa de injeção de comando (lista de argumentos, não string de shell). O que o 3.5 acrescenta sobre esse mesmo canal, sem repetir aquela demonstração?",
+      "alternativas": [
+        "Que o mecanismo por trás da injeção de comando é o mesmo já visto em SQL e HTML, não um problema isolado do Python",
+        "Que a defesa de lista de argumentos, ensinada em Python, não funciona em nenhuma outra linguagem de programação existente",
+        "Que o módulo de Python errou ao ensinar lista de argumentos, e a forma correta é usar shell=True com validação",
+        "Que injeção de comando só é possível em sistemas operacionais baseados em Unix, nunca em ambientes Windows"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A defesa de lista de argumentos existe, de alguma forma, em praticamente qualquer linguagem que permita executar processos externos — não é exclusividade do Python.",
+        "2": "O módulo de Python não errou — lista de argumentos é a defesa estrutural correta, e o 3.5 não contradiz isso.",
+        "3": "O laboratório desta sessão, executado nesta própria máquina Windows, já demonstrou o mecanismo funcionando aqui — não é exclusivo de sistemas Unix."
+      },
+      "dicas": [
+        "Pense no que os três laboratórios desta sessão (SQL, HTML, comando) têm em comum, além do canal específico de cada um.",
+        "O 3.5 reabre a pergunta 'qual chamada usar em Python', ou ensina algo sobre reconhecer o padrão em qualquer canal?",
+        "Ligar o canal de comando ao mesmo mecanismo dos outros dois é o que sustenta a resposta certa; as demais inventam limitação de linguagem ou de sistema operacional."
+      ],
+      "pergunta_socratica": "Antes de conferir: o mecanismo que quebra a consulta SQL e o mecanismo que quebra o comando de sistema são parecidos, ou completamente diferentes?",
+      "explicacao": "O 3.5 não repete a defesa específica em Python já ensinada — acrescenta o reconhecimento de que aquele mesmo problema é uma instância da família mais ampla: dado sem fronteira em relação à instrução, o mesmo mecanismo que quebra consultas SQL e permite tags HTML não tratadas. Reconhecer a família é o que permite identificar a próxima variante, num canal ainda não estudado.",
+      "fonte": "3.5.t3, desta sessão, com continuidade explícita de 1.6.t6.",
+      "tags": [
+        "web",
+        "injecao",
+        "conceitual",
+        "comando"
+      ]
+    },
+    {
+      "id": "3.5.q14",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Ligue cada canal à defesa estrutural correspondente, já demonstrada nos laboratórios desta sessão.",
+      "pares": [
+        [
+          "consulta SQL",
+          "parâmetro (placeholder), que o driver do banco envia separado da instrução"
+        ],
+        [
+          "página HTML",
+          "escape do dado antes de inserir no HTML, conforme o contexto de saída"
+        ],
+        [
+          "comando de sistema",
+          "lista de argumentos, sem passar pelo interpretador de shell"
+        ],
+        [
+          "atributo HTML preenchido com dado",
+          "escape específico para contexto de atributo, diferente do escape de texto comum"
+        ]
+      ],
+      "dicas": [
+        "Cada canal tem sua própria forma de separar estruturalmente dado de instrução — pense no mecanismo específico de cada um.",
+        "Duas das quatro linhas envolvem HTML, mas com contextos diferentes dentro da mesma página.",
+        "A defesa do canal de comando já foi demonstrada com código real em outro módulo — qual é ela?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a defesa de SQL e a defesa de comando usam a mesma ideia (parâmetro/lista) de formas parecidas, ou são mecanismos completamente diferentes?",
+      "explicacao": "Cada canal resolve o mesmo problema — separar dado de instrução — com um mecanismo próprio: parâmetro no SQL, escape apropriado no HTML (que muda conforme o contexto, texto ou atributo), e lista de argumentos no comando de sistema. Reconhecer que são a mesma ideia aplicada a canais diferentes é o que permite generalizar para uma variante nova.",
+      "fonte": "3.5.t3, t4 e t5, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "pareamento",
+        "defesa"
+      ]
+    },
+    {
+      "id": "3.5.q15",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Ordene, do primeiro ao último, os passos que revelam o mecanismo de injeção num canal desconhecido, aplicando o que já foi reconhecido em SQL, HTML e comando.",
+      "itens": [
+        "Identificar que um dado do usuário é inserido numa string que o canal vai interpretar como instrução",
+        "Identificar qual caractere, naquele canal específico, demarca a fronteira entre dado e instrução",
+        "Testar se um dado legítimo contendo esse caractere já quebra o comportamento esperado",
+        "Verificar se existe, para aquele canal, uma forma de separar estruturalmente dado de instrução",
+        "Aplicar a separação estrutural em vez de tentar filtrar caracteres perigosos um por um"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dicas": [
+        "Antes de procurar o caractere específico, é preciso primeiro reconhecer que o padrão geral (dado dentro de instrução) está presente.",
+        "Testar se o caractere quebra o comportamento vem depois de já saber qual caractere procurar, não antes.",
+        "Aplicar a defesa é sempre o último passo, depois de confirmar que o problema existe e que existe uma forma estrutural de resolvê-lo."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para testar se um caractere quebra o comportamento antes de saber qual caractere é relevante naquele canal?",
+      "explicacao": "Reconhecer a família começa identificando o padrão geral (dado dentro de instrução), depois o caractere específico que demarca a fronteira naquele canal, depois testando se um dado comum já expõe o problema — como o laboratório de SQL fez com um sobrenome real — e só então buscando e aplicando a separação estrutural disponível, em vez de tentar filtrar caracteres um por um.",
+      "fonte": "Síntese de 3.5.t1 a t4, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "ordenacao",
+        "metodologia"
+      ]
+    },
+    {
+      "id": "3.5.q16",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Um pesquisador de segurança encontra uma nova tecnologia de consulta a banco de dados, que também constrói instruções como string. Sem nunca ter testado essa tecnologia especificamente, por que ele já suspeita que ela pode ter o mesmo tipo de falha?",
+      "alternativas": [
+        "Porque o mesmo mecanismo — texto misturando dado e instrução — também está presente na tecnologia recém-lançada",
+        "Porque toda tecnologia de banco de dados lançada nos últimos anos é auditada por uma comissão internacional antes do lançamento",
+        "Porque bancos de dados não-SQL costumam ser menos maduros tecnologicamente do que bancos SQL tradicionais",
+        "Porque o pesquisador já testou pessoalmente as principais tecnologias de banco de dados existentes no mercado"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe essa comissão de auditoria prévia — tecnologias de banco de dados são lançadas sem esse tipo de certificação obrigatória.",
+        "2": "Maturidade tecnológica não é o critério relevante aqui — o que importa é se a tecnologia constrói instruções como string misturada com dado.",
+        "3": "A suspeita não depende de ter testado outras tecnologias antes — depende de reconhecer o mesmo mecanismo estrutural na nova."
+      },
+      "dicas": [
+        "Pense no que 3.5.t3 já ensinou sobre reconhecer o mecanismo em vez de decorar exemplos específicos.",
+        "A suspeita do pesquisador vem de testar a tecnologia, ou de reconhecer uma característica estrutural dela antes mesmo de testar?",
+        "A suspeita do pesquisador vem do reconhecimento do mecanismo — é isso que a resposta certa nomeia, sem recorrer a maturidade tecnológica ou histórico de testes."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que a nova tecnologia de banco de dados tem em comum com SQL, segundo a descrição do cenário?",
+      "explicacao": "A suspeita do pesquisador não vem de testar a tecnologia especificamente — vem de reconhecer que ela compartilha a característica estrutural que causa a falha em qualquer canal: construir instruções como string comum, misturada com dado sem fronteira. É exatamente o reconhecimento de família que 3.5.t3 descreve como o valor de entender o mecanismo, não os exemplos.",
+      "fonte": "3.5.t3, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "ataque-defesa",
+        "reconhecimento"
+      ]
+    },
+    {
+      "id": "3.5.q17",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que dizer que 'a fronteira entre dado e instrução quebrou' é mais preciso do que dizer 'o sistema foi hackeado' para descrever o que aconteceu numa injeção?",
+      "alternativas": [
+        "Porque a frase descreve o mecanismo técnico exato do ocorrido, em vez de um termo genérico que não explica a causa",
+        "Porque 'hackeado' é um termo que só pode ser usado quando há dano financeiro comprovado ao sistema afetado",
+        "Porque a fronteira entre dado e instrução é um conceito exclusivo de linguagens de programação antigas, sem uso em sistemas atuais",
+        "Porque sistemas não são 'hackeados' de verdade — apenas configurados incorretamente por quem os administra no dia a dia"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Dano financeiro não é o critério que define o uso do termo 'hackeado' — a distinção proposta é sobre precisão técnica, não sobre consequência financeira.",
+        "2": "O conceito segue central em qualquer sistema atual que monte instruções a partir de dado — não é uma ideia ultrapassada.",
+        "3": "A frase não nega que sistemas sejam comprometidos — só argumenta que descrever o mecanismo é mais preciso do que um termo genérico."
+      },
+      "dicas": [
+        "Pense na diferença entre descrever O QUE aconteceu tecnicamente e usar um termo genérico que qualquer incidente poderia receber.",
+        "'Fronteira entre dado e instrução' aponta para uma causa específica — isso é mais ou menos informativo do que dizer só 'foi hackeado'?",
+        "Falar sobre precisão técnica na descrição da causa é o que diferencia a resposta certa; as outras recorrem a critério financeiro, jurídico, ou simplesmente negam o comprometimento."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'o sistema foi hackeado' explica COMO o problema aconteceu, ou só QUE algo ruim aconteceu?",
+      "explicacao": "Descrever o mecanismo exato — dado ocupando posição de instrução, por ausência de fronteira estrutural — explica a causa técnica de forma que aponta diretamente para a defesa correta (separação estrutural). 'Hackeado' é um termo genérico que não distingue esse mecanismo de qualquer outro tipo de incidente, e por isso não orienta ninguém sobre o que corrigir.",
+      "fonte": "Continuidade de 3.5.t1, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "conceitual",
+        "vocabulario"
+      ]
+    },
+    {
+      "id": "3.5.q18",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Uma equipe corrige uma consulta SQL vulnerável trocando aspas simples por aspas duplas na string de dado. O código para de quebrar com o nome 'O'Brien'. Por que essa correção não resolve o problema de fundo?",
+      "alternativas": [
+        "Porque a consulta segue concatenando dado dentro da instrução, e outro valor com aspas duplas também a quebraria",
+        "Porque aspas duplas não são reconhecidas como delimitador de string por banco de dados relacional nenhum, em circunstância alguma",
+        "Porque o nome 'O'Brien' deveria ter sido removido do banco de dados antes de qualquer correção ser aplicada",
+        "Porque a troca de aspas simples por duplas torna a consulta mais lenta de processar, sem resolver problema de segurança"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Alguns bancos de dados reconhecem aspas duplas como delimitador em contextos específicos — a afirmação de que nenhum faz isso não é verdadeira.",
+        "2": "Remover o nome do banco não resolve o padrão de construção da consulta — o próximo nome com caractere problemático quebraria do mesmo jeito.",
+        "3": "Desempenho não é o problema relevante aqui — mesmo sem afetar velocidade nenhuma, o defeito estrutural continuaria presente."
+      },
+      "dicas": [
+        "Pense se existe algum outro caractere, diferente de aspas simples e duplas, que também poderia quebrar a consulta da mesma forma.",
+        "A correção resolveu o exemplo específico testado, ou o padrão de construção que causa o problema em geral?",
+        "Reconhecer que a concatenação continua sendo o problema, não importa qual caractere específico foi trocado, é o que separa a resposta certa das outras três."
+      ],
+      "pergunta_socratica": "Antes de conferir: a consulta continua sendo montada por concatenação depois dessa correção, ou passou a usar parâmetro?",
+      "explicacao": "Trocar o delimitador de aspas simples para duplas resolve só o caso específico testado — a consulta continua concatenando dado dentro da instrução, e qualquer valor que contenha o novo delimitador quebraria exatamente do mesmo jeito. A correção de fundo é parar de concatenar, não trocar qual caractere especificamente quebra a consulta.",
+      "fonte": "3.5.t2 e t4, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "cenario",
+        "correcao-superficial"
+      ]
+    },
+    {
+      "id": "3.5.q19",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Por que uma lista de 'caracteres proibidos' (como apóstrofo, menor-que, maior-que) é considerada defesa fraca contra injeção?",
+      "alternativas": [
+        "Porque a lista depende de prever cada caractere perigoso, e outra forma de escrever o mesmo caractere pode contorná-la",
+        "Porque listas de caracteres proibidos precisam ser reescritas manualmente a cada nova rota do sistema, ao contrário de um mecanismo estrutural único",
+        "Porque banco de dados e navegador nenhum aceita configuração baseada em lista de caracteres, por limitação técnica",
+        "Porque listas de caracteres proibidos só funcionam em sistemas que usam a língua inglesa como idioma principal"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Manutenção por rota não é o motivo da fraqueza real — o problema é a cobertura incompleta, presente mesmo numa lista bem mantida.",
+        "2": "Bancos de dados e navegadores não têm limitação técnica que impeça esse tipo de filtro — ele é tecnicamente possível, só ineficaz como defesa completa.",
+        "3": "O problema de cobertura incompleta de uma lista de caracteres não tem relação com idioma — vale para qualquer sistema, em qualquer idioma."
+      },
+      "dicas": [
+        "Pense em uma forma alternativa de representar o mesmo caractere (codificação diferente, por exemplo) que uma lista fixa poderia não reconhecer.",
+        "A pergunta não é sobre desempenho nem sobre limitação técnica — é sobre completude da lista em cobrir todos os casos possíveis.",
+        "O problema real é a previsibilidade incompleta — é isso que a resposta certa nomeia; as outras inventam limitação técnica ou de idioma."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma lista de caracteres proibidos, escrita hoje, consegue prever toda forma futura de representar um caractere perigoso?",
+      "explicacao": "Uma lista de caracteres proibidos depende de quem a escreve prever, de antemão, todo caractere ou combinação que poderia quebrar o canal — e formas alternativas de codificar o mesmo caractere, ou combinações não previstas, contornam a lista sem violar nenhuma regra nela escrita. É por isso que 3.5.t4 trata filtrar como categoria de defesa fraca, não como uma implementação específica malfeita.",
+      "fonte": "3.5.t4, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "conceitual",
+        "defesa"
+      ]
+    },
+    {
+      "id": "3.5.q20",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Uma equipe implementa parametrização em todas as consultas SQL do sistema, mas continua inserindo comentários de usuário direto no HTML sem escape. A equipe considera o sistema seguro contra injeção. O que esse raciocínio ignora?",
+      "alternativas": [
+        "Que a parametrização resolve só o canal SQL, deixando o mesmo mecanismo sem defesa estrutural equivalente no HTML",
+        "Que parametrização deveria ter sido aplicada também dentro do HTML, usando a mesma sintaxe de parâmetro do SQL",
+        "Que o sistema está de fato seguro, porque parametrização é a defesa mais relevante contra qualquer tipo de injeção",
+        "Que o problema só existiria se o HTML fosse gerado no mesmo servidor que executa as consultas SQL parametrizadas"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "HTML não usa a sintaxe de parâmetro do SQL — a defesa equivalente para esse canal é escape de contexto de saída, um mecanismo diferente.",
+        "2": "Parametrização resolve especificamente o canal SQL — não é uma defesa que cobre automaticamente HTML ou comando de sistema.",
+        "3": "O canal onde o HTML é gerado, mesmo servidor ou não, não muda o fato de que a inserção sem escape continua vulnerável."
+      },
+      "dicas": [
+        "Pense se a defesa aplicada ao SQL (parâmetro) e a defesa que o HTML precisa (escape de contexto) são a mesma coisa, ou mecanismos diferentes.",
+        "A equipe corrigiu um canal — isso corrige automaticamente os outros canais que ainda constroem instrução por concatenação?",
+        "Corrigir um lugar não corrige o outro sozinho — reconhecer isso é o que diferencia a resposta certa; as demais inventam sintaxe compartilhada ou dependência de servidor."
+      ],
+      "pergunta_socratica": "Antes de conferir: corrigir o canal SQL muda alguma coisa no jeito como o comentário do usuário é inserido no HTML?",
+      "explicacao": "Parametrização é a defesa estrutural do canal SQL especificamente — ela não se estende automaticamente para o canal HTML, que precisa da própria defesa (escape de contexto de saída). Considerar o sistema inteiro seguro por ter corrigido um canal ignora que o mesmo mecanismo de família continua presente, sem tratamento, em outro canal do mesmo sistema.",
+      "fonte": "3.5.t3 e t4, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "cenario",
+        "defesa"
+      ]
+    },
+    {
+      "id": "3.5.q21",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "artefato": "=== caso: nome com apóstrofo (O'Brien) ===\n  no canal SQL (concatenado):  ERRO DE SINTAXE: near \"Brien\": syntax error\n  no canal HTML (sem escape):  \"<p>O'Brien</p>\"  (tag preservada: False)\n\n=== caso: comentário com tag HTML (<b>oi</b>) ===\n  no canal SQL (concatenado):  executou sem erro\n  no canal HTML (sem escape):  '<p><b>oi</b></p>'  (tag preservada: True)",
+      "enunciado": "As mesmas duas strings foram testadas nos dois canais. O que essa saída real sustenta sobre a ideia de uma string ser 'perigosa'?",
+      "alternativas": [
+        "Que perigo não é uma propriedade fixa da string — depende de qual canal a recebe e o que esse canal trata como caractere especial",
+        "Que apóstrofo é sempre um caractere perigoso, em qualquer canal, e tag HTML é sempre inofensiva fora do navegador",
+        "Que o banco de dados usado no teste tem uma falha de configuração que não afeta bancos configurados corretamente",
+        "Que o servidor HTTP do laboratório não aplicou nenhum tipo de tratamento em nenhuma das duas rotas testadas"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A saída mostra o oposto: o apóstrofo é inofensivo no HTML, e a tag é inofensiva no SQL — nenhum dos dois é perigoso em todo canal.",
+        "2": "Nenhuma falha de configuração foi introduzida no laboratório — o comportamento reflete a sintaxe normal de SQL e HTML.",
+        "3": "A questão testa dois canais diferentes (SQL e HTML), não duas rotas do mesmo servidor HTTP — a alternativa descreve o laboratório errado."
+      },
+      "dicas": [
+        "Compare: o apóstrofo quebrou os dois canais, ou só um deles?",
+        "Compare: a tag HTML quebrou os dois canais, ou só um deles?",
+        "Cada caractere é perigoso num canal e inofensivo no outro — reconhecer isso, sem generalizar para 'sempre' nem inventar falha de configuração, é o que sustenta a resposta certa."
+      ],
+      "pergunta_socratica": "Antes de conferir: o apóstrofo quebrou o canal HTML da mesma forma que quebrou o canal SQL?",
+      "explicacao": "A saída mostra que o apóstrofo quebra o SQL mas é inofensivo no HTML, e que a tag quebra o HTML mas é inofensiva no SQL — perigo não é uma característica da string isolada, é uma relação entre o que ela contém e o que o canal de destino trata como caractere com significado especial.",
+      "fonte": "Saída real de lab/mesma_string_dois_contextos.py, executado nesta sessão em 02/09/2026.",
+      "tags": [
+        "web",
+        "injecao",
+        "artefato",
+        "contexto",
+        "laboratorio"
+      ]
+    },
+    {
+      "id": "3.5.q22",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um time bloqueia o apóstrofo em todo campo de entrada do sistema, para evitar injeção SQL. Por que essa medida não protege o campo de comentário contra a tag HTML não tratada?",
+      "alternativas": [
+        "Porque o caractere que quebra o canal HTML é outro (< e >), não o apóstrofo — bloquear um caractere não trata o canal que usa um caractere diferente",
+        "Porque bloquear o apóstrofo exige reiniciar o servidor a cada atualização da lista de caracteres bloqueados",
+        "Porque o apóstrofo, quando bloqueado no campo de entrada, é convertido automaticamente em tag HTML pelo navegador",
+        "Porque o time deveria ter bloqueado o apóstrofo só no canal SQL, e não em nenhum outro campo do sistema"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Reiniciar o servidor não é o ponto em jogo — o problema é que bloquear o apóstrofo não trata o caractere que quebra o canal HTML.",
+        "2": "Não existe conversão automática de apóstrofo em tag — os dois caracteres não têm relação nenhuma entre si.",
+        "3": "A alternativa inverte o cenário: o problema não é onde o apóstrofo foi bloqueado, é que outro caractere continua sem tratamento no HTML."
+      },
+      "dicas": [
+        "Pense em qual caractere específico dá o problema no canal HTML — é o mesmo que dá o problema no SQL?",
+        "Bloquear um caractere protege o canal onde esse caractere é especial — e os outros canais?",
+        "O motivo real é que o caractere relevante muda de canal para canal — é isso que a resposta certa nomeia."
+      ],
+      "pergunta_socratica": "Antes de conferir: o caractere que quebra o SQL (apóstrofo) é o mesmo que quebra o HTML?",
+      "explicacao": "Cada canal tem seu próprio caractere (ou conjunto de caracteres) com significado especial — apóstrofo no SQL, < e > no HTML. Uma lista de bloqueio pensada para um canal não cobre automaticamente outro, porque o 'caractere perigoso' depende de qual parser vai interpretar a string.",
+      "fonte": "3.5.t4 e t5, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "cenario",
+        "contexto"
+      ]
+    },
+    {
+      "id": "3.5.q23",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Neste módulo, o que significa dizer que a defesa correta 'depende do contexto de saída'?",
+      "alternativas": [
+        "Que a forma de neutralizar um dado varia conforme o canal que vai interpretá-lo — parâmetro no SQL, escape apropriado no HTML, lista de argumentos no comando",
+        "Que a defesa depende de em qual país o servidor está fisicamente hospedado, por causa de diferenças em legislação local",
+        "Que a defesa muda de acordo com o horário em que a requisição chega ao servidor, para reduzir a carga do sistema",
+        "Que a defesa depende do navegador específico usado por quem acessa o sistema, e precisa ser configurada para cada um"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Localização física do servidor não tem relação com qual mecanismo o canal usa para interpretar a string recebida.",
+        "2": "Horário de requisição não afeta como um canal interpreta dado versus instrução — não é o tipo de contexto discutido aqui.",
+        "3": "A defesa estrutural (parâmetro, escape, lista de argumentos) é aplicada no servidor, antes de qualquer navegador entrar em jogo."
+      },
+      "dicas": [
+        "Pense nos três laboratórios desta sessão — cada um usou uma defesa parecida, mas não idêntica. O que mudou entre eles?",
+        "'Contexto de saída' aponta para onde o dado vai ser interpretado — servidor, horário ou canal de destino?",
+        "Ligar 'contexto' ao canal que interpreta o dado é o que diferencia a resposta certa; as outras recorrem a localização, horário ou navegador, sem relação com o termo."
+      ],
+      "pergunta_socratica": "Antes de conferir: a defesa usada no laboratório de SQL (parâmetro) é a mesma sintaxe usada no laboratório de HTML (escape)?",
+      "explicacao": "Contexto de saída é o canal específico que vai interpretar o dado — banco de dados, navegador, shell do sistema operacional. Cada canal tem sua própria sintaxe de instrução, então a forma de separar dado de instrução muda de canal para canal, mesmo resolvendo o mesmo problema estrutural.",
+      "fonte": "3.5.t3, t4 e t5, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "conceitual",
+        "contexto"
+      ]
+    },
+    {
+      "id": "3.5.q24",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "trecho": "CARACTERES_PROIBIDOS = [\"'\", \"<\", \">\"]\n\ndef entrada_e_segura(texto):\n    return not any(c in texto for c in CARACTERES_PROIBIDOS)",
+      "enunciado": "Esta função foi criada para bloquear entradas perigosas antes de qualquer inserção em SQL ou HTML. Qual é a falha estrutural dessa abordagem, mesmo listando os caracteres certos?",
+      "alternativas": [
+        "A lista depende de prever todo caractere relevante para todo canal usado — um caractere novo, ou uma forma alternativa de representar o mesmo caractere, passa direto",
+        "A função tem um erro de sintaxe em Python, que impede o código de sequer ser executado pelo interpretador",
+        "A lista de caracteres proibidos deveria estar ordenada alfabeticamente, para o algoritmo funcionar corretamente",
+        "A função verifica caracteres de menos, e deveria bloquear qualquer texto com mais de dez caracteres de tamanho"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O código Python está sintaticamente correto e executa sem erro — o problema não está na sintaxe.",
+        "2": "Ordem alfabética não tem efeito nenhum sobre o funcionamento de `in` numa lista — a checagem funciona em qualquer ordem.",
+        "3": "Tamanho do texto não é o critério relevante — o problema é sobre quais caracteres passam pelo filtro, não sobre quantos."
+      },
+      "dicas": [
+        "Pense num canal que a função não cobre — comando de sistema usa algum caractere fora dessa lista?",
+        "Existe mais de um jeito de escrever o mesmo símbolo perigoso, de forma que a lista fixa não reconheça?",
+        "O defeito estrutural é a cobertura incompleta que nenhuma lista fixa resolve — é isso que a resposta certa nomeia."
+      ],
+      "pergunta_socratica": "Antes de conferir: essa lista cobre o caractere que quebra o canal de comando de sistema, visto no laboratório desta sessão?",
+      "explicacao": "A lista bloqueia apóstrofo e os símbolos de HTML, mas não cobre, por exemplo, o separador de comando de shell (`&` ou `;`), nem formas alternativas de representar os mesmos caracteres. Qualquer lista fixa de 'caracteres proibidos' depende de prever tudo de antemão — e é exatamente essa previsibilidade incompleta que torna filtrar uma defesa fraca.",
+      "fonte": "3.5.t4, desta sessão, e lab/comando_concatenado.py.",
+      "tags": [
+        "web",
+        "injecao",
+        "caca-erro",
+        "filtro"
+      ]
+    },
+    {
+      "id": "3.5.q25",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um sistema bloqueia a tag `<b>` especificamente em comentários de usuário. Um atacante consegue inserir marcação usando uma tag diferente, não prevista na lista de bloqueio. O que esse cenário demonstra sobre defesa por lista de bloqueio?",
+      "alternativas": [
+        "Que bloquear tags específicas não resolve o problema estrutural — qualquer tag não prevista continua sendo interpretada como marcação real",
+        "Que o atacante usou uma técnica sofisticada, disponível só para quem tem treinamento avançado em segurança ofensiva",
+        "Que o sistema deveria ter bloqueado só a tag `<b>` de forma mais rigorosa, com verificação em letras maiúsculas e minúsculas",
+        "Que a linguagem de programação usada no sistema tem uma falha conhecida em como processa listas de bloqueio"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Usar uma tag diferente da bloqueada não exige técnica avançada — é o comportamento esperado de qualquer lista incompleta.",
+        "2": "Reforçar o bloqueio de uma tag específica não resolve o problema — a falha é estrutural, na abordagem de listar tags, não na tag escolhida.",
+        "3": "O problema não está na linguagem de programação — está na escolha de defender por lista em vez de por escape estrutural."
+      },
+      "dicas": [
+        "Pense no motivo pelo qual o ataque funcionou: a tag usada estava, ou não estava, na lista de bloqueio?",
+        "A defesa correta (escape de contexto) bloqueia tags específicas, ou trata qualquer caractere de marcação igual?",
+        "Reconhecer o problema estrutural da lista, sem inventar sofisticação técnica do atacante nem falha de linguagem, é o que diferencia a resposta certa."
+      ],
+      "pergunta_socratica": "Antes de conferir: escapar o HTML (transformar < em &lt;) depende de saber qual tag específica o usuário vai tentar usar?",
+      "explicacao": "Bloquear tags específicas é uma forma de lista de caracteres proibidos, com o mesmo defeito estrutural: qualquer tag não prevista passa direto. A defesa estrutural correta (escape de todo caractere de marcação, independente de qual tag ele forma) não depende de prever tags específicas, porque trata o caractere, não o nome da tag.",
+      "fonte": "3.5.t4, desta sessão, e lab/html_sem_escape_vs_com_escape.py.",
+      "tags": [
+        "web",
+        "injecao",
+        "ataque-defesa",
+        "filtro"
+      ]
+    },
+    {
+      "id": "3.5.q26",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ligue cada string testada no laboratório ao canal em que ela realmente causa problema.",
+      "pares": [
+        [
+          "O'Brien",
+          "canal SQL — o apóstrofo fecha o delimitador de string da consulta"
+        ],
+        [
+          "<b>oi</b>",
+          "canal HTML — os símbolos < e > são interpretados como marcação"
+        ],
+        [
+          "oi & echo teste",
+          "canal de comando de sistema — o '&' é lido como separador"
+        ],
+        [
+          "carla",
+          "nenhum canal — string sem caractere especial para nenhum dos três"
+        ]
+      ],
+      "dicas": [
+        "Pense em qual caractere específico cada string carrega, e qual canal trata esse caractere como especial.",
+        "Uma das quatro strings não tem nenhum caractere que quebre nenhum dos canais testados.",
+        "O mesmo caractere ('&') aparece em mais de um contexto do laboratório de comando — ligue à linha certa."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'carla' tem algum caractere que apareça na lista de separadores usados nos três laboratórios?",
+      "explicacao": "Cada string quebra o canal cujo parser trata algum caractere dela como especial: apóstrofo no SQL, < e > no HTML, '&' no shell. 'carla' não contém nenhum desses caracteres, então não quebra canal nenhum — reforçando que perigo é uma relação entre string e canal, não uma propriedade da string isolada.",
+      "fonte": "Síntese de lab/sql_concatenacao_vs_parametros.py, lab/html_sem_escape_vs_com_escape.py e lab/comando_concatenado.py.",
+      "tags": [
+        "web",
+        "injecao",
+        "pareamento",
+        "contexto"
+      ]
+    },
+    {
+      "id": "3.5.q27",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ordene, do primeiro ao último, o raciocínio correto para escolher entre filtrar caracteres e aplicar separação estrutural ao proteger um canal novo.",
+      "itens": [
+        "Perguntar se existe, para aquele canal, um mecanismo de separação estrutural entre dado e instrução (parâmetro, lista de argumentos, escape de contexto)",
+        "Se existir, aplicar esse mecanismo estrutural como defesa principal do canal",
+        "Considerar uma lista de caracteres proibidos só como camada extra, nunca como única defesa do canal",
+        "Documentar por que a lista de caracteres proibidos, sozinha, não seria suficiente para esse canal"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "dicas": [
+        "A primeira pergunta é sobre o que existe disponível para aquele canal, antes de decidir qual defesa aplicar.",
+        "Aplicar o mecanismo estrutural vem antes de considerar qualquer camada extra, não depois.",
+        "Documentar a limitação da lista de caracteres é o último passo, depois de já ter decidido a defesa principal."
+      ],
+      "pergunta_socratica": "Antes de conferir: faz sentido decidir usar filtro antes de checar se existe defesa estrutural disponível para o canal?",
+      "explicacao": "O raciocínio correto prioriza checar se existe separação estrutural disponível para o canal, aplicá-la como defesa principal, e só então considerar filtro como camada complementar — nunca como substituto da separação estrutural, pelo defeito de cobertura incompleta já demonstrado.",
+      "fonte": "Síntese de 3.5.t4, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "ordenacao",
+        "defesa"
+      ]
+    },
+    {
+      "id": "3.5.q28",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um sistema usa parâmetros em toda consulta SQL, eliminando a injeção nesse canal. Por que essa correção sozinha não torna o sistema inteiro seguro contra injeção?",
+      "alternativas": [
+        "Porque parametrização é uma defesa específica do canal SQL — outros canais do mesmo sistema (HTML, comando) continuam expostos se não tiverem sua própria defesa estrutural",
+        "Porque parametrização, uma vez aplicada ao SQL, torna desnecessária qualquer defesa nos demais canais do sistema",
+        "Porque parametrização, uma vez aplicada, precisa ser reaplicada a cada nova versão do banco de dados usado pelo sistema",
+        "Porque nenhum banco de dados real aceita parâmetros em todas as consultas possíveis, então a correção é sempre parcial"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Parametrização não se estende a outros canais — cada um continua precisando da própria defesa estrutural.",
+        "2": "Parametrização não precisa ser reaplicada a cada versão de banco — é uma característica da consulta, não da versão do software.",
+        "3": "Bancos de dados relacionais comuns aceitam parâmetros em praticamente qualquer consulta — essa não é a limitação real."
+      },
+      "dicas": [
+        "Pense nos outros dois canais estudados neste módulo — a defesa de SQL protege algum deles?",
+        "'Seguro contra injeção' significa seguro num canal, ou em todos os canais que o sistema usa?",
+        "Cada canal precisa da própria defesa — reconhecer isso é o que sustenta a resposta certa; as demais recorrem a versão de banco ou dependência entre canais."
+      ],
+      "pergunta_socratica": "Antes de conferir: a defesa aplicada ao SQL muda alguma coisa em como o sistema trata comentários no HTML ou comandos de sistema?",
+      "explicacao": "Cada canal — SQL, HTML, comando de sistema — precisa da própria defesa estrutural. Corrigir um canal não estende proteção aos outros, porque o mecanismo de separação (parâmetro, escape, lista de argumentos) é específico de cada canal, não uma propriedade geral do sistema.",
+      "fonte": "3.5.t3 e t6, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "conceitual",
+        "defesa-em-camadas"
+      ]
+    },
+    {
+      "id": "3.5.q29",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um sistema parametriza corretamente toda consulta SQL, mas o usuário de banco de dados usado pela aplicação tem permissão para ler e apagar qualquer tabela do banco, incluindo tabelas de outros sistemas. Por que isso ainda é um problema, mesmo sem nenhuma injeção SQL ser possível?",
+      "alternativas": [
+        "Porque, se qualquer outra falha permitir a um atacante executar consultas pela aplicação, o alcance do dano depende do que a permissão do usuário de banco autoriza, não só da ausência de injeção",
+        "Porque parametrização deveria, por si só, restringir automaticamente a permissão do usuário de banco às tabelas do próprio sistema",
+        "Porque um usuário de banco com permissão ampla facilita a auditoria de quem acessou cada tabela do sistema",
+        "Porque esse tipo de configuração é sempre proibido pelas regras internas de qualquer banco de dados relacional"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Parametrização protege contra injeção especificamente — ela não configura permissões de usuário de banco, que é uma decisão separada.",
+        "2": "Permissão ampla dificulta, não facilita, distinguir o que cada parte do sistema deveria acessar — o oposto do que a alternativa afirma.",
+        "3": "Bancos de dados relacionais permitem esse tipo de configuração ampla — não existe uma regra interna universal que a proíba."
+      },
+      "dicas": [
+        "Pense na diferença entre impedir a injeção e limitar o que ela, se acontecesse, conseguiria fazer.",
+        "Parametrização evita que dado vire instrução — isso tem relação com o que a instrução tem permissão de fazer depois?",
+        "Ligar o risco ao alcance da permissão, sem inventar efeito automático ou regra universal, é o que diferencia a resposta certa."
+      ],
+      "pergunta_socratica": "Antes de conferir: parametrização impede que uma consulta seja injetada, ou também limita o que uma consulta legítima tem permissão de fazer?",
+      "explicacao": "Menor privilégio é uma camada separada da separação estrutural: mesmo com a injeção impedida, uma permissão ampla no usuário de banco aumenta o dano possível caso qualquer outra falha (não necessariamente injeção) permita executar consultas indevidas. As duas camadas resolvem problemas diferentes.",
+      "fonte": "3.5.t6, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "cenario",
+        "menor-privilegio"
+      ]
+    },
+    {
+      "id": "3.5.q30",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "trecho": "consulta = \"SELECT * FROM pedidos WHERE cliente_id = ?\"\ncon.execute(consulta, (cliente_id,))\n# conexão feita com usuário 'admin_total', permissão de leitura e escrita em todo o banco",
+      "enunciado": "A consulta usa parâmetro corretamente, separando dado de instrução. Qual é o defeito que ainda persiste neste trecho, fora do mecanismo de injeção em si?",
+      "alternativas": [
+        "A conexão usa um usuário de banco com permissão muito mais ampla do que essa consulta específica precisa, ampliando o dano de qualquer outra falha",
+        "O parâmetro `cliente_id` deveria estar entre aspas simples dentro da string da consulta, para funcionar corretamente",
+        "A consulta deveria usar `SELECT` com os nomes das colunas explícitos, em vez do símbolo `*`, por motivo de segurança",
+        "A função `execute` não aceita parâmetros passados como tupla, então este código não executaria de verdade"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Parâmetros não usam aspas dentro da string da consulta — o símbolo `?` já delimita a posição do valor, sem precisar de aspas.",
+        "2": "Usar `*` em vez de nomes de colunas é uma prática de estilo/desempenho, sem relação direta com o defeito de segurança do trecho.",
+        "3": "Passar parâmetros como tupla é a forma padrão e correta de usar `execute` parametrizado — o código executa normalmente."
+      },
+      "dicas": [
+        "A consulta está correta — se há defeito neste trecho, ele não está na forma de escrever o SQL.",
+        "Pense no que acontece se outra parte do sistema, não esta consulta, tiver uma falha que permita executar comandos pela mesma conexão.",
+        "O defeito real está na permissão do usuário de banco, não no mecanismo de parametrização — é isso que a resposta certa nomeia."
+      ],
+      "pergunta_socratica": "Antes de conferir: o comentário no trecho menciona algo sobre a permissão do usuário de banco usado na conexão?",
+      "explicacao": "A consulta em si está corretamente parametrizada — o defeito que persiste é a permissão ampla do usuário de conexão ('admin_total', leitura e escrita em todo o banco), que amplia o dano possível caso qualquer outra falha do sistema permita executar comandos por essa mesma conexão. Separação estrutural e menor privilégio são camadas diferentes.",
+      "fonte": "3.5.t6, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "caca-erro",
+        "menor-privilegio"
+      ]
+    },
+    {
+      "id": "3.5.q31",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Por que o módulo trata 'menor privilégio' como uma camada de defesa complementar, e não como substituto da separação estrutural entre dado e instrução?",
+      "alternativas": [
+        "Porque menor privilégio limita o dano caso uma falha aconteça, mas não impede a falha de injeção em si — as duas camadas atuam em momentos diferentes",
+        "Porque menor privilégio é uma técnica mais antiga, criada antes da separação estrutural existir como conceito de segurança",
+        "Porque menor privilégio só pode ser aplicado em bancos de dados, nunca em canais como HTML ou comando de sistema",
+        "Porque separação estrutural e menor privilégio resolvem exatamente o mesmo problema, só com nomes técnicos diferentes"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A ordem histórica de criação das técnicas não é o motivo pelo qual elas são tratadas como complementares no módulo.",
+        "2": "Menor privilégio se aplica a qualquer recurso com permissão configurável, não só a bancos de dados — inclusive a processos de sistema.",
+        "3": "As duas resolvem problemas diferentes: uma impede a injeção, a outra limita o estrago se algo passar pela primeira."
+      },
+      "dicas": [
+        "Pense no momento em que cada camada age: antes da falha acontecer, ou depois dela já ter acontecido?",
+        "Separação estrutural impede a injeção. Menor privilégio impede o quê, especificamente?",
+        "O que diferencia a resposta certa é ligar a explicação a QUANDO cada defesa entra em ação, sem inventar ordem histórica ou exclusividade de canal."
+      ],
+      "pergunta_socratica": "Antes de conferir: menor privilégio impede que uma consulta seja injetada, ou limita o que uma consulta (injetada ou não) consegue fazer?",
+      "explicacao": "Separação estrutural age no momento da construção da instrução, impedindo que dado vire instrução. Menor privilégio age depois, limitando o alcance de qualquer instrução executada — legítima ou não — caso alguma falha, mesmo não relacionada a injeção, permita execução indevida. São camadas que respondem a momentos diferentes, por isso complementares.",
+      "fonte": "3.5.t6, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "conceitual",
+        "menor-privilegio"
+      ]
+    },
+    {
+      "id": "3.5.q32",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um atacante tenta uma injeção de comando contra um sistema que usa lista de argumentos (sem shell) para toda chamada externa. A tentativa falha, mas aparece registrada nos logs do sistema. Qual camada de defesa é essa, distinta da separação estrutural que já bloqueou o ataque?",
+      "alternativas": [
+        "Monitoramento e registro de tentativas — permite que a equipe perceba que houve uma tentativa, mesmo que ela não tenha tido sucesso",
+        "A mesma separação estrutural, porque registrar a tentativa nos logs faz parte do mecanismo de lista de argumentos",
+        "Menor privilégio, porque só usuários com permissão reduzida têm suas tentativas registradas nos logs do sistema",
+        "Validação de entrada, porque o log só registra tentativas que já passaram por uma validação prévia bem-sucedida"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Registrar em log é uma função separada do mecanismo de lista de argumentos — a separação estrutural não inclui, por definição, gerar registro.",
+        "2": "Registro em log não depende do nível de permissão de quem tentou — qualquer tentativa pode ser registrada, independentemente disso.",
+        "3": "A tentativa foi bloqueada pela separação estrutural, não por uma validação prévia — e mesmo assim ficou registrada."
+      },
+      "dicas": [
+        "Pense na diferença entre 'impedir o ataque' e 'saber que o ataque foi tentado' — são a mesma coisa?",
+        "A separação estrutural (lista de argumentos) já bloqueou o ataque — o registro em log faz parte desse mecanismo, ou é outra coisa?",
+        "Nomear corretamente a camada que permite à equipe perceber a tentativa, sem confundir com as outras camadas do módulo, é o que sustenta a resposta certa."
+      ],
+      "pergunta_socratica": "Antes de conferir: a lista de argumentos, por si só, gera um registro da tentativa — ou isso é responsabilidade de outra parte do sistema?",
+      "explicacao": "Monitoramento e registro são uma camada distinta: mesmo com a injeção bloqueada pela separação estrutural, é o registro da tentativa que permite à equipe perceber que o sistema foi alvo, investigar a origem e reagir — algo que a separação estrutural sozinha, por bloquear silenciosamente, não garante.",
+      "fonte": "3.5.t6, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "ataque-defesa",
+        "monitoramento"
+      ]
+    },
+    {
+      "id": "3.5.q33",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Ligue cada camada de defesa ao problema específico que ela resolve, segundo o contraponto defensivo do módulo.",
+      "pares": [
+        [
+          "separação estrutural (parâmetro, escape, lista de argumentos)",
+          "impede que dado seja interpretado como instrução no canal específico"
+        ],
+        [
+          "menor privilégio",
+          "limita o dano possível caso alguma falha permita executar instrução indevida"
+        ],
+        [
+          "monitoramento e registro",
+          "permite perceber que uma tentativa aconteceu, mesmo quando ela foi bloqueada"
+        ],
+        [
+          "validação de entrada",
+          "rejeita cedo um dado com formato inesperado, antes dele chegar a qualquer canal"
+        ]
+      ],
+      "dicas": [
+        "Cada camada age num momento diferente: antes da instrução ser montada, depois de montada, ou depois de executada.",
+        "Duas das quatro camadas agem mesmo quando a separação estrutural já funcionou corretamente — quais são?",
+        "Pense em qual camada é a única que realmente impede o mecanismo de dado virar instrução, e qual só reduz o efeito colateral."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'menor privilégio' impede a injeção, ou reduz o que ela consegue fazer se acontecer?",
+      "explicacao": "Cada camada cobre uma parte diferente do problema: separação estrutural impede o mecanismo em si; validação rejeita entradas mal formadas antes de qualquer canal; menor privilégio limita o estrago se algo passar; monitoramento garante visibilidade sobre tentativas, bem-sucedidas ou não. Nenhuma sozinha cobre o que as outras três cobrem juntas.",
+      "fonte": "3.5.t6, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "pareamento",
+        "defesa-em-camadas"
+      ]
+    },
+    {
+      "id": "3.5.q34",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Ordene, do primeiro ao último, os passos ao projetar uma funcionalidade nova que recebe dado do usuário e o repassa a um canal externo (banco, HTML, comando).",
+      "itens": [
+        "Validar o formato esperado do dado, rejeitando cedo o que já foge do esperado",
+        "Aplicar a separação estrutural disponível para o canal de destino específico",
+        "Configurar a permissão usada para executar a instrução com o mínimo necessário para a tarefa",
+        "Garantir que tentativas de burlar qualquer uma das camadas anteriores fiquem registradas"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "dicas": [
+        "Validar o formato é o primeiro filtro, antes do dado chegar perto de qualquer canal.",
+        "A separação estrutural (parâmetro, escape, lista de argumentos) é aplicada no momento de montar a instrução para o canal.",
+        "Registro de tentativas é a última camada — ela não impede nada, só garante visibilidade depois."
+      ],
+      "pergunta_socratica": "Antes de conferir: configurar a permissão mínima faz sentido antes, ou depois de já ter decidido a separação estrutural do canal?",
+      "explicacao": "O projeto correto passa por validar cedo, aplicar a separação estrutural do canal específico, configurar permissão mínima para a execução, e garantir registro de tentativas — nenhuma camada sozinha substitui as outras, cada uma cobre uma parte diferente do risco.",
+      "fonte": "Síntese de 3.5.t6, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "ordenacao",
+        "defesa-em-camadas"
+      ]
+    },
+    {
+      "id": "3.5.q35",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Depois de estudar SQL injection, XSS e injeção de comando como o mesmo mecanismo em canais diferentes, qual é a lição central que fecha este módulo?",
+      "alternativas": [
+        "Reconhecer o mecanismo (dado sem fronteira em relação à instrução) permite generalizar a defesa estrutural para canais novos, mas nenhuma camada sozinha — nem essa — substitui as outras",
+        "Uma vez aplicada a separação estrutural em todos os canais conhecidos, o sistema fica permanentemente livre de qualquer risco de injeção",
+        "SQL injection é o único dos três canais que realmente importa proteger, porque é o mais citado em relatórios de segurança",
+        "A defesa contra os três canais estudados é idêntica, então aprender uma delas já ensina automaticamente as outras duas"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O módulo trata separação estrutural como necessária, mas não suficiente sozinha — outras camadas (privilégio, monitoramento) seguem relevantes mesmo com ela aplicada.",
+        "2": "Popularidade em relatórios não é o critério do módulo — os três canais recebem o mesmo tratamento, por compartilharem o mesmo mecanismo.",
+        "3": "A defesa muda de sintaxe entre os canais (parâmetro, escape, lista de argumentos) — aprender uma não ensina a sintaxe específica das outras."
+      },
+      "dicas": [
+        "Pense no que 3.5.t6 acrescenta depois de já ter ensinado o mecanismo e a defesa estrutural de cada canal.",
+        "A lição central é sobre reconhecer o mecanismo, ou sobre qual dos três canais é 'mais importante'?",
+        "Juntar as duas metades da lição — generalizar o reconhecimento, e não confiar numa camada só — é o que diferencia a resposta certa das outras três."
+      ],
+      "pergunta_socratica": "Antes de conferir: o módulo termina afirmando que separação estrutural, sozinha, já resolve tudo — ou que ela precisa de outras camadas junto?",
+      "explicacao": "A lição central do módulo tem duas partes: reconhecer que dado sem fronteira em relação à instrução é o mesmo mecanismo em qualquer canal permite identificar e defender canais novos sem precisar reaprender do zero; e nenhuma camada de defesa isolada — nem a separação estrutural, a mais importante das quatro — é suficiente sozinha, porque cada camada cobre uma parte diferente do risco.",
+      "fonte": "Síntese de 3.5.t1 a t6, desta sessão.",
+      "tags": [
+        "web",
+        "injecao",
+        "conceitual",
+        "sintese"
+      ]
+    }
+  ]
+}

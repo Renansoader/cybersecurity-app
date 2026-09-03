@@ -1,0 +1,23 @@
+=== busca normal, por concatenação (nome sem caractere especial) ===
+  consulta: SELECT nome, email FROM usuarios WHERE nome = 'ana'
+  resultado: [('ana', 'ana@exemplo.local')]
+
+=== busca por concatenação, agora pelo nome legítimo "O'Brien" ===
+  consulta montada: SELECT nome, email FROM usuarios WHERE nome = 'O'Brien'
+  ERRO DE SINTAXE: near "Brien": syntax error
+  o apóstrofo do próprio nome fechou a string cedo demais — o banco
+  não consegue mais distinguir onde o dado termina e o comando continua
+
+=== a mesma busca, agora por parâmetro ===
+  consulta: SELECT nome, email FROM usuarios WHERE nome = ?
+  parâmetro enviado separadamente: "O'Brien"
+  resultado: [("O'Brien", 'obrien@exemplo.local')]
+
+=== leitura ===
+  O nome 'O'Brien' não é um ataque — é um sobrenome real, comum em países
+  de língua inglesa. Por concatenação, mesmo esse dado legítimo já quebra a
+  consulta, porque o apóstrofo do dado é indistinguível do apóstrofo que
+  delimita a instrução. Por parâmetro, a mesma pessoa é encontrada
+  normalmente — o dado nunca compete com a sintaxe do comando. Um atacante
+  não precisa inventar nada sofisticado: só precisa saber que o mesmo
+  caractere que quebra por acidente também pode ser usado de propósito.

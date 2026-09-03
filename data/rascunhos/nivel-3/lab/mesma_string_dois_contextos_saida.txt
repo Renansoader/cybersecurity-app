@@ -1,0 +1,18 @@
+=== caso: nome com apóstrofo (O'Brien) ===
+  no canal SQL (concatenado):  ERRO DE SINTAXE: near "Brien": syntax error
+  no canal HTML (sem escape):  "<p>O'Brien</p>"  (tag preservada: False)
+
+=== caso: comentário com tag HTML (<b>oi</b>) ===
+  no canal SQL (concatenado):  executou sem erro
+  no canal HTML (sem escape):  '<p><b>oi</b></p>'  (tag preservada: True)
+
+=== leitura ===
+  'O'Brien' quebra o canal SQL (o apóstrofo é o delimitador de string ali)
+  mas é só texto inofensivo no canal HTML — nenhum caractere dele tem
+  significado especial em marcação. '<b>oi</b>' faz o oposto: é só um
+  texto estranho para o SQL (sem delimitador nenhum dele em jogo), mas
+  vira uma instrução de formatação real no HTML. Perigoso não é uma
+  propriedade da string — é uma relação entre o que ela contém e o que
+  o canal de destino trata como caractere especial. É por isso que a
+  defesa certa depende do contexto de saída, não de uma lista fixa de
+  'caracteres proibidos' que valeria igual em qualquer lugar.

@@ -3,9 +3,10 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-02 · módulo 3.4 (Web I) escrito e publicado —
-abre o nível 3 · evita_absoluto virou portão de qualidade (teto 40%,
-convergência estatística confirmada) · 3.444 testes passando
+Última atualização: 2026-09-02 · módulo 3.5 (Web II) escrito e publicado —
+SQL injection, XSS e injeção de comando ensinados como um único mecanismo
+(dado sem fronteira em relação à instrução) em três canais · 3.552 testes
+passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -15,18 +16,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 30 de 41 |
-| Questões | 1.051 |
-| Blocos de teoria | 182 |
-| Tags distintas | 815 |
-| Testes automatizados | 3.444 |
+| Módulos de conteúdo escritos | 31 de 41 |
+| Questões | 1.086 |
+| Blocos de teoria | 188 |
+| Tags distintas | 822 |
+| Testes automatizados | 3.552 |
 | Linhas de código Python | ~2.280 no app · ~3.830 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 140 (4 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 175 (5 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
 
-Tipos de questão em uso: conceitual 433, cenário 225, ataque→defesa 82,
-caça ao erro 83, comando 56, artefato 71, pareamento 58, ordenação 43.
+Tipos de questão em uso: conceitual 442, cenário 232, ataque→defesa 86,
+caça ao erro 87, comando 56, artefato 75, pareamento 62, ordenação 46.
 
 ---
 
@@ -222,9 +223,9 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 4.5 SIEM e monitoramento · 4.6 MITRE ATT&CK e caça a ameaças ·
 4.7 Resposta a incidentes · 4.8 Forense digital
 
-**Nível 3 — Ofensivo** (140 questões, 4 de 9)
+**Nível 3 — Ofensivo** (175 questões, 5 de 9)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
-3.3 Varredura e enumeração · 3.4 Web I
+3.3 Varredura e enumeração · 3.4 Web I · 3.5 Web II
 
 **Nível 2 — Núcleo de segurança** (245 questões, completo)
 2.1 Criptografia I · 2.2 Criptografia II · 2.3 Criptografia III ·
@@ -244,9 +245,9 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 11 módulos
+### Conteúdo — 10 módulos
 
-- **Nível 3 — Ofensivo** (5 restantes): Web II/III, OWASP Top 10, quebra de
+- **Nível 3 — Ofensivo** (4 restantes): Web III, OWASP Top 10, quebra de
   senhas, engenharia social e redes sem fio
 - **Nível 4 — Defensivo**: completo (8 de 8)
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
@@ -326,6 +327,7 @@ real de requisição.
   | 3.2 | 46,9% | acima |
   | 3.3 | 46,9% | acima |
   | 4.1 | 43,8% | acima |
+  | 3.5 | 39,3% | ok (módulo novo, 02/09/2026 — 52,9% no checkpoint 2 da regra 7, corrigido antes de seguir) |
   | 0.1 | 35,5% | ok (era 61,3% — piloto de correção, ver abaixo) |
   | 0.2 | 35,5% | ok (era 45,2%) |
   | 0.3 | 35,5% | ok (era 41,9%) |
@@ -346,9 +348,9 @@ real de requisição.
   | 4.6 | 15,6% | ok |
   | 4.8 | 12,9% | ok (módulo novo, 02/09/2026) |
 
-  **11 de 30 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
-  0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8 e 3.4, publicados
-  depois desta medição original, também ficaram abaixo). O teto não é palpite:
+  **11 de 31 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
+  0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8, 3.4 e 3.5,
+  publicados depois desta medição original, também ficaram abaixo). O teto não é palpite:
   batia, módulo a módulo, com o critério estatístico independente de "o
   limite inferior do intervalo de Wilson (95%) da taxa passa de 25%" antes
   desta rodada — justificativa completa em `ferramentas/chutador_de_forma.py`,
@@ -396,6 +398,7 @@ real de requisição.
   | 1.6 | 33,3% (11/33) | 19,8% | ok |
   | 1.5 | 32,3% (10/31) | 18,6% | ok |
   | 0.2 | 29,0% (9/31) | 16,1% | ok |
+  | 3.5 | 28,6% (8/28) | 15,3% | ok (módulo novo, 02/09/2026) |
   | 2.1 | 28,1% (9/32) | 15,6% | ok |
   | 2.3 | 27,3% (9/33) | 15,1% | ok |
   | 2.2 · 4.8 | 25,8% (8/31) | 13,7% | ok |
@@ -412,7 +415,7 @@ real de requisição.
   independentes que já validou o teto de `mais_longa` — não é palpite
   reaplicado, é o mesmo teste rodado de novo com resultado igual.
 
-  **12 de 29 módulos acima do teto de 40% em `mais_longa` OU
+  **12 de 31 módulos acima do teto de 40% em `mais_longa` OU
   `evita_absoluto`** — 11 já conhecidos por `mais_longa`, mais **0.1**,
   que cruza só por `evita_absoluto` (54,8%) apesar de já ter sido
   corrigido para `mais_longa` no piloto de 01/09/2026. `ferramentas/chutador_de_forma.py`
@@ -748,6 +751,62 @@ real de requisição.
   `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 30
   módulos). +35 questões, +1 bloco de teoria por módulo (6). Nível 3
   em 4 de 9.
+- **Módulo 3.5 escrito, 02/09/2026 — Web II, a confusão entre dado e
+  instrução.** Ensina SQL injection, XSS e injeção de comando de sistema
+  como **um único mecanismo** repetido em três canais — dado sem
+  fronteira em relação à instrução — em vez de três tópicos separados;
+  fecha com contraponto defensivo obrigatório (nenhuma camada sozinha
+  basta: separação estrutural, menor privilégio, monitoramento). O
+  levantamento de não-repetição achou uma colisão real com o 1.6
+  (Python), que já ensina a defesa específica de injeção de comando com
+  código testado — reformulado antes de escrever: o canal de sistema
+  operacional entra como a prova mais nua do mecanismo, a defesa em si
+  é referência cruzada ao 1.6, não reensinada; ver
+  `data/rascunhos/nivel-3/fontes/nao-repetir-3.5.md`.
+
+  Quatro laboratórios locais/em memória, sem payload pronto para colar:
+  `O'Brien` (nome real, não ataque) quebra consulta SQL concatenada e
+  funciona por parâmetro; tag `<b>` inofensiva chega intacta sem escape
+  e vira texto literal com escape; `&` embutido num dado vira separador
+  de comando real via `shell=True`, inofensivo via lista de argumentos;
+  a mesma string testada nos dois canais prova que "perigoso" é uma
+  relação string↔canal, não propriedade da string. Duas correções de
+  laboratório encontradas só na execução real: um "payload" de comentário
+  SQL (`' --`) engolia a própria aspa de fechamento e não demonstrava
+  nada (reescrito em torno do `O'Brien` real); o separador de comando
+  testado (`;`) não tem efeito no `cmd.exe` desta máquina Windows —
+  `&` é o separador real aqui, descoberto testando ao vivo.
+
+  Checkpoint 1 (8ª questão) repetiu o mesmo viés de comprimento visto em
+  todo módulo novo desta sessão (100% `mais_longa` inicial), corrigido
+  para 0%/0%/0%. Checkpoint 2 (20ª questão) **cruzou o teto em duas
+  estratégias ao mesmo tempo** — 52,9% `mais_longa` e 47,1%
+  `evita_absoluto` — nas 9 questões novas do lote, corrigido reescrevendo
+  cada correta dentro do intervalo de comprimento das outras três, sem
+  palavra absolutista nova. O checkpoint final (35 questões) nasceu
+  dentro do teto sem correção de forma: 39,3% / 0% / 32,1%.
+
+  A revisão adversarial (duas lentes, agentes paralelos) confirmou, pela
+  quarta vez nesta sessão, que a forma do defeito de molde muda a cada
+  correção: desta vez foi a frase-abertura de `dicas[2]` ("Só uma
+  alternativa... sem inventar...") repetida em **28 de 28** questões de
+  múltipla escolha, sem exceção — reescritas todas com estrutura
+  sintática variada. Achou também um distrator de "torna mais lento"
+  reciclado em 5 questões e um de "exigência legal" em 3, sempre errados
+  (reduzidos a 1 ocorrência cada, restante reescrito), e um par de
+  questões caça-erro (SQL e HTML) que eram **clones de molde**
+  alternativa-por-alternativa, inclusive a mesma cláusula final de dica —
+  resolvível por posição, sem reconhecer o mecanismo no canal certo;
+  distratores e dica reescritos para quebrar a correspondência. Uma
+  correção introduziu um novo eco de gabarito no enunciado de uma questão
+  (palavras que só a nova alternativa correta tinha) — achado e corrigido
+  no mesmo ciclo, antes de seguir. Relatório completo em
+  `data/rascunhos/nivel-3/relatorios/3.5.md`.
+
+  Validação final: `pytest -q` (3.552 testes, 0 falhas) e
+  `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 31
+  módulos). +35 questões, +1 bloco de teoria por módulo (6). Nível 3
+  em 5 de 9.
 
 ---
 

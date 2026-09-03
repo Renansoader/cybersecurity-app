@@ -1,0 +1,23 @@
+=== chamada normal, via shell ===
+  comando montado: 'echo mensagem: tudo certo'
+  saída: 'mensagem: tudo certo'
+
+=== entrada com '&' embutido, via shell (concatenação) ===
+  comando montado: 'echo mensagem: oi & echo comando extra rodou'
+  saída: 'mensagem: oi \ncomando extra rodou'
+  (duas linhas de saída — o shell tratou o '&' da entrada como separador real)
+
+=== a mesma entrada, sem shell (lista de argumentos) ===
+  comando montado: ['echo', 'mensagem:', 'oi & echo comando extra rodou']
+  saída: 'mensagem: oi & echo comando extra rodou'
+  (uma linha só — o '&' virou parte do texto do argumento, não separador)
+
+=== leitura ===
+  Por concatenação com shell, o '&' que estava dentro do dado do usuário
+  foi lido pelo shell como o MESMO '&' que separa dois comandos digitados
+  por um operador — o shell não tem como saber a diferença. Sem shell,
+  passando a entrada como um item isolado da lista, o '&' nunca sai da
+  posição de dado: é só um caractere dentro de uma string, como outro
+  qualquer. É o mesmo mecanismo do apóstrofo no SQL e da tag no HTML —
+  só troca o canal e o caractere que demarca a fronteira (';' em bash,
+  '&' no cmd.exe, mas sempre um separador que o shell já reserva).
