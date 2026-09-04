@@ -3,11 +3,13 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-03 · módulo 3.6 (Web III) escrito e publicado —
-autorização como quatro checagens independentes (objeto, superfície de
-rotas, escalada, lógica de negócio), fecha o bloco Web · medida (e não
-corrigida) uma quarta ferramenta de triagem de forma, `medidor_molde_dica.py`
-· 3.661 testes passando
+Última atualização: 2026-09-04 · módulo 3.7 (OWASP Top 10) escrito e
+publicado — a lista como instrumento (metodologia híbrida, posição não é
+perigo, vocabulário de aplicação, ponto cego de construção, mapear achado
+para categoria), não catálogo de siglas · citação OWASP corrigida em 2.6
+(2021→2025, dois commits separados) e corpus inteiro auditado por currency
+(zero divergências novas) · sexta variante de molde achada manualmente
+(prefixo curto, invisível ao medidor automático) · 3.774 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -17,18 +19,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 32 de 41 |
-| Questões | 1.121 |
-| Blocos de teoria | 194 |
-| Tags distintas | 846 |
-| Testes automatizados | 3.661 |
+| Módulos de conteúdo escritos | 33 de 41 |
+| Questões | 1.157 |
+| Blocos de teoria | 200 |
+| Tags distintas | 874 |
+| Testes automatizados | 3.774 |
 | Linhas de código Python | ~2.280 no app · ~3.950 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 210 (6 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 246 (7 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
 
-Tipos de questão em uso: conceitual 450, cenário 241, ataque→defesa 90,
-caça ao erro 90, comando 57, artefato 79, pareamento 65, ordenação 49.
+Tipos de questão em uso: conceitual 457, cenário 257, ataque→defesa 93,
+caça ao erro 93, comando 57, artefato 81, pareamento 69, ordenação 50.
 
 ---
 
@@ -225,9 +227,10 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 4.5 SIEM e monitoramento · 4.6 MITRE ATT&CK e caça a ameaças ·
 4.7 Resposta a incidentes · 4.8 Forense digital
 
-**Nível 3 — Ofensivo** (210 questões, 6 de 9)
+**Nível 3 — Ofensivo** (246 questões, 7 de 9)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
-3.3 Varredura e enumeração · 3.4 Web I · 3.5 Web II · 3.6 Web III
+3.3 Varredura e enumeração · 3.4 Web I · 3.5 Web II · 3.6 Web III ·
+3.7 OWASP Top 10
 
 **Nível 2 — Núcleo de segurança** (245 questões, completo)
 2.1 Criptografia I · 2.2 Criptografia II · 2.3 Criptografia III ·
@@ -249,17 +252,18 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ### Conteúdo — 9 módulos
 
-- **Nível 3 — Ofensivo** (3 restantes): OWASP Top 10, quebra de senhas,
-  engenharia social e redes sem fio
+- **Nível 3 — Ofensivo** (2 restantes): quebra de senhas, engenharia social
+  e redes sem fio
 - **Nível 4 — Defensivo**: completo (8 de 8)
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
 
 O próximo bloco natural é o nível 3, que desbloqueia com 70% no nível 2 —
-agora completo. Bloco Web (3.4–3.6) fechado. O 3.7 (OWASP Top 10) já pode
-assumir que o aluno reconhece o mecanismo por trás de cada sigla — IDOR,
-injeção, quebra de controle de acesso — sem reensinar nenhum deles; quebra
-de senhas (3.8) reaproveita o material de 2.4 e 2.5.
+agora completo. Bloco Web (3.4–3.6) fechado, e o 3.7 (OWASP Top 10) fechado
+em cima dele — a lista como instrumento (metodologia, posição, vocabulário,
+ponto cego, mapeamento), não como catálogo de siglas reensinadas; sete das
+dez categorias já tinham dono de mecanismo em outro módulo, medido antes de
+escrever. Quebra de senhas (3.8) reaproveita o material de 2.4 e 2.5.
 
 ### Funcionalidades
 
@@ -351,6 +355,7 @@ de senhas (3.8) reaproveita o material de 2.4 e 2.5.
   | 4.6 | 15,6% | ok |
   | 3.6 | 13,8% | ok (módulo novo, 03/09/2026 — o viés reapareceu nos três checkpoints da regra 7, corrigido a cada vez antes de seguir) |
   | 4.8 | 12,9% | ok (módulo novo, 02/09/2026) |
+  | 3.7 | 3,2% | ok (módulo novo, 04/09/2026 — rascunho nasceu em 97,0%, causa raiz era `correta` fixo no índice 0 em toda questão; corrigido por rotação de posição + reequilíbrio de comprimento antes do primeiro checkpoint) |
 
   **11 de 31 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
   0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8, 3.4 e 3.5,
@@ -410,6 +415,7 @@ de senhas (3.8) reaproveita o material de 2.4 e 2.5.
   | 2.4 | 18,2% (6/33) | 8,6% | ok |
   | 4.3 | 15,6% (5/32) | 6,9% | ok |
   | 3.6 | 13,8% (4/29) | 5,5% | ok (módulo novo, 03/09/2026) |
+  | 3.7 | 25,8% (8/31) | 12,6% | ok (módulo novo, 04/09/2026) |
 
   **Mediana do corpus: 35,5%.** O teto de 40% não foi escolhido de novo —
   foi conferido contra o mesmo critério estatístico independente já usado
@@ -475,6 +481,17 @@ de senhas (3.8) reaproveita o material de 2.4 e 2.5.
   questões (`3.4.q4`, `q7`, `q12`, `q13`, `q23`, `q28`, `q32`) — 20,0% de
   família, a maior do corpus. É medição, não correção: fica registrado
   aqui para quando a dívida de forma do 3.4 for tratada como bloco.
+
+  **Sexta variante, achada manualmente no 3.7, 04/09/2026 — confirma o
+  limite já registrado acima.** O medidor não achou nada no rascunho do
+  3.7 (pior família 5,6%), mas uma varredura manual por abertura semântica
+  (em vez de prefixo exato) achou "Pense em/no/na..." ou "Volte a [id]..."
+  em **23 das 108 dicas (21%)** — invisível à ferramenta porque cada
+  ocorrência referencia um id diferente ("Volte a 2.3", "Volte a t4"),
+  então só os 2 primeiros tokens repetem, não os 5 que o medidor exige.
+  Reescritas 12 das 23; concentração final 10%. Prova, na prática, o que
+  a seção acima já previa: o medidor mede o que sabe medir, não o molde
+  inteiro.
 
   **Piloto de correção — módulo 0.1, 01/09/2026.** Escolhido por ser o
   primeiro módulo do curso (vazamento ali contamina a base inteira) e por
@@ -923,6 +940,88 @@ de senhas (3.8) reaproveita o material de 2.4 e 2.5.
   `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 32
   módulos). +35 questões, +1 bloco de teoria por módulo (6). Nível 3
   em 6 de 9. **Bloco Web (3.4-3.6) fechado.**
+- **Módulo 3.7 escrito, 04/09/2026 — OWASP Top 10, a lista como
+  instrumento, não catálogo de siglas.** Levantamento de não-repetição
+  mediu o risco que o usuário apontou antes de escrever: **sete das dez
+  categorias 2025 já tinham dono total do mecanismo** em outro módulo
+  (A01→2.6+3.6, A02→4.1, A04→2.1-2.4, A05→3.5, A06→3.6, A07→2.5), uma
+  parcial (A09→4.5), só A03 e A08 livres de verdade — percorrer a lista
+  item a item teria sido repetição em 70% dela. Recorte adotado: cinco
+  eixos sobre a lista como instrumento — metodologia híbrida (dado onde
+  o método enxerga, voto onde não enxerga), por que posição não é
+  perigo, vocabulário do lado aplicação/dev, o ponto cego que o método
+  cria por construção, e mapear achado real para categoria (ou reconhecer
+  que não pertence a nenhuma).
+
+  Duas colisões de argumento achadas e reformuladas antes de escrever: o
+  eixo de "vocabulário comum entre times" colidia com o título e o
+  objetivo 1 do **4.6** (mesma tese, outra taxonomia); o eixo de "erro de
+  tratar como checklist" colidia forte com **4.1** (`4.1.t6` quase com a
+  mesma frase). A primeira tentativa de reformulação ("assumir 4.1/4.6
+  como já ensinados") era inválida por ordem de curso — nível 4 vem
+  depois do 3 (`engine.niveis_desbloqueados`), o aluno não viu ainda.
+  Reformulados como eixos autocontidos e estreitos em vez de genéricos.
+
+  Verificação de fonte em duas rodadas: a primeira, por `WebFetch`,
+  confirmou a metodologia híbrida ("data-informed, but not blindly
+  data-driven", oito categorias de dado + duas de voto). Uma revisão
+  adversarial contestou três dessas citações como possivelmente
+  inventadas — forçou uma terceira rodada, `curl` + `grep` no HTML bruto,
+  sem resumo no meio: duas das três contestações eram falso positivo do
+  resumo automático (a citação de A02 sobre prevalência, e a frase de
+  abertura "standard awareness document", ambas confirmadas literais na
+  fonte), mas achou dois erros reais — a citação de A08 estava atribuída
+  à seção errada (é "How to Prevent", não "Description"), e A10 estava
+  incorretamente descrito como uma das duas categorias promovidas por
+  voto (são **A03 e A09**, confirmado no HTML cru; A10 é só "nova
+  categoria", sem menção a voto). **Achado de processo: `WebFetch` deu
+  respostas diferentes pra mesma pergunta sobre a mesma URL em chamadas
+  distintas** — citação literal de fonte externa não deveria se apoiar só
+  numa chamada resumida quando o texto exato importa.
+
+  Aproveitado o achado da citação desatualizada para corrigir, em dois
+  commits separados e anteriores a este módulo, `2.6`: rótulo de edição
+  2021→2025 em 5 lugares (conteúdo idêntico entre edições, conferido
+  antes de trocar) e uma contagem de CWE errada dentro de uma explicação
+  (34→40, a contagem de 2021 dentro de texto sobre 2025). Um fork depois
+  auditou os 1.315 campos `fonte` do corpus inteiro por qualquer número,
+  versão, posição ou prazo que possa ter mudado de edição — **zero
+  divergências novas** além do caso já corrigido do 2.6 (relatório em
+  `data/rascunhos/nivel-3/fontes/auditoria-currency-corpus.md`).
+
+  A revisão adversarial (duas lentes) também achou uma referência cruzada
+  quebrada dentro do próprio 3.7: uma questão de reconhecimento (A07,
+  falhas de autenticação) atribuía três achados a "2.5 já ensinou", mas
+  um deles é na verdade do **2.4** (limite de tentativas) e outro
+  (enumeração de usuário por mensagem de erro) não é ensinado em módulo
+  nenhum — conteúdo novo apresentado como reconhecimento. Corrigida a
+  atribuição, mantida a resposta. Mais: vazamento de palavra exclusiva
+  da correta em duas dicas, um distrator internamente contraditório, um
+  par de pareamento ambíguo, e dois distratores defensáveis por quem tem
+  bagagem de edições anteriores do Top10 — todos corrigidos.
+
+  Os três checkpoints da regra 7 mostraram, de novo, o mesmo hábito de
+  escrita dos módulos 3.4 e 3.6: rascunho nasceu com `correta` fixo no
+  índice 0 em toda questão e 97,0% de taxa `mais_longa` — o pior número
+  desta linha. Corrigido por script (rotação de posição entre os 4
+  índices) mais edição manual de comprimento em ~30 questões, chegando a
+  3,2% antes do primeiro checkpoint formal. Sexta variante de molde de
+  dica achada manualmente (ver seção 5 acima): "Pense em/Volte a..." em
+  21% das dicas, invisível ao medidor de prefixo exato. Publicado em
+  **3,2% mais_longa / 3,2% mais_curta / 25,8% evita_absoluto / 5,6%
+  molde de dica**.
+
+  Contagem de questões justificada explicitamente no relatório, a pedido
+  do usuário: 36 questões, nenhuma para bater meta — 5 de reconhecimento
+  (mecanismo já ensinado, etiqueta nova) e 5 de mecanismo genuinamente
+  novo (A02, A03, A08, A09, A10 — as únicas partes do Top10 que nenhum
+  outro módulo ainda tocava) fecham o eixo 5, mais um caso de "não
+  pertence a nenhuma das dez". Relatório completo em
+  `data/rascunhos/nivel-3/relatorios/3.7.md`.
+
+  Validação final: `pytest -q` (3.774 testes, 0 falhas) e
+  `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 33
+  módulos). +36 questões, +6 blocos de teoria. Nível 3 em 7 de 9.
 
 ---
 

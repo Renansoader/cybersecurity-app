@@ -1,0 +1,1328 @@
+{
+  "id": "3.7",
+  "nivel": 3,
+  "titulo": "OWASP Top 10 — a lista como instrumento, não como prova",
+  "objetivos": [
+    "Explicar que o Top 10 vem de metodologia híbrida — oito categorias de dado empírico de CVE agrupado por CWE, duas promovidas por voto da comunidade porque o método automatizado não as enxerga — e o que isso implica sobre o que a lista consegue e não consegue capturar",
+    "Interpretar mudança de posição entre edições como mudança de prevalência relativa nos dados analisados naquele ciclo, e não como mudança de periculosidade absoluta para uma aplicação específica",
+    "Reconhecer o Top 10 como vocabulário do lado de quem constrói e corrige a aplicação, e reconhecer o que se perde ao tentar usá-lo para descrever comportamento de atacante em vez de fraqueza da aplicação",
+    "Reconhecer o ponto cego que o próprio método de construção da lista cria — limitado ao que a indústria consegue testar de forma automatizada, e sempre olhando para trás — e por que isso é diferente do problema genérico de checklist desatualizado",
+    "Mapear um achado real para a categoria correta do Top 10, e reconhecer quando ele não pertence a nenhuma das dez — sem tratar cobertura das dez categorias como prova de segurança"
+  ],
+  "pre_requisitos": [
+    "2.6",
+    "3.5",
+    "3.6"
+  ],
+  "teoria": [
+    {
+      "id": "3.7.t1",
+      "titulo": "Dado até onde o dado enxerga, voto onde ele não enxerga",
+      "texto": "A lista não nasce de opinião de comitê nem de medição pura — é um meio-termo declarado pelo próprio documento. Oito das dez categorias vêm de dado empírico: vulnerabilidade real, catalogada por CWE, extraída de milhões de aplicações testadas ao longo do ciclo de coleta. O documento admite o limite desse método antes de aplicá-lo: \"We only pick eight of the ten categories from the data because it's incomplete.\"\n\nAs outras duas — entre elas Falhas de Log e Alerta — não vêm de contagem nenhuma, e sim de voto de quem participou da pesquisa da comunidade, porque a coleta automatizada estruturalmente não enxerga esse tipo de falha: \"This category will always be underrepresented in the data.\" Um instrumento construído principalmente sobre o que dá para medir de forma automatizada precisa de um mecanismo deliberado para corrigir o que não dá — sem isso, a categoria não vira \"menos importante\", ela só some da lista sem ninguém perceber.",
+      "analogia": "Uma pesquisa de satisfação que só chega a quem abre o e-mail: quem nunca abre não aparece na média — e isso não quer dizer que está satisfeito, quer dizer que o método nunca perguntou.",
+      "erro_comum": "Tratar \"veio de dado real\" como sinônimo de \"objetivo e completo\". Dado real também carrega o viés de como foi coletado.",
+      "fonte": "OWASP Top 10:2025, Introduction (0x00), seção sobre metodologia (\"data-informed, but not blindly data-driven\") — conferido em 04/09/2026"
+    },
+    {
+      "id": "3.7.t2",
+      "titulo": "Subir na lista não é ficar mais perigoso",
+      "texto": "A02 Security Misconfiguration subiu da quinta posição, em 2021, para a segunda, em 2025. O motivo declarado é direto: \"Misconfigurations are more prevalent in the data for this cycle.\" É prevalência relativa nos dados desse ciclo de coleta, não uma medição de quanto dano essa categoria causa numa aplicação específica.\n\nO inverso também vale: A04 (Cryptographic Failures), A05 (Injection) e A06 (Insecure Design) caíram duas posições cada — não porque cripto, injeção ou design ficaram mais seguros, mas porque outras categorias, como Configuração Insegura e Cadeia de Suprimentos, \"leapfrog\" (ultrapassaram) na frente, ficando mais prevalentes nos mesmos dados. Posição é ranking relativo entre dez categorias na mesma amostra, não termômetro absoluto de cada uma isoladamente.",
+      "analogia": "Um produto que caiu do topo da lista de mais vendidos não passou a vender pior — os concorrentes venderam mais no mesmo período.",
+      "erro_comum": "Ler queda de posição como \"a indústria corrigiu essa categoria\" ou \"ela ficou objetivamente menos grave\" — e o oposto, ler subida como \"ficou mais perigosa\".",
+      "fonte": "OWASP Top 10:2025, seções A02, A04, A05 e A06 (\"falls two spots\", \"leapfrog\") — conferido em 04/09/2026"
+    },
+    {
+      "id": "3.7.t3",
+      "titulo": "De quem é esse vocabulário",
+      "texto": "O documento se define assim: \"a standard awareness document for developers and web application security.\" Cada categoria nomeia uma fraqueza NA aplicação — a causa que permitiu o ataque, não o ataque em si. É o vocabulário que deixa um relatório de pentest, um ticket de correção e uma revisão de código apontarem para a mesma causa raiz sem reexplicar o mecanismo toda vez.\n\nÉ também, por construção, um vocabulário que não descreve o comportamento de quem ataca — sequência de ações, ferramenta usada, infraestrutura, tempo de permanência. Duas invasões completamente diferentes na execução podem cair na mesma categoria do Top10, porque a categoria fala da porta que ficou aberta, não de quem entrou por ela. Usar a categoria para descrever o invasor, em vez da fraqueza, é forçar o vocabulário para um trabalho que ele não foi feito para fazer.",
+      "analogia": "O boletim médico diz qual órgão falhou, não quem causou o acidente nem que rota a ambulância seguiu até o hospital.",
+      "erro_comum": "Citar a categoria do Top10 como se ela descrevesse o comportamento ou a identidade de quem atacou, quando ela descreve a fraqueza que foi explorada.",
+      "fonte": "OWASP Top 10:2025, definição de abertura (\"standard awareness document for developers and web application security\") — conferido em 04/09/2026"
+    },
+    {
+      "id": "3.7.t4",
+      "titulo": "O ponto cego que o método cria",
+      "texto": "O documento reconhece o próprio limite: \"The results in the data are largely limited to what the industry can test for in an automated fashion.\" E completa: \"Everything we find is looking back in the past.\" O método mede o que já foi descoberto e virou CVE catalogado, nunca o que ainda não foi. Isso é diferente do problema genérico de \"checklist desatualizado\": não é que o documento envelheceu, é que o MODO como ele é construído sempre vai deixar de fora risco de negócio específico de uma aplicação, e ameaça nova demais para ter virado estatística.\n\nA prova mais direta disso está nas próprias categorias: duas delas só entraram na lista porque foram votadas, precisamente porque o método automatizado não as enxerga sozinho (t1). Se duas categorias inteiras precisaram de correção manual para não sumir, vale perguntar o mesmo sobre risco específico demais da sua aplicação para aparecer em qualquer levantamento agregado de milhões de aplicações de terceiros.",
+      "analogia": "Uma câmera de trânsito só registra a infração que ela foi programada para detectar — o comportamento perigoso e novo, fora do que ela mede, passa sem nenhum registro.",
+      "erro_comum": "Tratar \"cobrimos as dez categorias\" como prova de segurança — a lista não foi desenhada para enxergar o risco específico do seu negócio, só o padrão que apareceu em escala, no passado, testável de forma automatizada.",
+      "fonte": "OWASP Top 10:2025, Introduction (0x00) — conferido em 04/09/2026"
+    },
+    {
+      "id": "3.7.t5",
+      "titulo": "Mapear o achado, não decorar a tabela",
+      "texto": "Diante de um achado real, a pergunta não é \"qual número essa falha tem hoje\" — é \"que mecanismo essa falha usa, e qual categoria descreve esse mecanismo\". Um id previsível numa URL que devolve o dado de outra pessoa é a mesma falha que 2.6 e 3.6 já chamaram de referência direta insegura a objeto: a etiqueta OWASP para isso é reconhecimento, não descoberta.\n\nÀs vezes o achado não cabe em nenhuma das dez. Um erro de processo sem exploração técnica, ou uma falha inteiramente humana — como engenharia social por telefone — não têm categoria no Top10, porque o documento cataloga fraqueza de aplicação web, não todo tipo de incidente de segurança que existe. Forçar um encaixe onde não existe é o mesmo erro ao contrário: tratar a lista como se ela precisasse cobrir tudo.",
+      "analogia": "Nem todo problema de saúde tem código na tabela do plano de saúde — alguns exigem descrever o caso por fora, porque a tabela cataloga o que é comum o bastante para ter entrado nela.",
+      "erro_comum": "Forçar um achado real numa das dez categorias quando ele não é causado por fraqueza de aplicação — ou, ao contrário, achar que ele precisa caber em alguma, só porque a lista existe.",
+      "fonte": "Síntese aplicada aos achados de 2.6, 3.5 e 3.6 deste curso"
+    },
+    {
+      "id": "3.7.t6",
+      "titulo": "Instrumento, não prova",
+      "texto": "Os quatro primeiros pontos deste módulo se somam numa mesma ideia: o Top10 é um instrumento com método declarado (t1), métrica relativa e não absoluta (t2), audiência e propósito específicos (t3) e um ponto cego reconhecido pelo próprio documento (t4). Usá-lo bem é saber para que ele serve — nomear e comunicar fraqueza de aplicação em escala — sem confundir isso com uma medida completa do risco de uma aplicação específica.\n\nA habilidade que fecha o módulo (t5) é prática, não decoreba: dado um achado, reconhecer o mecanismo e mapear para a categoria certa quando ela existe, e reconhecer quando ela não existe. É a mesma disposição que abriu o módulo — tratar a lista como ferramenta com limite conhecido, não como autoridade que não erra nem esquece nada.",
+      "analogia": "Um mapa de metrô é excelente para saber qual linha pegar, e péssimo para saber a distância real entre duas estações — usar bem uma ferramenta é saber para qual pergunta ela serve.",
+      "erro_comum": "Tratar qualquer instrumento de segurança — este Top10 incluído — como autoridade que substitui julgamento, em vez de ferramenta com escopo e limite declarados.",
+      "fonte": "Síntese deste módulo"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "3.7.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "O que a frase do OWASP Top 10:2025 \"data-informed, but not blindly data-driven\" descreve sobre como a lista é feita?",
+      "alternativas": [
+        "A maior parte das categorias vem de dado real, e uma parte pequena vem de voto da comunidade",
+        "Toda categoria vem de voto de especialistas reunidos em comitê, sem nenhuma análise de dado real ou de CVE catalogado",
+        "Toda categoria vem só de contagem de CVE, sem qualquer intervenção humana na lista final",
+        "A lista muda de método a cada edição, ora só dado, ora só opinião, sem regra fixa"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "É o oposto do método: oito das dez categorias vêm de dado real analisado, não de opinião de comitê.",
+        "2": "Duas categorias não vêm de contagem nenhuma — foram promovidas por voto, justamente porque a contagem não as capturava.",
+        "3": "O método é consistente dentro da edição: as mesmas oito vêm de dado, as mesmas duas vêm de voto — não alterna ao acaso."
+      },
+      "dicas": [
+        "A frase tem duas metades, e cada uma descreve uma fração diferente das dez categorias.",
+        "Uma fração vem de contagem de CVE agrupada por CWE; a outra vem de pesquisa respondida por pessoas.",
+        "Uma alternativa correta precisa refletir as duas engrenagens do método ao mesmo tempo, não só uma delas isolada."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a lista fosse só dado, por que duas categorias precisariam de voto para entrar?",
+      "explicacao": "O documento declara isso de forma direta: \"We only pick eight of the ten categories from the data because it's incomplete. The other two categories are from the Top 10 community survey.\" É método híbrido, com cada metade cobrindo o que a outra não alcança.",
+      "fonte": "OWASP Top 10:2025, Introduction (0x00), seção sobre metodologia — conferido em 04/09/2026",
+      "tags": [
+        "metodologia",
+        "owasp-top10",
+        "dado-vs-voto"
+      ]
+    },
+    {
+      "id": "3.7.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que a categoria de Falhas de Log e Alerta (A09) precisou ser votada em vez de simplesmente medida pelo mesmo método das outras oito?",
+      "alternativas": [
+        "Porque a comunidade discorda de que log seja um risco de segurança relevante para qualquer aplicação testada",
+        "Porque log ausente ou alerta que nunca dispara não gera evidência que o método automatizado consegue contar",
+        "Porque não existe CWE catalogado para esse tipo de falha",
+        "Porque essa categoria é nova nesta edição e ainda não teve tempo de acumular dado"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "É o contrário: a comunidade votou justamente para garantir que a categoria entrasse, por considerá-la relevante.",
+        "2": "Existem CWEs para esse tipo de falha; o problema não é falta de catálogo, é falta de visibilidade nos dados coletados.",
+        "3": "A09 não é nova — mudou só o nome (de \"Monitoring\" para \"Alerting\"); ela mantém a posição 9 desde a edição anterior."
+      },
+      "dicas": [
+        "O documento usa a palavra \"underrepresented\" para essa categoria — sub-representada, não ausente de CWE.",
+        "Um teste automatizado precisa de quê para perceber que faltou um log ou um alerta?",
+        "Uma auditoria automatizada mede o que está presente e errado com mais facilidade do que mede o que está ausente."
+      ],
+      "pergunta_socratica": "Antes de conferir: um scanner automatizado consegue perceber a ausência de um alerta com a mesma facilidade que percebe uma injeção de SQL?",
+      "explicacao": "O documento explica: \"This category will always be underrepresented in the data, and was again voted into a position in the list from the community survey participants.\" Falta de log é ausência, e ausência é estruturalmente mais difícil de detectar em escala do que presença de uma falha ativa.",
+      "fonte": "OWASP Top 10:2025, seção A09 Security Logging and Alerting Failures — conferido em 04/09/2026",
+      "tags": [
+        "metodologia",
+        "a09",
+        "ponto-cego"
+      ]
+    },
+    {
+      "id": "3.7.q3",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Uma equipe de segurança decide auditar só as categorias que aparecem com contagem alta de CVE no relatório anual, e ignorar qualquer categoria \"promovida por voto\" por achar que ela é menos sólida. Qual é o problema desse critério?",
+      "alternativas": [
+        "Nenhum problema: categoria com mais CVE é sempre a mais urgente de auditar",
+        "O problema é só de ordem: as categorias votadas deveriam vir primeiro na fila de auditoria, e não por último na lista",
+        "Ele descarta as categorias que o método sabe que vai sub-representar por construção",
+        "Categoria promovida por voto não tem CWE mapeado, então de fato não há o que auditar nela"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Contagem de CVE reflete o que foi testado e catalogado, não necessariamente o que é mais urgente para uma aplicação específica.",
+        "1": "O problema não é a ordem da auditoria, é excluir por completo uma categoria pelo motivo errado.",
+        "3": "Categorias votadas têm CWE mapeado como as outras; o que muda é a origem da priorização na lista, não a existência de catálogo técnico."
+      },
+      "dicas": [
+        "A pergunta já respondeu por que a categoria foi votada: pense em quem fica de fora se esse motivo virar critério de exclusão.",
+        "O erro do time está em confundir origem do dado com gravidade da falha.",
+        "Duas categorias do Top10 existem exatamente porque contagem de CVE não bastava."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a categoria só existe porque o dado não a capturava sozinho, o que acontece quando alguém exige \"mostre o dado\" para justificar a auditoria?",
+      "explicacao": "Excluir categorias promovidas por voto reproduz, na prática interna do time, o mesmo ponto cego que a comunidade OWASP corrigiu deliberadamente ao votar. O critério pune a falha por ela ser difícil de contar, não por ela ser menos real.",
+      "fonte": "OWASP Top 10:2025, Introduction (0x00) — conferido em 04/09/2026",
+      "tags": [
+        "metodologia",
+        "priorizacao",
+        "ponto-cego"
+      ]
+    },
+    {
+      "id": "3.7.q4",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Ligue a origem da categoria ao tipo de evidência que a sustenta.",
+      "pares": [
+        [
+          "Categoria ranqueada pelas oito posições de dado",
+          "Contagem de CVE agrupada por CWE em milhões de aplicações testadas"
+        ],
+        [
+          "Categoria promovida por voto da comunidade",
+          "Resposta de participante da pesquisa, sem contagem automatizada por trás"
+        ],
+        [
+          "Posição de uma categoria entre edições",
+          "Prevalência relativa nos dados daquele ciclo específico de coleta"
+        ],
+        [
+          "Frase de abertura do documento",
+          "Declaração do público-alvo e propósito do Top10"
+        ]
+      ],
+      "dicas": [
+        "Duas das quatro linhas falam da mesma coisa — origem do dado — por ângulos diferentes.",
+        "Uma delas não é sobre como a categoria entrou, é sobre o que a posição dela significa.",
+        "A última linha não é metodologia de ranking — é escopo do documento."
+      ],
+      "pergunta_socratica": "Antes de conferir: das quatro linhas da esquerda, quantas descrevem a origem de uma categoria, e quantas descrevem outra coisa?",
+      "explicacao": "Origem por dado e origem por voto são dois mecanismos de entrada distintos; posição é comparação relativa dentro do mesmo ciclo; e a frase de abertura não é sobre ranking, é sobre para quem o documento existe — tema do eixo seguinte.",
+      "fonte": "OWASP Top 10:2025, Introduction (0x00) — conferido em 04/09/2026",
+      "tags": [
+        "metodologia",
+        "evidencia",
+        "owasp-top10"
+      ]
+    },
+    {
+      "id": "3.7.q5",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "trecho": "Trecho de um relatório interno: \"Todas as dez categorias do OWASP Top 10:2025 vêm de análise estatística de CVE catalogado. Como a categoria de controle de acesso quebrado tem o maior número de CVEs mapeados, ela é objetivamente a mais perigosa das dez para qualquer aplicação.\"",
+      "enunciado": "O trecho comete dois erros na mesma frase. Quais?",
+      "alternativas": [
+        "Erra só o nome da categoria — não é \"controle de acesso quebrado\", é \"quebra de controle de acesso\"",
+        "Erra só o tipo de contagem citada — CWE mapeada mede vulnerabilidade documentada, não frequência de exploração em incidente real",
+        "Erra só a métrica citada: o certo seria falar em CVE agrupado por CWE, e não em CWE mapeada por categoria",
+        "Afirma que todas as dez vêm de CVE (duas vêm de voto) e trata contagem alta como perigo objetivo para qualquer aplicação"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "É a mesma categoria com nomes equivalentes; não é esse o problema do trecho.",
+        "1": "É uma distinção real, mas não é o erro central: mesmo com o número certo, tratar contagem como prova de perigo objetivo para qualquer aplicação continua sendo o problema.",
+        "2": "A contagem de CWE mapeada por categoria é a métrica que o próprio documento usa; o problema do trecho não é o nome da métrica, é o salto de contagem alta para perigo objetivo em qualquer aplicação."
+      },
+      "dicas": [
+        "Primeiro erro é sobre a origem da lista inteira; segundo é sobre o que contagem alta significa para uma aplicação específica.",
+        "Duas categorias do Top10 não vêm de CVE nenhum — lembre de qual eixo tratou disso.",
+        "Contagem agregada de milhões de aplicações de terceiros não é o mesmo que risco medido na aplicação de quem lê o relatório."
+      ],
+      "pergunta_socratica": "Antes de conferir: contagem alta de CWE mapeado é sobre a categoria em geral, ou sobre o risco desta aplicação específica?",
+      "explicacao": "O trecho generaliza \"todas vêm de CVE\" quando duas vêm de voto, e converte contagem agregada de CWEs mapeados numa afirmação de perigo objetivo para qualquer aplicação — os mesmos dois erros que t1 e t4 deste módulo endereçam. A contagem em si não é o problema; é o salto de \"tem contagem alta\" para \"é objetivamente a mais perigosa em qualquer aplicação\".",
+      "fonte": "Síntese do eixo, aplicando t1 deste módulo",
+      "tags": [
+        "caca-erro",
+        "metodologia",
+        "generalizacao"
+      ]
+    },
+    {
+      "id": "3.7.q6",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "artefato": "Trecho literal do documento (OWASP Top 10:2025, Introduction 0x00):\n\n\"This installment of the Top Ten remains data-informed, but not blindly data-driven. We ranked eight categories based on the data contributed, and allowed two to be promoted or highlighted by responses from the community survey.\"",
+      "enunciado": "Segundo este trecho, o que caracteriza a diferença entre \"data-informed\" e \"blindly data-driven\"?",
+      "alternativas": [
+        "Data-informed usa o dado como base, mas aceita correção deliberada onde ele é incompleto",
+        "Data-informed não usa dado nenhum; blindly data-driven usa só dado, sem qualquer intervenção humana na lista",
+        "As duas expressões descrevem o mesmo método, só com nomes de marketing diferentes",
+        "Data-informed é o método usado até 2021; blindly data-driven é o método novo de 2025"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Data-informed usa dado como base de oito categorias — não é ausência de dado.",
+        "2": "O trecho distingue os dois termos de propósito: um é o método usado, o outro é o que o método evita ser.",
+        "3": "A distinção não é cronológica entre edições; é uma característica declarada do método usado em 2025."
+      },
+      "dicas": [
+        "\"Blindly\" é a palavra que carrega o aviso — seguir o dado sem questionar de onde ele vem.",
+        "O trecho já explica a correção logo na frase seguinte: duas categorias promovidas pela pesquisa.",
+        "Pense no que aconteceria com A09 se o método fosse cegamente guiado por dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o método fosse cego ao dado, o que teria acontecido com a categoria que \"sempre vai ser sub-representada nos dados\"?",
+      "explicacao": "Ela teria desaparecido da lista, porque nunca teria contagem suficiente. \"Data-informed, mas não cegamente data-driven\" é a diferença entre usar dado como insumo e usar dado como autoridade única — a segunda opção deixaria o instrumento cego ao que ele mesmo sabe que não mede bem.",
+      "fonte": "OWASP Top 10:2025, Introduction (0x00), citação literal — conferido em 04/09/2026",
+      "tags": [
+        "artefato",
+        "metodologia",
+        "citacao-literal"
+      ]
+    },
+    {
+      "id": "3.7.q7",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "A categoria de Configuração Insegura (A02) subiu da quinta para a segunda posição entre as edições de 2021 e 2025. O que essa subida, por si só, permite concluir?",
+      "alternativas": [
+        "Que configuração insegura passou a causar mais dano por incidente do que causava antes",
+        "Que configuração insegura ficou mais prevalente nos dados deste ciclo, em relação às outras categorias",
+        "Que as outras categorias do Top10 pioraram, empurrando A02 para cima mesmo sem ela mudar",
+        "Que a maioria das aplicações testadas no mundo inteiro tem esse problema configurado de forma incorreta hoje"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Posição no ranking mede prevalência relativa nos dados, não dano por incidente — são medidas diferentes.",
+        "2": "O documento atribui a subida de A02 à prevalência dela nos dados, não a uma queda das outras categorias.",
+        "3": "Prevalência nos dados analisados não é o mesmo que maioria das aplicações do mundo — a amostra é de quem contribuiu dado, não universal."
+      },
+      "dicas": [
+        "A fonte descreve a subida de A02 com um termo sobre frequência na amostra de dados, não sobre dano nem sobre outras categorias piorando.",
+        "As três alternativas descartadas falam de dano por incidente, de outras categorias piorando, ou do mundo inteiro — nenhuma é o que a fonte realmente diz.",
+        "A frase simples \"subiu de posição\" esconde mais de uma afirmação possível — repare quantas."
+      ],
+      "pergunta_socratica": "Antes de conferir: \"mais prevalente nos dados\" e \"causa mais dano\" são a mesma medida?",
+      "explicacao": "O documento é direto: \"Misconfigurations are more prevalent in the data for this cycle.\" É afirmação sobre frequência relativa na amostra analisada, não sobre severidade de impacto nem sobre o universo total de aplicações.",
+      "fonte": "OWASP Top 10:2025, seção A02 Security Misconfiguration — conferido em 04/09/2026",
+      "tags": [
+        "posicao",
+        "a02",
+        "prevalencia"
+      ]
+    },
+    {
+      "id": "3.7.q8",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Um gestor de segurança quer decidir em que ordem corrigir três achados do próprio ambiente, e usa só a posição de cada categoria no Top10:2025 como critério de prioridade. Qual é a limitação dessa decisão?",
+      "alternativas": [
+        "Não há limitação: posição no Top10 é sempre a melhor forma de priorizar qualquer achado",
+        "A limitação é só que o Top10 não é atualizado com frequência suficiente para servir de critério de priorização interna",
+        "A posição reflete prevalência numa amostra externa de terceiros, não a exposição e o impacto real deste ambiente",
+        "A limitação é que o Top10 só cobre aplicação web, então achados de rede não podem ser comparados"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "É o oposto do que o próprio documento reconhece sobre a natureza do dado que sustenta o ranking.",
+        "1": "A frequência de atualização não é o problema aqui; o problema é usar prevalência externa como substituto de risco local.",
+        "3": "O cenário não menciona achado de rede; o problema de fundo persistiria mesmo comparando três achados todos de aplicação web."
+      },
+      "dicas": [
+        "O critério de achado que 3.1 já ensinou — explorabilidade e impacto no ambiente — vale aqui também; posição numa lista externa não é esse critério.",
+        "Uma aplicação pode ter um achado de categoria \"baixa\" no Top10 que é trivialmente explorável nela, e um de categoria \"alta\" quase inacessível.",
+        "A posição é sobre a amostra de milhões de aplicações de terceiros — não sobre a aplicação específica do gestor."
+      ],
+      "pergunta_socratica": "Antes de conferir: os dados que definem a posição de uma categoria vieram do ambiente deste gestor, ou de outro lugar?",
+      "explicacao": "Prevalência relativa numa amostra agregada de terceiros não substitui a avaliação de exposição, explorabilidade e impacto que 3.1 já ensinou como critério de um achado real — a posição no Top10 é um dado a mais, não o critério.",
+      "fonte": "Síntese aplicada, referência cruzada a 3.1",
+      "tags": [
+        "cenario",
+        "priorizacao",
+        "risco-local"
+      ]
+    },
+    {
+      "id": "3.7.q9",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Ligue a categoria ao motivo declarado pela fonte para a mudança de posição dela entre 2021 e 2025.",
+      "pares": [
+        [
+          "A02 Security Misconfiguration (subiu para #2)",
+          "\"Misconfigurations are more prevalent in the data for this cycle\""
+        ],
+        [
+          "A05 Injection (caiu para #5)",
+          "Perde duas posições no ranking relativo, sem afirmação de ter ficado mais segura"
+        ],
+        [
+          "A06 Insecure Design (caiu para #6)",
+          "Outras categorias, mais prevalentes nos dados, ultrapassaram-na no mesmo ciclo"
+        ],
+        [
+          "A01 Broken Access Control (manteve #1)",
+          "Continua sendo a categoria mais prevalente nos dados nas duas edições"
+        ]
+      ],
+      "dicas": [
+        "Duas das quatro descrições falam de subir ou manter; duas falam de descer — mas nenhuma delas fala em \"ficou mais segura\".",
+        "\"Leapfrog\", na fonte original, descreve quem ultrapassou quem, não quem melhorou.",
+        "Prevalência nos dados é o fio que conecta as quatro linhas."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguma das quatro descrições afirma que uma categoria ficou objetivamente mais ou menos perigosa?",
+      "explicacao": "Nenhuma. Todas as quatro descrições falam de prevalência relativa nos dados daquele ciclo — subir, descer ou manter posição é sempre comparação entre categorias na mesma amostra, nunca medida absoluta de uma categoria isolada.",
+      "fonte": "OWASP Top 10:2025, seções por categoria — conferido em 04/09/2026",
+      "tags": [
+        "pareamento",
+        "posicao",
+        "ranking"
+      ]
+    },
+    {
+      "id": "3.7.q10",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Uma auditoria externa recomenda que a empresa pare de investir em defesa contra Cryptographic Failures porque a categoria \"caiu duas posições\" na edição mais recente. Qual é a resposta tecnicamente correta a essa recomendação?",
+      "alternativas": [
+        "A recomendação está correta: categoria que cai de posição deixou de ser prioridade de investimento em qualquer empresa",
+        "A recomendação está parcialmente certa: dá para reduzir o investimento pela metade, proporcional à queda de duas posições no ranking",
+        "A recomendação só valeria se a categoria tivesse caído mais de cinco posições de uma vez",
+        "Queda de posição não é evidência de queda de risco absoluto para a empresa; a decisão deveria olhar o próprio ambiente"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Assume que posição relativa numa amostra externa determina prioridade de investimento em qualquer empresa, contrariando o que a própria fonte diz sobre a natureza da métrica.",
+        "1": "Não existe conversão proporcional entre posições perdidas e percentual de investimento — a métrica de posição não foi desenhada para isso.",
+        "2": "Qualquer magnitude de queda de posição continua sendo, por natureza, prevalência relativa — o problema não é o tamanho da queda, é usar a métrica errada para a decisão."
+      },
+      "dicas": [
+        "A resposta certa não é \"discordar totalmente do dado\" nem \"seguir o dado sem questionar\" — é apontar para que a métrica de posição serve.",
+        "Falta à auditoria um dado específico para justificar a recomendação — repare qual.",
+        "A categoria continua existindo, com CWEs mapeados e CVEs reais — só mudou o lugar dela num ranking relativo."
+      ],
+      "pergunta_socratica": "Antes de conferir: a queda de posição diz alguma coisa sobre quantas vulnerabilidades de criptografia existem no ambiente desta empresa?",
+      "explicacao": "Posição é comparação relativa dentro da amostra do ciclo, não medida absoluta de risco de uma empresa específica. A resposta correta direciona a decisão para exposição e explorabilidade reais, não para o ranking — mesmo raciocínio de q8, aplicado a uma decisão de investimento em vez de ordem de correção.",
+      "fonte": "Síntese aplicada — OWASP Top 10:2025, seções por categoria",
+      "tags": [
+        "ataque-defesa",
+        "posicao",
+        "investimento"
+      ]
+    },
+    {
+      "id": "3.7.q11",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "A01 (quebra de controle de acesso) manteve a primeira posição nas edições de 2021 e 2025. O que essa estabilidade indica, seguindo a mesma leitura deste módulo?",
+      "alternativas": [
+        "Que ela seguiu sendo a categoria mais prevalente nos dados, não que é isoladamente \"a pior falha que existe\"",
+        "Que nenhuma correção de controle de acesso funcionou em nenhuma aplicação testada desde 2021",
+        "Que essa categoria é imune a mudanças de posição, ao contrário de todas as outras",
+        "Que o método de coleta de dado não mudou entre as duas edições, e por isso a posição do ranking também não mudou nem um pouco"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Prevalência alta na amostra não implica que nenhuma correção funcionou — apenas que a categoria seguiu sendo a mais comum entre os achados coletados.",
+        "2": "Nenhuma categoria é imune por definição; A01 manteve o topo porque seguiu prevalente, o que poderia mudar em edições futuras.",
+        "3": "O método mudou — ficou híbrido, como t1 já cobriu; estabilidade de posição é sobre o resultado da medição, não sobre o método ter ficado igual."
+      },
+      "dicas": [
+        "A mesma leitura que vale para posição subindo ou descendo vale para posição estável.",
+        "Estabilidade é só mais um caso de prevalência relativa — não é uma categoria especial dentro da lista.",
+        "A régua que explica subida ou queda de posição funciona igual quando a categoria simplesmente se mantém — não precisa de explicação especial para quem fica parado."
+      ],
+      "pergunta_socratica": "Antes de conferir: a régua que explica subida e descida de posição também vale para quem ficou parado no topo?",
+      "explicacao": "Sim — estabilidade de posição é o mesmo fenômeno, prevalência relativa, sem mudança. A01 seguiu sendo a categoria com mais achados na amostra, o que é consistente com t2 sem precisar de uma explicação especial para quem não se move.",
+      "fonte": "OWASP Top 10:2021 e 2025, categoria A01 — conferido em 04/09/2026",
+      "tags": [
+        "posicao",
+        "a01",
+        "estabilidade"
+      ]
+    },
+    {
+      "id": "3.7.q12",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "A abertura do OWASP Top 10:2025 se define como \"a standard awareness document for developers and web application security\". O que essa frase diz sobre o tipo de vocabulário que a lista oferece?",
+      "alternativas": [
+        "É vocabulário voltado principalmente para quem investiga um incidente de segurança depois que ele já aconteceu por completo",
+        "É vocabulário sobre fraqueza na aplicação, para quem constrói e corrige software — não sobre comportamento de quem ataca",
+        "É vocabulário neutro, que serve igualmente bem para descrever aplicação, rede e comportamento humano",
+        "É vocabulário técnico interno da OWASP, sem uso pretendido fora da própria organização"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O documento se define para desenvolvedores e segurança de aplicação, não para investigação pós-incidente, que tem outro tipo de vocabulário, focado em o que o atacante fez.",
+        "2": "A frase nomeia um público específico — dev e appsec — não um vocabulário genérico para qualquer domínio de segurança.",
+        "3": "\"Awareness document\" significa o oposto: feito para ser usado, lido e citado por quem constrói aplicação."
+      },
+      "dicas": [
+        "A frase nomeia dois públicos específicos — nenhum deles é \"quem investiga o ataque depois\".",
+        "\"Awareness document\" é pista sobre o propósito do texto — pense em quem ele foi escrito para ajudar a corrigir código.",
+        "Pense em qual pergunta a lista responde: \"o que quebrou na aplicação\" ou \"quem fez o quê, em que ordem\"."
+      ],
+      "pergunta_socratica": "Antes de conferir: a frase de abertura nomeia o público de quem constrói a aplicação, ou de quem a ataca?",
+      "explicacao": "O documento nomeia devs e segurança de aplicação como público — o vocabulário nasce para nomear a causa raiz do lado de quem escreve e corrige o código, não para descrever a ação de quem ataca.",
+      "fonte": "OWASP Top 10:2025, definição de abertura — conferido em 04/09/2026",
+      "tags": [
+        "vocabulario",
+        "publico-alvo",
+        "proposito"
+      ]
+    },
+    {
+      "id": "3.7.q13",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um pentester escreve um ticket de correção citando \"A05:2025 Injection\" no título, e descreve o payload SQL usado no corpo. O time de desenvolvimento lê o ticket e sabe imediatamente que camada revisar. Por que esse uso da categoria funciona bem?",
+      "alternativas": [
+        "Porque toda categoria do Top10 já vem acompanhada da linha exata de código que precisa ser trocada pelo dev",
+        "Porque citar a categoria dispensa a necessidade de descrever o payload no corpo do ticket",
+        "Porque a categoria nomeia a causa raiz na aplicação, dando ao dev um ponto de partida sem reexplicar tudo",
+        "Porque o número da categoria informa automaticamente a prioridade de correção dentro do backlog"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "O Top10 nomeia a categoria de falha, não a correção linha a linha — isso ainda é trabalho do time de dev.",
+        "1": "O ticket descrito ainda inclui o payload; a categoria complementa a descrição, não a substitui.",
+        "3": "Nada no Top10 define prioridade de backlog — isso é decisão da equipe, informada por exposição e impacto, tema de q8."
+      },
+      "dicas": [
+        "A força do vocabulário está em nomear a causa, não em substituir o resto do ticket.",
+        "Imagine cada pentester usando um nome diferente para a mesma causa raiz — o que se perderia com isso.",
+        "A categoria dá contexto rápido; o payload no corpo continua sendo a evidência concreta."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que o time de dev já sabe assim que lê \"A05 Injection\", antes de abrir o corpo do ticket?",
+      "explicacao": "Citar a categoria dá ao leitor uma âncora conceitual imediata — que classe de causa raiz está em jogo — sem substituir a evidência específica. É exatamente o papel de vocabulário compartilhado entre quem encontra e quem corrige.",
+      "fonte": "Síntese aplicada, referência cruzada a 3.5",
+      "tags": [
+        "cenario",
+        "vocabulario",
+        "comunicacao"
+      ]
+    },
+    {
+      "id": "3.7.q14",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um analista tenta descrever, usando só categorias do OWASP Top 10:2025, a sequência completa de um ataque real: como o grupo invasor obteve o primeiro acesso, que ferramenta usou para se mover dentro da rede e por quanto tempo permaneceu sem ser detectado. O que ele descobre no meio do trabalho?",
+      "alternativas": [
+        "Que o Top10 é insuficiente porque só tem dez categorias, e um ataque real sempre envolve mais etapas do que isso",
+        "Que o problema é a edição: uma versão mais recente do Top10 teria esse vocabulário",
+        "Que basta repetir a mesma categoria várias vezes, uma para cada etapa da sequência",
+        "Que o Top10 nomeia a fraqueza explorada, mas não descreve sequência, ferramenta e tempo de permanência"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O número de etapas não é o problema — mesmo um ataque de duas etapas ainda não teria vocabulário de sequência, ferramenta e tempo no Top10.",
+        "1": "Nenhuma edição futura resolveria isso: por definição, o documento cataloga fraqueza de aplicação, não comportamento de invasor — não é lacuna de atualização.",
+        "2": "Repetir a mesma categoria várias vezes não descreve sequência, ferramenta nem tempo de permanência — só reafirma qual fraqueza foi explorada."
+      },
+      "dicas": [
+        "Volte a t3: a categoria nomeia a porta que ficou aberta, não quem entrou por ela nem o que fez depois.",
+        "Pense em duas invasões diferentes que exploram a mesma categoria do Top10 de formas completamente diferentes — o que o Top10 não distingue entre elas?",
+        "O que falta ao analista não é mais categorias — é um vocabulário de outro tipo, sobre comportamento, não sobre causa raiz."
+      ],
+      "pergunta_socratica": "Antes de conferir: duas invasões diferentes, ambas explorando A01, podem ter sequência, ferramenta e tempo de permanência completamente diferentes?",
+      "explicacao": "Sim, e é exatamente essa a lacuna: o Top10 é vocabulário de causa raiz na aplicação, não de comportamento do invasor. Descrever uma campanha de ataque completa exige um vocabulário de outra natureza — o Top10 não foi construído para esse trabalho.",
+      "fonte": "Síntese aplicada, a partir de t3 deste módulo",
+      "tags": [
+        "cenario",
+        "vocabulario",
+        "limite"
+      ]
+    },
+    {
+      "id": "3.7.q15",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "trecho": "Trecho de um resumo executivo pós-incidente: \"O grupo invasor foi classificado como A01:2025 Broken Access Control, com base no tempo de permanência de 40 dias na rede e no uso de uma ferramenta de movimento lateral personalizada.\"",
+      "enunciado": "Qual é o erro de uso da categoria neste trecho?",
+      "alternativas": [
+        "Usa uma categoria do Top10 para classificar o grupo invasor e seu comportamento, algo que ela não foi feita para descrever",
+        "O erro é só o número da edição: deveria ser 2021, já que o incidente é histórico",
+        "O erro é técnico: A01 não existe como categoria válida, o nome certo seria diferente",
+        "Não há erro: tempo de permanência e ferramenta usada são exatamente o tipo de dado que define a categoria correta de um invasor"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A edição citada não é o problema central do trecho — mesmo citando a edição certa, o uso da categoria continuaria incorreto.",
+        "2": "A01 Broken Access Control é categoria real e válida do Top10:2025 — o problema não é o nome, é o uso.",
+        "3": "É o inverso do que o módulo ensina: tempo de permanência e ferramenta descrevem o invasor, não a fraqueza da aplicação, que é o que a categoria nomeia."
+      },
+      "dicas": [
+        "A01 nomeia uma fraqueza da aplicação, não a identidade de quem a encontrou — repare qual das duas coisas o trecho tenta descrever.",
+        "O trecho usa a categoria para rotular quem fez o ataque, não o que quebrou na aplicação — já é pista do problema, antes de olhar os números.",
+        "Tempo de permanência e ferramenta usada pertencem a outro tipo de vocabulário — o de comportamento de ataque, não o de causa raiz de aplicação."
+      ],
+      "pergunta_socratica": "Antes de conferir: \"A01\" descreve o invasor, ou descreve a porta que ele encontrou aberta?",
+      "explicacao": "O trecho usa a categoria fora do papel para o qual ela existe, classificando comportamento e infraestrutura do invasor com um vocabulário desenhado para nomear fraqueza de aplicação. É o mesmo erro de nível descrito em t3 e q14, agora como defeito num relatório real.",
+      "fonte": "Síntese aplicada, a partir de t3 deste módulo",
+      "tags": [
+        "caca-erro",
+        "vocabulario",
+        "nivel-errado"
+      ]
+    },
+    {
+      "id": "3.7.q16",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Um analista de resposta a incidente precisa comunicar, ao mesmo tempo, qual fraqueza da aplicação foi explorada e como o invasor se comportou depois de entrar. Qual abordagem usa cada vocabulário no papel certo?",
+      "alternativas": [
+        "Forçar uma única categoria do Top10 a cobrir os dois aspectos, escolhendo a que parecer mais ampla",
+        "Citar a categoria para nomear a fraqueza, e descrever à parte a sequência do invasor, sem forçar encaixe nenhum",
+        "Usar só o vocabulário de comportamento do invasor, e descartar a categoria do Top10 por ser insuficiente",
+        "Esperar a próxima edição do Top10 incluir uma categoria específica para comportamento de invasor"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Nenhuma categoria isolada cobre os dois aspectos — forçar isso obscurece um deles.",
+        "2": "Descartar o Top10 perde a comunicação de causa raiz que ele resolve bem, mesmo sem cobrir o comportamento do invasor.",
+        "3": "Não é lacuna de edição — é distinção de propósito entre dois vocabulários diferentes, que nenhuma atualização apaga."
+      },
+      "dicas": [
+        "A resposta certa não escolhe um vocabulário só — usa cada um onde ele funciona.",
+        "Os dois vocabulários são complementares, não concorrentes — nenhum substitui o outro.",
+        "O Top10 responde \"que fraqueza\"; falta um vocabulário de outro tipo para responder \"que comportamento\"."
+      ],
+      "pergunta_socratica": "Antes de conferir: os dois aspectos que o analista precisa comunicar pedem o mesmo tipo de vocabulário, ou tipos diferentes?",
+      "explicacao": "Usar cada vocabulário no papel certo — Top10 para causa raiz de aplicação, outro vocabulário para comportamento — evita tanto forçar uma categoria a fazer um trabalho que não é dela quanto descartar uma ferramenta que ainda é útil para metade do problema.",
+      "fonte": "Síntese aplicada deste eixo",
+      "tags": [
+        "ataque-defesa",
+        "vocabulario",
+        "incidente"
+      ]
+    },
+    {
+      "id": "3.7.q17",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ligue a situação de comunicação ao vocabulário mais adequado para ela.",
+      "pares": [
+        [
+          "Ticket de correção para o time de dev sobre uma falha específica na aplicação",
+          "Categoria do OWASP Top10:2025, que nomeia a causa raiz desta falha específica"
+        ],
+        [
+          "Achado de pentest com evidência, reprodução e impacto (3.1)",
+          "Estrutura de relatório de teste de intrusão, não uma categoria do Top10 sozinha"
+        ],
+        [
+          "Descrição de como um grupo invasor se moveu depois de entrar",
+          "Vocabulário de comportamento de ataque, fora do escopo do Top10"
+        ],
+        [
+          "Conversa entre segurança e desenvolvimento sobre por que um tipo de falha se repete no código",
+          "Categoria do Top10 como rótulo de um padrão que se repete entre falhas diferentes"
+        ]
+      ],
+      "dicas": [
+        "Três das quatro situações são sobre a aplicação; uma é sobre o invasor.",
+        "3.1 já ensinou a estrutura de um achado — pense no que ela cobre que uma categoria sozinha não cobre.",
+        "O vocabulário de comportamento de ataque aparece em só uma das quatro descrições da esquerda."
+      ],
+      "pergunta_socratica": "Antes de conferir: das quatro situações, qual delas não é sobre uma fraqueza de aplicação?",
+      "explicacao": "Três situações são sobre comunicar causa raiz de aplicação — papel natural do Top10 — e uma é sobre comportamento de invasor, papel que o Top10 explicitamente não cobre, como t3 e q14 já estabeleceram.",
+      "fonte": "Síntese aplicada deste eixo, referência cruzada a 3.1",
+      "tags": [
+        "pareamento",
+        "vocabulario",
+        "escopo"
+      ]
+    },
+    {
+      "id": "3.7.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O documento afirma: \"The results in the data are largely limited to what the industry can test for in an automated fashion.\" O que essa frase implica sobre o tipo de risco que tem mais chance de aparecer no Top10?",
+      "alternativas": [
+        "Qualquer risco, desde que tenha acontecido pelo menos uma vez em uma aplicação testada por alguém, em algum lugar",
+        "Só risco que já causou um incidente público e divulgado na imprensa",
+        "Risco já descoberto, catalogado e testável em escala — não qualquer risco que exista",
+        "Só risco presente em aplicações de grande porte, testadas por empresas com processo de segurança maduro"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Ter acontecido em uma aplicação não é suficiente — precisa também ser detectável por método automatizado em escala para entrar na amostra que constrói a lista.",
+        "1": "A frase fala de testabilidade automatizada, não de divulgação pública — são critérios diferentes.",
+        "3": "A amostra vem de milhões de aplicações de fontes diversas, não só de grandes empresas maduras; o filtro é sobre o método de teste, não sobre o tamanho da organização."
+      },
+      "dicas": [
+        "Repare na expressão em inglês sobre COMO a indústria consegue examinar uma vulnerabilidade, não em quantas vezes ela já apareceu.",
+        "Considere o oposto: que tipo de falha um scanner automatizado tem dificuldade de encontrar sozinho.",
+        "O filtro não é sobre quem testou, é sobre como o teste foi feito."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma falha de lógica de negócio muito específica de uma aplicação, que nenhuma ferramenta genérica sabe procurar, tem a mesma chance de entrar na amostra que uma injeção de SQL clássica?",
+      "explicacao": "O método é limitado ao que ferramenta automatizada detecta em escala — falha específica demais, sutil demais ou nova demais para virar rotina de scanner tem menos chance de aparecer na amostra que constrói a lista, mesmo sendo real e grave.",
+      "fonte": "OWASP Top 10:2025, Introduction (0x00) — conferido em 04/09/2026",
+      "tags": [
+        "metodologia",
+        "ponto-cego",
+        "limite"
+      ]
+    },
+    {
+      "id": "3.7.q19",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O documento também diz: \"Everything we find is looking back in the past.\" Por que essa frase descreve um limite estrutural, e não um defeito que uma próxima edição resolveria sozinha?",
+      "alternativas": [
+        "Porque a OWASP atualiza o documento raramente, e uma edição mais frequente resolveria o atraso",
+        "Porque é questão de tradução: a frase em inglês tem esse sentido, mas a prática recente já olha para o futuro",
+        "Porque essa frase se aplica só à categoria A10, criada nesta edição",
+        "Porque o método depende de vulnerabilidade catalogada; risco novo fica de fora até virar estatística"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Atualizar com mais frequência reduziria o atraso, mas não elimina o limite: o método sempre mede o que já foi descoberto, nunca o que ainda não foi.",
+        "1": "Não é questão de tradução; a limitação é sobre a natureza do dado usado, presente em qualquer edição do documento.",
+        "2": "A frase é geral, sobre o método inteiro — não é restrita a uma categoria específica."
+      },
+      "dicas": [
+        "A frase fala do método, não da frequência de publicação.",
+        "Pense em quanto tempo leva entre uma técnica de ataque nova aparecer e ela virar CVE catalogado o suficiente para entrar numa amostra agregada.",
+        "Editar com mais frequência ajudaria a reduzir o atraso, mas não apaga o fato de que o dado sempre vem de descoberta passada."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe alguma forma de medir, hoje, uma técnica de ataque que ainda ninguém documentou?",
+      "explicacao": "Não — por definição, o que ainda não foi descoberto não pode ter sido contado. \"Olhando para o passado\" é um limite inerente a qualquer método baseado em vulnerabilidade catalogada, não um problema de frequência de edição que uma atualização mais rápida resolveria sozinha.",
+      "fonte": "OWASP Top 10:2025, Introduction (0x00) — conferido em 04/09/2026",
+      "tags": [
+        "metodologia",
+        "ponto-cego",
+        "limite-estrutural"
+      ]
+    },
+    {
+      "id": "3.7.q20",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Uma aplicação de folha de pagamento tem uma regra de negócio exclusiva do setor: um campo de \"aprovação em duas etapas\" pode ser contornado porque a segunda etapa confia num identificador que o próprio requisitante controla. Nenhum scanner genérico de mercado teria essa regra de negócio no catálogo de testes dele. O que esse caso ilustra sobre o Top10?",
+      "alternativas": [
+        "Que risco de negócio específico de uma aplicação tem menos chance de estar na amostra agregada que constrói a lista",
+        "Que o caso não é um risco de segurança de verdade, já que não está catalogado em nenhuma categoria",
+        "Que a aplicação deveria esperar a próxima edição do Top10 nomear esse tipo específico de falha antes de corrigir",
+        "Que esse tipo de falha sempre se encaixa automaticamente na categoria mais próxima, mesmo sem aparecer em nenhum catálogo"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não estar catalogado numa categoria específica não significa que o risco não é real — é exatamente o ponto cego que este eixo descreve.",
+        "2": "Esperar uma edição futura ignora que o risco já existe e é explorável hoje, independente de qualquer catálogo.",
+        "3": "Nem todo risco se encaixa numa categoria só porque parece próxima — esse é o erro que t5 e o eixo 5 deste módulo tratam de evitar."
+      },
+      "dicas": [
+        "t4 já explicou o limite: o método só enxerga o que ferramenta automatizada consegue testar em escala.",
+        "Uma regra de negócio única de uma aplicação nunca vai aparecer em contagem agregada de milhões de aplicações diferentes.",
+        "O caso pode até se parecer com A06, mas o ponto da questão é sobre representação na amostra, não sobre qual categoria caberia melhor."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas outras aplicações no mundo têm essa mesma regra de aprovação, com esse mesmo identificador controlado pelo requisitante?",
+      "explicacao": "Risco de negócio específico de uma única aplicação tem baixíssima chance de estar representado numa amostra agregada de milhões de aplicações diferentes — o Top10 mede padrão que se repete em escala, não a particularidade de cada negócio.",
+      "fonte": "Síntese aplicada de t4 deste módulo",
+      "tags": [
+        "cenario",
+        "ponto-cego",
+        "risco-especifico"
+      ]
+    },
+    {
+      "id": "3.7.q21",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "artefato": "Trecho literal do documento (OWASP Top 10:2025, Introduction 0x00):\n\n\"We only pick eight of the ten categories from the data because it's incomplete. The other two categories are from the Top 10 community survey.\"",
+      "enunciado": "Qual é a implicação prática deste trecho para quem usa o Top10 como base de uma auditoria de risco?",
+      "alternativas": [
+        "Que a auditoria deve ignorar por completo as duas categorias promovidas por voto, por considerá-las menos confiáveis que as outras oito",
+        "Que a auditoria não pode tratar ausência de categoria como ausência de risco",
+        "Que o documento está incompleto e não deveria ser usado até a próxima edição corrigir isso",
+        "Que a incompletude citada se refere ao número de categorias, que deveria ser doze em vez de dez"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "É o oposto: as duas categorias promovidas por voto existem para compensar uma lacuna do dado, não para ser tratadas como menos confiáveis.",
+        "2": "A incompletude é reconhecida e parcialmente corrigida pelo próprio método, o voto; não é motivo para descartar o documento inteiro.",
+        "3": "O trecho fala da incompletude do dado como base das oito categorias, não do número de categorias da lista."
+      },
+      "dicas": [
+        "\"Incompleto\" se refere ao dado, não ao tamanho da lista.",
+        "Se o próprio dado que sustenta oito categorias é incompleto, o que isso sugere sobre risco que fica fora das dez inteiras?",
+        "A resposta certa generaliza a lição do trecho para além das duas categorias votadas."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o dado que sustenta oito categorias já é incompleto, o que isso sugere sobre risco que nem chega a estar entre as dez?",
+      "explicacao": "Se a própria base de dado usada para as oito categorias \"baseadas em dado\" é reconhecida como incompleta, uma auditoria que trata ausência-no-Top10 como ausência-de-risco está confiando mais na lista do que a própria OWASP confia nela.",
+      "fonte": "OWASP Top 10:2025, Introduction (0x00), citação literal — conferido em 04/09/2026",
+      "tags": [
+        "artefato",
+        "ponto-cego",
+        "auditoria"
+      ]
+    },
+    {
+      "id": "3.7.q22",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um gestor apresenta ao conselho: \"Nossa varredura não encontrou nenhum achado nas dez categorias do OWASP Top10:2025 — a aplicação está seguramente coberta.\" Qual pergunta de contraponto ataca a raiz dessa afirmação, e não só o resultado da varredura?",
+      "alternativas": [
+        "A varredura rodou na versão mais recente da aplicação?",
+        "Quantas pessoas participaram da varredura, quanto tempo ela levou, e qual ferramenta comercial foi usada no processo?",
+        "O que o método de varredura consegue testar de forma automatizada, e que risco ele não alcança?",
+        "A empresa pagou por uma licença completa da ferramenta de varredura?"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "É pergunta operacional legítima, mas não ataca a raiz: mesmo rodando na versão certa, a limitação de método de t4 continua existindo.",
+        "1": "Tempo e equipe são proxies de esforço, não de cobertura conceitual — não respondem ao que fica estruturalmente fora do alcance do método.",
+        "3": "Licença completa amplia o que a ferramenta testa, mas não resolve o limite de fundo: ferramenta automatizada continua limitada ao que sabe testar em escala."
+      },
+      "dicas": [
+        "A pergunta certa ataca o método da varredura, não a execução dela.",
+        "\"Nenhum achado nas dez categorias\" é exatamente o tipo de frase que t4 ensina a desconfiar.",
+        "As três alternativas erradas melhorariam a varredura, mas nenhuma delas questiona o limite estrutural do método."
+      ],
+      "pergunta_socratica": "Antes de conferir: \"nenhum achado\" significa \"não existe risco\", ou pode significar \"o método usado não alcança esse tipo de risco\"?",
+      "explicacao": "A pergunta que ataca a raiz não questiona a execução da varredura, questiona o alcance do método — exatamente o ponto cego que t4 nomeia: risco de negócio específico, falha de processo e ameaça recém-descoberta não aparecem numa varredura automatizada, por mais bem executada que seja.",
+      "fonte": "Síntese aplicada de t4 deste módulo",
+      "tags": [
+        "ataque-defesa",
+        "ponto-cego",
+        "varredura"
+      ]
+    },
+    {
+      "id": "3.7.q23",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "trecho": "Trecho de uma política interna: \"Toda funcionalidade nova passa por varredura automatizada contra o OWASP Top10:2025 antes do deploy. Funcionalidade aprovada nessa varredura está liberada para produção sem revisão adicional.\"",
+      "enunciado": "Qual frase da política ignora o limite estrutural do método que t4 descreve?",
+      "alternativas": [
+        "\"Toda funcionalidade nova passa por varredura automatizada contra o Top10\" — o erro é rodar a varredura sempre, em vez de só sob suspeita pontual",
+        "\"contra o OWASP Top10:2025\" — o erro é citar a edição específica, deveria ser genérico",
+        "\"antes do deploy\" — o erro é o momento; deveria rodar depois do deploy, em produção",
+        "\"sem revisão adicional\" trata aprovação automatizada como suficiente, quando o método reconhece que não alcança tudo"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Rodar a varredura sempre, e não só sob suspeita, é boa prática — não é o problema da política.",
+        "1": "Citar a edição específica é boa prática de rastreabilidade, não um erro.",
+        "2": "Rodar antes do deploy é preventivo e correto; rodar só depois, em produção, seria mais arriscado, não menos."
+      },
+      "dicas": [
+        "O problema não está em quando ou contra o que a varredura roda — está no que acontece depois dela passar.",
+        "Volte a q22: \"nenhum achado\" não é o mesmo que \"sem risco\".",
+        "A frase problemática trata o resultado da varredura como decisão final, sem espaço para revisão humana."
+      ],
+      "pergunta_socratica": "Antes de conferir: a varredura automatizada, aprovando algo, garante que não existe risco de negócio específico daquela funcionalidade?",
+      "explicacao": "A política erra ao dispensar revisão adicional depois de uma aprovação automatizada — exatamente o tipo de risco que t4 descreve, específico de negócio, de processo, ou novo demais, fica fora do alcance do método, mesmo bem executado.",
+      "fonte": "Síntese aplicada de t4 deste módulo",
+      "tags": [
+        "caca-erro",
+        "ponto-cego",
+        "revisao"
+      ]
+    },
+    {
+      "id": "3.7.q24",
+      "tipo": "cenario",
+      "dificuldade": 1,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Um endpoint de pedidos aceita um id numérico na URL; ao trocar 1234 por 1235, o servidor devolve o pedido de outra pessoa sem checar o dono. A qual categoria do OWASP Top10:2025 esse achado pertence?",
+      "alternativas": [
+        "A01 Broken Access Control — referência direta insegura a objeto, mecanismo que 2.6 e 3.6 já ensinaram",
+        "A05 Injection — o parâmetro na URL é um dado de entrada não confiável",
+        "A04 Cryptographic Failures — o id deveria estar cifrado para não ser adivinhável",
+        "A09 Security Logging and Alerting Failures — falta um alerta configurado para avisar sobre a troca do id na URL"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O parâmetro é um número válido, não uma instrução; não há confusão entre dado e instrução, o mecanismo do 3.5.",
+        "2": "Cifrar o id não resolve o problema: a aplicação decifraria para responder, e o defeito é a ausência de checagem de dono, não a legibilidade do identificador.",
+        "3": "Falta de alerta é um problema separado, sobre detecção — o achado em si é sobre autorização ausente, não sobre visibilidade do evento."
+      },
+      "dicas": [
+        "Esse mecanismo já apareceu em 2.6 e em 3.6 — não é conteúdo novo, é reconhecimento.",
+        "Repare se o servidor, antes de responder, comparou o pedido contra quem está fazendo a requisição.",
+        "Três das quatro alternativas descrevem categorias sem relação com o mecanismo descrito."
+      ],
+      "pergunta_socratica": "Antes de conferir: você já viu esse exato mecanismo em outro módulo — em qual?",
+      "explicacao": "É IDOR, mecanismo de A01 já ensinado em 2.6 e 3.6. A categoria aqui é reconhecimento — nomear com a etiqueta certa algo que você já sabe identificar, não aprender o mecanismo pela primeira vez.",
+      "fonte": "OWASP Top 10:2025, A01 Broken Access Control — referência cruzada a 2.6 e 3.6",
+      "tags": [
+        "mapeamento",
+        "a01",
+        "reconhecimento"
+      ]
+    },
+    {
+      "id": "3.7.q25",
+      "tipo": "cenario",
+      "dificuldade": 1,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Um sistema cifra dados sensíveis com uma cifra de bloco, mas reutiliza o mesmo IV em toda cifragem. A qual categoria do OWASP Top10:2025 esse achado pertence?",
+      "alternativas": [
+        "A01 Broken Access Control — o problema é de quem tem acesso à chave usada para cifrar os dados sensíveis",
+        "A04 Cryptographic Failures — reuso de IV, falha de uso que 2.3 já ensinou como causa de quebra",
+        "A06 Insecure Design — a escolha da cifra de bloco em si já é insegura por padrão",
+        "A02 Security Misconfiguration — bastaria trocar um único parâmetro de configuração no servidor de produção para corrigir isso"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O achado é sobre reuso de IV, defeito de uso do algoritmo — não há menção a quem acessa a chave.",
+        "2": "A cifra de bloco em si não é o problema; o problema é o modo como ela é usada, o mesmo ponto que 2.3 já separou entre algoritmo e uso.",
+        "3": "Reuso de IV é decisão de código, não item de configuração de servidor; corrigir exige mudar como o IV é gerado, não um parâmetro de config."
+      },
+      "dicas": [
+        "Volte a 2.3: a maioria das falhas de cripto vem do uso, não do algoritmo escolhido.",
+        "Esse mecanismo já foi ensinado no bloco de criptografia — aqui é reconhecimento, não novidade.",
+        "Existe uma categoria que nomeia falha de criptografia como classe própria — qual é ela?"
+      ],
+      "pergunta_socratica": "Antes de conferir: essa falha é sobre o algoritmo escolhido, ou sobre como ele foi usado?",
+      "explicacao": "Reuso de IV é falha de uso, mecanismo central de 2.3, e mapeia diretamente para A04 Cryptographic Failures — reconhecimento de algo já ensinado, agora com a etiqueta do Top10.",
+      "fonte": "OWASP Top 10:2025, A04 Cryptographic Failures — referência cruzada a 2.3",
+      "tags": [
+        "mapeamento",
+        "a04",
+        "reconhecimento"
+      ]
+    },
+    {
+      "id": "3.7.q26",
+      "tipo": "cenario",
+      "dificuldade": 1,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Um formulário de login concatena o campo de usuário diretamente numa consulta SQL, sem parâmetro nem escape. A qual categoria do OWASP Top10:2025 esse achado pertence?",
+      "alternativas": [
+        "A07 Authentication Failures — o problema está no processo de login em si, antes mesmo de qualquer consulta ao banco",
+        "A01 Broken Access Control — o formulário não verifica quem está logando",
+        "A05 Injection — o mesmo mecanismo de confusão entre dado e instrução que 3.5 ensinou, no canal de banco de dados",
+        "A08 Software or Data Integrity Failures — o banco de dados pode ter seus registros alterados"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "O campo estar num formulário de login não muda o mecanismo: o defeito é a entrada virar instrução SQL, não uma falha do processo de autenticação em si.",
+        "1": "Não há menção a checagem de identidade após a autenticação; o problema é a consulta SQL aceitar instrução dentro do dado.",
+        "3": "Alteração de registro seria consequência possível, mas o mecanismo do achado é a injeção, canal de entrada, não o resultado no banco."
+      },
+      "dicas": [
+        "Volte a 3.5: o lugar onde a falha aparece muda, mas o que acontece ali dentro é a mesma coisa que você já viu naquele módulo.",
+        "O fato de estar num campo de login é contexto, não muda a categoria do mecanismo.",
+        "Uma categoria deste curso trata do mesmo problema central que fechou o 3.5 inteiro — qual é ela?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o campo estar numa tela de login muda o mecanismo da falha, ou só o contexto onde ela aparece?",
+      "explicacao": "É injeção de SQL, mecanismo central de 3.5, mapeando para A05 Injection — o contexto, tela de login, não muda a categoria, porque a categoria nomeia o mecanismo, não a tela onde ele aparece.",
+      "fonte": "OWASP Top 10:2025, A05 Injection — referência cruzada a 3.5",
+      "tags": [
+        "mapeamento",
+        "a05",
+        "reconhecimento"
+      ]
+    },
+    {
+      "id": "3.7.q27",
+      "tipo": "cenario",
+      "dificuldade": 1,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Uma reserva com desconto por grupo exige depósito acima de quinze ingressos, mas esse limite só existe na interface — nunca é conferido de novo no servidor. A qual categoria do OWASP Top10:2025 esse achado pertence?",
+      "alternativas": [
+        "A02 Security Misconfiguration — falta configurar um limite no servidor",
+        "A05 Injection — o valor de quinze ingressos pode ser manipulado por injeção",
+        "A01 Broken Access Control — o problema é que qualquer usuário autenticado pode fazer reservas sem restrição alguma",
+        "A06 Insecure Design — o exemplo de lógica de negócio que 3.6 usou, sobre limite nunca verificado no servidor"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Não é ausência de item de configuração — é ausência de regra de negócio verificada no servidor, categoria diferente.",
+        "1": "Nada no achado envolve dado virando instrução; o valor é aceito como número válido, só nunca é comparado contra o limite de negócio.",
+        "2": "O achado não é sobre quem pode reservar, é sobre quanto pode ser reservado numa única sequência — autenticação e autorização não estão em questão aqui."
+      },
+      "dicas": [
+        "Esse exemplo específico já apareceu em 3.6, citando a mesma fonte, o Example Attack Scenario do cinema.",
+        "O defeito não é técnico, nada malformado; é semântico, a regra de negócio nunca foi checada de novo.",
+        "Existe uma categoria que nomeia, especificamente, falha de definir mudança de estado indesejada."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguma coisa nessa requisição está malformada, ou ela é sintaticamente perfeita e só viola uma regra de negócio?",
+      "explicacao": "É falha de lógica de negócio, mecanismo central de 3.6, mapeando para A06 Insecure Design — reconhecimento direto do exemplo do cinema já visto naquele módulo.",
+      "fonte": "OWASP Top 10:2025, A06 Insecure Design — referência cruzada a 3.6",
+      "tags": [
+        "mapeamento",
+        "a06",
+        "reconhecimento"
+      ]
+    },
+    {
+      "id": "3.7.q28",
+      "tipo": "cenario",
+      "dificuldade": 1,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Um sistema aceita qualquer senha com pelo menos um caractere, sem limite de tentativas de login, e devolve mensagens de erro diferentes para \"usuário não existe\" e \"senha errada\". A qual categoria do OWASP Top10:2025 esse conjunto de achados pertence?",
+      "alternativas": [
+        "A07 Authentication Failures — os três são falhas do processo de comprovar identidade, tema de 2.5",
+        "A01 Broken Access Control — o problema é sobre o que cada usuário pode acessar depois de logado",
+        "A06 Insecure Design — a política de senha é uma decisão de design, então pertence inteiramente a essa categoria mais ampla",
+        "A03 Software Supply Chain Failures — a biblioteca de autenticação usada pode estar desatualizada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Os três achados são sobre o processo de provar quem é o usuário, antes de qualquer decisão sobre o que ele pode acessar.",
+        "2": "Política de senha fraca é decisão de design, mas a categoria específica para falha no processo de autenticação em si é mais precisa que a categoria genérica de design inseguro.",
+        "3": "Nada no achado menciona biblioteca, dependência ou versão; é comportamento do próprio fluxo de autenticação, não de um componente terceiro."
+      },
+      "dicas": [
+        "Os três problemas — senha fraca aceita, sem limite de tentativa, mensagem que revela se o usuário existe — pertencem à mesma etapa do fluxo.",
+        "2.4 já tratou controle de tentativas e bloqueio, e 2.5 já tratou senha fraca — o terceiro achado é novo neste módulo, mas os três pertencem à mesma etapa do fluxo.",
+        "A categoria de design é mais ampla; existe uma mais específica para esse conjunto de falhas."
+      ],
+      "pergunta_socratica": "Antes de conferir: os três achados acontecem antes ou depois de o usuário provar quem ele é?",
+      "explicacao": "Os três acontecem no próprio processo de autenticação, mapeando para A07 Authentication Failures. Senha fraca é reconhecimento de 2.5; ausência de limite de tentativa é reconhecimento de 2.4; e a mensagem que revela se o usuário existe — enumeração de usuário — é mecanismo novo, apresentado aqui pela primeira vez no curso.",
+      "fonte": "OWASP Top 10:2025, A07 Authentication Failures — referência cruzada a 2.4 e 2.5; enumeração de usuário é mecanismo novo deste módulo",
+      "tags": [
+        "mapeamento",
+        "a07",
+        "reconhecimento"
+      ]
+    },
+    {
+      "id": "3.7.q29",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Um painel de administração fica acessível publicamente na internet, ainda com o usuário e senha padrão de fábrica que vieram na instalação — ninguém trocou. A qual categoria do OWASP Top10:2025 esse achado pertence?",
+      "alternativas": [
+        "A07 Authentication Failures — o painel exige usuário e senha para entrar",
+        "A02 Security Misconfiguration — configuração padrão insegura nunca ajustada, não uma falha de código",
+        "A01 Broken Access Control — o painel deveria negar acesso por padrão a qualquer um que não seja administrador",
+        "A05 Injection — o campo de login do painel pode aceitar caractere especial"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Exigir usuário e senha é característica normal de qualquer painel; o defeito não está em existir autenticação, está em ela ter ficado com o valor padrão de fábrica — esta edição resolve esse caso específico em A02, não em A07.",
+        "2": "O painel não tem falha na lógica de quem pode acessar; o problema é que a credencial nunca foi trocada, categoria diferente.",
+        "3": "Nada no achado menciona o campo aceitando instrução; o mecanismo é credencial padrão exposta, não confusão entre dado e instrução."
+      },
+      "dicas": [
+        "O defeito não é como o painel decide quem entra; é qual valor ficou configurado nele desde a instalação.",
+        "Pense em quantas outras instalações da mesma ferramenta, no mundo inteiro, têm exatamente essa mesma credencial padrão se ninguém trocar.",
+        "A02 como categoria aparece pela primeira vez no curso; o exemplo de senha padrão já apareceu de raspão em 0.2, mas ali era sobre equipamento de rede, não sobre aplicação web."
+      ],
+      "pergunta_socratica": "Antes de conferir: o defeito está em como o sistema decide quem pode entrar, ou em qual valor ficou configurado nele desde a instalação?",
+      "explicacao": "Credencial padrão de fábrica nunca trocada é configuração insegura por padrão. O documento nomeia o próprio exemplo: \"Default accounts and their passwords are still enabled and unchanged.\" A02 Security Misconfiguration nomeia esse tipo de falha: não é decisão de lógica, é estado de configuração que ficou como veio, exposto.",
+      "fonte": "OWASP Top 10:2025, A02 Security Misconfiguration, seção Description — conferido em 04/09/2026",
+      "tags": [
+        "mapeamento",
+        "a02",
+        "mecanismo-novo"
+      ]
+    },
+    {
+      "id": "3.7.q30",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Uma aplicação depende de uma biblioteca de terceiros com uma vulnerabilidade crítica já publicada e corrigida pelos mantenedores há seis meses, mas ninguém no time atualizou a versão usada em produção. A qual categoria do OWASP Top10:2025 esse achado pertence?",
+      "alternativas": [
+        "A08 Software or Data Integrity Failures — o problema é a integridade do pacote instalado",
+        "A04 Cryptographic Failures — bibliotecas desatualizadas costumam ter falha de criptografia",
+        "A03 Software Supply Chain Failures — dependência vulnerável não atualizada, falha de cadeia de suprimentos",
+        "A09 Security Logging and Alerting Failures — falta um alerta configurado para avisar sobre a versão desatualizada"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Integridade seria o problema se o pacote tivesse sido adulterado ou não verificado na instalação; aqui o pacote é legítimo, só está numa versão antiga e vulnerável.",
+        "1": "A vulnerabilidade específica pode ou não ser de criptografia; o achado, como descrito, não especifica o tipo de falha da biblioteca, só que ela está desatualizada e vulnerável.",
+        "3": "Falta de alerta seria um problema de detecção; o achado já é conhecido, a vulnerabilidade é pública; o problema é a decisão de não atualizar, não a falta de aviso."
+      },
+      "dicas": [
+        "\"Vulnerabilidade já publicada e corrigida pelo mantenedor\" é a pista central: o problema está em não usar a correção disponível.",
+        "Essa categoria expandiu, na edição 2025, o que antes era só \"componente desatualizado\" para cobrir toda a cadeia — dependência, build, distribuição.",
+        "É a segunda categoria nova deste eixo — mecanismo nunca ensinado antes no curso."
+      ],
+      "pergunta_socratica": "Antes de conferir: a correção para essa vulnerabilidade já existe, ou o time precisaria esperar um patch futuro?",
+      "explicacao": "A correção já existe e não foi aplicada — é o caso central de A03 Software Supply Chain Failures: dependência de terceiro com vulnerabilidade conhecida, mantida em produção por falta de atualização, não por ausência de correção disponível.",
+      "fonte": "OWASP Top 10:2025, A03 Software Supply Chain Failures, seção Description — conferido em 04/09/2026",
+      "tags": [
+        "mapeamento",
+        "a03",
+        "mecanismo-novo"
+      ]
+    },
+    {
+      "id": "3.7.q31",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Um servidor baixa e instala atualizações de software automaticamente a partir de um servidor de distribuição, sem verificar assinatura digital nem checksum do pacote antes de instalar. A qual categoria do OWASP Top10:2025 esse achado pertence?",
+      "alternativas": [
+        "A03 Software Supply Chain Failures — o pacote vem de uma cadeia de distribuição externa",
+        "A02 Security Misconfiguration — bastaria configurar corretamente o servidor para que ele passasse a verificar a assinatura sozinho",
+        "A01 Broken Access Control — um servidor de distribuição comprometido teria acesso total",
+        "A08 Software or Data Integrity Failures — ausência de verificação de assinatura antes de confiar no pacote"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "A03 cobre dependência vulnerável e falha na cadeia de construção/distribuição em geral; o mecanismo específico aqui, confiar num pacote sem checar sua integridade, é o que A08 nomeia como categoria própria.",
+        "1": "Ativar a verificação é a correção, mas o defeito em si é a ausência de checagem de integridade, o mecanismo que A08 nomeia, não uma configuração qualquer de servidor.",
+        "2": "O achado não é sobre quem pode acessar o servidor de distribuição, é sobre o servidor que recebe o pacote nunca confirmar que ele é legítimo antes de instalar."
+      },
+      "dicas": [
+        "A pista central é \"sem verificar assinatura digital nem checksum\" — isso é sobre confiar em dado sem prová-lo íntegro.",
+        "A03 e A08 são categorias vizinhas; pense na diferença entre \"a dependência está desatualizada\" (A03) e \"o pacote nunca foi verificado antes de instalar\" (A08).",
+        "Terceira categoria nova deste eixo."
+      ],
+      "pergunta_socratica": "Antes de conferir: o problema é a origem do pacote, de onde ele vem, ou a ausência de prova de que ele não foi alterado no caminho?",
+      "explicacao": "É ausência de prova de integridade. O documento recomenda: \"Use digital signatures or similar mechanisms to verify the software or data is from the expected source and has not been altered.\" A categoria nomeia exatamente essa falha: aceitar e instalar software sem verificar assinatura ou integridade antes de confiar nele.",
+      "fonte": "OWASP Top 10:2025, A08 Software or Data Integrity Failures, seção How to Prevent — conferido em 04/09/2026",
+      "tags": [
+        "mapeamento",
+        "a08",
+        "mecanismo-novo"
+      ]
+    },
+    {
+      "id": "3.7.q32",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Uma invasão fica sem ser percebida por quatro meses. Ao investigar depois, o time descobre que os eventos de acesso indevido estavam sendo registrados em log o tempo todo — só que nenhuma regra de alerta jamais foi configurada para lê-los. A qual categoria do OWASP Top10:2025 esse achado pertence?",
+      "alternativas": [
+        "A09 Security Logging and Alerting Failures — o log existia, mas faltava a função de alerta sobre o registro",
+        "A01 Broken Access Control — o acesso indevido em si é uma falha de controle de acesso",
+        "A10 Mishandling of Exceptional Conditions — a invasão em si é uma condição excepcional que nunca foi tratada",
+        "A06 Insecure Design — o sistema foi desenhado sem pensar em detecção"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O acesso indevido original pode até ter nascido de uma falha de A01, mas o achado descrito é sobre log existente sem alerta, que é sobre detecção, não sobre a causa do acesso em si.",
+        "2": "A10 trata de tratamento indevido de erro e exceção dentro da lógica da aplicação, não de ausência de alerta sobre um log já registrado.",
+        "3": "Design inseguro é categoria mais ampla; o achado específico, log existe, alerta nunca foi configurado, tem categoria própria e mais precisa."
+      },
+      "dicas": [
+        "Repare no nome completo da categoria: \"Logging AND Alerting\" — o achado descreve exatamente a metade que falhou.",
+        "O log não estava ausente; a função que transforma log em ação, o alerta, é que nunca existiu.",
+        "Volte a t1 e t2: essa é a categoria que precisou ser votada, porque log ausente é difícil de medir automaticamente — mas aqui o log nem estava ausente, só sem uso."
+      ],
+      "pergunta_socratica": "Antes de conferir: o problema é que o evento nunca foi registrado, ou que ele foi registrado e nenhuma regra automática jamais olhou?",
+      "explicacao": "O evento foi registrado; o log existia. O que faltou foi a função de alerta que dispara ação a partir dele, e é exatamente essa combinação, registro sem ação, que A09 Security Logging and Alerting Failures nomeia, distinguindo-se de simplesmente não ter log nenhum.",
+      "fonte": "OWASP Top 10:2025, A09 Security Logging and Alerting Failures, seção Description — conferido em 04/09/2026",
+      "tags": [
+        "mapeamento",
+        "a09",
+        "mecanismo-novo"
+      ]
+    },
+    {
+      "id": "3.7.q33",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Um serviço de verificação de permissão, ao encontrar um erro interno inesperado — por exemplo, um timeout de conexão com o banco — responde \"permitido\" por padrão em vez de negar, para não travar o restante do sistema. Fora dessa situação de erro, a checagem de permissão funciona corretamente. A qual categoria do OWASP Top10:2025 esse achado pertence?",
+      "alternativas": [
+        "A01 Broken Access Control — o resultado final desse comportamento é sempre acesso concedido de forma indevida ao sistema",
+        "A10 — condição de erro tratada de forma que libera acesso (fail-open) em vez de negar (fail-closed)",
+        "A06 Insecure Design — qualquer decisão de arquitetura malfeita cai nessa categoria",
+        "A02 Security Misconfiguration — bastaria configurar o timeout para um valor maior"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O resultado é acesso indevido, mas a causa específica, uma condição de erro tratada como liberação, é o mecanismo que A10 nomeia como categoria própria, diferente de uma checagem de autorização simplesmente ausente.",
+        "2": "A06 é a categoria geral de decisão de design malfeita; A10 é mais específica, sobre tratamento de erro e exceção, e existe para não deixar esse mecanismo diluído dentro da categoria geral.",
+        "3": "Aumentar o timeout reduziria a frequência do erro, mas não muda a decisão de fail-open; o defeito é a escolha de liberar quando algo dá errado, não o tempo até o erro acontecer."
+      },
+      "dicas": [
+        "A pista central é \"para não travar o sistema\" — é escolha deliberada de comportamento diante de erro, não ausência de checagem.",
+        "Existem dois comportamentos opostos diante de um erro — um é mais seguro, o outro é o que o achado descreve; pense em qual dos dois esse serviço escolheu.",
+        "É a categoria mais nova do Top10 — sem antecessora direta em 2021, criada para dar nome específico a um padrão que a categoria geral de design não distinguia."
+      ],
+      "pergunta_socratica": "Antes de conferir: diante de um erro inesperado, o sistema deveria travar fechado, negando, ou travar aberto, permitindo?",
+      "explicacao": "Travar aberto diante de erro é o mecanismo que A10 Mishandling of Exceptional Conditions nomeia — categoria nova em 2025, sem antecessora direta em 2021. O próprio documento cita esse padrão como CWE-636, \"Not Failing Securely ('Failing Open')\".",
+      "fonte": "OWASP Top 10:2025, A10 Mishandling of Exceptional Conditions, seção Description — conferido em 04/09/2026",
+      "tags": [
+        "mapeamento",
+        "a10",
+        "mecanismo-novo"
+      ]
+    },
+    {
+      "id": "3.7.q34",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Um funcionário recebe uma ligação de alguém se passando por suporte técnico, é convencido a ditar a própria senha por telefone, e o invasor usa essa senha, sem explorar nenhuma falha técnica da aplicação. A qual categoria do OWASP Top10:2025 esse incidente pertence?",
+      "alternativas": [
+        "A07 Authentication Failures — a senha foi comprometida por completo, então é claramente uma falha do processo de autenticação",
+        "A01 Broken Access Control — o invasor obteve acesso que não deveria ter",
+        "A nenhuma das dez — engenharia social pura, fora do escopo de um documento sobre aplicação web",
+        "A06 Insecure Design — o sistema deveria ter sido desenhado para impedir esse tipo de ataque"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "A07 nomeia falha no mecanismo de autenticação da aplicação, senha fraca, sem limite de tentativa, etc. Aqui o mecanismo funcionou exatamente como projetado; a pessoa foi enganada, o sistema não falhou.",
+        "1": "O acesso foi obtido com a senha legítima, dita por engano; não há falha de controle de acesso na aplicação envolvida.",
+        "3": "Nenhum desenho de aplicação impede alguém de ser convencido por telefone a revelar a própria senha; isso é fora do que design de aplicação controla."
+      },
+      "dicas": [
+        "Repare se algum código ou configuração da aplicação se comportou fora do esperado neste incidente.",
+        "O Top10 cataloga fraqueza de código e arquitetura de aplicação web — não todo tipo de incidente de segurança que existe.",
+        "Esse é o caso oposto dos anteriores: aqui a resposta certa é reconhecer que nenhuma categoria serve, não escolher a mais parecida."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe algum ponto, neste incidente, em que o código ou a configuração da aplicação tenha se comportado de forma diferente do esperado?",
+      "explicacao": "Não — a aplicação funcionou corretamente; a senha legítima foi usada. O incidente é inteiramente humano, engenharia social, e o Top10, por definição (t3), cataloga fraqueza de aplicação; forçar esse caso numa das dez categorias repete o erro que t5 descreveu: tratar a lista como se precisasse cobrir tudo.",
+      "fonte": "Síntese aplicada de t3 e t5 deste módulo",
+      "tags": [
+        "mapeamento",
+        "fora-do-top10",
+        "reconhecer-limite"
+      ]
+    },
+    {
+      "id": "3.7.q35",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Coloque em ordem o processo de mapear um achado real para a categoria certa do OWASP Top10, sem forçar encaixe.",
+      "itens": [
+        "Descrever o mecanismo exato da falha, com evidência concreta",
+        "Perguntar se esse mecanismo é uma fraqueza de aplicação, ou de outra natureza",
+        "Comparar o mecanismo contra as dez categorias, procurando a que descreve a mesma causa raiz",
+        "Aceitar que ele pode não caber em nenhuma, em vez de forçar a categoria mais parecida",
+        "Citar a categoria encontrada, ou a ausência dela, como complemento da evidência, nunca como substituto"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dicas": [
+        "A primeira etapa nunca muda: sem evidência do mecanismo, não há o que mapear.",
+        "A pergunta sobre \"fraqueza de aplicação ou não\" precisa vir antes de comparar contra as dez categorias.",
+        "A última etapa é sobre como usar a categoria depois de encontrada, não sobre encontrá-la."
+      ],
+      "pergunta_socratica": "Antes de conferir: faz sentido comparar contra as dez categorias antes de saber se o achado é sequer uma fraqueza de aplicação?",
+      "explicacao": "O processo começa na evidência, passa por uma pergunta de escopo antes de comparar contra a lista, aceita que a resposta pode ser \"nenhuma categoria\", e só então usa a categoria encontrada como vocabulário complementar, nunca como substituto da evidência.",
+      "fonte": "Síntese deste módulo, eixo 5",
+      "tags": [
+        "ordenacao",
+        "mapeamento",
+        "processo"
+      ]
+    },
+    {
+      "id": "3.7.q36",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        4
+      ],
+      "enunciado": "Ligue cada achado à categoria correta do OWASP Top10:2025.",
+      "pares": [
+        [
+          "Painel administrativo público com credencial padrão de fábrica nunca trocada",
+          "A02 Security Misconfiguration"
+        ],
+        [
+          "Dependência de terceiro com vulnerabilidade conhecida, corrigida pelo mantenedor, nunca atualizada em produção",
+          "A03 Software Supply Chain Failures"
+        ],
+        [
+          "Atualização de software instalada sem verificar assinatura digital nem checksum",
+          "A08 Software or Data Integrity Failures"
+        ],
+        [
+          "Evento de acesso indevido registrado em log, sem nenhuma regra de alerta configurada para lê-lo",
+          "A09 Security Logging and Alerting Failures"
+        ],
+        [
+          "Verificação de permissão que libera acesso quando encontra um erro interno inesperado",
+          "A10 Mishandling of Exceptional Conditions"
+        ]
+      ],
+      "dicas": [
+        "As cinco categorias aqui são as que este eixo introduziu pela primeira vez — nenhuma é reconhecimento de outro módulo.",
+        "Pense na palavra-chave de cada achado: padrão de fábrica, não atualizado, sem verificar assinatura, sem alerta, libera quando erra.",
+        "Cada palavra-chave aponta para uma categoria diferente, sem sobreposição entre elas."
+      ],
+      "pergunta_socratica": "Antes de conferir: das cinco palavras-chave dos achados, alguma delas serviria para mais de uma categoria?",
+      "explicacao": "Cada achado tem um mecanismo específico e uma categoria específica: configuração que ficou como veio (A02), dependência desatualizada apesar de correção disponível (A03), pacote confiado sem prova de integridade (A08), log sem função de alerta (A09), e erro tratado como liberação em vez de negação (A10) — cinco mecanismos diferentes, sem sobreposição.",
+      "fonte": "Síntese aplicada deste eixo — OWASP Top 10:2025, seções A02, A03, A08, A09, A10",
+      "tags": [
+        "pareamento",
+        "mapeamento",
+        "sintese"
+      ]
+    }
+  ]
+}
