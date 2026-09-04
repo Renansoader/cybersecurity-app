@@ -56,10 +56,10 @@
     {
       "id": "2.6.t6",
       "titulo": "Zero Trust e quebra de controle de acesso",
-      "texto": "Zero Trust é um conjunto de princípios de arquitetura, não um produto. A definição do NIST SP 800-207 é operativa: decisões de acesso por requisição, com menor privilégio, diante de uma rede considerada comprometida. Localização de rede não implica confiança, e autorizar um recurso não autoriza outro.\n\nA arquitetura nomeia dois pontos. O ponto de decisão de política (PDP) decide; o ponto de imposição de política (PEP) fica no caminho, habilita, monitora e encerra a conexão. O documento é explícito sobre os limites: não é uma arquitetura única, a maioria das empresas opera em modo híbrido com perímetro, e a zona de confiança implícita não desaparece — apenas encolhe.\n\nNa aplicação isso vira a categoria número um do OWASP Top 10:2021, a quebra de controle de acesso (broken access control): negar por padrão e verificar no servidor, a cada requisição, sobre a identidade da sessão.",
+      "texto": "Zero Trust é um conjunto de princípios de arquitetura, não um produto. A definição do NIST SP 800-207 é operativa: decisões de acesso por requisição, com menor privilégio, diante de uma rede considerada comprometida. Localização de rede não implica confiança, e autorizar um recurso não autoriza outro.\n\nA arquitetura nomeia dois pontos. O ponto de decisão de política (PDP) decide; o ponto de imposição de política (PEP) fica no caminho, habilita, monitora e encerra a conexão. O documento é explícito sobre os limites: não é uma arquitetura única, a maioria das empresas opera em modo híbrido com perímetro, e a zona de confiança implícita não desaparece — apenas encolhe.\n\nNa aplicação isso vira a categoria número um do OWASP Top 10:2025, a quebra de controle de acesso (broken access control): negar por padrão e verificar no servidor, a cada requisição, sobre a identidade da sessão.",
       "analogia": "Não é trocar a fechadura da portaria: é conferir o crachá na porta de cada sala, toda vez, inclusive para quem já está dentro do prédio.",
       "erro_comum": "Chamar de Zero Trust a compra de um gateway. \"Nunca confie, sempre verifique\" só vale quando vira mecanismo: PDP, PEP e decisão por requisição.",
-      "fonte": "NIST SP 800-207 §1, §2, §2.1, §3 e §7.2; OWASP Top 10:2021 A01"
+      "fonte": "NIST SP 800-207 §1, §2, §2.1, §3 e §7.2; OWASP Top 10:2025 A01"
     }
   ],
   "questoes": [
@@ -773,7 +773,7 @@
         "2": "A revisão tardia agrava o acúmulo; ela não concede a combinação conflitante.",
         "3": "Esconder o menu é controle no cliente e falha real, mas não concede permissão nenhuma — é outro defeito, não a combinação conflitante."
       },
-      "fonte": "ANSI INCITS 359 (RBAC), §5.3 — numeração conforme a edição 359-2004 consultada; edição vigente: 359-2012 (R2022); OWASP Top 10:2021 A01",
+      "fonte": "ANSI INCITS 359 (RBAC), §5.3 — numeração conforme a edição 359-2004 consultada; edição vigente: 359-2012 (R2022); OWASP Top 10:2025 A01",
       "tags": [
         "separacao-de-funcoes",
         "caca-erro",
@@ -1215,7 +1215,7 @@
         "2": "Cifrar no banco não impede a aplicação de entregar o registro errado.",
         "3": "O valor é um identificador válido; não há injeção envolvida."
       },
-      "fonte": "OWASP Top 10:2021 A01, seção Description",
+      "fonte": "OWASP Top 10:2025 A01, seção Description",
       "tags": [
         "idor",
         "owasp-a01",
@@ -1251,7 +1251,7 @@
         "2": "Esconder o link não impede a requisição direta ao endpoint.",
         "3": "Limite de taxa reduz a varredura, e não o acesso indevido a um registro."
       },
-      "fonte": "OWASP Top 10:2021 A01, seção How to Prevent, itens 1, 2 e 3",
+      "fonte": "OWASP Top 10:2025 A01, seção How to Prevent, itens 1, 2 e 3",
       "tags": [
         "idor",
         "owasp-a01",
@@ -1324,7 +1324,7 @@
         "2": "Zero Trust é conjunto de princípios, e não um produto que se compra pronto.",
         "3": "A revisão documenta o estado; ela não interrompe o vazamento em curso."
       },
-      "fonte": "OWASP Top 10:2021 A01; NIST SP 800-207 §1",
+      "fonte": "OWASP Top 10:2025 A01; NIST SP 800-207 §1",
       "tags": [
         "priorizacao",
         "owasp-a01",
