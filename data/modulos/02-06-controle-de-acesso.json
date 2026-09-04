@@ -1209,7 +1209,7 @@
         "Cifrar o campo muda o que a resposta entrega a quem já passou pela consulta?"
       ],
       "pergunta_socratica": "Antes de conferir: o servidor sabe quem está pedindo. Ele chegou a checar se o pedido é dessa pessoa?",
-      "explicacao": "É IDOR, uma das subcategorias de quebra de controle de acesso do OWASP A01 — a categoria número um do Top 10:2021, com 34 CWEs mapeadas. A sessão está autenticada; o que falta é a verificação de propriedade do registro. Autenticação responde quem é o usuário, e não se ele pode ver aquele objeto. Cifrar o campo não ajuda, porque a aplicação decifra para responder, e o parâmetro nem é malformado: 1235 é um número perfeitamente válido.",
+      "explicacao": "É IDOR, uma das subcategorias de quebra de controle de acesso do OWASP A01 — a categoria número um do Top 10:2025, com 40 CWEs mapeadas. A sessão está autenticada; o que falta é a verificação de propriedade do registro. Autenticação responde quem é o usuário, e não se ele pode ver aquele objeto. Cifrar o campo não ajuda, porque a aplicação decifra para responder, e o parâmetro nem é malformado: 1235 é um número perfeitamente válido.",
       "por_que_erradas": {
         "1": "O usuário está autenticado; o que falha é a autorização por registro.",
         "2": "Cifrar no banco não impede a aplicação de entregar o registro errado.",
