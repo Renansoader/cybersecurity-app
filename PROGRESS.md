@@ -255,10 +255,50 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ### Conteúdo — 7 módulos
 
-- **Nível 3 — Ofensivo** (1 restante): engenharia social e redes sem fio
+- **Nível 3 — Ofensivo** (1 restante): redes sem fio (3.9, fecha o nível)
 - **Nível 4 — Defensivo**: completo (8 de 8)
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
+
+### Decisão de escopo — engenharia social não vira módulo novo, nível 3 fecha com 9 (não 10)
+
+O roadmap original previa "engenharia social e redes sem fio" como um único
+módulo do nível 3. Levantamento de não-repetição (medição por contagem de
+menções nos 34 módulos publicados, não intuição — ver
+`data/rascunhos/nivel-3/fontes/nao-repetir-3.9.md`) mostrou uma assimetria
+severa: **engenharia social já tem dono** e **redes sem fio não tinha
+nenhum**.
+
+O módulo **2.7 ("Fator humano — por que a segurança falha nas pessoas") já
+é, na prática, um módulo de engenharia social completo**: objetivo 2 nomeia
+literalmente "phishing, pretexting e fraude de e-mail corporativo (BEC)";
+`2.7.t5` tem título literal "Persuasão profissional, engenharia social e
+phishing" (Cialdini, Stajano e Wilson, pretexting com caso real, definição
+de BEC); tailgating não é menção solta, tem questão própria com mecanismo e
+defesa (`2.7.q26`). Buscados também `1.1` e `4.4`, indicados como possíveis
+pontos de toque: zero menção a engenharia social, phishing, pretexto ou
+vetor humano em qualquer um dos dois.
+
+Um recorte de "engenharia social como avaliação/teste autorizado" foi
+proposto e **rejeitado**: consentimento de alvo e regra de engajamento já
+são do **3.1** (objetivo 1, `3.1.t4`/`t5`); aplicar OSINT à construção de
+pretexto já seria extensão de **3.2**; o que sobraria de território
+genuinamente livre — vishing, voz sintética/deepfake, desenho de métrica de
+campanha de conscientização — não sustenta 35 questões honestas sozinho.
+Preenchê-lo até 35 seria exatamente o enchimento de linguiça que o
+levantamento do 3.7 já tinha decidido evitar.
+
+**Decisão**: o item do roadmap está cumprido pelo 2.7. Não haverá módulo
+"3.9 Engenharia social". **O nível 3 fecha com 9 módulos, não 10** — o nono
+e último é **3.9 Redes sem fio**, único dos dois assuntos com território
+livre confirmado por medição.
+
+**Dívida registrada, medida e não corrigida**: vishing, voz sintética/
+deepfake como vetor de pretexto, e desenho/métrica de campanha de simulação
+de phishing (o lado de quem constrói o programa de conscientização, não de
+quem é o alvo) são território real e livre, mas finos demais para módulo
+próprio. Candidatos a **bloco extra dentro do 2.7**, se ele for reaberto um
+dia — nunca a módulo novo.
 
 O próximo bloco natural é o nível 3, que desbloqueia com 70% no nível 2 —
 agora completo. Bloco Web (3.4–3.6) fechado, o 3.7 (OWASP Top 10) fechado em
@@ -268,8 +308,9 @@ dez categorias já tinham dono de mecanismo em outro módulo, medido antes de
 escrever — e o 3.8 (Quebra de senhas) fechado logo depois: a economia do
 ataque (on-line×off-line, custo = tentativas/s × espaço de busca,
 previsibilidade humana, ataque estruturado, o que "quebrado" significa),
-não a defesa em si, que já é do 2.4/2.5. Falta só engenharia social e redes
-sem fio para fechar o nível 3 inteiro.
+não a defesa em si, que já é do 2.4/2.5. Falta só o 3.9 (Redes sem fio,
+único módulo restante — engenharia social já é o 2.7, ver decisão de
+escopo acima) para fechar o nível 3 inteiro, em 9 módulos.
 
 ### Funcionalidades
 
@@ -1102,7 +1143,8 @@ sem fio para fechar o nível 3 inteiro.
   Validação final: `pytest -q` (3.886 testes, 0 falhas) e
   `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 34
   módulos). +35 questões, +6 blocos de teoria. Nível 3 em 8 de 9 — falta
-  só engenharia social e redes sem fio.
+  só redes sem fio (engenharia social resolvida como decisão de escopo,
+  ver seção 5: o 2.7 já cumpre o item do roadmap).
 
 ---
 
