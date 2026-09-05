@@ -1,0 +1,1039 @@
+{
+  "id": "3.9",
+  "nivel": 3,
+  "titulo": "Redes sem fio — por que o meio compartilhado muda o modelo de ameaça",
+  "objetivos": [
+    "Explicar por que o meio compartilhado do rádio muda o modelo de ameaça em relação ao cabo, e por que confidencialidade e autenticidade não podem depender de fronteira física",
+    "Explicar por que autenticar a rede, e não só o cliente, é necessário, e por que um ponto de acesso falso funciona por confiança unilateral, não por senha fraca",
+    "Avaliar o que a evolução dos padrões de proteção sem fio resolveu e o que continua fora do alcance por construção — compatibilidade com o antigo e falha de implementação",
+    "Distinguir o modelo de identidade de rede corporativa (credencial por pessoa) do doméstico (segredo único), e reconhecer por que nenhuma defesa isolada é suficiente"
+  ],
+  "pre_requisitos": [
+    "1.4",
+    "1.5",
+    "2.5"
+  ],
+  "teoria": [
+    {
+      "id": "3.9.t1",
+      "titulo": "O cabo tinha uma fronteira que o ar não tem",
+      "texto": "Um cabo de rede tem uma fronteira física simples: só recebe o sinal quem está fisicamente conectado a ele, e romper essa fronteira exige acesso físico ao ambiente — puxar um cabo, plugar num ponto de rede. O ar não tem essa fronteira. Qualquer antena dentro do alcance de um transmissor recebe exatamente o mesmo sinal que o destinatário pretendido recebe — não existe \"do lado de fora do cabo\" numa transmissão de rádio, porque não existe cabo.\n\nIsso muda o que confidencialidade e autenticidade significam. Numa rede cabeada, a topologia física já filtra parte da audiência antes de qualquer criptografia entrar em cena — um invasor sem acesso ao prédio simplesmente não recebe o sinal. Numa rede sem fio, a topologia física não filtra nada: o invasor recebe o mesmo quadro que o destinatário, na mesma potência, ao mesmo tempo. Toda a confidencialidade e toda a autenticidade têm que vir de outro lugar — de criptografia e de prova de conhecimento de um segredo, porque o meio, sozinho, não nega acesso a ninguém.\n\nEssa diferença justifica o resto do módulo: rede sem fio não é \"rede cabeada com um cabo invisível\" — é um meio fundamentalmente sem perímetro, e cada mecanismo que existe em cima dele (senha de rede, autenticação por usuário, criptografia de quadro) existe para compensar exatamente essa ausência.",
+      "analogia": "Uma conversa por um cabo telefônico dedicado contra uma conversa gritada num salão cheio: no salão, todo mundo com um ouvido funcionando já ouviu o que foi dito, antes de qualquer código secreto combinado entre os dois interlocutores.",
+      "erro_comum": "Achar que reduzir a potência do sinal ou esconder o nome da rede resolve o problema do meio. Isso dificulta o acaso, não o alcance de quem procura de propósito — a fronteira física continua não existindo.",
+      "fonte": "1.4.t1-t2 (camadas e endereçamento, assumidos como vistos); características gerais de meio compartilhado do IEEE 802.11"
+    },
+    {
+      "id": "3.9.t2",
+      "titulo": "Autenticar a rede, não só o cliente",
+      "texto": "Um ponto de acesso decide se aceita um cliente com base numa senha ou numa credencial — essa metade do problema, quem pode entrar, já existe desde a rede cabeada, e o módulo 2.5 já cobriu autenticação em profundidade. A metade que a rede sem fio acrescenta é a oposta: como o cliente decide se a rede é a rede certa?\n\nO nome de uma rede (SSID) e o endereço de hardware do ponto de acesso são dados públicos, transmitidos em claro, e qualquer equipamento pode configurá-los livremente — copiar os dois é trivial e não exige quebrar nada. Um ponto de acesso falso com o mesmo nome engana exatamente esse hábito: o cliente humano, ou o dispositivo configurado para reconectar automaticamente a redes conhecidas pelo nome, trata o nome como se fosse identidade — e nome não é prova de nada.\n\nO problema, portanto, não é senha fraca do lado do cliente: mesmo uma senha excelente não ajuda se o cliente nunca chega a verificar se está falando com quem deveria. É um problema de confiança unilateral — a rede autentica o cliente, mas nada, por padrão, faz o cliente autenticar a rede de volta. A correção exige prova mútua: o cliente só aceita a conexão depois de a rede demonstrar, criptograficamente, que conhece o mesmo segredo — não só depois de ver o nome certo passar na tela.",
+      "analogia": "Um crachá com o nome de uma empresa impresso não prova que quem o usa trabalha lá — qualquer gráfica imprime o mesmo nome. O que prova é o funcionário saber algo que só a empresa e ele compartilham.",
+      "erro_comum": "Tratar \"a rede pediu minha senha\" como prova de que a rede é legítima. Pedir senha é o que qualquer ponto de acesso, real ou falso, sabe fazer — só a rede real consegue validar a resposta.",
+      "fonte": "Execução real, identidade_de_rede_e_copiavel.py; 2.5.t1 (autenticação do cliente, assumida como vista)"
+    },
+    {
+      "id": "3.9.t3",
+      "titulo": "O que a evolução dos padrões resolveu",
+      "texto": "O primeiro padrão de criptografia de rede sem fio usava uma chave estática — a mesma sequência de bits, sem rotação, protegida por uma verificação de integridade fraca demais para resistir a manipulação deliberada. A chave nunca muda sozinha, e isso, mais a fraqueza da verificação, tornou o esquema prático de quebrar com hardware comum; foi amplamente usado, mas suas vulnerabilidades levaram à adoção de esquemas mais seguros.\n\nO padrão seguinte trocou a chave estática por um esquema que renova a chave por pacote, corrigindo o problema mais grave do anterior — mas ainda herdava, por compatibilidade retroativa, parte da estrutura antiga, e pesquisadores encontraram falhas próprias nele anos depois. A geração depois dessa, com certificação iniciada em 2004 e uma cifra mais forte para o conteúdo, resolveu a criptografia de dados de forma sólida — mas o processo de troca de chave (o aperto de mão inicial) tinha uma falha na forma como a instalação da chave era confirmada, explorável para forçar reuso de chave, afetando praticamente todas as implementações dessa geração e da anterior por um problema de especificação, não de força da cifra.\n\nA geração mais recente troca esse aperto de mão inicial por um método de prova mútua desenhado especificamente para resistir a esse tipo de manipulação e a tentativas de adivinhar a senha offline a partir de uma captura — resolvendo, de fato, a fraqueza estrutural do aperto de mão que a geração anterior carregava. É evolução real, não etiqueta nova: cada geração resolveu uma fraqueza de projeto específica da anterior.",
+      "analogia": "Trocar uma fechadura que sempre abre com a mesma chave por uma que muda a combinação a cada uso, e depois por uma que confirma a identidade das duas partes antes mesmo de revelar a combinação — cada geração fecha uma falha de projeto específica, não só troca de nome.",
+      "erro_comum": "Tratar \"esse padrão tem uma vulnerabilidade conhecida\" como equivalente a \"esse padrão é tão fraco quanto o mais antigo de todos\". A falha do aperto de mão é séria e real, mas é de uma classe totalmente diferente da chave estática do primeiro padrão — e em muitos casos foi corrigida por atualização de software, sem trocar o padrão inteiro.",
+      "fonte": "Verificado em fonte primária, 05/09/2026 (registro completo em data/rascunhos/nivel-3/fontes/verificacao-padroes-wifi.md): Wi-Fi Alliance, wi-fi.org/discover-wi-fi/security; Wikipedia citando comunicados da Wi-Fi Alliance — certificação da terceira geração iniciada em setembro de 2004; a falha de reinstalação de chave é descrita como afetando praticamente todas as variantes das gerações dois e três; o método de prova mútua da geração mais recente é descrito como originado no padrão de redes em malha 802.11s"
+    },
+    {
+      "id": "3.9.t4",
+      "titulo": "O que continua fora do alcance, por construção",
+      "texto": "Duas coisas que a evolução da criptografia de rede sem fio, sozinha, não resolve — e não resolve por definição do problema, não por descuido.\n\nA primeira é a compatibilidade com equipamento antigo. Um ponto de acesso que precisa aceitar tanto dispositivos da geração mais nova quanto dispositivos mais antigos opera em modo de transição, oferecendo os dois ao mesmo tempo — e isso reintroduz, de propósito, o caminho mais fraco ao lado do mais forte. É documentado que esse modo de convivência tem segurança inadequada: o padrão novo não elimina o velho enquanto o velho ainda precisar existir, porque eliminar o velho derruba equipamento legítimo que ninguém atualizou.\n\nA segunda é a camada de implementação, abaixo do protocolo criptográfico. Um conjunto de falhas divulgado em 2021 mostrou duas categorias de problema distintas da criptografia: falha de projeto no próprio padrão, e erro de programação na forma como fabricantes implementaram esse padrão — as duas independentes de quão forte é a chave, e afetando praticamente todos os protocolos de proteção sem fio, da geração mais antiga à mais nova. Trocar de geração de padrão resolve a criptografia; não resolve um bug de implementação numa camada diferente do problema.\n\nO padrão de proteção resolve o que está sob o controle dele: a criptografia e o aperto de mão. Ele não resolve compatibilidade com o passado, nem bug de implementação alheio ao protocolo — e tratar \"estou no padrão mais novo\" como sinônimo de \"estou protegido de tudo\" ignora essas duas categorias inteiras de risco.",
+      "analogia": "Trocar a fechadura da porta da frente não impede que alguém entre pela janela que ficou aberta para o entregador conseguir passar a chave reserva — a fechadura nova resolve exatamente o problema dela, não os outros.",
+      "erro_comum": "Achar que desligar o modo de transição (aceitar só o padrão mais novo) não tem custo. Tem: qualquer equipamento que só fala o padrão antigo perde acesso — é uma troca real entre segurança e compatibilidade, não uma configuração óbvia.",
+      "fonte": "Verificado em fonte primária, 05/09/2026 (registro completo em data/rascunhos/nivel-3/fontes/verificacao-padroes-wifi.md): Wikipedia, artigo sobre a geração mais recente do padrão, seção sobre o conjunto de falhas de 2021 — \"design flaws in the Wi-Fi standard... and programming errors in Wi-Fi products... impact all Wi-Fi security protocols, including WPA3 and WEP\"; e preocupações documentadas sobre modo de transição"
+    },
+    {
+      "id": "3.9.t5",
+      "titulo": "Corporativa × doméstica — o modelo de identidade",
+      "texto": "O modo doméstico (pessoal) de proteção de rede sem fio usa um segredo único, a mesma senha para qualquer dispositivo que entrar na rede. A função de verificação, nesse modelo, só consegue responder uma pergunta: quem está tentando entrar conhece a senha? Ela nunca recebe informação nenhuma sobre qual pessoa está do outro lado, porque o desenho não guarda identidade nenhuma, só o segredo compartilhado.\n\nIsso tem uma consequência prática direta: não existe como revogar o acesso de uma única pessoa sem mudar a senha da rede inteira, derrubando todo mundo que a usa legitimamente. Se alguém sai da organização, ou perde um dispositivo, ou a senha vaza para quem não deveria tê-la, a única correção possível é trocar o segredo para todos.\n\nO modo corporativo (Enterprise) resolve isso trocando o desenho: em vez de um segredo único, cada pessoa tem sua própria credencial, verificada contra um servidor de autenticação que guarda um registro por identidade — o equipamento pede para entrar, um intermediário encaminha o pedido, e um servidor central decide, pessoa por pessoa, quem passa. A diferença para o modo pessoal não é o mecanismo — é que sobre rádio esse controle deixa de ser conveniência e vira necessidade: um cabo já filtra parte do acesso pela posse física dele; no ar, sem esse filtro, ter uma credencial por pessoa é o que permite, de fato, negar acesso a uma pessoa específica sem negar a todas. Esse mesmo papel, aplicado à rede cabeada, é formalizado no nível 4 como controle de acesso por porta — quem chegar lá reconhece o princípio.",
+      "analogia": "A chave física de um prédio dada a todo funcionário (modo pessoal) contra um crachá individual que a portaria cancela sem trocar a fechadura de ninguém (modo corporativo) — a segunda opção só compensa o custo extra quando revogar uma pessoa de cada vez realmente importa.",
+      "erro_comum": "Achar que o modo corporativo é só uma senha mais forte. É um desenho de identidade diferente — a força da senha individual não é o que muda; o que muda é a função de verificação enxergar pessoa, não só segredo.",
+      "fonte": "Execução real, segredo_unico_nao_distingue_usuario.py"
+    },
+    {
+      "id": "3.9.t6",
+      "titulo": "Contraponto defensivo, fechando o módulo",
+      "texto": "Nenhuma defesa deste módulo funciona sozinha, e a soma delas não é redundância — cada uma fecha uma lacuna que as outras deixam aberta. Autenticação mútua (t2) fecha o problema de confiança unilateral, mas não impede que alguém escute uma rede aberta de propósito, sem senha nenhuma. Escolher o padrão de criptografia mais atual (t3) fecha as falhas de projeto já corrigidas, mas não cobre compatibilidade com equipamento antigo nem bug de implementação (t4). Credencial por pessoa (t5) resolve identidade individual, mas presume que já existe, antes dela, uma rede autenticada e criptografada corretamente para a credencial proteger.\n\nO fio que costura tudo é o mesmo do resto do curso: o meio sem fio não tem fronteira física (t1), então toda garantia de confidencialidade e autenticidade precisa vir de mecanismo — nunca de posição, distância ou sorte de ninguém estar ouvindo. Isso não é exclusivo de rede sem fio: nenhuma camada sozinha sustenta o peso inteiro, e a pergunta certa nunca é qual camada resolve, é o que cada camada cobre, e o que sobra descoberto quando ela falha. O nível 4 formaliza essa ideia com nome próprio, defesa em profundidade — quem chegar lá reconhece o princípio aplicado aqui primeiro.",
+      "analogia": "Um prédio com porta trancada, câmera e crachá individual não está protegido demais — está protegido contra três formas diferentes de entrada indevida, cada uma que as outras duas não cobririam sozinhas.",
+      "erro_comum": "Perguntar qual é a defesa definitiva para rede sem fio, como se existisse uma resposta única. A pergunta certa reconhece que cada mecanismo tem um limite conhecido, e a defesa real é a combinação, não a escolha de um só.",
+      "fonte": "Teoria 3.9.t1-t5 (síntese)"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "3.9.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "O que muda, fundamentalmente, no modelo de ameaça quando a rede passa de cabeada para sem fio?",
+      "alternativas": [
+        "A velocidade de transmissão, que fica menor e exige mais tolerância a erro",
+        "A ausência de fronteira física: o meio não filtra quem recebe o sinal",
+        "O tipo de endereço usado, que passa a ser exclusivamente dinâmico",
+        "A exigência de um servidor DNS dedicado só para a rede sem fio"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Um cabo filtra parte da audiência antes de qualquer criptografia. O ar filtra alguma coisa?",
+        "Velocidade e tipo de endereço são detalhes de configuração, não de modelo de ameaça.",
+        "Um vizinho, sem nenhuma ligação com a rede, consegue captar essa mesma transmissão?"
+      ],
+      "pergunta_socratica": "Antes de conferir: um invasor sem acesso físico ao prédio recebe o sinal de uma rede sem fio de dentro dele?",
+      "explicacao": "A diferença central é a ausência de fronteira física: no cabo, só recebe o sinal quem está fisicamente conectado; no ar, qualquer antena no alcance recebe exatamente o mesmo sinal que o destinatário. Velocidade, tipo de endereço e necessidade de DNS são detalhes de implementação que não mudam com o meio de transmissão.",
+      "por_que_erradas": {
+        "0": "Velocidade é característica de hardware e protocolo, não do modelo de ameaça.",
+        "2": "Endereçamento dinâmico ou estático não depende do meio ser cabeado ou sem fio.",
+        "3": "DNS resolve nomes em qualquer tipo de rede; não é exigência específica do meio sem fio."
+      },
+      "fonte": "Teoria 3.9.t1",
+      "tags": ["redes-sem-fio", "fronteira-fisica", "modelo-de-ameaca"]
+    },
+    {
+      "id": "3.9.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que reduzir a potência do transmissor ou ocultar o nome da rede não resolve o problema da ausência de fronteira física?",
+      "alternativas": [
+        "Porque dificultam achar por acaso, não quem procura de propósito",
+        "Porque reduzir potência aumenta o consumo de energia do ponto de acesso",
+        "Porque ocultar o nome da rede é proibido pelos padrões de certificação",
+        "Porque essas ações removem a criptografia da transmissão"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem quer encontrar uma rede escondida de propósito consegue, com esforço um pouco maior?",
+        "O alcance menor elimina completamente quem está fisicamente perto, ou só reduz a chance de alguém passar por acaso?",
+        "Nenhuma das duas ações mexe em criptografia."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguém que decide especificamente procurar essa rede é impedido por ela estar com nome oculto ou potência baixa?",
+      "explicacao": "As duas medidas reduzem a chance de descoberta acidental, mas não criam fronteira nenhuma contra quem procura de propósito e está dentro do alcance físico — a rede continua transmitindo, e ferramentas comuns de análise enxergam redes com nome oculto do mesmo jeito. Não há proibição normativa contra ocultar nome, e nenhuma das duas ações afeta a criptografia usada.",
+      "por_que_erradas": {
+        "1": "Consumo de energia não é o motivo pelo qual essas medidas são insuficientes.",
+        "2": "Não existe proibição de padrão contra ocultar o nome da rede.",
+        "3": "Ocultar nome e reduzir potência são independentes da criptografia usada."
+      },
+      "fonte": "Teoria 3.9.t1",
+      "tags": ["redes-sem-fio", "fronteira-fisica", "falso-controle"]
+    },
+    {
+      "id": "3.9.q3",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Uma equipe argumenta que a rede sem fio do escritório é \"tão segura quanto\" a rede cabeada, porque usa a mesma senha corporativa e a mesma criptografia de dados. O que essa comparação ignora?",
+      "alternativas": [
+        "Que a rede cabeada nunca usa criptografia, então a comparação já começa errada",
+        "Que a rede sem fio precisa de mais banda do que a cabeada para os mesmos dados",
+        "Que o cabo já filtra parte do acesso pela topologia física, e o ar não filtra nada sozinho",
+        "Que criptografia de dados em rede cabeada é opcional, e em rede sem fio é obrigatória por lei"
+      ],
+      "correta": 2,
+      "dicas": [
+        "Senha e criptografia de dados são iguais nos dois casos, segundo o cenário. O que mais diferencia os dois meios?",
+        "Um invasor sem acesso físico ao prédio consegue captar o sinal de um cabo dentro dele?",
+        "Antes de qualquer senha ser digitada, o meio já decidiu sozinho quem participa da conversa?"
+      ],
+      "pergunta_socratica": "Antes de conferir: mesma senha e mesma criptografia de dados apagam a diferença de quem consegue receber o sinal?",
+      "explicacao": "Mesmo com senha e criptografia de dados idênticas, o meio cabeado ainda filtra parte da audiência pela exigência de acesso físico ao ambiente — o meio sem fio não tem esse filtro. A comparação ignora justamente a camada que o t1 descreve: a fronteira física, que nenhuma senha compartilhada substitui.",
+      "por_que_erradas": {
+        "0": "Rede cabeada pode e costuma usar criptografia; a afirmação é falsa.",
+        "1": "Exigência de banda é questão de desempenho, não de segurança comparada.",
+        "3": "Não existe essa distinção legal entre os dois meios."
+      },
+      "fonte": "Teoria 3.9.t1",
+      "tags": ["redes-sem-fio", "cenario", "fronteira-fisica", "comparacao"]
+    },
+    {
+      "id": "3.9.q4",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Já que o meio sem fio não filtra audiência por si só, o que efetivamente compensa essa ausência de fronteira física?",
+      "alternativas": [
+        "Posicionar o ponto de acesso no centro do prédio, longe das janelas",
+        "Usar criptografia e exigir prova de conhecimento de um segredo",
+        "Reduzir o número de dispositivos conectados simultaneamente",
+        "Trocar o canal de frequência periodicamente"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Posição, número de dispositivos e canal de frequência mudam alcance ou desempenho — mudam quem consegue provar que é quem diz ser?",
+        "O que, de fato, nega acesso a quem não deveria ter, independente de estar perto ou longe?",
+        "Pense no que substitui a fronteira que o cabo tinha."
+      ],
+      "pergunta_socratica": "Antes de conferir: posicionar o equipamento no centro do prédio impede alguém no alcance de captar o sinal?",
+      "explicacao": "Como o meio não nega acesso a ninguém por posição, a compensação real vem de mecanismo: criptografia que torna o conteúdo inútil sem a chave, e prova de que quem está do outro lado conhece o segredo. Posição do equipamento, número de dispositivos e troca de canal afetam alcance e desempenho, não filtram quem consegue ouvir ou participar da rede.",
+      "por_que_erradas": {
+        "0": "Posição física reduz alcance, não elimina quem está dentro dele.",
+        "2": "Número de dispositivos conectados não afeta quem consegue captar o sinal transmitido.",
+        "3": "Trocar de canal muda a frequência usada, não exige prova de conhecimento de segredo nenhum."
+      },
+      "fonte": "Teoria 3.9.t1, 3.9.t2",
+      "tags": ["redes-sem-fio", "ataque-defesa", "mecanismo", "fronteira-fisica"]
+    },
+    {
+      "id": "3.9.q5",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que confidencialidade e autenticidade, em rede sem fio, precisam vir inteiramente de mecanismo, e não de qualquer propriedade do meio?",
+      "alternativas": [
+        "Porque o meio de rádio já garante integridade dos dados por natureza física",
+        "Porque não existe filtro de audiência no ar — o sinal chega a todo alcance",
+        "Porque rádio tem largura de banda menor que cabo, o que exige mais criptografia",
+        "Porque toda transmissão de rádio é automaticamente pública por definição legal"
+      ],
+      "correta": 1,
+      "dicas": [
+        "O meio de rádio seleciona quem recebe a transmissão, ou entrega a todos igualmente?",
+        "Integridade física do rádio e integridade criptográfica dos dados são a mesma coisa?",
+        "A resposta certa não fala de lei nem de largura de banda."
+      ],
+      "pergunta_socratica": "Antes de conferir: o ar decide, sozinho, quem recebe um quadro de rede sem fio?",
+      "explicacao": "Sem filtro de audiência — qualquer antena no alcance recebe o mesmo quadro — não sobra nenhuma propriedade do meio para apoiar confidencialidade ou autenticidade; as duas precisam ser construídas inteiramente por criptografia e prova de segredo. O meio físico não garante integridade por natureza, largura de banda é questão de desempenho, e não há definição legal que torne toda transmissão de rádio pública.",
+      "por_que_erradas": {
+        "0": "Integridade dos dados é propriedade criptográfica, não física do meio de rádio.",
+        "2": "Largura de banda menor é questão de desempenho, não motivo para depender só de mecanismo.",
+        "3": "Não existe essa definição legal generalizada."
+      },
+      "fonte": "Teoria 3.9.t1",
+      "tags": ["redes-sem-fio", "confidencialidade", "autenticidade", "mecanismo"]
+    },
+    {
+      "id": "3.9.q6",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um prédio com paredes de concreto armado reduz bastante o alcance do sinal da rede sem fio para fora do edifício. A equipe de segurança conclui que isso resolve o problema da ausência de fronteira física. A conclusão está correta?",
+      "alternativas": [
+        "Sim, paredes de concreto substituem a necessidade de criptografia",
+        "Não, reduz o acaso; não elimina quem está perto de propósito",
+        "Sim, porque nenhum sinal de rádio atravessa concreto armado",
+        "Não, porque concreto armado na verdade amplia o alcance do sinal"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Alguém no estacionamento do prédio, ou na sala ao lado, ainda está dentro do alcance reduzido?",
+        "Reduzir alcance e eliminar alcance são a mesma coisa?",
+        "Atenuar um sinal e bloqueá-lo por completo significam a mesma coisa?"
+      ],
+      "pergunta_socratica": "Antes de conferir: reduzir o alcance de um sinal impede completamente quem está a poucos metros de distância, de propósito, de recebê-lo?",
+      "explicacao": "Atenuação por concreto reduz a área onde o sinal chega utilizável, o que ajuda contra captação por acaso a longa distância — mas não elimina o alcance para alguém posicionado de propósito próximo o bastante, dentro ou nas proximidades do prédio. É o mesmo princípio do t1 aplicado a um caso concreto: reduzir a chance de exposição não é o mesmo que fechar a fronteira, e a fronteira continua não existindo por completo.",
+      "por_que_erradas": {
+        "0": "Atenuação de sinal não é substituto de criptografia; são propriedades independentes.",
+        "2": "Concreto armado atenua fortemente, mas não bloqueia sinal de rádio por completo.",
+        "3": "Concreto armado atenua o sinal; não há mecanismo pelo qual ele o amplie."
+      },
+      "fonte": "Teoria 3.9.t1",
+      "tags": ["redes-sem-fio", "cenario", "atenuacao", "fronteira-fisica"]
+    },
+    {
+      "id": "3.9.q7",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [1],
+      "enunciado": "O que o nome de uma rede sem fio (SSID) e o endereço de hardware do ponto de acesso realmente provam sobre quem está transmitindo?",
+      "alternativas": [
+        "Provam que o equipamento passou por um processo de certificação",
+        "Provam nada de verificável — nome e endereço são dados públicos, fáceis de reproduzir",
+        "Provam que a rede está usando a criptografia mais recente disponível",
+        "Provam a localização física exata do ponto de acesso"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Alguém precisa de permissão especial para configurar o nome de uma rede que cria?",
+        "Certificação, criptografia e localização são coisas que o nome ou o endereço, sozinhos, comunicam?",
+        "Existe alguma trava técnica que impeça um equipamento de anunciar um nome que não é dele?"
+      ],
+      "pergunta_socratica": "Antes de conferir: existe alguma verificação que impeça um equipamento de anunciar um nome de rede que não é dele por direito?",
+      "explicacao": "Nome e endereço de hardware são configuráveis livremente por qualquer equipamento e transmitidos sem proteção nenhuma — não provam certificação, nível de criptografia usado ou localização exata. Eles são identidade visível, não identidade verificada.",
+      "por_que_erradas": {
+        "0": "Não há vínculo entre nome/endereço transmitidos e qualquer processo de certificação.",
+        "2": "O nome da rede não comunica qual criptografia está em uso por trás dele.",
+        "3": "Endereço de hardware não localiza fisicamente o equipamento com precisão."
+      },
+      "fonte": "Teoria 3.9.t2",
+      "tags": ["redes-sem-fio", "identidade", "ssid", "dado-publico"]
+    },
+    {
+      "id": "3.9.q8",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Por que \"a rede pediu minha senha antes de conectar\" não é prova de que a rede é legítima?",
+      "alternativas": [
+        "Porque pedir senha é comportamento fácil de reproduzir, real ou falso",
+        "Porque senhas de rede sem fio nunca são realmente verificadas pelo ponto de acesso",
+        "Porque pedir senha é uma etapa opcional que a maioria dos pontos de acesso pula",
+        "Porque a senha certa só existe em redes corporativas, nunca em redes domésticas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O comportamento de pedir senha exige que quem pede realmente conheça o segredo?",
+        "Um ponto de acesso falso consegue exibir a mesma tela de senha que um verdadeiro?",
+        "A pergunta é sobre o que o PEDIDO de senha prova, não sobre o que a verificação da senha prova."
+      ],
+      "pergunta_socratica": "Antes de conferir: exibir uma tela pedindo senha exige que quem exibe conheça a senha certa?",
+      "explicacao": "Pedir senha é só uma interface — qualquer equipamento pode reproduzi-la sem conhecer segredo nenhum. A prova de legitimidade não está em pedir, está em validar corretamente uma resposta que só quem conhece o segredo real consegue produzir, o que exige verificação de dois lados, não só do lado da rede.",
+      "por_que_erradas": {
+        "1": "Senhas de rede sem fio são, sim, verificadas normalmente pelo ponto de acesso legítimo.",
+        "2": "Pedir senha não é etapa opcional em redes protegidas.",
+        "3": "Ambos os modelos, doméstico e corporativo, envolvem alguma forma de credencial."
+      },
+      "fonte": "Teoria 3.9.t2",
+      "tags": ["redes-sem-fio", "confianca-unilateral", "autenticacao-de-rede"]
+    },
+    {
+      "id": "3.9.q9",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "artefato": "=== os dois transmitem exatamente o mesmo nome ===\n  real:      {'nome': 'CafeCentral-WiFi'}\n  impostor:  {'nome': 'CafeCentral-WiFi'}\n\n=== cliente que confia so no nome ===\n  conectou em: IMPOSTOR\n  (a ordem da lista decidiu -- o nome nao desempata nada)",
+      "enunciado": "O que esta saída demonstra sobre um cliente que decide em qual rede conectar só pelo nome exibido?",
+      "alternativas": [
+        "Que o impostor precisou quebrar a criptografia da rede real para aparecer na lista",
+        "Que o nome idêntico não deu ao cliente critério real de escolha",
+        "Que o cliente identificou corretamente qual das duas era a rede real",
+        "Que redes com o mesmo nome sempre compartilham a mesma senha"
+      ],
+      "correta": 1,
+      "dicas": [
+        "O cliente, neste teste, conectou na rede real ou no impostor?",
+        "O que, na saída, explica por que o impostor foi escolhido?",
+        "Quebrar criptografia e copiar um nome são a mesma ação?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o que decidiu qual das duas redes o cliente escolheu, já que o nome era idêntico?",
+      "explicacao": "A saída mostra o cliente ingênuo conectando no impostor, porque os dois transmitiam o nome idêntico e nada mais foi checado — a escolha coube à ordem em que os candidatos apareceram, não a nenhuma verificação de legitimidade. O impostor não precisou quebrar nada: só copiou um dado público. Nome idêntico não implica senha idêntica nem rede idêntica.",
+      "por_que_erradas": {
+        "0": "O impostor só copiou o nome, dado público; não houve criptografia envolvida nessa etapa.",
+        "2": "A saída mostra exatamente o oposto: o cliente ingênuo conectou no impostor.",
+        "3": "Nome igual não implica senha igual; são propriedades independentes."
+      },
+      "fonte": "Execução real, identidade_de_rede_e_copiavel.py",
+      "tags": ["redes-sem-fio", "artefato", "evil-twin", "identidade"]
+    },
+    {
+      "id": "3.9.q10",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "artefato": "=== cliente que exige prova mutua (desafio-resposta) ===\n  conectou em: rede real\n  (o impostor tem o nome certo, mas nao tem o segredo -- falha)",
+      "enunciado": "Por que a mesma disputa de nomes tem resultado diferente quando o cliente exige uma prova de desafio-resposta?",
+      "alternativas": [
+        "Porque a resposta certa exige conhecer o segredo, que o impostor não tem",
+        "Porque o desafio-resposta impede o impostor de transmitir qualquer sinal",
+        "Porque a segunda tentativa usou um nome de rede diferente",
+        "Porque o desafio-resposta é mais lento e o impostor não teve tempo de responder"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que muda entre o teste anterior e este: o nome usado, ou o que se pede além do nome?",
+        "O impostor consegue produzir o valor certo sem ter a informação necessária?",
+        "Tempo de cálculo é o motivo, ou é faltar o dado necessário?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o nome usado pelo impostor muda entre os dois testes desta saída?",
+      "explicacao": "A diferença não está no nome — continua idêntico — está em exigir uma prova calculada a partir do segredo. O impostor continua transmitindo normalmente, só não consegue produzir a resposta correta, porque não tem o segredo. Não é questão de velocidade nem de impedir transmissão: é impossibilidade de calcular a resposta certa sem o dado necessário.",
+      "por_que_erradas": {
+        "1": "O impostor continua transmitindo normalmente; só a resposta ao desafio falha.",
+        "2": "O nome usado é o mesmo nos dois testes, segundo a saída.",
+        "3": "O motivo é a ausência do segredo, não o tempo de resposta."
+      },
+      "fonte": "Execução real, identidade_de_rede_e_copiavel.py",
+      "tags": ["redes-sem-fio", "artefato", "prova-mutua", "desafio-resposta"]
+    },
+    {
+      "id": "3.9.q11",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Um smartphone está configurado para reconectar automaticamente a qualquer rede cujo nome já esteja salvo, sem perguntar nada ao usuário. Que risco esse comportamento cria?",
+      "alternativas": [
+        "O dispositivo trata nome salvo como se fosse identidade verificada",
+        "O dispositivo gasta mais bateria procurando redes conhecidas",
+        "O dispositivo perde a capacidade de se conectar a redes novas",
+        "O dispositivo passa a exigir senha duas vezes para redes já conhecidas"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Reconectar automático pelo nome pula alguma verificação de quem está do outro lado?",
+        "Bateria e capacidade de conectar a redes novas têm relação com o risco descrito no módulo?",
+        "Pense no comportamento do t2 sobre confiar só no nome."
+      ],
+      "pergunta_socratica": "Antes de conferir: reconectar automaticamente por nome envolve alguma verificação de que a rede é a mesma de antes?",
+      "explicacao": "Reconectar automaticamente por nome é exatamente o comportamento que o t2 descreve como vulnerável: o dispositivo trata o nome salvo como se fosse prova de identidade, e conecta ao primeiro candidato com aquele nome, sem prova nenhuma de que é a rede real. Bateria e capacidade de conectar a redes novas não são o risco relevante, e o comportamento não duplica pedido de senha.",
+      "por_que_erradas": {
+        "1": "Consumo de bateria não é o risco de segurança em questão.",
+        "2": "O dispositivo continua podendo conectar a redes novas normalmente.",
+        "3": "Reconexão automática tende a pular pedido de senha, não duplicá-lo."
+      },
+      "fonte": "Teoria 3.9.t2",
+      "tags": ["redes-sem-fio", "cenario", "reconexao-automatica"]
+    },
+    {
+      "id": "3.9.q12",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Qual mudança de comportamento do lado do cliente fecha a lacuna de confiança unilateral descrita neste módulo?",
+      "alternativas": [
+        "Aumentar o tamanho mínimo da senha da rede",
+        "Exigir que a rede prove, por cálculo, conhecer o mesmo segredo",
+        "Reduzir o tempo que o dispositivo fica sem conexão antes de tentar reconectar",
+        "Aumentar a frequência de troca do canal de rádio usado"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Tamanho de senha resolve identidade da rede, ou custo de adivinhar a senha?",
+        "Tempo sem conexão e frequência de canal mudam alguma coisa sobre quem prova o quê?",
+        "A lacuna é o cliente não verificar a rede de volta — o que resolve exatamente isso?"
+      ],
+      "pergunta_socratica": "Antes de conferir: aumentar o tamanho da senha muda quem verifica quem, ou só o custo de adivinhar?",
+      "explicacao": "Só uma prova bidirecional fecha a lacuna: o cliente precisa exigir da rede a mesma coisa que a rede exige dele — conhecimento comprovado do segredo, calculado, não exibido. Tamanho de senha afeta o custo de adivinhação (outro eixo, já visto em 2.4/2.5), tempo de reconexão e frequência de canal não têm relação com prova de identidade nenhuma.",
+      "por_que_erradas": {
+        "0": "Tamanho de senha afeta custo de adivinhação, não resolve a ausência de prova mútua.",
+        "2": "Tempo sem conexão não introduz verificação nenhuma da rede.",
+        "3": "Trocar canal de rádio não exige prova de segredo de ninguém."
+      },
+      "fonte": "Teoria 3.9.t2",
+      "tags": ["redes-sem-fio", "ataque-defesa", "prova-mutua"]
+    },
+    {
+      "id": "3.9.q13",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "trecho": "POLÍTICA DE CONEXÃO — trecho\n\"Nossos dispositivos são seguros contra ponto de acesso falso porque toda rede da empresa exige senha para conectar. Se um impostor não souber a senha, o dispositivo não vai conseguir se conectar a ele.\"",
+      "enunciado": "Qual é o erro de raciocínio desta política?",
+      "alternativas": [
+        "A política erra o número de caracteres exigido na senha",
+        "A política confunde pedir senha com provar identidade da rede",
+        "A política está correta, e nenhuma verificação adicional é necessária",
+        "A política erra porque nenhuma rede da empresa deveria pedir senha"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Exigir senha verifica quem está entrando, ou quem está recebendo?",
+        "Um impostor precisa saber a senha da rede real para enganar um cliente que decide só pelo nome?",
+        "Pense na direção da verificação: da rede para o cliente, ou do cliente para a rede?"
+      ],
+      "pergunta_socratica": "Antes de conferir: um impostor com o mesmo nome de rede precisa saber a senha real para enganar um cliente que nunca chega a testá-la?",
+      "explicacao": "Exigir senha do cliente verifica só uma direção: quem está entrando. Isso não impede um impostor de existir com o mesmo nome — ele não precisa saber a senha real para enganar um cliente que decide só pelo nome; só precisa que o cliente nunca chegue a testar o segredo. A política ignora a direção que falta: o cliente verificar a rede.",
+      "por_que_erradas": {
+        "0": "O número de caracteres da senha não é o erro central descrito.",
+        "2": "A política tem uma lacuna real, descrita na alternativa correta.",
+        "3": "Pedir senha continua sendo necessário; o problema é faltar a verificação na direção oposta."
+      },
+      "fonte": "Teoria 3.9.t2",
+      "tags": ["redes-sem-fio", "caca-erro", "confianca-unilateral", "politica"]
+    },
+    {
+      "id": "3.9.q14",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Coloque em ordem os passos de um cliente que verifica de verdade uma rede sem fio antes de confiar nela.",
+      "itens": [
+        "Observar o nome anunciado pela rede candidata (dado público, ainda sem valor de prova)",
+        "Enviar um desafio que só pode ser respondido corretamente por quem conhece o segredo esperado",
+        "Receber a resposta calculada da rede candidata",
+        "Comparar a resposta recebida com o valor esperado, calculado do mesmo segredo",
+        "Só então considerar a conexão confiável e trocar dados"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "O nome sozinho já é motivo para confiar, ou só o primeiro dado observado?",
+        "O desafio precisa ser enviado antes ou depois de já confiar na rede?",
+        "A comparação só pode acontecer depois de já ter os dois valores em mãos — quando cada um aparece?"
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para comparar a resposta da rede antes de ela ter sido recebida?",
+      "explicacao": "O nome é só o primeiro dado observado, sem peso de prova. A prova real começa com o desafio, que só quem conhece o segredo consegue responder certo; a resposta chega em seguida, e só depois de comparada com o valor esperado é que a confiança pode ser estabelecida — nunca antes disso.",
+      "fonte": "Teoria 3.9.t2; execução real, identidade_de_rede_e_copiavel.py",
+      "tags": ["redes-sem-fio", "ordenacao", "prova-mutua"]
+    },
+    {
+      "id": "3.9.q15",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Ligue cada item ao que ele realmente representa sobre a identidade de uma rede sem fio.",
+      "pares": [
+        ["Nome da rede (SSID)", "Dado público, transmitido em claro, livre para qualquer equipamento configurar"],
+        ["Endereço de hardware do ponto de acesso", "Dado público, também configurável, sem verificação de origem"],
+        ["Resposta correta a um desafio criptográfico", "Só pode ser produzida por quem conhece o segredo esperado"],
+        ["Tela pedindo senha ao cliente", "Comportamento reproduzível por qualquer equipamento, real ou falso"]
+      ],
+      "dicas": [
+        "Duas das quatro opções são dados visíveis, sem prova nenhuma por trás.",
+        "Uma das opções exige cálculo a partir de um segredo — qual?",
+        "Pedir senha e provar identidade são a mesma ação?"
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das quatro coisas listadas exige conhecer um segredo para ser produzida corretamente?",
+      "explicacao": "Nome, endereço de hardware e a própria tela de pedido de senha são todos dados ou comportamentos que qualquer equipamento reproduz livremente, sem provar nada. Só a resposta calculada a partir do segredo exige conhecimento real — é a única linha desta lista que funciona como prova.",
+      "fonte": "Teoria 3.9.t2",
+      "tags": ["redes-sem-fio", "pareamento", "identidade", "prova-mutua"]
+    },
+    {
+      "id": "3.9.q16",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Uma rede corporativa tem vários pontos de acesso espalhados pelo prédio, todos transmitindo o mesmo nome, para permitir que o dispositivo mude de um para outro sem reconectar manualmente. Um funcionário vê essa rede aparecer em três locais diferentes e conclui que isso, por si só, já é sinal de ataque. A conclusão está correta?",
+      "alternativas": [
+        "Sim, nome repetido em mais de um local sempre indica impostor",
+        "Não — vários pontos de acesso legítimos podem ter o mesmo nome de propósito",
+        "Sim, porque redes corporativas nunca usam mais de um ponto de acesso",
+        "Não, porque o número de pontos de acesso costuma estar disponível no software do dispositivo"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Existe uma razão legítima, de desempenho, para ter vários pontos de acesso com o mesmo nome?",
+        "O que este módulo já estabeleceu sobre o que nome repetido, sozinho, prova?",
+        "A pergunta certa não é quantas vezes o nome aparece — é qual?"
+      ],
+      "pergunta_socratica": "Antes de conferir: uma rede corporativa bem configurada pode ter, de propósito, vários pontos de acesso com o mesmo nome?",
+      "explicacao": "Redes corporativas de verdade costumam ter vários pontos de acesso com o mesmo nome, de propósito, para permitir troca contínua de conexão — isso é normal, não é indício de nada. O erro do funcionário é o mesmo do t2: tratar o nome, mesmo repetido, como se carregasse informação de identidade, quando ele nunca carregou. O que distingue real de impostor é a prova de segredo, não a contagem de aparições do nome.",
+      "por_que_erradas": {
+        "0": "Nome repetido é comportamento normal de rede corporativa bem configurada.",
+        "2": "Redes corporativas usam múltiplos pontos de acesso rotineiramente.",
+        "3": "Disponibilidade dessa contagem no software não tem relação com a conclusão de segurança."
+      },
+      "fonte": "Teoria 3.9.t2",
+      "tags": ["redes-sem-fio", "cenario", "roaming", "identidade"]
+    },
+    {
+      "id": "3.9.q17",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [2],
+      "enunciado": "Por que o primeiro padrão de criptografia de rede sem fio foi abandonado?",
+      "alternativas": [
+        "Porque usava chave estática, sem rotação, com verificação de integridade fraca",
+        "Porque exigia hardware caro demais para qualquer fabricante produzir",
+        "Porque a verificação de integridade exigia mais banda do que a rede suportava",
+        "Porque não funcionava com o protocolo TCP/IP"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A chave desse padrão mudava sozinha com o tempo, ou ficava sempre igual?",
+        "O motivo tem relação com custo de hardware, banda usada pela verificação ou TCP/IP?",
+        "Se alguém capturasse o mesmo tráfego mil vezes seguidas, o valor secreto usado mudaria em algum momento?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a chave usada por esse padrão mudava a cada uso, ou permanecia fixa?",
+      "explicacao": "Chave estática, que nunca muda sozinha, combinada com verificação de integridade fraca, tornou o esquema prático de quebrar com hardware comum — não é questão de custo, limite de dispositivos ou incompatibilidade com TCP/IP, que nunca existiu.",
+      "por_que_erradas": {
+        "1": "O padrão rodava em hardware comum da época; custo não foi o motivo do abandono.",
+        "2": "A verificação de integridade desse padrão era leve, não pesada; o problema era ser fraca, não exigir banda.",
+        "3": "Redes protegidas por esse padrão funcionavam normalmente sobre TCP/IP."
+      },
+      "fonte": "Teoria 3.9.t3",
+      "tags": ["redes-sem-fio", "chave-estatica", "historia-do-padrao"]
+    },
+    {
+      "id": "3.9.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O padrão seguinte ao primeiro corrigiu a chave estática trocando-a por um esquema que renova a chave a cada pacote. Por que isso não bastou para eliminar todo risco?",
+      "alternativas": [
+        "Porque renovar a chave por pacote deixa a rede lenta demais para uso prático",
+        "Porque herdava estrutura antiga, com falhas próprias descobertas depois",
+        "Porque esse esquema nunca chegou a ser adotado por nenhum fabricante",
+        "Porque renovar a chave por pacote dispensa a verificação de integridade"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Compatibilidade com o padrão antigo traz só benefício de aceitar equipamento antigo, ou também custo?",
+        "Corrigir um problema específico garante ausência de qualquer outro problema?",
+        "Desempenho e adoção por fabricante são o motivo aqui?"
+      ],
+      "pergunta_socratica": "Antes de conferir: corrigir a falha mais grave de um padrão garante que nenhuma outra falha exista nele?",
+      "explicacao": "A correção resolveu o problema mais grave, mas manteve, por compatibilidade, estrutura do padrão anterior — e essa herança, mais o tempo de pesquisa, revelou falhas próprias do novo esquema. Não é questão de desempenho nem de adoção — o esquema foi amplamente adotado — e renovar chave não elimina a necessidade de verificação de integridade.",
+      "por_que_erradas": {
+        "0": "Desempenho não foi o fator limitante da correção.",
+        "2": "O esquema foi amplamente adotado pelos fabricantes.",
+        "3": "Renovar chave e verificar integridade resolvem problemas diferentes; um não substitui o outro."
+      },
+      "fonte": "Teoria 3.9.t3",
+      "tags": ["redes-sem-fio", "chave-por-pacote", "historia-do-padrao"]
+    },
+    {
+      "id": "3.9.q19",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "A falha encontrada no aperto de mão da geração do padrão que introduziu AES explorava o quê, especificamente?",
+      "alternativas": [
+        "Como a instalação da chave era confirmada",
+        "A força da cifra AES usada para proteger o conteúdo",
+        "O tamanho da senha exigida pela rede",
+        "A velocidade de transmissão de dados da rede"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A falha estava na cifra em si, ou no processo de confirmar que a chave foi instalada corretamente?",
+        "Tamanho de senha e velocidade de transmissão têm relação com o processo de aperto de mão?",
+        "Pense em 'forçar reuso de chave' — reuso de quê, exatamente?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a falha estava na força da cifra AES, ou em outra etapa do processo de conexão?",
+      "explicacao": "A falha mora na confirmação da instalação da chave durante o aperto de mão, não na força da cifra AES — a cifra em si continuou sólida. Forçar reuso de chave é possível manipulando esse processo de confirmação, um problema de especificação do protocolo, não de tamanho de senha ou velocidade de transmissão.",
+      "por_que_erradas": {
+        "1": "A cifra usada para proteger o conteúdo não foi o alvo da falha.",
+        "2": "Tamanho de senha não tem relação com o processo de aperto de mão.",
+        "3": "Velocidade de transmissão é característica de desempenho, não de segurança do aperto de mão."
+      },
+      "fonte": "Teoria 3.9.t3",
+      "tags": ["redes-sem-fio", "aperto-de-mao", "reuso-de-chave"]
+    },
+    {
+      "id": "3.9.q20",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Uma equipe de TI mantém o ponto de acesso corporativo em modo de transição, aceitando tanto a geração mais nova do padrão quanto a mais antiga, porque parte do inventário de dispositivos ainda não suporta o padrão novo. Do ponto de vista deste módulo, essa decisão é...",
+      "alternativas": [
+        "Um erro sem justificativa, porque nenhum equipamento deveria continuar desatualizado",
+        "Uma troca real entre segurança e compatibilidade, não uma escolha óbvia",
+        "Irrelevante, porque o modo de transição não afeta a segurança da rede",
+        "Sempre a escolha certa, porque manter compatibilidade nunca tem custo de segurança"
+      ],
+      "correta": 1,
+      "dicas": [
+        "O módulo já descreveu esse modo como seguro, neutro, ou como uma decisão com peso nos dois lados?",
+        "Manter equipamento desatualizado tem custo zero, ou existe razão prática para isso mesmo assim?",
+        "Pense no que 'inadequada' significa quando aplicado à segurança do modo de convivência."
+      ],
+      "pergunta_socratica": "Antes de conferir: desligar o modo de transição tem algum custo para quem usa equipamento antigo?",
+      "explicacao": "É uma troca real, documentada: o modo de transição reintroduz o caminho mais fraco ao lado do mais forte, e isso tem segurança inadequada — mas desligá-lo também tem custo, porque derruba equipamento legítimo que não foi atualizado. Não é erro automático nem escolha sempre certa, e definitivamente não é irrelevante para a segurança.",
+      "por_que_erradas": {
+        "0": "Existe custo real em atualizar todo o inventário; a decisão não é automaticamente errada.",
+        "2": "O modo de transição tem impacto documentado na segurança da rede.",
+        "3": "Manter compatibilidade tem custo de segurança real, como o t4 descreve."
+      },
+      "fonte": "Teoria 3.9.t4",
+      "tags": ["redes-sem-fio", "cenario", "modo-de-transicao"]
+    },
+    {
+      "id": "3.9.q21",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "trecho": "RELATÓRIO DE AUDITORIA — trecho\n\"A rede sem fio da empresa usa a geração mais recente do padrão de proteção, com o método de prova mútua mais atual disponível. Concluímos que a rede está protegida contra qualquer falha de segurança conhecida ou futura.\"",
+      "enunciado": "Qual afirmação do relatório não se sustenta, segundo este módulo?",
+      "alternativas": [
+        "Que a geração mais recente do padrão existe",
+        "Que o padrão mais novo protege contra qualquer falha possível",
+        "Que o método de prova mútua mais atual está disponível",
+        "Que a rede usa algum padrão de proteção"
+      ],
+      "correta": 1,
+      "dicas": [
+        "O padrão criptográfico mais novo resolve problema de que camada — só a dele, ou todas as camadas abaixo?",
+        "Erro de programação na implementação de um fabricante está sob controle do protocolo criptográfico escolhido?",
+        "Releia a conclusão do relatório inteira, não só o que ele afirma sobre o padrão em si."
+      ],
+      "pergunta_socratica": "Antes de conferir: um erro de programação cometido por um fabricante está sob controle do protocolo criptográfico usado?",
+      "explicacao": "O padrão mais novo resolve o que está sob controle dele — criptografia e aperto de mão — mas não elimina erro de programação de um fabricante numa camada diferente, nem cobre falha ainda não descoberta. 'Qualquer falha conhecida ou futura' é a generalização que não se sustenta; as outras afirmações do relatório são factuais.",
+      "por_que_erradas": {
+        "0": "A existência da geração mais recente é um fato, não a alegação problemática.",
+        "2": "A disponibilidade do método de prova mútua é factual, não a alegação problemática.",
+        "3": "Usar algum padrão de proteção é uma afirmação factual, não a generalização exagerada."
+      },
+      "fonte": "Teoria 3.9.t4",
+      "tags": ["redes-sem-fio", "caca-erro", "falha-de-implementacao"]
+    },
+    {
+      "id": "3.9.q22",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que resolver a fraqueza criptográfica de uma geração do padrão não resolve, sozinho, o problema de compatibilidade com equipamento antigo?",
+      "alternativas": [
+        "Porque o equipamento antigo continua existindo e pedindo acesso",
+        "Porque a correção criptográfica exige trocar toda a fiação do prédio",
+        "Porque compatibilidade é decidida pelo fabricante do roteador, nunca pelo padrão",
+        "Porque equipamento antigo para de funcionar completamente assim que um padrão novo é lançado"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que acontece com o equipamento antigo quando um padrão novo é lançado — ele some, ou segue precisando entrar na rede?",
+        "Fiação e decisão de fabricante têm relação com o motivo estrutural aqui?",
+        "Pense no motivo pelo qual modo de transição existe: para servir a quem?"
+      ],
+      "pergunta_socratica": "Antes de conferir: equipamento antigo deixa de existir quando um padrão novo é lançado?",
+      "explicacao": "O equipamento antigo não desaparece quando um padrão novo é lançado — continua em uso, e alguém decide se ele mantém acesso. Resolver a criptografia da geração nova não muda essa realidade: para servir ao equipamento antigo, o caminho antigo precisa continuar disponível em algum grau, o modo de transição do t4. Não tem relação com fiação física nem é decisão isolada de fabricante.",
+      "por_que_erradas": {
+        "1": "Nenhuma correção criptográfica exige trocar fiação; rede sem fio não depende de cabo para o rádio.",
+        "2": "Compatibilidade é influenciada pelo padrão, não decidida isoladamente pelo fabricante.",
+        "3": "Equipamento antigo continua funcionando normalmente com o padrão antigo."
+      },
+      "fonte": "Teoria 3.9.t4",
+      "tags": ["redes-sem-fio", "compatibilidade", "modo-de-transicao"]
+    },
+    {
+      "id": "3.9.q23",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Uma equipe está decidindo se desliga o modo de transição da rede corporativa, aceitando só a geração mais nova do padrão. Qual pergunta deveria orientar essa decisão?",
+      "alternativas": [
+        "Qual das duas gerações tem o nome comercial mais reconhecido pelos usuários",
+        "Quanto do inventário depende do padrão antigo, e o custo de perder acesso",
+        "Qual geração consome menos energia da bateria dos dispositivos",
+        "Se a equipe de TI prefere configurar um padrão só, por simplicidade de manutenção"
+      ],
+      "correta": 1,
+      "dicas": [
+        "A decisão envolve uma troca real, entre o quê e o quê?",
+        "Nome comercial e consumo de bateria têm relação com essa troca específica?",
+        "Preferência de simplicidade da equipe pesa mais que o impacto em quem ainda usa o padrão anterior?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a resposta certa depende de gosto da equipe, ou do tamanho real do impacto em quem usa equipamento antigo?",
+      "explicacao": "A troca real é entre segurança e compatibilidade — a pergunta certa mede o tamanho do lado da compatibilidade antes de decidir. Nome comercial e consumo de bateria são irrelevantes para essa troca, e preferência de simplicidade da equipe não deveria decidir sozinha uma questão de acesso de terceiros.",
+      "por_que_erradas": {
+        "0": "Nome comercial não tem relação com a troca de segurança e compatibilidade em jogo.",
+        "2": "Consumo de bateria é característica de hardware, não parte desta decisão.",
+        "3": "Simplicidade de manutenção é secundária ao impacto real em quem perde acesso."
+      },
+      "fonte": "Teoria 3.9.t4",
+      "tags": ["redes-sem-fio", "ataque-defesa", "modo-de-transicao", "decisao"]
+    },
+    {
+      "id": "3.9.q24",
+      "tipo": "pareamento",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Ligue cada geração do padrão de proteção sem fio ao que ela resolveu e ao que ficou de lacuna.",
+      "pares": [
+        ["Primeira geração (chave estática)", "Não resolveu nada de estrutural; chave fixa e verificação de integridade fraca tornaram o esquema quebrável"],
+        ["Geração com renovação de chave por pacote", "Resolveu a chave estática; herdou estrutura antiga e ganhou falhas próprias depois"],
+        ["Geração com AES e aperto de mão clássico", "Resolveu a criptografia do conteúdo; deixou o processo de confirmação de instalação de chave vulnerável"],
+        ["Geração com prova mútua mais recente", "Resolveu a fraqueza do aperto de mão; não resolve modo de transição nem bug de implementação"]
+      ],
+      "dicas": [
+        "Cada geração resolveu o problema mais grave da anterior — não todos os problemas possíveis.",
+        "A lacuna que sobra numa geração costuma ser o que a próxima geração resolve.",
+        "A última geração da lista ainda tem lacuna — qual, segundo o t4?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a geração mais recente da lista resolveu todos os problemas possíveis, ou só um específico?",
+      "explicacao": "A evolução é sequencial e específica: cada geração fecha a fraqueza estrutural mais grave da anterior, sem zerar todo risco — a mais recente resolve o aperto de mão, mas modo de transição e bug de implementação continuam fora do alcance dela, por serem de categorias diferentes de problema.",
+      "fonte": "Teoria 3.9.t3, 3.9.t4",
+      "tags": ["redes-sem-fio", "pareamento", "historia-do-padrao"]
+    },
+    {
+      "id": "3.9.q25",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um boletim de segurança descreve uma falha que afeta praticamente todas as implementações de duas gerações inteiras do padrão de proteção sem fio, independente do fabricante. O que esse alcance amplo sugere sobre onde a falha mora?",
+      "alternativas": [
+        "Que a falha está na especificação do protocolo, não num erro isolado de fabricante",
+        "Que todos os fabricantes copiaram o código-fonte um do outro",
+        "Que a falha é, na verdade, um boato, porque nenhum bug afeta tantos fabricantes ao mesmo tempo",
+        "Que a falha só existe em equipamento doméstico, nunca em equipamento corporativo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um bug de um fabricante específico afetaria fabricantes concorrentes que nunca viram aquele código?",
+        "O que precisaria ser compartilhado por todos os fabricantes para uma falha afetar todos igualmente?",
+        "Alcance amplo e boato são a mesma coisa?"
+      ],
+      "pergunta_socratica": "Antes de conferir: fabricantes concorrentes compartilham código-fonte entre si?",
+      "explicacao": "Quando uma falha afeta praticamente todas as implementações independente do fabricante, o denominador comum é a especificação do protocolo — todos implementaram a mesma especificação, então uma falha nela se propaga para todos, mesmo sem compartilhar código. Não é cópia de código-fonte, não é boato (o alcance amplo é evidência de causa estrutural), e nada limita esse tipo de falha a equipamento doméstico.",
+      "por_que_erradas": {
+        "1": "Fabricantes concorrentes não compartilham código-fonte; a falha vem da especificação comum.",
+        "2": "Alcance amplo é evidência de causa estrutural, não de boato.",
+        "3": "Falha de especificação afeta qualquer implementação dela, doméstica ou corporativa."
+      },
+      "fonte": "Teoria 3.9.t3, 3.9.t4",
+      "tags": ["redes-sem-fio", "cenario", "falha-de-especificacao"]
+    },
+    {
+      "id": "3.9.q26",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [3],
+      "enunciado": "No modo pessoal de proteção de rede sem fio, o que a função de verificação de senha consegue responder?",
+      "alternativas": [
+        "Se a pessoa que está tentando entrar é quem diz ser",
+        "Se quem está tentando entrar conhece a senha da rede — nada além disso",
+        "Se o dispositivo que está tentando entrar já foi usado antes nessa rede",
+        "Se a pessoa está autorizada a acessar dados específicos dentro da rede"
+      ],
+      "correta": 1,
+      "dicas": [
+        "A verificação recebe alguma informação sobre quem está tentando, além do segredo em si?",
+        "Identidade da pessoa e conhecimento do segredo são a mesma coisa, no modo pessoal?",
+        "Pense no que falta comparado ao modo corporativo."
+      ],
+      "pergunta_socratica": "Antes de conferir: a verificação do modo pessoal guarda identidade de alguma pessoa específica?",
+      "explicacao": "A função de verificação do modo pessoal só compara o segredo apresentado contra o segredo da rede — nunca recebe nem guarda identidade de quem apresenta. Ela não confirma quem é a pessoa, se o dispositivo já foi visto antes, nem autorização específica de dado — só se o segredo bate.",
+      "por_que_erradas": {
+        "0": "O modo pessoal não verifica identidade de pessoa, só conhecimento do segredo.",
+        "2": "Não há registro de dispositivo no modo pessoal padrão.",
+        "3": "Autorização por dado específico não existe nesse modelo simples de senha única."
+      },
+      "fonte": "Teoria 3.9.t5; execução real, segredo_unico_nao_distingue_usuario.py",
+      "tags": ["redes-sem-fio", "modo-pessoal", "identidade"]
+    },
+    {
+      "id": "3.9.q27",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "artefato": "=== modo pessoal: um segredo para a rede inteira ===\n  Ana (dona da rede): aceito\n  Bruno (visitante autorizado): aceito\n  Desconhecido (achou a senha anotada num post-it): aceito\n\n  a rede aceitou os tres com a MESMA resposta -- ela nao tem\n  como saber que o terceiro nao deveria estar ali.",
+      "enunciado": "O que esta saída demonstra sobre o modo pessoal de proteção de rede sem fio?",
+      "alternativas": [
+        "Que a senha usada era fraca demais e deveria ser mais longa",
+        "Que a rede não distingue quem deveria estar ali",
+        "Que o terceiro conseguiu quebrar a criptografia da rede",
+        "Que Ana e Bruno usaram senhas diferentes entre si"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Os três apresentaram exatamente a mesma senha, ou senhas diferentes?",
+        "A rede tratou o terceiro de forma diferente dos outros dois, nesta saída?",
+        "Quebrar criptografia e conhecer a senha por um post-it são a mesma coisa?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a rede respondeu de forma diferente para o desconhecido, comparado a Ana e Bruno?",
+      "explicacao": "Os três usaram a mesma senha, e a rede respondeu de forma idêntica aos três — o desenho não tem como saber que o terceiro não deveria ter a senha. Não é questão de força de senha (mesmo uma senha forte, uma vez anotada e encontrada, funciona igual), não houve quebra de criptografia, e Ana e Bruno usaram exatamente a mesma senha.",
+      "por_que_erradas": {
+        "0": "O problema não é a força da senha; é o desenho não distinguir identidade nenhuma.",
+        "2": "Não houve quebra de criptografia; o terceiro só apresentou a senha que encontrou escrita.",
+        "3": "Ana e Bruno usaram a mesma senha da rede, segundo a saída."
+      },
+      "fonte": "Execução real, segredo_unico_nao_distingue_usuario.py",
+      "tags": ["redes-sem-fio", "artefato", "modo-pessoal"]
+    },
+    {
+      "id": "3.9.q28",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um funcionário que conhecia a senha da rede sem fio corporativa (modo pessoal) deixa a empresa em más condições. Qual é a única correção possível para impedir que ele continue acessando a rede, sem afetar quem ainda trabalha lá?",
+      "alternativas": [
+        "Trocar a senha da rede inteira, o que afeta todo mundo",
+        "Bloquear o endereço de hardware do dispositivo do ex-funcionário",
+        "Reduzir a potência do sinal para que o ex-funcionário fique fora do alcance",
+        "Pedir para o ex-funcionário apagar a senha da memória do próprio dispositivo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O modo pessoal guarda identidade de quem usa a senha, ou só o segredo em si?",
+        "Endereço de hardware é dado público, configurável — impede alguém decidido?",
+        "Potência de sinal e pedido de boa vontade resolvem o problema de quem já tem o segredo?"
+      ],
+      "pergunta_socratica": "Antes de conferir: existe algum jeito de negar acesso a uma única pessoa no modo pessoal, sem trocar o segredo de todos?",
+      "explicacao": "Sem identidade por pessoa, a única forma de negar acesso a quem já tem o segredo é invalidar o segredo para todo mundo — não há como mirar só uma pessoa. Bloqueio por endereço de hardware é contornável, reduzir potência não impede alguém decidido dentro do alcance, e pedir para apagar a senha depende da boa vontade de quem já saiu em más condições.",
+      "por_que_erradas": {
+        "1": "Endereço de hardware é dado público e configurável; não é controle confiável de identidade.",
+        "2": "Reduzir potência não cria fronteira contra alguém decidido dentro do alcance.",
+        "3": "Depender de boa vontade não é um controle de segurança."
+      },
+      "fonte": "Teoria 3.9.t1, 3.9.t2, 3.9.t5",
+      "tags": ["redes-sem-fio", "cenario", "revogacao", "modo-pessoal"]
+    },
+    {
+      "id": "3.9.q29",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "artefato": "=== modo corporativo: um segredo por pessoa ===\n  usuario 'ana' com a senha tentada: aceito\n  usuario 'bruno' com a senha tentada: aceito\n  usuario 'bruno' com a senha tentada: recusado\n\n  revogar so o bruno, sem tocar na credencial da ana:\n  bruno depois de revogado: recusado\n  ana, sem ter sido tocada:  aceito",
+      "enunciado": "O que esta saída demonstra sobre o modo corporativo de proteção de rede sem fio, em contraste com o modo pessoal?",
+      "alternativas": [
+        "Que dá para negar acesso a uma pessoa sem afetar outra",
+        "Que o modo corporativo não permite revogar acesso de ninguém",
+        "Que Ana e Bruno compartilham a mesma credencial no modo corporativo",
+        "Que revogar o Bruno também bloqueou automaticamente o acesso da Ana"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Depois de revogar o Bruno, o que aconteceu com o acesso da Ana, segundo a saída?",
+        "'Recusado' para o Bruno depois da revogação significa que ela funcionou, ou falhou?",
+        "Ana e Bruno usam a mesma senha nesse modelo, ou senhas próprias?"
+      ],
+      "pergunta_socratica": "Antes de conferir: revogar o Bruno mudou alguma coisa no acesso da Ana, segundo a saída?",
+      "explicacao": "A saída mostra a revogação individual funcionando: Bruno passa a ser recusado, e Ana continua sendo aceita sem qualquer mudança na credencial dela. Isso é possível porque cada pessoa tem par próprio de identidade e segredo — o oposto do modo pessoal, onde revogar exigiria trocar o segredo de todos.",
+      "por_que_erradas": {
+        "1": "A saída mostra revogação funcionando normalmente.",
+        "2": "Ana e Bruno têm credenciais próprias e distintas neste modelo.",
+        "3": "A credencial da Ana não foi tocada, e o acesso dela continuou aceito."
+      },
+      "fonte": "Execução real, segredo_unico_nao_distingue_usuario.py",
+      "tags": ["redes-sem-fio", "artefato", "modo-corporativo", "revogacao"]
+    },
+    {
+      "id": "3.9.q30",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que o modo corporativo de proteção de rede sem fio não é corretamente descrito como só uma senha mais forte que o modo pessoal?",
+      "alternativas": [
+        "Porque a verificação passa a reconhecer identidade individual, não força de senha",
+        "Porque no modo corporativo não existe senha nenhuma envolvida",
+        "Porque o modo corporativo usa uma senha mais curta, não mais longa",
+        "Porque a força da senha individual deixa de importar completamente no modo corporativo"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O que muda entre os dois modos: a força de um segredo, ou o que a verificação consegue enxergar sobre quem apresenta o segredo?",
+        "Existe credencial no modo corporativo, ou ele dispensa qualquer segredo?",
+        "Força de senha individual deixa de importar, ou continua importando dentro de cada credencial própria?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o modo corporativo dispensa qualquer forma de segredo, ou muda o que é feito com ele?",
+      "explicacao": "A diferença central é estrutural: a verificação passa a reconhecer identidade por pessoa, cada uma com credencial própria — não é sobre nenhuma senha específica ser mais forte. Continua existindo segredo em ambos os modos, o modo corporativo não usa senha mais curta, e a força de cada credencial individual continua importando dentro do próprio par usuário-segredo.",
+      "por_que_erradas": {
+        "1": "Ambos os modos envolvem algum tipo de segredo ou credencial.",
+        "2": "Não há relação entre os dois modos e comprimento de senha.",
+        "3": "A força da credencial individual continua relevante dentro do próprio par usuário-segredo."
+      },
+      "fonte": "Teoria 3.9.t5",
+      "tags": ["redes-sem-fio", "modo-corporativo", "identidade"]
+    },
+    {
+      "id": "3.9.q31",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Uma pequena rede doméstica com três pessoas da mesma família considera migrar para modo corporativo. Quando esse custo extra de infraestrutura realmente compensa?",
+      "alternativas": [
+        "Quando revogar uma pessoa específica é necessidade real e recorrente",
+        "Sempre, porque modo corporativo é objetivamente mais seguro em qualquer cenário",
+        "Nunca, porque modo corporativo só existe em teoria, sem uso real",
+        "Só quando o número de dispositivos conectados passa de dez"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O benefício central do modo corporativo é revogação de quem, especificamente?",
+        "Uma família pequena e estável tem rotatividade de pessoas entrando e saindo da rede?",
+        "Número de dispositivos é o critério que o módulo usa para essa decisão?"
+      ],
+      "pergunta_socratica": "Antes de conferir: uma família pequena e estável costuma precisar revogar acesso individual com frequência?",
+      "explicacao": "O benefício estrutural do modo corporativo é revogação individual — ele compensa quando isso é uma necessidade real. Numa família pequena e estável, essa necessidade raramente aparece, então o custo extra pode não compensar. Não é questão de ser sempre superior, e modo corporativo tem uso real amplo, não é só teoria.",
+      "por_que_erradas": {
+        "1": "Superioridade depende do que a situação realmente exige, não é absoluta em qualquer cenário.",
+        "2": "Modo corporativo é usado amplamente em redes reais de organizações.",
+        "3": "O critério do módulo é necessidade de revogação individual, não contagem de dispositivos."
+      },
+      "fonte": "Teoria 3.9.t5",
+      "tags": ["redes-sem-fio", "ataque-defesa", "custo-beneficio"]
+    },
+    {
+      "id": "3.9.q32",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "trecho": "RECOMENDAÇÃO DE SEGURANÇA — trecho\n\"Um notebook com a senha da rede sem fio salva foi perdido por um funcionário em viagem. A solução é usar uma senha bem mais longa e complexa a partir de agora.\"",
+      "enunciado": "Por que essa recomendação não resolve o problema descrito?",
+      "alternativas": [
+        "Porque falta identidade individual; comprimento não resolve isso",
+        "Porque senha mais longa sempre reduz a velocidade da rede",
+        "Porque senha mais longa não é permitida pelos padrões de proteção sem fio",
+        "Porque o problema, na verdade, é a criptografia da rede estar desatualizada"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Quem encontrar o notebook perdido já tem a senha atual — uma senha mais longa muda esse fato?",
+        "O problema descrito é sobre força de senha, ou sobre negar acesso a quem tem o dispositivo perdido?",
+        "Padrões de proteção limitam comprimento de senha?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o problema relatado é sobre a senha ser fácil de adivinhar, ou sobre não dar para negar acesso só a quem tem o dispositivo perdido?",
+      "explicacao": "O problema relatado não é senha fraca — é a impossibilidade de negar acesso só a quem está com o notebook perdido, no modo pessoal, porque a verificação não reconhece identidade nenhuma. Uma senha mais longa ainda seria a mesma senha compartilhada por todos, incluindo quem encontrou o dispositivo. Não há limite de comprimento imposto por padrão, velocidade de rede não é o ponto, e a criptografia não é o que está descrito como problema.",
+      "por_que_erradas": {
+        "1": "Comprimento de senha não determina velocidade da rede.",
+        "2": "Não existe limite de comprimento de senha imposto pelos padrões de proteção.",
+        "3": "O problema relatado é sobre revogação de acesso, não sobre criptografia desatualizada."
+      },
+      "fonte": "Teoria 3.9.t5",
+      "tags": ["redes-sem-fio", "caca-erro", "revogacao", "modo-pessoal"]
+    },
+    {
+      "id": "3.9.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que a posse física de um cabo funciona como um fator parcial de confiança que não tem equivalente no rádio?",
+      "alternativas": [
+        "Porque plugar um cabo já exige acesso físico ao ambiente",
+        "Porque cabos são mais caros de produzir do que antenas de rádio",
+        "Porque o cabo transporta menos dados por segundo que o rádio",
+        "Porque cabos exigem energia elétrica e rádio não"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Para usar um cabo, alguém precisa estar fisicamente perto do ponto de rede — isso já filtra alguma coisa?",
+        "Custo de produção e taxa de transferência têm relação com esse fator de confiança?",
+        "Pense de volta no t1: o que a fronteira física do cabo já fazia antes de qualquer senha entrar em jogo."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem não tem acesso físico ao ambiente consegue plugar um cabo de rede nele?",
+      "explicacao": "Plugar um cabo exige estar fisicamente no ambiente onde o ponto de rede existe — isso já elimina quem não tem esse acesso, antes de qualquer verificação de senha. O rádio nunca aplica esse filtro por si só, e é por isso que credencial por pessoa se torna necessidade, não conveniência, sobre o meio sem fio. Custo, taxa de transferência e energia não têm relação com esse argumento.",
+      "por_que_erradas": {
+        "1": "Custo de produção não é o motivo do argumento sobre confiança.",
+        "2": "Taxa de transferência de dados não tem relação com filtro de acesso físico.",
+        "3": "Necessidade de energia elétrica não é o fator relevante aqui."
+      },
+      "fonte": "Teoria 3.9.t1, 3.9.t5",
+      "tags": ["redes-sem-fio", "fronteira-fisica", "modo-corporativo"]
+    },
+    {
+      "id": "3.9.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma rede corporativa usa a geração mais recente do padrão de proteção, modo corporativo com credencial por pessoa, e mantém modo de transição ligado para um pequeno grupo de dispositivos antigos. Um auditor pergunta qual dessas três camadas é a que realmente importa. Qual é a resposta correta?",
+      "alternativas": [
+        "A geração mais recente do padrão, porque as outras duas são redundantes",
+        "O modo corporativo, porque sozinho ele já cobre qualquer risco de rede sem fio",
+        "Nenhuma sozinha — cada uma cobre uma lacuna que as outras não cobrem",
+        "O modo de transição, porque ele é o único ponto de risco que existe nessa configuração"
+      ],
+      "correta": 2,
+      "dicas": [
+        "Padrão mais recente resolve criptografia — resolve também identidade individual, ou modo de transição?",
+        "Modo corporativo resolve identidade — resolve também a fraqueza do modo de transição?",
+        "A pergunta 'qual camada realmente importa' já foi respondida em algum bloco de teoria?"
+      ],
+      "pergunta_socratica": "Antes de conferir: existe uma camada, entre as três, que sozinha cobre o que as outras duas cobrem?",
+      "explicacao": "Nenhuma camada cobre o que as outras cobrem: o padrão mais recente resolve a criptografia e o aperto de mão, mas não resolve identidade individual nem o risco do modo de transição; o modo corporativo resolve identidade, mas não resolve o caminho mais fraco que o modo de transição mantém aberto. O auditor está fazendo a pergunta errada — a certa é o que cada camada cobre, e o que continua descoberto, como o t6 fecha o módulo.",
+      "por_que_erradas": {
+        "0": "O padrão mais recente não resolve identidade individual nem o risco do modo de transição.",
+        "1": "Modo corporativo não resolve a fraqueza que o modo de transição mantém aberta.",
+        "3": "Modo de transição é um risco real, mas não é o único ponto relevante da configuração."
+      },
+      "fonte": "Teoria 3.9.t6",
+      "tags": ["redes-sem-fio", "cenario", "defesa-em-profundidade", "fechamento"]
+    },
+    {
+      "id": "3.9.q35",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que o princípio de defesa em profundidade — camadas que cobrem lacunas diferentes, em vez de se repetirem — se aplica diretamente às três camadas deste módulo (autenticação mútua, padrão de criptografia atual, credencial por pessoa)?",
+      "alternativas": [
+        "Porque cada camada fecha uma lacuna que as outras deixam aberta",
+        "Porque as três camadas fazem exatamente a mesma verificação, de formas diferentes",
+        "Porque usar as três ao mesmo tempo deixa a rede mais lenta, o que já seria proteção suficiente",
+        "Porque defesa em profundidade significa usar o maior número possível de camadas, sem relação com o que cada uma cobre"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As três camadas verificam exatamente a mesma coisa, ou coisas diferentes?",
+        "Lentidão de rede é, em algum lugar deste módulo, tratada como forma de proteção?",
+        "Defesa em profundidade é sobre quantidade de camadas, ou sobre o que cada uma cobre?"
+      ],
+      "pergunta_socratica": "Antes de conferir: as três camadas deste módulo resolvem o mesmo problema, ou problemas diferentes entre si?",
+      "explicacao": "As três camadas cobrem problemas diferentes — confiança unilateral, fraqueza criptográfica, identidade individual — e é por não se sobreporem que a combinação faz sentido, não por redundância nem por quantidade. Lentidão de rede nunca foi tratada como proteção neste módulo, e defesa em profundidade é sobre cobertura de lacunas diferentes, não sobre empilhar camadas por empilhar — o nível 4 formaliza esse nome depois, para quem chegar lá.",
+      "por_que_erradas": {
+        "1": "As três camadas resolvem problemas distintos, não a mesma verificação repetida.",
+        "2": "Lentidão de rede não é, em nenhum ponto deste módulo, tratada como mecanismo de proteção.",
+        "3": "Defesa em profundidade depende do que cada camada cobre, não só da quantidade de camadas."
+      },
+      "fonte": "Teoria 3.9.t6",
+      "tags": ["redes-sem-fio", "defesa-em-profundidade", "fechamento"]
+    }
+  ]
+}
