@@ -3,16 +3,18 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-05 · módulo 3.8 (Quebra de senhas) escrito e
-publicado — a economia do ataque (on-line×off-line, custo = tentativas/s ×
-espaço de busca, previsibilidade humana, ataque estruturado, o que
-"quebrado" significa), não operação de ferramenta · dois laboratórios só
-com hashes e senhas autogerados · defeito real achado por lente adversarial
-(inversão multiplicar/dividir na conta de custo, contradizendo `q7`/`q14`
-do próprio módulo) corrigido antes de publicar · nenhuma sétima variante de
-molde encontrada (2,9%, a menor taxa da linha) · duas regras novas de
-processo (PROGRESS.md §7, regras 9 e 10): citação sempre confirmada em
-fonte bruta, achado de lente é hipótese a verificar · 3.886 testes passando
+Última atualização: 2026-09-05 · módulo 3.9 (Redes sem fio) escrito e
+publicado — **nível 3 completo, 9 de 9 módulos** — por que o meio
+compartilhado do rádio muda o modelo de ameaça (sem fronteira física,
+autenticar a rede não só o cliente, o que a evolução dos padrões resolveu
+e o que não, identidade corporativa × doméstica) · decisão de escopo
+registrada: engenharia social não virou módulo novo, o 2.7 já cumpre o
+item do roadmap (medido, não por conveniência) · dois laboratórios de
+simulação local, sem captura, sem ataque a terceiro · lente adversarial
+achou uma citação mais específica do que a fonte sustentava (corrigida) e
+expôs referência inválida a módulos do nível 4 em três blocos de teoria —
+nível 4 desbloqueia do nível 2 em paralelo ao nível 3, não depois dele
+(regra 11 nova) · 3.998 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -22,18 +24,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 34 de 41 |
-| Questões | 1.192 |
-| Blocos de teoria | 206 |
-| Tags distintas | 897 |
-| Testes automatizados | 3.886 |
+| Módulos de conteúdo escritos | 35 de 41 |
+| Questões | 1.227 |
+| Blocos de teoria | 212 |
+| Tags distintas | 922 |
+| Testes automatizados | 3.998 |
 | Linhas de código Python | ~2.280 no app · ~3.950 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 281 (8 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo).
 
-Tipos de questão em uso: conceitual 471, cenário 264, ataque→defesa 97,
-caça ao erro 96, comando 57, artefato 85, pareamento 71, ordenação 51.
+Tipos de questão em uso: conceitual 484, cenário 272, ataque→defesa 101,
+caça ao erro 99, comando 57, artefato 89, pareamento 73, ordenação 52.
 
 ---
 
@@ -230,10 +232,10 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 4.5 SIEM e monitoramento · 4.6 MITRE ATT&CK e caça a ameaças ·
 4.7 Resposta a incidentes · 4.8 Forense digital
 
-**Nível 3 — Ofensivo** (281 questões, 8 de 9)
+**Nível 3 — Ofensivo** (316 questões, 9 de 9, completo)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
 3.3 Varredura e enumeração · 3.4 Web I · 3.5 Web II · 3.6 Web III ·
-3.7 OWASP Top 10 · 3.8 Quebra de senhas
+3.7 OWASP Top 10 · 3.8 Quebra de senhas · 3.9 Redes sem fio
 
 **Nível 2 — Núcleo de segurança** (245 questões, completo)
 2.1 Criptografia I · 2.2 Criptografia II · 2.3 Criptografia III ·
@@ -253,9 +255,9 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 7 módulos
+### Conteúdo — 6 módulos
 
-- **Nível 3 — Ofensivo** (1 restante): redes sem fio (3.9, fecha o nível)
+- **Nível 3 — Ofensivo**: completo (9 de 9)
 - **Nível 4 — Defensivo**: completo (8 de 8)
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
@@ -308,9 +310,11 @@ dez categorias já tinham dono de mecanismo em outro módulo, medido antes de
 escrever — e o 3.8 (Quebra de senhas) fechado logo depois: a economia do
 ataque (on-line×off-line, custo = tentativas/s × espaço de busca,
 previsibilidade humana, ataque estruturado, o que "quebrado" significa),
-não a defesa em si, que já é do 2.4/2.5. Falta só o 3.9 (Redes sem fio,
-único módulo restante — engenharia social já é o 2.7, ver decisão de
-escopo acima) para fechar o nível 3 inteiro, em 9 módulos.
+não a defesa em si, que já é do 2.4/2.5 — e o 3.9 (Redes sem fio) fechou o
+nível logo depois: por que o meio compartilhado do rádio muda o modelo de
+ameaça, território inteiramente livre, medido antes de escrever. **Nível 3
+(Ofensivo) completo, 9 de 9.** Próximo bloco natural: nível 5, que
+desbloqueia com 60% nos níveis 3 e 4 combinados — ambos completos agora.
 
 ### Funcionalidades
 
@@ -404,6 +408,7 @@ escopo acima) para fechar o nível 3 inteiro, em 9 módulos.
   | 4.8 | 12,9% | ok (módulo novo, 02/09/2026) |
   | 3.7 | 3,2% | ok (módulo novo, 04/09/2026 — rascunho nasceu em 97,0%, causa raiz era `correta` fixo no índice 0 em toda questão; corrigido por rotação de posição + reequilíbrio de comprimento antes do primeiro checkpoint) |
   | 3.8 | 18,8% | ok (módulo novo, 05/09/2026 — viés recorreu nos três lotes de escrita: 62,5%→50%→44% antes de cada correção; publicado bem abaixo do teto) |
+  | 3.9 | 9,4% | ok (módulo novo, 05/09/2026 — viés recorreu nos três lotes de escrita: 100%→56%→47% antes de cada correção; publicado bem abaixo do teto) |
 
   **11 de 31 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
   0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8, 3.4 e 3.5,
@@ -465,6 +470,7 @@ escopo acima) para fechar o nível 3 inteiro, em 9 módulos.
   | 3.6 | 13,8% (4/29) | 5,5% | ok (módulo novo, 03/09/2026) |
   | 3.7 | 25,8% (8/31) | 12,6% | ok (módulo novo, 04/09/2026) |
   | 3.8 | 19,4% (6/31) | 9,2% | ok (módulo novo, 05/09/2026) |
+  | 3.9 | 9,4% (3/32) | 3,2% | ok (módulo novo, 05/09/2026) |
 
   **Mediana do corpus: 35,5%.** O teto de 40% não foi escolhido de novo —
   foi conferido contra o mesmo critério estatístico independente já usado
@@ -1145,6 +1151,86 @@ escopo acima) para fechar o nível 3 inteiro, em 9 módulos.
   módulos). +35 questões, +6 blocos de teoria. Nível 3 em 8 de 9 — falta
   só redes sem fio (engenharia social resolvida como decisão de escopo,
   ver seção 5: o 2.7 já cumpre o item do roadmap).
+- **Módulo 3.9 escrito, 05/09/2026 — Redes sem fio, por que o meio
+  compartilhado muda o modelo de ameaça. Fecha o nível 3 (9 de 9).**
+  Precedido pela decisão de escopo da seção 5: engenharia social não virou
+  módulo (o 2.7 já cumpre o item do roadmap), redes sem fio herdou o
+  módulo 3.9 sozinho, com território **inteiramente livre** — zero menção
+  real a WPA/WEP/802.11/evil twin/deauth/Bluetooth nos 34 módulos
+  publicados até então, medido por regex com fronteira de palavra depois
+  de a primeira varredura por substring solta dar falso positivo grosso
+  ("bec" batendo em "cabeçalho"). Levantamento completo em
+  `data/rascunhos/nivel-3/fontes/nao-repetir-3.9.md`.
+
+  Recorte adotado: não catálogo de sigla de protocolo — cinco eixos sobre
+  por que o rádio muda o modelo (meio sem fronteira física, autenticar a
+  rede e não só o cliente, o que a evolução dos padrões resolveu e o que
+  não resolve por construção, identidade corporativa × doméstica,
+  contraponto defensivo). Checagem contra 1.4/1.5/4.2 achou uma colisão
+  leve no eixo de identidade (`4.2.t6`, controle de acesso por porta) —
+  resolvida como referência cruzada explicando *por que* o rádio exige o
+  mecanismo, não *como* ele funciona, sem reescrever o que 4.2 já ensina.
+
+  Dois laboratórios de simulação local, só com `hashlib`/`hmac`/`secrets`,
+  sem captura de tráfego e sem ataque a rede real: um mostra que nome de
+  rede e endereço de hardware são dados públicos copiáveis, e só uma prova
+  de desafio-resposta distingue rede real de um impostor com o nome
+  idêntico; outro mostra, com a matemática de verificação de senha, que um
+  segredo único aceita qualquer portador de forma indistinguível, enquanto
+  credencial por pessoa permite revogar uma identidade sem tocar nas
+  outras.
+
+  Fatos históricos sobre evolução dos padrões (WEP → WPA → WPA2 → WPA3)
+  verificados via `curl` direto em wi-fi.org e Wikipedia, sem `WebFetch`
+  resumido (regra 9) — registro completo, pela primeira vez com arquivo
+  próprio salvo no repositório, em
+  `data/rascunhos/nivel-3/fontes/verificacao-padroes-wifi.md`. Nenhum nome
+  de padrão, número de norma ou ano é resposta correta de questão,
+  por instrução explícita.
+
+  O hábito de nascer com a correta sistematicamente mais longa recorreu
+  **nos três lotes de escrita** (100%→50%→47% de `mais_longa` antes de
+  cada correção), corrigido a cada checkpoint. Molde de dica: pior família
+  2,9% (1/35) — empata com o 3.8 como a menor taxa já medida na linha.
+
+  **Duas lentes de revisão adversarial, e um achado que nenhuma das duas
+  pegou sozinha.** A lente 1 achou uma especificidade indevida em `t4`
+  (o mecanismo do FragAttacks descrito de um jeito mais específico do que
+  a fonte consultada sustenta — corrigido, reverificado na mesma fonte) e
+  um `artefato` (`q29`) que pulava duas linhas reais da saída do
+  laboratório sem marcar a omissão. A lente 2 achou seis dicas que
+  entregavam o mecanismo em vez de perguntar por ele, dois vazamentos de
+  forma gramatical, um distrator dispensável sem ler conteúdo, e uma
+  sobreposição real entre duas questões de revogação de acesso — todos
+  corrigidos.
+
+  **A lente 2 também sugeriu, corretamente, que `pre_requisitos` estava
+  incompleto — mas a correção óbvia (adicionar "4.3") teria introduzido um
+  erro pior do que o que corrigia.** `4.3` é nível 4, e `data/niveis.json`
+  mostra que os níveis 3 e 4 desbloqueiam do nível 2 **em paralelo**, não
+  um depois do outro — um aluno do nível 3 não tem garantia nenhuma de ter
+  visto o nível 4. Três blocos de teoria (`t2`, `t5`, `t6`) e uma questão
+  (`q35`) citavam 4.2 ou 4.3 como "assumida como vista", o mesmo tipo de
+  erro que o 3.7 já tinha cometido e corrigido uma vez — e que passou
+  pelas duas lentes sem ninguém notar, porque nenhuma lente tem acesso à
+  regra de desbloqueio do curso. Só apareceu ao conferir `niveis.json`
+  diretamente, depois de quase aceitar a sugestão da lente sem checar.
+  Corrigido: os três blocos passaram a descrever o mecanismo de forma
+  autocontida, citando o nível 4 só como referência **futura** ("quem
+  chegar lá reconhece o princípio"), nunca como pré-requisito.
+  `pre_requisitos` final: `1.4`, `1.5`, `2.5`. Registrado como **regra 11**
+  do PROGRESS.md (§7) — checagem contra `niveis.json` continua manual.
+
+  Contagem de 35 questões justificada por eixo no relatório — a única
+  mudança por redundância foi `q32`, recortado com história distinta de
+  `q28` (dispositivo perdido, não ex-funcionário) durante a revisão, não
+  por falta de material. Relatório completo em
+  `data/rascunhos/nivel-3/relatorios/3.9.md`.
+
+  Validação final: `pytest -q` (3.998 testes, 0 falhas) e
+  `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 35
+  módulos). +35 questões, +6 blocos de teoria. **Nível 3 (Ofensivo)
+  completo, 9 de 9.**
 
 ---
 
@@ -1331,6 +1417,22 @@ Seis hábitos, em ordem de retorno:
     lente acha coisa real (não virar ruído descartável). Todo achado de
     lente adversarial sobre citação se resolve indo à fonte bruta antes de
     aceitar ou rejeitar — nunca pelo julgamento da própria lente.
+11. **Nível 4 não vem "depois" do nível 3 — os dois desbloqueiam do nível 2,
+    em paralelo** (`data/niveis.json`: níveis 3 e 4 têm o mesmo
+    `desbloqueio.niveis: [2]`). Referência cruzada em módulo do nível 3 só
+    pode assumir como visto nível 2 ou anterior — nunca nível 4, mesmo que
+    o número pareça "menor no futuro". O erro quase se repetiu duas vezes:
+    no 3.7, a primeira tentativa de reformular um eixo assumindo 4.1/4.6
+    como já ensinados foi pega e corrigida antes de publicar; no 3.9, três
+    blocos de teoria e uma questão citaram 4.2 e 4.3 como "assumida como
+    vista" e passaram pelas duas lentes de revisão adversarial sem
+    ninguém notar — só apareceu ao conferir `niveis.json` diretamente
+    depois que uma lente sugeriu, por engano, promover essa mesma citação
+    a pré-requisito formal. As lentes não têm acesso à regra de
+    desbloqueio do curso; conferir contra `niveis.json` é manual, e tem
+    que ser feito toda vez que um módulo do nível 3 (ou de qualquer nível
+    que desbloqueie em paralelo com outro) citar conteúdo de fora do
+    próprio nível ou anterior.
 
 ### Padrão aprendido: regra nascida, medida e descartada
 
