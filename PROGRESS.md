@@ -1190,6 +1190,25 @@ Seis hábitos, em ordem de retorno:
    distratores da mesma questão e entre questões do módulo — não assuma
    que resolver uma métrica não criou outra.
 
+9. **Citação literal, número, seção nomeada ou prazo normativo que entra num
+   módulo precisa ser confirmado no texto bruto da fonte — nunca numa
+   chamada resumida.** No 3.7, o WebFetch deu respostas diferentes para a
+   mesma pergunta sobre a mesma URL em chamadas distintas, e dois erros de
+   atribuição só apareceram quando a fonte foi lida em HTML cru, não no
+   resumo. Chamada resumida serve para orientação e busca; não serve como
+   prova de citação. Toda vez que um trecho entre aspas, um número, o nome
+   de uma seção ou um prazo normativo for para dentro de um módulo, a
+   confirmação final é no texto bruto — não no resumo que trouxe a pista.
+10. **Achado de revisão adversarial é hipótese a verificar, não veredito a
+    aceitar ou descartar de cara.** No 3.7, a lente acusou três citações de
+    inventadas: duas estavam corretas (falso positivo da lente) e uma tinha
+    o erro real — no mesmo processo, a mesma lente também achou dois erros
+    reais de atribuição. As duas coisas ficam registradas juntas de
+    propósito: a lente erra sozinha (não virar veredito automático) e a
+    lente acha coisa real (não virar ruído descartável). Todo achado de
+    lente adversarial sobre citação se resolve indo à fonte bruta antes de
+    aceitar ou rejeitar — nunca pelo julgamento da própria lente.
+
 ### Padrão aprendido: regra nascida, medida e descartada
 
 Este projeto já criou três regras de validador que nasceram de um defeito
