@@ -3,8 +3,8 @@
 
 Nao acessa rede nem usa hash de terceiro: mede, nesta maquina, quantas
 tentativas por segundo um hash rapido (sha256) e um hash lento calibrado
-(pbkdf2_hmac com 600.000 iteracoes, o minimo do NIST SP 800-63B citado em
-2.4.t5) permitem, e projeta quanto tempo cada um leva para esgotar um
+(pbkdf2_hmac com 600.000 iteracoes, o minimo recomendado pela OWASP citado
+em 2.4.t5) permitem, e projeta quanto tempo cada um leva para esgotar um
 espaco de busca de exemplo. Nenhuma senha real, nenhuma lista de senhas
 comuns: os candidatos sao gerados por contador, nao adivinhados.
 

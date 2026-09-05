@@ -1,0 +1,1038 @@
+{
+  "id": "3.8",
+  "nivel": 3,
+  "titulo": "Quebra de senhas — a economia do ataque",
+  "objetivos": [
+    "Explicar por que um ataque offline muda o modelo de defesa, e o que precisa acontecer antes dele ser possível",
+    "Calcular o custo de uma tentativa como taxa de tentativas por segundo vezes tamanho do espaço de busca, e relacionar cada parâmetro defensivo a um dos dois lados dessa conta",
+    "Explicar por que a senha escolhida por humano é previsível, e por que um ataque real usa dicionário e regra de transformação em vez de busca exaustiva",
+    "Distinguir o que 'senha quebrada' significa do que não significa, reconhecer que tempo médio de quebra não é o pior caso, e conectar o resultado aos parâmetros defensivos dos módulos 2.4 e 2.5"
+  ],
+  "pre_requisitos": [
+    "2.4",
+    "2.5"
+  ],
+  "teoria": [
+    {
+      "id": "3.8.t1",
+      "titulo": "Online e offline: o evento que muda o jogo",
+      "texto": "O módulo 2.4 já separou os dois modelos: ataque online é feito contra o sistema em produção — cada tentativa passa pela tela de login, pelo limite de tentativas, pelo bloqueio de conta, e fica registrada. Ataque offline é feito numa cópia dos hashes, sem tocar o sistema de novo — todas as defesas de tempo de execução deixam de existir, e o único custo que resta é o da própria função de hash.\n\nO detalhe que decide qual dos dois regimes vale não é \"o banco vazou\": é se o vazamento incluiu especificamente a coluna de hashes de senha. Uma base de log de acesso, uma tabela de pedidos, um despejo de configuração — nenhum desses dá ataque offline, porque não há resumo contra o qual testar candidatos. O evento que muda o jogo é estreito e específico: sair com o hash em mãos.\n\nDaqui em diante, salvo aviso, todo custo discutido neste módulo pressupõe esse evento já ter acontecido — o objetivo é entender a economia de quem já tem a base, não como ela vaza.",
+      "analogia": "Ter a chave do cofre em casa, sem pressa e sem ninguém observando, é um problema completamente diferente de tentar abrir o mesmo cofre na frente do segurança do banco.",
+      "erro_comum": "Tratar qualquer vazamento de dados como \"a senha vazou\". Sem o hash especificamente, não há ataque offline — só o que aquele outro dado, sozinho, já permite.",
+      "fonte": "OWASP Password Storage Cheat Sheet; teoria 2.4.t3 (assumida como vista)"
+    },
+    {
+      "id": "3.8.t2",
+      "titulo": "A conta de custo: tentativas por segundo vezes espaço de busca",
+      "texto": "O tempo para esgotar um conjunto de candidatos é sempre a mesma divisão: o tamanho do espaço de busca dividido pela taxa de tentativas por segundo que o atacante consegue calcular. Aumentar o espaço de busca aumenta o tempo total; aumentar a taxa reduz o tempo total — os dois fatores puxam o resultado em direções opostas, e é por isso que a defesa mira reduzir a taxa (função lenta) enquanto aumenta o espaço (senha longa e diversa).\n\nCada decisão de defesa entra nessa conta por um lado só, nunca pelos dois ao mesmo tempo. Uma função de hash lenta (Argon2id, o assunto do módulo 2.4) reduz o primeiro fator — quantas tentativas por segundo cabem no hardware do atacante. Comprimento e diversidade de caractere na política de senha (o assunto do módulo 2.5) aumentam o segundo fator — quantos candidatos existem para testar. Os dois efeitos se somam: reduzir a taxa e aumentar o espaço multiplicam juntos o tempo total, cada um puxando o resultado para o mesmo lado.\n\nMedido nesta máquina, um hash rápido chega a centenas de milhares de tentativas por segundo; o mesmo hardware, rodando a função lenta recomendada pela OWASP com os parâmetros mínimos citados em 2.4.t5, cai para pouco mais de uma tentativa por segundo — uma diferença de cinco ordens de grandeza, sem mudar nenhum bit do espaço de busca.",
+      "analogia": "Multiplicar o número de fechaduras de um prédio e multiplicar o tempo que cada fechadura leva para ser forçada são dois jeitos independentes de encarecer o arrombamento — e um multiplica o efeito do outro.",
+      "erro_comum": "Achar que só a política de senha (comprimento, composição) decide a segurança contra quebra. Ela decide metade da conta; a outra metade é a função de hash.",
+      "fonte": "Medição em execução, data/rascunhos/nivel-3/lab/custo_da_tentativa.py; OWASP Password Storage Cheat Sheet"
+    },
+    {
+      "id": "3.8.t3",
+      "titulo": "Por que o custo por tentativa varia tanto",
+      "texto": "Hash rápido (SHA-256, SHA-512, MD5) foi desenhado para processar o máximo de dados por segundo — é exatamente a qualidade que se quer em assinatura e verificação de integridade, e o oposto do que se quer em senha. Hash de senha (Argon2id, scrypt, PBKDF2, bcrypt) é desenhado ao contrário: para consumir tempo e, no caso de Argon2id e scrypt, memória, de propósito.\n\nEssa escolha de projeto é o que dita a taxa de tentativas por segundo do lado do atacante. E como hardware evolui — GPU e ASIC paralelizam bilhões de operações simples por segundo —, uma função que só custa processamento perde a vantagem contra esse hardware muito mais rápido do que uma função que também custa memória, porque memória dedicada por núcleo não escala do mesmo jeito.\n\nÉ por isso que os parâmetros de 2.4.t5 sobem com o tempo: eles miram manter o primeiro fator da conta baixo o bastante mesmo quando o hardware do atacante melhora.\n\nEsse custo tem um teto do outro lado: quem faz login também espera pela mesma função de hash, uma vez por tentativa legítima. Calibrar um custo tão alto que o login demore segundos perceptíveis resolve o lado do atacante às custas do usuário real — a calibração busca o ponto mais alto que ainda é aceitável para quem autentica de verdade, não o valor mais alto tecnicamente possível.",
+      "analogia": "Uma fechadura eletrônica que gasta meio segundo de energia por tentativa não fica mais fácil de forçar só porque o ladrão comprou uma furadeira mais rápida — a fechadura, não a ferramenta, impõe o tempo mínimo.",
+      "erro_comum": "Comparar funções de senha só pelo número de iterações, ignorando o consumo de memória. Duas funções com o mesmo número de passos podem ter custo de ataque muito diferente se uma delas também exige memória dedicada por tentativa.",
+      "fonte": "OWASP Password Storage Cheat Sheet; medição em execução, custo_da_tentativa.py"
+    },
+    {
+      "id": "3.8.t4",
+      "titulo": "Por que a senha humana é previsível",
+      "texto": "Um ser humano escolhendo uma senha não sorteia caracteres — escolhe algo memorizável, e memorizável tem estrutura: uma palavra do próprio idioma, seguida de um número que já significa algo para quem escolheu (ano, data, sequência), seguida às vezes de um símbolo no fim porque alguma regra de composição exigiu \"algo diferente de letra\". Substituição previsível de caractere segue o mesmo padrão: aparece porque uma regra pediu variação, não porque esconde a palavra de quem já espera essa troca.\n\nEssa previsibilidade não é falha de uma pessoa específica — é o resultado esperado de pedir para um humano memorizar algo que deveria ser aleatório. O espaço teórico de uma senha de dez caracteres é astronômico; o espaço que uma pessoa real de fato usa, dentro desse universo, é uma fração ínfima e concentrada em poucos formatos.\n\nEsse é o motivo pelo qual a recomendação vigente (2.5.t2) não aposta em regra de composição para aumentar a imprevisibilidade — aposta em comprimento e em comparar a escolha contra uma lista de senhas já vazadas, porque regra de composição, na prática, empurra todo mundo para o mesmo punhado de formatos previsíveis.",
+      "analogia": "Pedir para alguém \"escolher de cabeça um número aleatório de 1 a 100\" não produz uma distribuição uniforme — produz um punhado de números que as pessoas acham que soam aleatórios. Senha memorizável tem o mesmo viés.",
+      "erro_comum": "Achar que uma regra de composição (\"use letra, número e símbolo\") produz senha imprevisível. Ela produz senha previsível de um jeito específico e já conhecido de quem ataca.",
+      "fonte": "NIST SP 800-63B; teoria 2.5.t2 (assumida como vista)"
+    },
+    {
+      "id": "3.8.t5",
+      "titulo": "Estrutura bate força bruta",
+      "texto": "Um ataque real contra um conjunto de hashes não percorre o espaço de busca inteiro em ordem — percorre uma lista de candidatos gerada por hipótese sobre o que um humano escolheria: palavras de um idioma combinadas com pequenas variações sistemáticas (maiúscula na primeira letra, número no fim, símbolo no fim). Essa combinação de lista-base com regras de variação testa uma fração minúscula do espaço teórico, mas concentrada exatamente onde senhas humanas realmente estão.\n\nUm laboratório local mede isso: uma lista de sete palavras-base inventadas, combinada com duas capitalizações, cem sufixos de dígito e um punhado de sufixos de símbolo, gera pouco mais de sete mil candidatos — catorze ordens de grandeza menor que o espaço teórico de uma senha de dez caracteres livres — e ainda assim recupera, em milissegundos, duas senhas construídas nesse formato humano, geradas pelo próprio script.\n\nQuanto mais longe uma senha estiver desse formato — mais caracteres, sem derivar de palavra reconhecível, sem seguir um padrão previsível —, mais ela empurra o atacante de volta para o espaço teórico inteiro, onde a conta do bloco anterior volta a valer.",
+      "analogia": "Procurar uma pessoa perdida numa cidade batendo em toda porta é força bruta; procurar primeiro nos lugares onde gente perdida costuma aparecer é a mesma busca, ordenada por hipótese — e acha muito mais rápido quando o procurado se comporta como o esperado.",
+      "erro_comum": "Concluir que, porque o espaço teórico é gigante, a senha está segura. O espaço que o ataque de fato varre não é o teórico — é o estruturado, reduzido de propósito para caber onde as pessoas realmente escolhem.",
+      "fonte": "Execução real, data/rascunhos/nivel-3/lab/estrutura_e_o_que_quebrado_significa.py"
+    },
+    {
+      "id": "3.8.t6",
+      "titulo": "O que \"quebrado\" significa, e o contraponto",
+      "texto": "No laboratório do bloco anterior, a mesma execução que recuperou duas senhas de formato humano não recuperou uma senha aleatória de doze caracteres — e o resumo das três continuou igualmente correto e íntegro. Isso é o que \"quebrar uma senha\" significa na prática: recuperar aquela entrada específica, dentro da estratégia de busca escolhida. Não é quebrar a função de hash — o algoritmo continua cumprindo a promessa dele; o que varia é se o candidato certo estava na lista testada.\n\nEssa distinção importa para interpretar relatório de vazamento. Um número como \"tempo médio de quebra: alguns segundos\" descreve a média de um lote inteiro — e um lote de senhas humanas tem a maioria caindo quase de imediato, o que puxa a média para baixo, e uma cauda de senhas que não caem dentro do orçamento de tentativas usado. A média não diz qual conta está em qual lado dessa distribuição, e por isso a resposta correta a um vazamento de hashes não é avaliar senha por senha — é redefinir a senha de todas as contas, porque a força individual de uma senha só fica visível depois que alguém tenta quebrá-la especificamente.\n\nFecha aqui o motivo de existir os parâmetros dos módulos 2.4 e 2.5: hash lento encarece cada tentativa, comprimento e ausência de regra de composição reduzem a previsibilidade estrutural, e nenhum dos dois sozinho resolve — é a multiplicação dos dois que empurra o custo para fora do que vale a pena para o atacante. Autenticação multifator, ensinada em 2.5.t1, muda o problema por completo: mesmo com a senha recuperada, falta o segundo fator, e a conta de tentativas por segundo deixa de ser a que decide.",
+      "analogia": "Um exame de sangue que dá negativo para uma pessoa não prova que o exame está quebrado — prova que, para aquela pessoa, o resultado foi negativo. O tempo médio de uma campanha de exames não diz nada sobre o caso individual ainda não testado.",
+      "erro_comum": "Ler \"X% das senhas foram quebradas em Y segundos\" como avaliação de força do algoritmo de hash. É avaliação da distribuição de escolhas humanas contra uma estratégia de busca específica.",
+      "fonte": "Execução real, estrutura_e_o_que_quebrado_significa.py; teoria 2.4.t3, 2.5.t1 (assumidas como vistas)"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "3.8.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "O que precisa vazar, especificamente, para um ataque contra senhas mudar de online para offline?",
+      "alternativas": [
+        "Os registros de acesso ao servidor de autenticação",
+        "O código-fonte da rotina de login",
+        "A coluna com os resumos (hashes) das senhas",
+        "O endereço IP do servidor de autenticação"
+      ],
+      "correta": 2,
+      "dicas": [
+        "O que o atacante precisa em mãos para testar candidatos sem tocar o servidor de novo?",
+        "Vazar uma tabela de pedidos muda alguma coisa nesse sentido?",
+        "Sem esse dado específico, os candidatos só podem ser testados onde?"
+      ],
+      "pergunta_socratica": "Antes de conferir: um vazamento de log de acesso, sem os hashes, permite algum teste de candidato fora do servidor?",
+      "explicacao": "O regime muda quando o atacante consegue testar candidatos sem interagir de novo com o sistema — e isso só é possível com o resumo da senha em mãos, contra o qual se compara cada tentativa localmente. Qualquer outra tabela, o código da rotina ou o endereço do servidor não oferecem esse alvo de comparação; sem ele, toda tentativa continua precisando passar pela tela de login.",
+      "por_que_erradas": {
+        "0": "Uma tabela sem os resumos não dá nada para comparar candidatos localmente.",
+        "1": "Conhecer o código da rotina não substitui ter o valor contra o qual comparar.",
+        "3": "O endereço do servidor é necessário para ataque online, não para o offline."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; teoria 3.8.t1",
+      "tags": ["quebra-de-senhas", "ataque-offline", "modelo-de-ameaca"]
+    },
+    {
+      "id": "3.8.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que bloqueio de conta e limite de tentativas, eficazes contra ataque online, não fazem nada contra um ataque offline em andamento?",
+      "alternativas": [
+        "Esses controles vivem no servidor, que o ataque offline não usa mais",
+        "Esses controles continuam ativos, mas passam a bloquear o IP de origem do ataque",
+        "Esses controles dependem de conexão à internet, que o atacante offline não usa",
+        "Esses controles contam tentativas por IP, e o atacante offline usa vários IPs"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Onde bloqueio de conta e limite de tentativas são aplicados — no cliente, no servidor, ou em nenhum dos dois?",
+        "O ataque offline volta a bater na tela de login em algum momento?",
+        "Pense no que sobra de \"sistema\" quando o atacante já tem a cópia dos hashes."
+      ],
+      "pergunta_socratica": "Antes de conferir: bloqueio de conta é aplicado onde — no candidato testado, ou em quem tenta autenticar contra o servidor?",
+      "explicacao": "Bloqueio de conta e limite de tentativas são controles do servidor de autenticação: eles contam e reagem a tentativas que chegam até ele. No ataque offline, o teste inteiro acontece numa cópia local dos hashes, sem nenhuma requisição chegando ao servidor — não há tentativa para contar, nem conta para bloquear. Não é questão de IP, conexão ou legado: é que o controle inteiro vive num lugar que deixou de ser visitado.",
+      "por_que_erradas": {
+        "1": "Bloquear IP protege contra tentativa online de um único endereço; o ataque offline não faz nenhuma requisição para bloquear.",
+        "2": "O ataque offline roda localmente e não depende de rede; a explicação não é essa.",
+        "3": "Contagem por IP é um detalhe de implementação de defesa online; o motivo central é o servidor nem ser mais consultado."
+      },
+      "fonte": "OWASP Password Storage Cheat Sheet; teoria 3.8.t1",
+      "tags": ["quebra-de-senhas", "ataque-offline", "controles-online"]
+    },
+    {
+      "id": "3.8.q3",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um incidente expõe o dump completo de configuração de um servidor — variáveis de ambiente, chaves de API, arquivos de log — mas não toca no banco de dados de usuários. A equipe pergunta se isso já configura um ataque offline contra as senhas dos clientes. Qual é a avaliação correta?",
+      "alternativas": [
+        "Depende só da quantidade de dados expostos, e este volume já basta",
+        "Sim, porque um vazamento de servidor conta como vazamento de senha",
+        "Não, porque configuração e log não são o hash de senha, o alvo que falta",
+        "Não, porque ataque offline exige acesso físico ao servidor, não só a um dump"
+      ],
+      "correta": 2,
+      "dicas": [
+        "O que, entre os itens listados no incidente, seria o alvo de comparação de um ataque offline?",
+        "Volume de dados vazados e tipo de dado vazado são a mesma coisa aqui?",
+        "Acesso físico é exigido, ou basta ter o valor certo em mãos, de onde quer que ele venha?"
+      ],
+      "pergunta_socratica": "Antes de conferir: variável de ambiente e chave de API dão ao atacante algo para comparar candidato de senha?",
+      "explicacao": "Sem o resumo de senha especificamente, não há alvo de comparação — o que este incidente exige, primeiro, é confirmar se algum desses arquivos continha credencial ou hash (o que seria um achado à parte), e não presumir ataque offline de senha automaticamente. Volume de dados não é o critério, e acesso físico não é exigência: o que importa é a presença do valor específico contra o qual testar candidatos.",
+      "por_que_erradas": {
+        "0": "O critério é o tipo de dado exposto, não a quantidade.",
+        "1": "Nem todo vazamento de servidor expõe o mesmo tipo de dado; tratar todos como equivalentes ignora a distinção do bloco 3.8.t1.",
+        "3": "Acesso físico não é necessário; qualquer forma de obter o hash basta."
+      },
+      "fonte": "Teoria 3.8.t1",
+      "tags": ["quebra-de-senhas", "cenario", "incidente", "ataque-offline"]
+    },
+    {
+      "id": "3.8.q4",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "Depois que uma base de hashes vaza e o ataque vira offline, qual defesa das contas continua funcionando sem depender do que já vazou?",
+      "alternativas": [
+        "Aumentar o tamanho mínimo de senha exigido a partir de agora",
+        "Exigir um segundo fator de autenticação, além da senha",
+        "Reduzir o tempo de bloqueio de conta após tentativas erradas",
+        "Registrar todas as tentativas de login com mais detalhe"
+      ],
+      "correta": 1,
+      "dicas": [
+        "As outras três opções ainda dependem de o atacante precisar passar pela tela de login.",
+        "O que muda quando falta ao atacante algo que não é a senha em si?",
+        "Pense no que a conta de tentativas por segundo deixa de decidir sozinha."
+      ],
+      "pergunta_socratica": "Antes de conferir: mesmo com a senha certa recuperada, o que ainda falta ao atacante se houver um segundo fator?",
+      "explicacao": "Multifator muda o modelo inteiro, não só um lado da conta de custo: mesmo recuperando a senha exata via ataque offline, falta o segundo fator para autenticar de verdade, e ele normalmente não está na mesma base que vazou. Comprimento mínimo novo não afeta os hashes já vazados; bloqueio de conta e registro de tentativas são controles de tempo de execução, e o ataque offline já não passa mais por ali.",
+      "por_que_erradas": {
+        "0": "Novo requisito de comprimento não recalcula nem protege os hashes que já vazaram.",
+        "2": "Bloqueio de conta é controle online; o ataque offline não interage com ele.",
+        "3": "Registro de tentativas também é controle de tempo de execução, irrelevante para um ataque que já não usa a tela de login."
+      },
+      "fonte": "Teoria 3.8.t1, 3.8.t6; 2.5.t1 (assumida como vista)",
+      "tags": ["quebra-de-senhas", "mfa", "ataque-defesa", "incidente"]
+    },
+    {
+      "id": "3.8.q5",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um atacante recupera, via ataque offline, a senha em claro de um usuário. Por que esse resultado costuma valer mais do que só aquela conta específica?",
+      "alternativas": [
+        "Porque a senha recuperada revela automaticamente o algoritmo de hash usado em outros sistemas",
+        "Porque pessoas costumam reutilizar a senha em outros serviços, testável lá também",
+        "Porque a senha em claro permite reverter o hash de outro usuário da mesma base",
+        "Porque o vazamento original necessariamente afeta os demais serviços do mesmo provedor"
+      ],
+      "correta": 1,
+      "dicas": [
+        "O valor recuperado é uma string de texto comum — o que mais alguém faz com uma senha que já conhece?",
+        "Isso tem relação com decisão de hash de outro sistema, ou com hábito do usuário?",
+        "Pense em quantos lugares a mesma pessoa costuma usar a mesma senha."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma senha recuperada aqui é útil só para este sistema, ou pode ser testada em outros também?",
+      "explicacao": "A senha em claro recuperada não revela nada sobre outros algoritmos nem reverte hash de terceiros — o que a torna valiosa além da conta original é o hábito de reuso: a mesma pessoa frequentemente usa a mesma senha, ou uma variação pequena dela, em vários serviços. Testá-la nesses outros serviços é uma extensão barata do mesmo ataque, e é exatamente o motivo pelo qual redefinir senha após vazamento vale para todas as contas da pessoa, não só a que vazou.",
+      "por_que_erradas": {
+        "0": "Conhecer uma senha em claro não revela o algoritmo de hash usado em nenhum outro lugar.",
+        "2": "Reverter hash de outro usuário exigiria a senha dele, não a de quem foi atacado antes.",
+        "3": "Vazamento de um serviço não implica vazamento automático em serviços diferentes do mesmo provedor."
+      },
+      "fonte": "Teoria 3.8.t1; padrão de reuso de senha, comportamento amplamente documentado",
+      "tags": ["quebra-de-senhas", "reuso", "credential-stuffing"]
+    },
+    {
+      "id": "3.8.q6",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "Uma empresa detecta o vazamento de sua base de hashes de senha e considera duas respostas: (A) fortalecer o bloqueio de conta e o limite de tentativas imediatamente; (B) forçar redefinição de senha de todas as contas. Qual avaliação é correta?",
+      "alternativas": [
+        "As duas resolvem igualmente, porque ambas dificultam login não autorizado",
+        "Só (A) resolve, porque bloqueio de conta interrompe tentativas futuras de login",
+        "Só (B) resolve, porque (A) protege um caminho que o ataque offline já não usa",
+        "Nenhuma das duas resolve sem trocar o algoritmo de hash da base inteira"
+      ],
+      "correta": 2,
+      "dicas": [
+        "Depois do vazamento, o atacante ainda precisa passar pela tela de login em algum momento?",
+        "O que muda de fato para o atacante que já tem os hashes, se (A) for implementada?",
+        "Qual das duas ações torna os hashes vazados inúteis, e qual não toca neles?"
+      ],
+      "pergunta_socratica": "Antes de conferir: reforçar o bloqueio de conta muda alguma coisa para quem já está testando candidatos offline?",
+      "explicacao": "O vazamento específico deste cenário é de hashes, e o ataque relevante a partir daí é offline — bloqueio de conta e limite de tentativas atuam só no caminho online, que o atacante offline não usa mais. Apenas a redefinição de senha torna os hashes vazados inúteis, porque o valor contra o qual o atacante testava candidatos deixa de corresponder a qualquer senha válida. Trocar o algoritmo de hash da base sozinho, sem redefinir as senhas, mantém as senhas antigas comprometidas sob o algoritmo novo.",
+      "por_que_erradas": {
+        "0": "Reforçar bloqueio de conta não afeta um ataque que não usa mais a tela de login.",
+        "1": "Bloqueio de conta nunca previne \"qualquer\" tentativa; e não alcança tentativa offline de jeito nenhum.",
+        "3": "Trocar o algoritmo sem redefinir as senhas mantém as senhas comprometidas válidas sob a função nova."
+      },
+      "fonte": "Teoria 3.8.t1, 3.8.t6; OWASP Password Storage Cheat Sheet",
+      "tags": ["quebra-de-senhas", "incidente", "resposta", "cenario"]
+    },
+    {
+      "id": "3.8.q7",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [1],
+      "enunciado": "Como se calcula o tempo necessário para esgotar um conjunto de candidatos de senha contra um hash específico?",
+      "alternativas": [
+        "Tamanho do espaço de busca dividido pelo número de núcleos do processador",
+        "Tentativas por segundo que a função de hash permite, vezes o tamanho do espaço de busca",
+        "Comprimento da senha em caracteres, vezes o tempo de uma tentativa",
+        "Tamanho do espaço de busca dividido pelas tentativas por segundo"
+      ],
+      "correta": 3,
+      "dicas": [
+        "Se a taxa é de X tentativas por segundo e há N candidatos, quantos segundos leva para testar todos?",
+        "Multiplicar taxa por tamanho do espaço daria um número maior quanto mais rápida a taxa — isso faz sentido para 'tempo'?",
+        "Some, subtraia, multiplique ou divida — qual operação transforma 'quantos candidatos' e 'quantos por segundo' em 'quantos segundos'?"
+      ],
+      "pergunta_socratica": "Antes de conferir: se dobrar a taxa de tentativas por segundo, o tempo total deveria subir ou descer?",
+      "explicacao": "O tempo é o tamanho do espaço de busca dividido pela taxa de tentativas por segundo — quanto mais rápida a função permite testar, menos tempo o espaço inteiro leva para ser esgotado. Multiplicar, em vez de dividir, inverteria essa relação. Número de núcleos entra na taxa em si, não substitui o espaço de busca; e comprimento em caracteres não é o mesmo que tamanho do espaço, que cresce exponencialmente com o comprimento.",
+      "por_que_erradas": {
+        "0": "Número de núcleos afeta a taxa de tentativas por segundo, não substitui o espaço de busca no cálculo.",
+        "1": "Multiplicar inverteria a relação: taxa maior deveria reduzir o tempo, não aumentá-lo.",
+        "2": "Comprimento em caracteres não é o tamanho do espaço de busca, que cresce exponencialmente com ele."
+      },
+      "fonte": "Teoria 3.8.t2",
+      "tags": ["quebra-de-senhas", "custo", "espaco-de-busca", "conta"]
+    },
+    {
+      "id": "3.8.q8",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "artefato": "=== taxa medida nesta maquina ===\n  hash rapido (sha256):                 633,659 tentativas/s\n  hash lento (pbkdf2_hmac, 600.000 it): 1.2 tentativas/s\n\n  o hash lento custa 542,845x mais por tentativa.\n\n=== projecao para esgotar um espaco de 2,821,109,907,456 combinacoes ===\n  com hash rapido: 51.5 dias\n  com hash lento:  766.4 seculos",
+      "enunciado": "Esta saída mede, na mesma máquina, a taxa de um hash rápido e de um hash lento contra o mesmo espaço de busca de exemplo. O que ela demonstra?",
+      "alternativas": [
+        "Que o hash lento é matematicamente mais resistente a colisão que o rápido",
+        "Que o espaço de busca de 2,8 trilhões de combinações é grande demais para ser esgotado",
+        "Que a mesma senha, sob duas funções diferentes, muda de tamanho de espaço de busca",
+        "Que a escolha da função de hash move o tempo de ataque de dias para séculos"
+      ],
+      "correta": 3,
+      "dicas": [
+        "O espaço de busca (2,8 trilhões) é o mesmo nas duas projeções — o que muda entre elas?",
+        "Colisão é uma propriedade diferente de velocidade de cálculo; a saída mede qual das duas?",
+        "Compare os dois tempos finais: dias contra séculos. O que, nesta saída, foi responsável pela diferença?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o espaço de busca de 2,8 trilhões aparece uma vez ou duas vezes na saída, com valores diferentes?",
+      "explicacao": "O espaço de busca é fixado em 2,8 trilhões de combinações nas duas linhas de projeção — o que muda é só a taxa de tentativas por segundo, e essa mudança sozinha empurra o tempo de 51 dias para 766 séculos. A saída não fala de colisão (propriedade distinta, sobre pares de entradas), e o espaço de busca não muda de tamanho entre as duas funções: é a mesma senha, testada contra os mesmos candidatos, só que a taxa de teste despenca.",
+      "por_que_erradas": {
+        "0": "A saída mede velocidade de cálculo, não resistência a colisão — são propriedades diferentes.",
+        "1": "\"Grande demais para ser esgotado\" contradiz a própria saída: contra o hash rápido, o espaço cai em 51 dias.",
+        "2": "O espaço de busca declarado é o mesmo número nas duas linhas de projeção."
+      },
+      "fonte": "Execução real, custo_da_tentativa.py",
+      "tags": ["quebra-de-senhas", "artefato", "custo", "medicao"]
+    },
+    {
+      "id": "3.8.q9",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [1],
+      "enunciado": "Como se calcula o tamanho do espaço de busca de uma senha de comprimento fixo, feita só de um conjunto conhecido de caracteres?",
+      "alternativas": [
+        "Multiplicando o comprimento pelo número de caracteres possíveis",
+        "Somando o número de caracteres possíveis a cada posição",
+        "Elevando o conjunto de caracteres ao comprimento da senha",
+        "Dividindo o número de caracteres possíveis pelo comprimento"
+      ],
+      "correta": 2,
+      "dicas": [
+        "Cada posição da senha pode ser preenchida por qualquer caractere do conjunto, independente das outras — isso soma ou multiplica opções?",
+        "Se o conjunto tem 10 caracteres e a senha tem 2 posições, são 20 ou 100 combinações possíveis?",
+        "Pense em quantas vezes o número de opções se repete, uma vez por posição."
+      ],
+      "pergunta_socratica": "Antes de conferir: com um conjunto de 10 caracteres e senha de 2 posições, existem 20 ou 100 combinações possíveis?",
+      "explicacao": "O espaço de busca cresce por multiplicação repetida: cada posição, independente das outras, pode assumir qualquer caractere do conjunto, então o total é o tamanho do conjunto elevado ao comprimento da senha — 10² = 100 para o exemplo das dicas, não 20. Somar ou multiplicar linearmente comprimento por conjunto ignora que as posições se combinam entre si, não se somam.",
+      "por_que_erradas": {
+        "0": "Multiplicar linearmente ignora que as posições se combinam, não se somam entre si.",
+        "1": "Somar contaria só as opções de uma posição, não as combinações entre todas.",
+        "3": "Dividir reduziria o espaço conforme a senha cresce, o oposto do que acontece de fato."
+      },
+      "fonte": "Teoria 3.8.t2; aritmética combinatória padrão",
+      "tags": ["quebra-de-senhas", "espaco-de-busca", "combinatoria"]
+    },
+    {
+      "id": "3.8.q10",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um sistema usa senha de 20 caracteres com hash rápido (SHA-256 sem parâmetro de custo); outro usa senha de 8 caracteres com Argon2id calibrado. Considerando só a conta de tentativas por segundo vezes espaço de busca, qual comparação é correta?",
+      "alternativas": [
+        "Nenhum dos dois está seguro sozinho — cada um encareceu um lado diferente da mesma conta",
+        "O primeiro é mais seguro, porque comprimento de senha pesa mais que a função de hash escolhida",
+        "O segundo é mais seguro, porque a função de hash pesa mais que o comprimento da senha escolhido",
+        "Os dois tendem a ficar igualmente seguros, porque a conta final converge para valores parecidos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "As duas defesas atacam o mesmo lado da conta, ou lados diferentes?",
+        "É possível dizer qual dos dois é mais seguro sem saber os números exatos de cada lado?",
+        "Dois fatores que se multiplicam sempre dão o mesmo resultado final, não importa a magnitude de cada um?"
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para comparar os dois sistemas sem saber quanto cada parâmetro pesa numericamente?",
+      "explicacao": "Comprimento de senha e custo de hash agem em lados diferentes do mesmo produto, e nenhum dos dois isoladamente garante o resultado final — um espaço de busca grande com taxa alta ainda pode ceder rápido, e um espaço pequeno com taxa muito baixa ainda pode resistir bem, dependendo dos números exatos. Afirmar que um fator pesa mais por natureza, ou que os dois convergem para o mesmo valor, ignora que a conta depende da magnitude real de cada lado, caso a caso.",
+      "por_que_erradas": {
+        "1": "Comprimento não pesa mais 'por natureza' — depende da magnitude real dos dois fatores.",
+        "2": "O mesmo vale ao contrário: a função de hash não pesa mais só por ser hash de senha.",
+        "3": "Não há convergência garantida; os dois fatores multiplicam valores que podem ser bem diferentes."
+      },
+      "fonte": "Teoria 3.8.t2",
+      "tags": ["quebra-de-senhas", "cenario", "custo", "comparacao"]
+    },
+    {
+      "id": "3.8.q11",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma equipe quer saber quanto tempo um atacante levaria para esgotar as combinações possíveis da política de senha atual contra o hash em uso, antes de decidir se muda parâmetros. Qual abordagem aplica corretamente a conta de custo deste módulo?",
+      "alternativas": [
+        "Perguntar ao fabricante do hardware do servidor qual é a taxa máxima teórica de rede disponível",
+        "Contar quantos usuários têm senha maior que 12 caracteres e assumir que já estão seguros",
+        "Comparar o algoritmo de hash com uma lista de algoritmos aprovados por certificação externa",
+        "Medir a taxa real da função de hash e dividir o espaço de busca da política vigente por essa taxa"
+      ],
+      "correta": 3,
+      "dicas": [
+        "A conta central do módulo tem dois fatores — qual abordagem mede os dois, e não só um?",
+        "Taxa de rede tem relação com quantas vezes por segundo um hash é calculado localmente?",
+        "Contar senhas 'longas' sem considerar a função de hash cobre só metade da conta."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para estimar o custo de ataque sabendo só o comprimento da senha, sem saber a taxa da função de hash?",
+      "explicacao": "A conta de custo exige os dois fatores: a taxa de tentativas por segundo que a função de hash permite no hardware relevante, e o tamanho do espaço de busca da política vigente. Medir só um dos dois, ou substituir a medição por uma lista de certificação ou pela taxa de rede — que não mede cálculo de hash —, deixa a estimativa incompleta.",
+      "por_que_erradas": {
+        "0": "Taxa de rede não mede quantas vezes por segundo a função de hash é calculada — são coisas diferentes.",
+        "1": "Comprimento sozinho, sem taxa de hash, é metade da conta.",
+        "2": "Certificação de algoritmo não substitui medir a taxa real de tentativas por segundo."
+      },
+      "fonte": "Teoria 3.8.t2, 3.8.t3",
+      "tags": ["quebra-de-senhas", "ataque-defesa", "estimativa", "custo"]
+    },
+    {
+      "id": "3.8.q12",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "RELATÓRIO DE AVALIAÇÃO DE SENHA — trecho\n\"Nossa política atual exige 8 caracteres, levando em média 2 dias para um atacante esgotar o espaço de busca. Se exigirmos 16 caracteres, o tempo esperado sobe para 4 dias — o dobro do comprimento, o dobro do tempo. Por isso recomendamos manter 8 caracteres e investir em outras defesas, que trazem mais retorno por esforço.\"",
+      "enunciado": "Qual é o erro central de raciocínio neste trecho?",
+      "alternativas": [
+        "O relatório erra a unidade de tempo, que deveria ser em horas, não em dias",
+        "O relatório trata o espaço de busca como linear no comprimento, quando ele é exponencial",
+        "O relatório ignora completamente a função de hash usada, que seria o único fator relevante",
+        "O relatório está correto, e a conclusão de manter 8 caracteres é a mais eficiente"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Dobrar o comprimento da senha dobra o número de combinações possíveis, ou multiplica por muito mais que isso?",
+        "Recalcule: o que acontece ao total de combinações quando dobra o expoente, não a base?",
+        "O erro está na unidade, no fator ignorado, ou na relação matemática entre comprimento e o total de candidatos?"
+      ],
+      "pergunta_socratica": "Antes de conferir: espaço de busca de N caracteres para o dobro de caracteres cresce por soma, ou por multiplicação repetida?",
+      "explicacao": "Espaço de busca é o tamanho do conjunto de caracteres elevado ao comprimento — dobrar o comprimento dobra o expoente, o que multiplica o espaço por um fator enorme, não por dois. O relatório trata uma relação exponencial como se fosse linear, e por isso subestima drasticamente o ganho de ir de 8 para 16 caracteres. A unidade de tempo não é o problema, e a função de hash, embora relevante (t3), não é 'o único fator' — o comprimento também pesa, e é exatamente o que o relatório calcula errado.",
+      "por_que_erradas": {
+        "0": "A unidade de tempo não é o erro central; o problema é a relação matemática usada.",
+        "2": "A função de hash é um fator relevante, mas não o único — o comprimento também pesa, e é o que o relatório erra.",
+        "3": "A conclusão depende do cálculo errado; corrigido o cálculo, o ganho de ir a 16 caracteres é muito maior que o dobro."
+      },
+      "fonte": "Teoria 3.8.t2; aritmética combinatória padrão",
+      "tags": ["quebra-de-senhas", "caca-erro", "custo", "exponencial"]
+    },
+    {
+      "id": "3.8.q13",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Por que um atacante que investe em hardware especializado (GPU, ASIC) ganha proporcionalmente mais contra um hash rápido do que contra um hash de senha calibrado com custo de memória?",
+      "alternativas": [
+        "Porque hash rápido usa uma matemática mais simples de acelerar em qualquer hardware",
+        "Porque a diferença de custo entre as duas funções é sempre da mesma ordem de grandeza, não importa o hardware",
+        "Porque paralelizar cálculo é barato, mas replicar memória por núcleo não",
+        "Porque hash de senha usa criptografia de chave pública, incompatível com GPU"
+      ],
+      "correta": 2,
+      "dicas": [
+        "O que GPU e ASIC fazem muito bem: multiplicar núcleos de processamento, ou multiplicar memória dedicada por núcleo?",
+        "Um hash que só exige cálculo se beneficia mais, ou menos, dessa multiplicação de núcleos?",
+        "Nenhuma das duas funções envolve chave pública."
+      ],
+      "pergunta_socratica": "Antes de conferir: é mais barato colocar mil núcleos de processamento numa placa, ou mil vezes mais memória dedicada por núcleo?",
+      "explicacao": "Hardware especializado multiplica núcleos de processamento com facilidade e baixo custo — por isso acelera muito uma função que só custa cálculo. Memória dedicada por núcleo não escala da mesma forma: replicar dezenas de MiB por unidade de processamento é caro, o que reduz a vantagem proporcional do hardware especializado contra funções como Argon2id. Não é questão de matemática mais simples de forma vaga, nem de ausência de placa de vídeo, nem de criptografia de chave pública, que não está em jogo em nenhuma das duas funções.",
+      "por_que_erradas": {
+        "0": "\"Matemática mais simples\" não explica o mecanismo; o que importa é o que se paraleliza com facilidade.",
+        "1": "A ordem de grandeza da diferença depende, sim, do hardware — é justamente por isso que hardware especializado ajuda mais contra uma função do que contra a outra.",
+        "3": "Nenhuma das duas funções de hash discutidas usa criptografia de chave pública."
+      },
+      "fonte": "Teoria 3.8.t3",
+      "tags": ["quebra-de-senhas", "hardware", "argon2", "custo"]
+    },
+    {
+      "id": "3.8.q14",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Coloque em ordem os passos de estimar o custo de um ataque offline contra uma política de senha vigente.",
+      "itens": [
+        "Definir o conjunto de caracteres e o comprimento mínimo exigidos pela política",
+        "Calcular o tamanho do espaço de busca elevando o conjunto ao comprimento",
+        "Medir, em hardware equivalente ao do atacante, a taxa de tentativas por segundo da função de hash em uso",
+        "Dividir o espaço de busca pela taxa medida para projetar o tempo total",
+        "Comparar o tempo projetado com o valor do que está sendo protegido, para decidir se compensa endurecer os parâmetros"
+      ],
+      "ordem_correta": [0, 1, 2, 3, 4],
+      "dicas": [
+        "O espaço de busca só pode ser calculado depois de saber o quê, sobre a política?",
+        "A divisão final depende de já ter dois números em mãos — quais, e eles vêm de onde na sequência?",
+        "A comparação com o valor do alvo só faz sentido depois de já existir um número de tempo."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para medir a taxa de tentativas por segundo antes de saber que função de hash está em uso?",
+      "explicacao": "Primeiro se define o que a política exige (conjunto e comprimento), o que permite calcular o espaço de busca. Em seguida mede-se a taxa real da função de hash em hardware equivalente ao do atacante. Só com os dois números em mãos a divisão projeta um tempo, e só com um tempo em mãos faz sentido comparar contra o valor do que está sendo protegido para decidir se vale endurecer parâmetros.",
+      "fonte": "Teoria 3.8.t2",
+      "tags": ["quebra-de-senhas", "ordenacao", "custo", "estimativa"]
+    },
+    {
+      "id": "3.8.q15",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Ligue cada parâmetro ou decisão defensiva ao lado da conta de custo (tentativas por segundo × espaço de busca) que ele afeta primeiro.",
+      "pares": [
+        ["Aumentar as iterações do Argon2id", "Reduz a taxa de tentativas por segundo do atacante"],
+        ["Aumentar o comprimento mínimo de senha exigido", "Aumenta o tamanho do espaço de busca a testar"],
+        ["Migrar de SHA-256 para PBKDF2 com 600.000 iterações", "Reduz a taxa de tentativas por segundo do atacante, por outro caminho"],
+        ["Exigir autenticação multifator", "Muda o modelo inteiro, não só um dos dois lados da conta"]
+      ],
+      "dicas": [
+        "Duas das quatro decisões mudam a mesma coisa: quantas tentativas cabem por segundo.",
+        "Uma das quatro decisões não é sobre custo por tentativa nem sobre tamanho do espaço.",
+        "Comprimento de senha afeta quantos candidatos existem, não quão rápido cada um é testado."
+      ],
+      "pergunta_socratica": "Antes de conferir: multifator encarece uma tentativa, ou torna a senha sozinha insuficiente para autenticar?",
+      "explicacao": "Argon2id com mais iterações e a migração de SHA-256 para PBKDF2 calibrado atacam o mesmo lado: quantas tentativas por segundo cabem no hardware do atacante. Comprimento mínimo maior ataca o outro lado: quantos candidatos existem para testar. Multifator não encarece nenhum dos dois lados da mesma conta — muda o problema inteiro, porque a senha recuperada deixa de bastar para autenticar.",
+      "fonte": "Teoria 3.8.t2, 3.8.t6; 2.5.t1 (assumida como vista)",
+      "tags": ["quebra-de-senhas", "pareamento", "custo", "defesa"]
+    },
+    {
+      "id": "3.8.q16",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Um relatório de segurança afirma: \"este hash pode ser testado a 10 bilhões de tentativas por segundo, é um número universal para qualquer atacante\". O que essa afirmação ignora, considerando a conta de custo deste módulo?",
+      "alternativas": [
+        "A taxa de tentativas por segundo depende do hardware usado, não do algoritmo sozinho",
+        "A taxa de tentativas por segundo é sempre a mesma, então a afirmação está correta",
+        "O número está errado porque nenhum hash ultrapassa um milhão de tentativas por segundo",
+        "A afirmação ignora que hashes de senha não podem ser testados offline"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A taxa medida no laboratório deste módulo foi medida em qual máquina, especificamente?",
+        "CPU comum, GPU e cluster dão a mesma velocidade de cálculo para a mesma função?",
+        "Pense se \"número universal\" faz sentido para algo que depende do equipamento usado."
+      ],
+      "pergunta_socratica": "Antes de conferir: a taxa de tentativas por segundo é uma propriedade do algoritmo sozinho, ou do algoritmo rodando em um hardware específico?",
+      "explicacao": "A taxa de tentativas por segundo é sempre medida contra um hardware específico — CPU comum, GPU ou cluster dedicado dão taxas bem diferentes para o mesmo algoritmo, como o próprio laboratório deste módulo mede numa única máquina. Tratar um número como universal ignora essa dependência. Hash rápido pode ultrapassar a casa de milhões por segundo em hardware comum, e a afirmação não trata do regime online/offline — o erro dela é sobre a taxa em si.",
+      "por_que_erradas": {
+        "1": "A taxa não é constante; ela varia com o hardware, como a explicação detalha.",
+        "2": "O limite citado aqui é arbitrário e não corresponde à medição real, que já passa de 600 mil numa CPU comum.",
+        "3": "A afirmação não trata do regime online/offline; o erro dela é sobre a taxa em si."
+      },
+      "fonte": "Teoria 3.8.t2, 3.8.t3; medição em execução, custo_da_tentativa.py",
+      "tags": ["quebra-de-senhas", "cenario", "hardware", "custo"]
+    },
+    {
+      "id": "3.8.q17",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Segundo a lógica deste módulo, por que uma senha escolhida por uma pessoa tende a ser previsível, mesmo sem ela escolher uma senha \"óbvia\" de propósito?",
+      "alternativas": [
+        "Porque o sistema de cadastro impede escolhas repetidas entre contas diferentes",
+        "Porque sistemas de cadastro sugerem a senha para o usuário durante o registro",
+        "Porque o teclado físico limita as combinações possíveis de tecla",
+        "Porque memorizar exige estrutura, e isso reduz o espaço de opções usadas"
+      ],
+      "correta": 3,
+      "dicas": [
+        "Pense no que significa \"memorizável\" para um humano, comparado a \"aleatório\".",
+        "A limitação não vem do teclado nem do sistema de cadastro — de onde ela vem?",
+        "Estrutura (palavra reconhecível + padrão) e aleatoriedade pura puxam para a mesma direção?"
+      ],
+      "pergunta_socratica": "Antes de conferir: uma senha fácil de lembrar tem, por definição, algum tipo de padrão?",
+      "explicacao": "O que torna a senha humana previsível não é escolha deliberadamente fraca, nem limitação de teclado ou sugestão de sistema — é a própria exigência de memorizar algo. Memorizável e aleatório puxam para direções opostas: quanto mais uma pessoa consegue guardar de cabeça, mais a escolha tende a ter estrutura reconhecível, e estrutura reconhecível é exatamente o que reduz o espaço de opções realmente exploradas por pessoas reais.",
+      "por_que_erradas": {
+        "0": "Nenhum sistema de cadastro comum verifica se a senha já existe em outra conta; reuso não é impedido nem detectado dessa forma.",
+        "1": "Sistemas de cadastro não sugerem a senha do usuário; alguns recusam senhas fracas, o que é diferente.",
+        "2": "O teclado físico não é a limitação relevante aqui; a limitação é cognitiva, não mecânica."
+      },
+      "fonte": "Teoria 3.8.t4",
+      "tags": ["quebra-de-senhas", "previsibilidade", "fator-humano"]
+    },
+    {
+      "id": "3.8.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "O que caracteriza um ataque estruturado contra senhas, em oposição a uma busca exaustiva pelo espaço inteiro?",
+      "alternativas": [
+        "Testar apenas senhas com menos de 6 caracteres, por serem mais rápidas de calcular",
+        "Combinar uma lista-base com variações sistemáticas, em vez de percorrer todas as combinações",
+        "Testar candidatos em ordem alfabética, começando pela letra 'a'",
+        "Usar exclusivamente senhas de exatamente 8 caracteres, por ser um comprimento comum historicamente"
+      ],
+      "correta": 1,
+      "dicas": [
+        "\"Estrutura\", aqui, vem de um limite de comprimento, ou de uma hipótese sobre o formato da senha?",
+        "O laboratório deste módulo combinou o quê com o quê para gerar candidatos?",
+        "Ordem alfabética ainda seria percorrer o espaço inteiro, só que em uma ordem específica."
+      ],
+      "pergunta_socratica": "Antes de conferir: gerar candidatos por hipótese de formato é o mesmo que simplesmente limitar o comprimento testado?",
+      "explicacao": "Ataque estruturado combina uma lista-base de palavras plausíveis com regras de variação sistemática — é isso que o laboratório `estrutura_e_o_que_quebrado_significa.py` faz, gerando pouco mais de 7 mil candidatos a partir de 7 palavras-base. Não é sobre limitar comprimento, nem sobre testar em ordem alfabética, que ainda seria busca exaustiva, só ordenada — é sobre concentrar a busca onde a hipótese diz que senhas humanas realmente estão.",
+      "por_que_erradas": {
+        "0": "Limitar por comprimento não é o mecanismo do ataque estruturado; é um recorte diferente, sem hipótese de formato.",
+        "2": "Ordem alfabética ainda percorre o espaço inteiro; não reduz o conjunto testado.",
+        "3": "Fixar um único comprimento não usa lista-base nem regra de variação — não caracteriza o ataque estruturado."
+      },
+      "fonte": "Teoria 3.8.t5; execução real, estrutura_e_o_que_quebrado_significa.py",
+      "tags": ["quebra-de-senhas", "ataque-estruturado", "dicionario"]
+    },
+    {
+      "id": "3.8.q19",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "artefato": "=== lista estruturada gerada: 7,070 candidatos ===\n  7 palavras-base x 2 capitalizacoes x 101 sufixos de digito x 5 sufixos de simbolo\n  espaco de busca teorico para 10 caracteres livres: 2.45e+18\n  a lista estruturada e 3.46e+14x menor que o espaco teorico\n\n=== ataque estruturado contra cada hash ===\n  senha de formato humano (1): recuperada em 627 tentativas (1.3 ms) -> 'Futebol23!'\n  senha de formato humano (2): recuperada em 2,567 tentativas (3.4 ms) -> 'Verao7!'\n  senha aleatoria, fora da estrutura: NAO recuperada apos 7,070 tentativas (10.9 ms) -- fora da lista estruturada",
+      "enunciado": "O que esta saída demonstra sobre a relação entre lista estruturada e espaço teórico de busca?",
+      "alternativas": [
+        "Que a lista estruturada é maior que o espaço teórico, por isso encontra mais senhas",
+        "Que o espaço teórico está errado, porque a lista encontrou senhas em menos de 3 mil tentativas",
+        "Que a lista, catorze ordens de grandeza mais enxuta que o espaço teórico, ainda recupera as duas senhas plausíveis",
+        "Que toda senha de 10 caracteres cai em menos de 3 mil tentativas"
+      ],
+      "correta": 2,
+      "dicas": [
+        "Compare o tamanho da lista (7.070) com o espaço teórico (2,45e+18) — qual é maior?",
+        "A senha aleatória, fora da estrutura, foi recuperada ou não, segundo a saída?",
+        "\"Menor\" e \"errado\" não são a mesma coisa — o espaço teórico continua existindo mesmo sem ser todo percorrido."
+      ],
+      "pergunta_socratica": "Antes de conferir: a lista de 7.070 candidatos é maior ou menor que o espaço teórico de 2,45e+18?",
+      "explicacao": "A lista estruturada, com 7.070 candidatos, é catorze ordens de grandeza menor que o espaço teórico de 2,45e+18, e mesmo assim recupera as duas senhas de formato humano, porque elas estão dentro da hipótese que gerou a lista. A senha aleatória, fora dessa hipótese, não é recuperada, mesmo esgotando a lista inteira. Isso não invalida o espaço teórico, nem generaliza para qualquer senha de 10 caracteres: generaliza só para as que seguem o formato testado.",
+      "por_que_erradas": {
+        "0": "A lista é catorze ordens de grandeza menor que o espaço teórico, não maior.",
+        "1": "O espaço teórico continua correto; ele só não foi percorrido inteiro — a lista testou um subconjunto hipotético.",
+        "3": "A senha aleatória, no mesmo teste, não caiu — a generalização contradiz o próprio resultado mostrado."
+      },
+      "fonte": "Execução real, estrutura_e_o_que_quebrado_significa.py",
+      "tags": ["quebra-de-senhas", "artefato", "estrutura", "espaco-de-busca"]
+    },
+    {
+      "id": "3.8.q20",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Uma política exige pelo menos um símbolo na senha. Na prática, a maioria dos usuários passa a acrescentar o mesmo símbolo ('!') no fim da senha que já usava. Do ponto de vista da economia de ataque, o que essa regra realmente mudou?",
+      "alternativas": [
+        "Pouco: 'símbolo no fim' já é uma variação prevista pelo ataque",
+        "Muito: qualquer senha com símbolo passa a exigir busca exaustiva no espaço teórico inteiro",
+        "Nada, porque símbolo não é um caractere reconhecido por funções de hash modernas",
+        "Depende só do algoritmo de hash usado, não do formato da senha"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um atacante que já espera 'símbolo no fim' precisa mudar muito a lista de variações que testa?",
+        "O espaço teórico cresceu com a regra — mas o espaço efetivamente testado por um ataque estruturado cresce na mesma proporção?",
+        "Pense no laboratório deste módulo: sufixos de símbolo já fazem parte da lista de variação testada."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o atacante já testa 'senha + símbolo no fim' como variação padrão, a nova regra tira alguma vantagem dele?",
+      "explicacao": "O espaço teórico cresce quando se permite símbolo, mas o espaço que um ataque estruturado de fato testa cresce muito menos, porque símbolo previsível no fim já é uma das variações padrão de qualquer lista de regras de transformação (t5) — é exatamente o padrão que o laboratório deste módulo já inclui nos sufixos testados. Função de hash não distingue tipo de caractere de forma especial, e o resultado não depende só do algoritmo: depende de como as pessoas respondem à regra na prática.",
+      "por_que_erradas": {
+        "1": "O espaço teórico cresce, mas isso não força busca exaustiva — o ataque estruturado continua concentrado onde as pessoas realmente escolhem.",
+        "2": "Funções de hash operam sobre bytes; símbolo é um caractere comum como qualquer outro para elas.",
+        "3": "O resultado depende do comportamento humano diante da regra, não só do algoritmo de hash em uso."
+      },
+      "fonte": "Teoria 3.8.t4, 3.8.t5",
+      "tags": ["quebra-de-senhas", "cenario", "politica-de-senha", "previsibilidade"]
+    },
+    {
+      "id": "3.8.q21",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "A obrigação, já ensinada em 2.5.t2, de comparar a senha escolhida contra uma lista de senhas vazadas no momento do cadastro, ataca qual parte da economia deste módulo?",
+      "alternativas": [
+        "Reduz a taxa de tentativas por segundo do atacante, encarecendo cada tentativa",
+        "Reduz as escolhas previsíveis que um ataque estruturado exploraria de graça",
+        "Aumenta o espaço de busca teórico, ao proibir caracteres repetidos",
+        "Substitui a necessidade de função de hash lenta, porque a senha já chega filtrada"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Essa obrigação muda a taxa de cálculo do hash, ou muda o que pode ser escolhido como senha?",
+        "Pense em quais senhas essa lista bloqueia — são exatamente as que caem primeiro numa lista de tentativas por hipótese?",
+        "Bloquear uma escolha não é o mesmo que mudar quantas combinações existem no total."
+      ],
+      "pergunta_socratica": "Antes de conferir: comparar contra lista de vazadas muda o custo por tentativa do atacante, ou muda o que está disponível para ele tentar?",
+      "explicacao": "Essa obrigação não mexe na taxa de tentativas por segundo nem substitui a função de hash lenta — as duas continuam necessárias. O que ela faz é remover do conjunto de senhas permitidas exatamente as que um ataque estruturado testaria primeiro, porque já são conhecidas por aparecerem em vazamentos. É uma defesa que atua na previsibilidade (t4/t5), não na taxa de cálculo (t2/t3) nem no tamanho bruto do espaço teórico.",
+      "por_que_erradas": {
+        "0": "A comparação com lista de vazadas não altera a velocidade da função de hash.",
+        "2": "Não há proibição de caracteres repetidos nessa obrigação, nem ela muda o espaço teórico.",
+        "3": "Ela reduz previsibilidade; não substitui a necessidade de hash lento, que ataca o outro lado da conta."
+      },
+      "fonte": "Teoria 3.8.t4, 3.8.t5; 2.5.t2 (assumida como vista)",
+      "tags": ["quebra-de-senhas", "ataque-defesa", "lista-de-vazadas"]
+    },
+    {
+      "id": "3.8.q22",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "trecho": "AVALIAÇÃO DE RISCO — trecho\n\"Nossa política exige 12 caracteres entre letras, números e símbolos. O espaço de busca resultante é de mais de 10^23 combinações — um número tão grande que nenhum ataque prático o esgota. Concluímos que o risco de quebra de senha é desprezível para esta base.\"",
+      "enunciado": "Qual premissa esta avaliação erra, sobre como um adversário de fato tenta as senhas?",
+      "alternativas": [
+        "Ela erra o valor de 10^23, que deveria ser calculado com uma fórmula diferente",
+        "Ela supõe busca exaustiva, quando o ataque real usa lista bem menor",
+        "Ela ignora que 12 caracteres é insuficiente segundo qualquer padrão vigente",
+        "Ela está certa, e a conclusão de risco desprezível é a mais adequada"
+      ],
+      "correta": 1,
+      "dicas": [
+        "O espaço teórico de 10^23 é real — o problema está no número, ou em outra suposição da avaliação?",
+        "Um adversário percorre o espaço inteiro nessa ordem, ou concentra as tentativas onde senhas humanas costumam estar?",
+        "12 caracteres não é o alvo do erro aqui; releia o que a avaliação conclui a partir do tamanho do espaço."
+      ],
+      "pergunta_socratica": "Antes de conferir: um espaço de busca gigante garante que um ataque estruturado, e não exaustivo, também vá falhar?",
+      "explicacao": "O espaço teórico de 10^23 provavelmente está certo, e o erro não é aritmético — é assumir que o ataque relevante percorre esse espaço inteiro. Um ataque real usa lista estruturada e regras de transformação (t5), concentrado onde pessoas de fato escolhem, e essa lista pode recuperar senhas de 12 caracteres que seguem um formato previsível, mesmo com o espaço teórico gigantesco intacto. 12 caracteres não é insuficiente por padrão nenhum citado no módulo, e a conclusão de risco desprezível não segue do raciocínio incompleto apresentado.",
+      "por_que_erradas": {
+        "0": "O valor de 10^23 não é o problema; é uma conta de espaço teórico plausível.",
+        "2": "O módulo não estabelece 12 caracteres como insuficiente; o erro está em outro lugar.",
+        "3": "A conclusão só seguiria se a premissa sobre como o ataque busca estivesse certa, e ela não está."
+      },
+      "fonte": "Teoria 3.8.t5",
+      "tags": ["quebra-de-senhas", "caca-erro", "espaco-de-busca", "estrutura"]
+    },
+    {
+      "id": "3.8.q23",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Uma senha de 20 caracteres formada por quatro palavras comuns do dicionário, uma após a outra sem separador, é necessariamente mais resistente a um ataque estruturado do que uma senha curta e aleatória?",
+      "alternativas": [
+        "Não necessariamente — combinações de palavras de dicionário ainda têm estrutura reconhecível",
+        "Sim, porque comprimento é o único fator que a recomendação atual considera",
+        "Sim, porque toda senha com mais de 16 caracteres está fora do alcance de qualquer lista estruturada",
+        "Não, porque senhas com múltiplas palavras exigem configuração especial em sistemas modernos"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Uma lista estruturada testa só palavras isoladas, ou também combinações de poucas palavras?",
+        "O que faz uma senha resistir a ataque estruturado: só o número de caracteres, ou também a ausência de padrão reconhecível?",
+        "Pense se \"passphrase de dicionário\" é, ou não, um formato que também pode ter estrutura previsível."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma lista estruturada de ataque só testa palavras sozinhas, ou também testa combinações de duas ou mais?",
+      "explicacao": "Comprimento ajuda, mas não é garantia sozinho: uma combinação de palavras comuns de dicionário ainda é um formato estruturável, e um ataque que testa combinações de poucas palavras conhecidas pode alcançá-la, mesmo com 20 caracteres. O que resiste de verdade é a combinação de comprimento com ausência de padrão reconhecível — as duas coisas juntas, não uma sozinha. Não há um limiar universal de caracteres que garanta estar fora de qualquer lista, e passphrase de múltiplas palavras é aceita normalmente por sistemas modernos.",
+      "por_que_erradas": {
+        "1": "Comprimento não é o único fator; estrutura reconhecível também pesa, como o próprio módulo demonstra.",
+        "2": "Não existe um limiar de caracteres que garanta estar fora de qualquer lista estruturada possível.",
+        "3": "Passphrases de múltiplas palavras são aceitas normalmente por sistemas modernos, sem configuração especial."
+      },
+      "fonte": "Teoria 3.8.t4, 3.8.t5",
+      "tags": ["quebra-de-senhas", "passphrase", "estrutura", "comprimento"]
+    },
+    {
+      "id": "3.8.q24",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Por que aumentar o comprimento mínimo tende a ser mais eficaz contra ataque estruturado do que impor regra de composição de caracteres?",
+      "alternativas": [
+        "Porque comprimento cresce o espaço exponencialmente; composição vira variação já prevista",
+        "Porque regra de composição está proibida por lei em qualquer país",
+        "Porque comprimento reduz o tempo de digitação, o que desestimula ataque automatizado",
+        "Porque composição de caracteres não é compatível com Argon2id"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Composição empurra a escolha para onde, exatamente — mais imprevisível, ou para um padrão já esperado?",
+        "Tempo de digitação humano tem alguma relação com a velocidade de um ataque automatizado?",
+        "Argon2id opera sobre bytes; ele se importa com que tipo de caractere foi usado?"
+      ],
+      "pergunta_socratica": "Antes de conferir: regra de composição torna a escolha humana mais imprevisível, ou empurra para um padrão já esperado?",
+      "explicacao": "Comprimento maior aumenta o espaço teórico de forma exponencial, dificultando de verdade uma busca que precise cobri-lo. Regra de composição, como o bloco 3.8.t4 mostra, empurra as pessoas para um conjunto pequeno e já conhecido de variações — símbolo no fim, maiúscula no início —, que qualquer lista de regras de transformação já testa. Não é questão legal, nem de tempo de digitação, nem de compatibilidade com Argon2id, que processa qualquer byte igualmente.",
+      "por_que_erradas": {
+        "1": "Não há proibição legal de regra de composição; a recomendação do NIST é técnica, não jurídica.",
+        "2": "Tempo de digitação humano não tem relação com a velocidade de um ataque automatizado.",
+        "3": "Argon2id opera sobre qualquer sequência de bytes, sem restrição de tipo de caractere."
+      },
+      "fonte": "Teoria 3.8.t4; 2.5.t2 (assumida como vista)",
+      "tags": ["quebra-de-senhas", "comprimento", "composicao", "nist"]
+    },
+    {
+      "id": "3.8.q25",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Ligue cada formato de senha à razão pela qual ele resiste, ou não, a um ataque estruturado.",
+      "pares": [
+        ["Palavra de dicionário seguida de ano de nascimento", "Cai cedo: é exatamente a combinação que uma lista estruturada testa primeiro"],
+        ["Substituição previsível de caractere, como trocar 'a' por '@'", "Não confunde o ataque: a regra de transformação já prevê essa troca"],
+        ["Frase longa e sem padrão reconhecível, sem derivar de palavra única", "Empurra o ataque de volta para o espaço teórico inteiro, muito mais caro"],
+        ["Senha curta gerada por sorteio de caracteres, sem significado", "Resiste à estrutura, mas ainda depende do espaço teórico ser grande o bastante"]
+      ],
+      "dicas": [
+        "Duas das quatro opções são formatos que uma lista estruturada já prevê.",
+        "As outras duas não têm formato reconhecível — o que sobra para o atacante testar, nesses casos?",
+        "Curta e aleatória ainda pode ser pequena demais, mesmo sem padrão."
+      ],
+      "pergunta_socratica": "Antes de conferir: sorteio de caracteres sem padrão garante um espaço de busca grande, só por não ter estrutura?",
+      "explicacao": "Palavra com ano, e substituição previsível de caractere, são exatamente os formatos que uma lista estruturada já testa (t5) — caem cedo. Frase longa sem padrão reconhecível e senha curta aleatória não têm estrutura para explorar, mas isso não as torna automaticamente seguras: a curta e aleatória ainda pode ter um espaço de busca pequeno demais, mesmo sendo imprevisível — comprimento continua importando (t2).",
+      "fonte": "Teoria 3.8.t2, 3.8.t4, 3.8.t5",
+      "tags": ["quebra-de-senhas", "pareamento", "formatos", "estrutura"]
+    },
+    {
+      "id": "3.8.q26",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "O que significa, tecnicamente, \"quebrar\" uma senha a partir do hash dela?",
+      "alternativas": [
+        "Reverter matematicamente a função de hash, obtendo a senha original a partir do resumo",
+        "Encontrar, na estratégia usada, um candidato cujo hash coincide com o armazenado",
+        "Provar que a função de hash tem uma colisão conhecida",
+        "Provar que o algoritmo de hash está obsoleto e deve ser substituído"
+      ],
+      "correta": 1,
+      "dicas": [
+        "A função de hash permite reversão matemática?",
+        "O que de fato acontece: acha-se um candidato dentro de uma lista, ou desfaz-se o cálculo do hash?",
+        "Colisão é sobre dois candidatos coincidirem entre si, não sobre achar o candidato certo para um resumo dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: quebrar uma senha desfaz o cálculo do hash, ou encontra um candidato que produz o mesmo resultado?",
+      "explicacao": "Quebrar uma senha não reverte a função — é achar, dentro do conjunto de candidatos testado, um valor cujo hash bate com o armazenado. Isso não prova colisão, que é sobre dois candidatos distintos coincidirem entre si, nem diz nada sobre o algoritmo estar obsoleto: o mesmo algoritmo forte pode não quebrar uma senha aleatória e quebrar uma previsível, no mesmo experimento, como o laboratório deste módulo mostra.",
+      "por_que_erradas": {
+        "0": "Nenhuma função de hash de senha permite reversão matemática.",
+        "2": "Colisão é um conceito diferente, sobre dois candidatos coincidirem entre si, não sobre achar o candidato certo.",
+        "3": "O resultado não avalia o algoritmo; avalia se o candidato certo estava no conjunto testado."
+      },
+      "fonte": "Teoria 3.8.t6; execução real, estrutura_e_o_que_quebrado_significa.py",
+      "tags": ["quebra-de-senhas", "conceito", "hash"]
+    },
+    {
+      "id": "3.8.q27",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "artefato": "  senha de formato humano (1): recuperada em 627 tentativas (1.3 ms) -> 'Futebol23!'\n  senha de formato humano (2): recuperada em 2,567 tentativas (3.4 ms) -> 'Verao7!'\n  senha aleatoria, fora da estrutura: NAO recuperada apos 7,070 tentativas (10.9 ms) -- fora da lista estruturada\n\n  tempo medio do lote: 5.2 ms",
+      "enunciado": "Com base nesta saída, o que a senha aleatória \"não recuperada\" prova sobre a função de hash usada?",
+      "alternativas": [
+        "Que a função de hash falhou ao processar essa senha específica",
+        "Que a função de hash é mais forte para essa senha do que para as outras duas",
+        "Nada sobre a força da função — só variou se o candidato certo estava na lista testada",
+        "Que essa senha usa um algoritmo de hash diferente das outras duas"
+      ],
+      "correta": 2,
+      "dicas": [
+        "A função de hash foi aplicada de forma diferente a cada uma das três senhas?",
+        "\"Não recuperada\" descreve o resultado da busca, ou uma falha da função de hash?",
+        "As três senhas passaram pelo mesmo cálculo de hash, nesta mesma execução."
+      ],
+      "pergunta_socratica": "Antes de conferir: a função de hash tratou a senha aleatória de um jeito diferente das outras duas?",
+      "explicacao": "As três senhas foram processadas pela mesma função de hash, do mesmo jeito. A diferença de resultado não vem da função — vem de a senha aleatória não estar na lista estruturada testada. Não há falha de processamento, não há força relativa maior para uma senha específica, e não há troca de algoritmo entre as três: a única variável foi se o candidato certo pertencia ao conjunto testado.",
+      "por_que_erradas": {
+        "0": "Não há falha: a função calculou o hash das três normalmente, incluindo a aleatória.",
+        "1": "A função não varia de força por senha; o resultado depende da lista testada, não da função.",
+        "3": "As três senhas usam o mesmo algoritmo de hash na mesma execução."
+      },
+      "fonte": "Execução real, estrutura_e_o_que_quebrado_significa.py; teoria 3.8.t6",
+      "tags": ["quebra-de-senhas", "artefato", "limites-do-hash"]
+    },
+    {
+      "id": "3.8.q28",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Por que um número como \"tempo médio de quebra: alguns segundos\", divulgado após um vazamento, pode enganar quem avalia o risco de uma conta específica?",
+      "alternativas": [
+        "Porque a média é sempre calculada errado em relatórios de segurança",
+        "Porque a média mistura quem cai rápido com quem nunca cai, sem dizer o grupo da conta",
+        "Porque tempo médio só se aplica a ataques online, nunca a offline",
+        "Porque o número correto seria o tempo máximo, nunca o médio"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Um lote de senhas quebra todo no mesmo tempo, ou em tempos bem diferentes entre si?",
+        "A média conta a história de cada conta individual, ou só do lote inteiro?",
+        "No laboratório deste módulo, duas senhas caem em milissegundos e uma não cai — que média isso produz, e o que ela esconde?"
+      ],
+      "pergunta_socratica": "Antes de conferir: uma média baixa calculada sobre um lote garante algo sobre cada elemento individual do lote?",
+      "explicacao": "A média resume um lote inteiro, e um lote de senhas humanas tem a maioria caindo cedo e uma cauda que não cai dentro do orçamento usado — a média fica baixa por causa da maioria, mas não diz nada sobre uma conta específica, que pode estar em qualquer um dos dois grupos. Não é erro de cálculo, não é exclusivo de ataque online, e trocar por \"tempo máximo\" também não resolveria sozinho: o problema é usar qualquer estatística agregada para decidir sobre um caso individual sem saber a qual grupo ele pertence.",
+      "por_que_erradas": {
+        "0": "A média pode estar calculada corretamente; o problema é o que ela deixa de comunicar sobre casos individuais.",
+        "2": "A mesma lógica de distribuição vale para lotes analisados offline, que é justamente o cenário do laboratório.",
+        "3": "Trocar a estatística usada não resolve sozinho; o ponto é não presumir o caso individual a partir de qualquer agregado."
+      },
+      "fonte": "Teoria 3.8.t6; execução real, estrutura_e_o_que_quebrado_significa.py",
+      "tags": ["quebra-de-senhas", "media", "distribuicao", "pior-caso"]
+    },
+    {
+      "id": "3.8.q29",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um relatório de teste interno afirma: \"tempo médio de quebra desta base: 4 segundos, portanto as senhas são fracas\". O que um defensor NÃO deveria concluir só a partir desse número?",
+      "alternativas": [
+        "Que todas as contas da base são igualmente fracas — a média não informa isso",
+        "Que a base tem contas com senha previsível o suficiente para cair rápido",
+        "Que vale a pena investigar a distribuição completa dos tempos, não só a média",
+        "Que o teste foi feito com uma estratégia de busca estruturada, e não exaustiva"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Qual das quatro é uma conclusão razoável de se buscar depois de ver esse número, e qual generaliza demais?",
+        "'Média baixa' garante que toda conta individual também está baixa?",
+        "Pense no que o restante do módulo já mostrou sobre distribuição de tempos de quebra."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma média baixa de um lote garante que cada elemento do lote também está baixo?",
+      "explicacao": "As outras três são leituras razoáveis do número: ele sugere previsibilidade real em parte da base, justifica olhar a distribuição completa, e é consistente com um teste estruturado — uma busca exaustiva de verdade não chegaria a segundos de média. O que não segue é generalizar a média para \"todas as contas\": é exatamente o erro que o bloco 3.8.t6 alerta — a média esconde a cauda, e a cauda pode incluir contas tão resistentes quanto a senha aleatória do laboratório, que nunca caiu.",
+      "por_que_erradas": {
+        "1": "Essa é uma conclusão razoável: o número sugere previsibilidade real em parte da base.",
+        "2": "Investigar a distribuição completa é exatamente a resposta correta ao ver uma média assim.",
+        "3": "Um teste exaustivo de verdade não chegaria a segundos de média; a suposição de estratégia estruturada é razoável."
+      },
+      "fonte": "Teoria 3.8.t6",
+      "tags": ["quebra-de-senhas", "cenario", "media", "pior-caso"]
+    },
+    {
+      "id": "3.8.q30",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Depois de um vazamento de hashes, sabendo que tempo médio de quebra esconde uma cauda de senhas que não caem, qual é a resposta mais consistente com a economia deste módulo?",
+      "alternativas": [
+        "Redefinir a senha só das contas cuja senha caiu no teste interno de quebra",
+        "Não agir, já que a maioria das senhas segue protegida pela função de hash",
+        "Redefinir todas as contas — a força individual só é conhecida depois de testada",
+        "Trocar apenas o algoritmo de hash da base, mantendo os resumos antigos como estão"
+      ],
+      "correta": 2,
+      "dicas": [
+        "É possível saber, sem testar, quais contas estão na cauda e quais não estão?",
+        "Testar 'as que caíram' informa alguma coisa sobre as que ainda não foram testadas?",
+        "Trocar o algoritmo, sozinho, recalcula os resumos já vazados?"
+      ],
+      "pergunta_socratica": "Antes de conferir: testar e redefinir só as contas que já caíram deixa alguma conta vazada sem tratamento?",
+      "explicacao": "A força de uma senha específica só fica visível depois que alguém tenta quebrá-la — antes disso, não há como saber de qual lado da distribuição uma conta está. Redefinir só as que caíram num teste interno deixa de fora contas ainda não testadas mas igualmente vazadas; não agir ignora a parte da base que já é sabidamente fraca; e trocar o algoritmo sem redefinir mantém as senhas antigas comprometidas sob a função nova. A resposta consistente é tratar a base inteira como comprometida.",
+      "por_que_erradas": {
+        "0": "Testar só revela quem já caiu; não informa nada sobre quem ainda não foi testado.",
+        "1": "Ignora que parte da base, sabidamente, tem senha previsível o suficiente para cair.",
+        "3": "Trocar o algoritmo sem redefinir mantém as senhas comprometidas válidas sob a função nova (2.4.q23, assumida como vista)."
+      },
+      "fonte": "Teoria 3.8.t1, 3.8.t6; 2.4.q23 (assumida como vista)",
+      "tags": ["quebra-de-senhas", "incidente", "resposta", "pior-caso"]
+    },
+    {
+      "id": "3.8.q31",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "trecho": "POLÍTICA DE SEGURANÇA — trecho\n\"Armazenamos senhas com SHA-256 e sal único por usuário. Como cada usuário tem um sal diferente, tabelas pré-calculadas não funcionam contra nossa base, e por isso consideramos a base protegida contra quebra de senha.\"",
+      "enunciado": "O que esta política acerta, e o que ela ainda ignora, sobre proteção contra quebra de senha?",
+      "alternativas": [
+        "Acerta tudo: sal único é suficiente, e a conclusão está correta",
+        "Acerta o sal, mas ignora que SHA-256 continua rápido por tentativa",
+        "Erra ao dizer que sal impede tabela pré-calculada; isso não é verdade",
+        "Erra porque sal deveria ser diferente por byte da senha, não por usuário"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Sal e velocidade da função resolvem o mesmo problema, ou problemas diferentes?",
+        "Impedir reaproveitamento de tabela entre contas é o mesmo que encarecer cada tentativa individual?",
+        "SHA-256 aceita qualquer entrada, inclusive sal concatenado — isso já foi estabelecido no módulo 2.4."
+      ],
+      "pergunta_socratica": "Antes de conferir: sal individualiza o ataque por conta, mas isso muda a velocidade de cada tentativa individual?",
+      "explicacao": "O sal realmente impede que uma única tabela pré-calculada ataque a base inteira — isso está certo e já é conhecido do módulo 2.4. Mas isso resolve só um dos problemas: o custo por tentativa individual continua baixo, porque SHA-256 é rápido, então cada conta ainda pode ser atacada offline a centenas de milhares de tentativas por segundo, sal ou não. Sal e velocidade atuam em pontos diferentes da defesa, e a política confunde ter resolvido um com ter resolvido os dois.",
+      "por_que_erradas": {
+        "0": "A conclusão de \"protegida\" ignora o custo por tentativa, que sal não resolve.",
+        "2": "Sal de fato impede reaproveitamento de tabela pré-calculada; essa parte da política está certa.",
+        "3": "Sal é único por usuário, não por byte da senha; essa granularidade não existe em nenhuma implementação padrão."
+      },
+      "fonte": "Teoria 3.8.t2, 3.8.t3; 2.4.t3, 2.4.q10 (assumidas como vistas)",
+      "tags": ["quebra-de-senhas", "caca-erro", "sal", "hash-rapido"]
+    },
+    {
+      "id": "3.8.q32",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Diferente de comprimento de senha e custo de hash, que precisam ser calibrados e recalibrados com o tempo (t3), por que autenticação multifator não entra na mesma lógica de calibração?",
+      "alternativas": [
+        "Porque ela substitui completamente a necessidade de senha, tornando a calibração irrelevante",
+        "Porque ela não encarece um dos dois lados da conta de tentativas por segundo × espaço de busca — torna essa conta insuficiente por si só, não importa quanto seja calibrada",
+        "Porque o segundo fator, uma vez configurado, nunca precisa ser trocado ou atualizado",
+        "Porque multifator é mais barato de implementar do que ajustar parâmetros de Argon2id"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Calibrar comprimento ou custo de hash muda um número dentro da mesma conta — multifator muda algum número dela, ou muda outra coisa?",
+        "A senha e o hash dela deixam de existir quando há multifator?",
+        "'Nunca precisa trocar' é uma afirmação sobre o mecanismo deste módulo, ou sobre manutenção de longo prazo de qualquer sistema?"
+      ],
+      "pergunta_socratica": "Antes de conferir: multifator ajusta um dos dois lados da conta de custo, ou torna o resultado dela insuficiente por si só?",
+      "explicacao": "Comprimento e custo de hash são números dentro da mesma conta (t2), e por isso exigem recalibração conforme o hardware do atacante evolui. Multifator não é mais um número nessa conta — ela continua existindo e podendo ser vencida, mas o resultado dela deixa de bastar sozinho, porque falta o segundo elemento. Não é substituição da senha (ela e o hash continuam protegendo o que protegiam), o segundo fator também exige manutenção ao longo do tempo, e custo de implementação não é o motivo estrutural da diferença.",
+      "por_que_erradas": {
+        "0": "Multifator soma uma camada; a senha e seu hash continuam existindo e continuam precisando ser calibrados.",
+        "2": "Segundo fator também exige manutenção — dispositivo perdido, chave revogada, aplicativo trocado.",
+        "3": "Custo de implementação não é o motivo estrutural; o que muda é o que passa a faltar ao atacante."
+      },
+      "fonte": "Teoria 3.8.t2, 3.8.t3, 3.8.t6; 2.5.t1 (assumida como vista)",
+      "tags": ["quebra-de-senhas", "mfa", "calibracao", "modelo-de-ameaca"]
+    },
+    {
+      "id": "3.8.q33",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma equipe pequena pergunta se vale a pena adotar os parâmetros mais altos possíveis de Argon2id, mesmo consumindo bem mais memória do servidor por login. Qual raciocínio, alinhado à economia deste módulo, orienta essa decisão?",
+      "alternativas": [
+        "Calibrar o custo para ficar caro frente ao valor do que está sendo protegido",
+        "Usar sempre o valor máximo possível, porque segurança nunca é demais",
+        "Usar o valor mínimo aceito pelo OWASP, porque qualquer coisa acima disso é desperdício garantido",
+        "A escolha do parâmetro não importa, desde que a senha tenha mais de 15 caracteres"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A conta de custo deste módulo compara o esforço do atacante contra o quê, do lado defensor?",
+        "Um parâmetro extremo, que deixa o login lento demais para usuários reais, ainda é uma boa escolha sem contrapartida?",
+        "Comprimento de senha (2.5) e parâmetro de hash (2.4) resolvem lados diferentes da mesma conta; um alto dispensa ajustar o outro?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o objetivo é tornar o ataque impossível, ou tornar o ataque caro demais frente ao que está em jogo?",
+      "explicacao": "A lógica de custo deste módulo não mira em tornar o ataque impossível — nenhum parâmetro finito faz isso — e sim em torná-lo caro o suficiente para não valer a pena frente ao valor do que está sendo protegido, sem inviabilizar o uso legítimo do sistema, já que login lento demais para usuários reais também tem custo. Não existe 'valor máximo sempre' sem contrapartida, o mínimo do OWASP não é automaticamente desperdício acima dele, e comprimento de senha não dispensa a calibração do hash: os dois lados da conta (t2) continuam precisando de atenção juntos.",
+      "por_que_erradas": {
+        "1": "Valor máximo sem limite prejudica a experiência de login legítimo, um custo que também conta.",
+        "2": "Ajustar acima do mínimo do OWASP não é desperdício garantido — depende do valor do que está sendo protegido.",
+        "3": "Comprimento de senha não substitui a calibração do custo de hash; os dois lados da conta importam juntos."
+      },
+      "fonte": "Teoria 3.8.t2, 3.8.t3, 3.8.t6; OWASP Password Storage Cheat Sheet",
+      "tags": ["quebra-de-senhas", "cenario", "custo-beneficio", "argon2"]
+    },
+    {
+      "id": "3.8.q34",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [3],
+      "enunciado": "Qual frase resume melhor a relação entre os módulos 2.4, 2.5 e 3.8?",
+      "alternativas": [
+        "2.4 e 2.5 definem os parâmetros; 3.8 explica o custo que eles existem para encarecer",
+        "3.8 substitui o conteúdo de 2.4 e 2.5, que ficaram desatualizados",
+        "2.4 e 2.5 já cobrem tudo sobre quebra de senha; 3.8 apenas repete o mesmo conteúdo com outras palavras",
+        "3.8 ensina como executar um ataque de quebra de senha; 2.4 e 2.5 ensinam só teoria"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Este módulo mediu a sobreposição com 2.4 e 2.5 antes de ser escrito — qual foi a conclusão daquela medição?",
+        "3.8 define parâmetros de Argon2id ou de política de senha do zero, ou assume que eles já foram vistos?",
+        "Este módulo ensina operação de ferramenta de quebra, ou economia e defesa?"
+      ],
+      "pergunta_socratica": "Antes de conferir: este módulo define os parâmetros de Argon2id do zero, ou os assume como já vistos?",
+      "explicacao": "2.4 e 2.5 já definem os parâmetros — função de hash, sal, comprimento, MFA — e este módulo não os redefine nem os substitui. O que 3.8 acrescenta é a lente de custo: por que esses parâmetros específicos, com esses valores específicos, são o que torna um ataque caro. Nenhum dos três módulos é redundante com os outros, e nenhum deles ensina a operar ferramenta de quebra — o foco, nos três, é entender e defender, não atacar de verdade.",
+      "por_que_erradas": {
+        "1": "2.4 e 2.5 continuam vigentes; 3.8 depende deles como pré-requisito, não os substitui.",
+        "2": "O levantamento de não-repetição deste módulo mediu justamente isso, e concluiu o oposto — território livre para a economia do ataque.",
+        "3": "Este módulo não ensina operação de ferramenta; a restrição de conteúdo do módulo proíbe isso explicitamente."
+      },
+      "fonte": "Levantamento de não-repetição, data/rascunhos/nivel-3/fontes/nao-repetir-3.8.md",
+      "tags": ["quebra-de-senhas", "fechamento", "referencia-cruzada"]
+    },
+    {
+      "id": "3.8.q35",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "artefato": "  o hash lento custa 542,845x mais por tentativa.\n  nenhuma das duas funcoes mudou de forma; o que muda e o custo\n  que a propria funcao impoe a cada chamada.\n\n  com hash rapido: 51.5 dias\n  com hash lento:  766.4 seculos",
+      "enunciado": "A frase \"nenhuma das duas funções mudou de forma\" nesta saída resume qual ideia central do módulo?",
+      "alternativas": [
+        "Que a defesa vem do custo por tentativa, não da matemática do hash",
+        "Que hash rápido e hash lento produzem o mesmo resumo para a mesma entrada",
+        "Que a função de hash muda de algoritmo dependendo da senha testada",
+        "Que apenas a taxa de rede determina qual das duas funções é mais lenta"
+      ],
+      "correta": 0,
+      "dicas": [
+        "\"Forma\" aqui se refere ao algoritmo em si, ou ao tempo que ele consome por chamada?",
+        "As duas funções calculam resumos diferentes para a mesma entrada, ou só levam tempos diferentes para calcular?",
+        "Rede não entra nesta medição, que roda inteiramente na máquina local."
+      ],
+      "pergunta_socratica": "Antes de conferir: as duas funções deixaram de ser funções de hash válidas, ou só passaram a levar tempos diferentes?",
+      "explicacao": "\"Não mudou de forma\" quer dizer que nenhuma das duas funções deixou de ser uma função de hash válida, nem passou a produzir resumo diferente por mágica — o que muda é só o tempo que cada uma impõe por chamada. É essa diferença de custo, e não uma mudança na matemática do algoritmo, que faz a defesa funcionar. As duas produzem resumos diferentes entre si, por serem algoritmos diferentes; nenhuma muda de algoritmo dependendo da entrada; e a medição inteira roda localmente, sem rede envolvida.",
+      "por_que_erradas": {
+        "1": "SHA-256 e PBKDF2 são algoritmos diferentes; não produzem o mesmo resumo para a mesma entrada.",
+        "2": "A função usada é fixa por chamada; ela não muda de algoritmo dependendo do candidato testado.",
+        "3": "A medição roda localmente, sem rede — taxa de rede não é o que está sendo medido aqui."
+      },
+      "fonte": "Execução real, custo_da_tentativa.py; teoria 3.8.t3, 3.8.t6",
+      "tags": ["quebra-de-senhas", "artefato", "fechamento", "custo"]
+    }
+  ]
+}
