@@ -1,0 +1,18 @@
+=== os dois transmitem exatamente o mesmo nome ===
+  real:      {'nome': 'CafeCentral-WiFi'}
+  impostor:  {'nome': 'CafeCentral-WiFi'}
+
+=== cliente que confia so no nome ===
+  conectou em: IMPOSTOR
+  (a ordem da lista decidiu -- o nome nao desempata nada)
+
+=== cliente que exige prova mutua (desafio-resposta) ===
+  conectou em: rede real
+  (o impostor tem o nome certo, mas nao tem o segredo -- falha)
+
+=== leitura ===
+  nome de rede e endereco de equipamento sao dados PUBLICOS,
+  copiaveis por qualquer um que esteja no alcance. Nenhum dos
+  dois prova que quem esta do outro lado conhece o segredo.
+  so uma prova criptografica -- calculada, nao transmitida --
+  distingue a rede real da copia com o mesmo nome.

@@ -1,0 +1,26 @@
+=== modo pessoal: um segredo para a rede inteira ===
+  Ana (dona da rede): aceito
+  Bruno (visitante autorizado): aceito
+  Desconhecido (achou a senha anotada num post-it): aceito
+
+  a rede aceitou os tres com a MESMA resposta -- ela nao tem
+  como saber que o terceiro nao deveria estar ali. So resta uma
+  acao possivel para tirar so ele: trocar a senha da rede
+  inteira, o que derruba Ana e Bruno tambem.
+
+=== modo corporativo: um segredo por pessoa ===
+  usuario 'ana' com a senha tentada: aceito
+  usuario 'bruno' com a senha tentada: aceito
+  usuario 'bruno' com a senha tentada: recusado
+
+  revogar so o bruno, sem tocar na credencial da ana:
+  bruno depois de revogado: recusado
+  ana, sem ter sido tocada:  aceito
+
+=== leitura ===
+  a funcao de verificacao do modo pessoal so pode responder
+  'alguem que sabe a senha' -- ela nunca recebeu identidade
+  nenhuma para comparar. O modo corporativo verifica um par
+  usuario+segredo, o que torna possivel negar UMA identidade
+  sem afetar as outras -- a diferenca nao e a forca da senha,
+  e o que a funcao de verificacao consegue enxergar.
