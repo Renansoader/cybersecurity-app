@@ -1,0 +1,19 @@
+=== taxa medida nesta maquina ===
+  hash rapido (sha256):                 633,659 tentativas/s
+  hash lento (pbkdf2_hmac, 600.000 it): 1.2 tentativas/s
+
+  o hash lento custa 542,845x mais por tentativa.
+  nenhuma das duas funcoes mudou de forma; o que muda e o custo
+  que a propria funcao impoe a cada chamada.
+
+=== projecao para esgotar um espaco de 2,821,109,907,456 combinacoes ===
+  com hash rapido: 51.5 dias
+  com hash lento:  766.4 seculos
+
+=== leitura ===
+  o custo de tentar e tentativas-por-segundo vezes tamanho do
+  espaco de busca. a funcao lenta age no primeiro lado da conta;
+  comprimento e diversidade de caractere agem no segundo. as duas
+  se multiplicam -- e e por isso que o modulo 2.4 recomenda
+  Argon2id/PBKDF2 e o modulo 2.5 recomenda 15+ caracteres: cada um
+  encarece um lado diferente da mesma equacao.

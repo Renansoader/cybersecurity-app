@@ -1,0 +1,24 @@
+=== lista estruturada gerada: 7,070 candidatos ===
+  7 palavras-base x 2 capitalizacoes x 101 sufixos de digito x 5 sufixos de simbolo
+  espaco de busca teorico para 10 caracteres livres: 2.45e+18
+  a lista estruturada e 3.46e+14x menor que o espaco teorico
+
+=== ataque estruturado contra cada hash ===
+  senha de formato humano (1): recuperada em 627 tentativas (1.3 ms) -> 'Futebol23!'
+  senha de formato humano (2): recuperada em 2,567 tentativas (3.4 ms) -> 'Verao7!'
+  senha aleatoria, fora da estrutura: NAO recuperada apos 7,070 tentativas (10.9 ms) -- fora da lista estruturada
+
+  tempo medio do lote: 5.2 ms
+
+=== leitura ===
+  as duas senhas de formato humano caem quase de imediato, porque
+  a estrutura (palavra + capitalizacao + sufixo) e exatamente o que
+  uma pessoa tende a escolher -- nao e forca bruta, e adivinhar com
+  hipotese. a senha aleatoria nao cai, porque nunca esteve na lista
+  gerada -- e o sha256 dela continua tao intacto quanto o das outras
+  duas: nada aqui quebrou o algoritmo de hash, so encontrou (ou nao)
+  a entrada certa dentro da estrategia escolhida.
+  o 'tempo medio do lote' acima e enganoso por construcao: ele mistura
+  dois casos que caem em milissegundos com um caso que nunca cairia,
+  mesmo rodando essa lista para sempre -- reportar so a media esconde
+  exatamente a senha que a defesa mais precisa proteger.
