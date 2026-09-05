@@ -3,13 +3,16 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-04 · módulo 3.7 (OWASP Top 10) escrito e
-publicado — a lista como instrumento (metodologia híbrida, posição não é
-perigo, vocabulário de aplicação, ponto cego de construção, mapear achado
-para categoria), não catálogo de siglas · citação OWASP corrigida em 2.6
-(2021→2025, dois commits separados) e corpus inteiro auditado por currency
-(zero divergências novas) · sexta variante de molde achada manualmente
-(prefixo curto, invisível ao medidor automático) · 3.774 testes passando
+Última atualização: 2026-09-05 · módulo 3.8 (Quebra de senhas) escrito e
+publicado — a economia do ataque (on-line×off-line, custo = tentativas/s ×
+espaço de busca, previsibilidade humana, ataque estruturado, o que
+"quebrado" significa), não operação de ferramenta · dois laboratórios só
+com hashes e senhas autogerados · defeito real achado por lente adversarial
+(inversão multiplicar/dividir na conta de custo, contradizendo `q7`/`q14`
+do próprio módulo) corrigido antes de publicar · nenhuma sétima variante de
+molde encontrada (2,9%, a menor taxa da linha) · duas regras novas de
+processo (PROGRESS.md §7, regras 9 e 10): citação sempre confirmada em
+fonte bruta, achado de lente é hipótese a verificar · 3.886 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -19,18 +22,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 33 de 41 |
-| Questões | 1.157 |
-| Blocos de teoria | 200 |
-| Tags distintas | 874 |
-| Testes automatizados | 3.774 |
+| Módulos de conteúdo escritos | 34 de 41 |
+| Questões | 1.192 |
+| Blocos de teoria | 206 |
+| Tags distintas | 897 |
+| Testes automatizados | 3.886 |
 | Linhas de código Python | ~2.280 no app · ~3.950 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 246 (7 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 281 (8 de 9 módulos) · **nível 4** 280 (8 de 8, completo).
 
-Tipos de questão em uso: conceitual 457, cenário 257, ataque→defesa 93,
-caça ao erro 93, comando 57, artefato 81, pareamento 69, ordenação 50.
+Tipos de questão em uso: conceitual 471, cenário 264, ataque→defesa 97,
+caça ao erro 96, comando 57, artefato 85, pareamento 71, ordenação 51.
 
 ---
 
@@ -227,10 +230,10 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 4.5 SIEM e monitoramento · 4.6 MITRE ATT&CK e caça a ameaças ·
 4.7 Resposta a incidentes · 4.8 Forense digital
 
-**Nível 3 — Ofensivo** (246 questões, 7 de 9)
+**Nível 3 — Ofensivo** (281 questões, 8 de 9)
 3.1 Metodologia de pentest · 3.2 OSINT e reconhecimento ·
 3.3 Varredura e enumeração · 3.4 Web I · 3.5 Web II · 3.6 Web III ·
-3.7 OWASP Top 10
+3.7 OWASP Top 10 · 3.8 Quebra de senhas
 
 **Nível 2 — Núcleo de segurança** (245 questões, completo)
 2.1 Criptografia I · 2.2 Criptografia II · 2.3 Criptografia III ·
@@ -250,20 +253,23 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 9 módulos
+### Conteúdo — 7 módulos
 
-- **Nível 3 — Ofensivo** (2 restantes): quebra de senhas, engenharia social
-  e redes sem fio
+- **Nível 3 — Ofensivo** (1 restante): engenharia social e redes sem fio
 - **Nível 4 — Defensivo**: completo (8 de 8)
 - **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
 
 O próximo bloco natural é o nível 3, que desbloqueia com 70% no nível 2 —
-agora completo. Bloco Web (3.4–3.6) fechado, e o 3.7 (OWASP Top 10) fechado
-em cima dele — a lista como instrumento (metodologia, posição, vocabulário,
+agora completo. Bloco Web (3.4–3.6) fechado, o 3.7 (OWASP Top 10) fechado em
+cima dele — a lista como instrumento (metodologia, posição, vocabulário,
 ponto cego, mapeamento), não como catálogo de siglas reensinadas; sete das
 dez categorias já tinham dono de mecanismo em outro módulo, medido antes de
-escrever. Quebra de senhas (3.8) reaproveita o material de 2.4 e 2.5.
+escrever — e o 3.8 (Quebra de senhas) fechado logo depois: a economia do
+ataque (on-line×off-line, custo = tentativas/s × espaço de busca,
+previsibilidade humana, ataque estruturado, o que "quebrado" significa),
+não a defesa em si, que já é do 2.4/2.5. Falta só engenharia social e redes
+sem fio para fechar o nível 3 inteiro.
 
 ### Funcionalidades
 
@@ -356,6 +362,7 @@ escrever. Quebra de senhas (3.8) reaproveita o material de 2.4 e 2.5.
   | 3.6 | 13,8% | ok (módulo novo, 03/09/2026 — o viés reapareceu nos três checkpoints da regra 7, corrigido a cada vez antes de seguir) |
   | 4.8 | 12,9% | ok (módulo novo, 02/09/2026) |
   | 3.7 | 3,2% | ok (módulo novo, 04/09/2026 — rascunho nasceu em 97,0%, causa raiz era `correta` fixo no índice 0 em toda questão; corrigido por rotação de posição + reequilíbrio de comprimento antes do primeiro checkpoint) |
+  | 3.8 | 18,8% | ok (módulo novo, 05/09/2026 — viés recorreu nos três lotes de escrita: 62,5%→50%→44% antes de cada correção; publicado bem abaixo do teto) |
 
   **11 de 31 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
   0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8, 3.4 e 3.5,
@@ -416,6 +423,7 @@ escrever. Quebra de senhas (3.8) reaproveita o material de 2.4 e 2.5.
   | 4.3 | 15,6% (5/32) | 6,9% | ok |
   | 3.6 | 13,8% (4/29) | 5,5% | ok (módulo novo, 03/09/2026) |
   | 3.7 | 25,8% (8/31) | 12,6% | ok (módulo novo, 04/09/2026) |
+  | 3.8 | 19,4% (6/31) | 9,2% | ok (módulo novo, 05/09/2026) |
 
   **Mediana do corpus: 35,5%.** O teto de 40% não foi escolhido de novo —
   foi conferido contra o mesmo critério estatístico independente já usado
@@ -1022,6 +1030,79 @@ escrever. Quebra de senhas (3.8) reaproveita o material de 2.4 e 2.5.
   Validação final: `pytest -q` (3.774 testes, 0 falhas) e
   `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 33
   módulos). +36 questões, +6 blocos de teoria. Nível 3 em 7 de 9.
+- **Módulo 3.8 escrito, 04–05/09/2026 — Quebra de senhas, a economia do
+  ataque, não a operação.** Colisão pesada e prevista com 2.4 (hash e
+  senhas) e 2.5 (autenticação): levantamento por contagem de menções em
+  todos os 33 módulos publicados achou 2.4 e 2.5 já donos de hash lento,
+  sal, parâmetros de Argon2id e política de senha do NIST — inclusive com
+  os mesmos números repetidos entre os dois. Território livre confirmado
+  por medição, não intuição: nenhum módulo fazia a conta "tentativas por
+  segundo × espaço de busca" com número medido em execução, nem explicava
+  por que ataque real usa dicionário e regra de transformação em vez de
+  força bruta pura. Os cinco eixos do pedido original sobreviveram ao
+  levantamento sem reformulação — diferente de 3.4, 3.5, 3.6 e 3.7, todos
+  reformulados depois de medir. Levantamento completo em
+  `data/rascunhos/nivel-3/fontes/nao-repetir-3.8.md`.
+
+  Dois laboratórios, sem ferramenta nomeada, sem lista de senha real, sem
+  hash de terceiro, só `hashlib` da biblioteca padrão: `custo_da_tentativa.py`
+  mede a taxa real de hash rápido (633.659 tentativas/s) contra hash lento
+  calibrado (1,2 tentativas/s, PBKDF2 600.000 iterações — mínimo
+  recomendado pela OWASP citado em 2.4.t5) — 542.845× de diferença,
+  projetando 51,5 dias contra 766,4 séculos para o mesmo espaço de busca.
+  `estrutura_e_o_que_quebrado_significa.py` gera 7.070 candidatos a partir
+  de 7 palavras-base inventadas (catorze ordens de grandeza menor que o
+  espaço teórico) e recupera duas senhas de formato humano em milissegundos,
+  sem recuperar uma senha aleatória de 12 caracteres — demonstrando com
+  execução real que "quebrar" é achar o candidato certo dentro da
+  estratégia, não quebrar o algoritmo.
+
+  Regra 9 do PROGRESS.md aplicada pela primeira vez (citação sempre
+  confirmada em fonte bruta): como este módulo não buscou fonte externa
+  nova, a disciplina foi aplicada ao próprio corpus — toda referência
+  cruzada a 2.4/2.5 foi conferida lendo o JSON bruto desses módulos, nunca
+  de memória.
+
+  Os três checkpoints da regra 7 mostraram o mesmo hábito de escrita da
+  linha 3.4–3.7: qualificador absolutista só em alternativa errada e
+  correta sistematicamente mais longa, recorrendo em **cada um dos três
+  lotes de escrita** (62,5%→0%, depois 50%→5,6%, depois 44%→12,5% de
+  `mais_longa`, o mesmo padrão para `evita_absoluto`). Corrigido a cada
+  checkpoint, não só no fim.
+
+  Duas lentes de revisão adversarial (regra 10 em ação — achado é
+  hipótese, não veredito): a lente de precisão achou um defeito real e
+  grave — `3.8.t2` afirmava que baixar qualquer um dos dois fatores da
+  conta de custo baixa o tempo total, o que é o oposto da verdade para a
+  taxa (baixar a taxa aumenta o tempo — é o propósito do hash lento). O
+  mesmo erro estava marcado como resposta **correta** em `3.8.q11`
+  ("multiplicar" em vez de "dividir"), contradizendo `q7` e `q14` do
+  próprio módulo. Os dois corrigidos. Achados menores confirmados: `t5`
+  undercontava o fator de sufixo de símbolo do laboratório; `t2` atribuía
+  ao NIST um número (600.000 iterações de PBKDF2) que é da OWASP. A lente
+  de forma achou e a sessão aceitou: uma dica que entregava a fórmula
+  pronta, quatro distratores fracos demais para exigir leitura, duas
+  questões (`q4`/`q32`) testando a mesma ideia quase com as mesmas
+  palavras (`q32` reformulado para um ângulo genuinamente distinto), uma
+  questão com os três distratores absolutistas e só a correta sem, e uma
+  lacuna teórica (o custo de calibrar hash tem teto do lado da latência do
+  usuário legítimo, usado numa questão sem estar em nenhuma teoria —
+  acrescentada uma frase em `t3`). Um padrão candidato a sétima variante de
+  molde de dica foi levantado pela lente e **rejeitado com justificativa**:
+  abertura binária "A ou B?" nas dicas é o mesmo estilo socrático usado no
+  corpus inteiro desde o nível 0, não um defeito deste módulo — a taxa
+  medida automaticamente (2,9%) é a menor já vista nesta linha, sem sétima
+  variante real encontrada.
+
+  Publicado em **18,8% mais_longa / 25,0% mais_curta / 19,4%
+  evita_absoluto / 2,9% molde de dica**, todos dentro do teto. Contagem de
+  35 questões justificada por eixo no relatório — nenhuma para bater meta.
+  Relatório completo em `data/rascunhos/nivel-3/relatorios/3.8.md`.
+
+  Validação final: `pytest -q` (3.886 testes, 0 falhas) e
+  `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 34
+  módulos). +35 questões, +6 blocos de teoria. Nível 3 em 8 de 9 — falta
+  só engenharia social e redes sem fio.
 
 ---
 
