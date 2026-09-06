@@ -3,18 +3,20 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-05 · módulo 3.9 (Redes sem fio) escrito e
-publicado — **nível 3 completo, 9 de 9 módulos** — por que o meio
-compartilhado do rádio muda o modelo de ameaça (sem fronteira física,
-autenticar a rede não só o cliente, o que a evolução dos padrões resolveu
-e o que não, identidade corporativa × doméstica) · decisão de escopo
-registrada: engenharia social não virou módulo novo, o 2.7 já cumpre o
-item do roadmap (medido, não por conveniência) · dois laboratórios de
-simulação local, sem captura, sem ataque a terceiro · lente adversarial
-achou uma citação mais específica do que a fonte sustentava (corrigida) e
-expôs referência inválida a módulos do nível 4 em três blocos de teoria —
-nível 4 desbloqueia do nível 2 em paralelo ao nível 3, não depois dele
-(regra 11 nova) · 3.998 testes passando
+Última atualização: 2026-09-06 · módulo 5.1 (Desenvolvimento seguro)
+escrito e publicado — **abre o nível 5, o último (1 de 6)** — segurança
+como propriedade do processo de construir, não catálogo de vulnerabilidade
+(custo de corrigir cedo × tarde, o que se herda sem escrever numa árvore de
+dependência, ciclo de vida do segredo além do commit, o que automação pega
+e o que nunca vai pegar) · quatro laboratórios de simulação local, dado
+inventado em todos · escrito numa única passagem (não em checkpoints),
+o que causou o pior defeito de posição já visto no curso — correta no
+índice 1 em 33 de 34 questões — corrigido por script de rotação antes das
+lentes · lente achou citação cruzada imprecisa (3.7.q31 não é sobre o
+mecanismo discutido) e um arquivo de laboratório salvo com encoding
+errado, ambos corrigidos · varredura completa da regra 11 no corpus
+inteiro (35 módulos): só um candidato fraco, registrado, nenhuma violação
+real · 4.111 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -24,18 +26,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 35 de 41 |
-| Questões | 1.227 |
-| Blocos de teoria | 212 |
-| Tags distintas | 922 |
-| Testes automatizados | 3.998 |
+| Módulos de conteúdo escritos | 36 de 41 |
+| Questões | 1.262 |
+| Blocos de teoria | 218 |
+| Tags distintas | 932 |
+| Testes automatizados | 4.111 |
 | Linhas de código Python | ~2.280 no app · ~3.950 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo) · **nível 5** 35 (1 de 6).
 
-Tipos de questão em uso: conceitual 484, cenário 272, ataque→defesa 101,
-caça ao erro 99, comando 57, artefato 89, pareamento 73, ordenação 52.
+Tipos de questão em uso: conceitual 499, cenário 280, ataque→defesa 105,
+caça ao erro 101, comando 57, artefato 93, pareamento 74, ordenação 53.
 
 ---
 
@@ -227,6 +229,9 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
+**Nível 5 — Engenharia, risco e carreira** (35 questões, 1 de 6)
+5.1 Desenvolvimento seguro
+
 **Nível 4 — Defensivo** (280 questões, 8 de 8, completo)
 4.1 Hardening · 4.2 Segurança de rede · 4.3 Defesa em profundidade · 4.4 Malware ·
 4.5 SIEM e monitoramento · 4.6 MITRE ATT&CK e caça a ameaças ·
@@ -255,11 +260,11 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 6 módulos
+### Conteúdo — 5 módulos
 
 - **Nível 3 — Ofensivo**: completo (9 de 9)
 - **Nível 4 — Defensivo**: completo (8 de 8)
-- **Nível 5 — Engenharia e carreira** (6): desenvolvimento seguro, nuvem,
+- **Nível 5 — Engenharia e carreira** (5 restantes, 1 de 6 pronto): nuvem,
   modelagem de ameaças, GRC, economia da segurança, carreira
 
 ### Decisão de escopo — engenharia social não vira módulo novo, nível 3 fecha com 9 (não 10)
@@ -313,8 +318,12 @@ previsibilidade humana, ataque estruturado, o que "quebrado" significa),
 não a defesa em si, que já é do 2.4/2.5 — e o 3.9 (Redes sem fio) fechou o
 nível logo depois: por que o meio compartilhado do rádio muda o modelo de
 ameaça, território inteiramente livre, medido antes de escrever. **Nível 3
-(Ofensivo) completo, 9 de 9.** Próximo bloco natural: nível 5, que
-desbloqueia com 60% nos níveis 3 e 4 combinados — ambos completos agora.
+(Ofensivo) completo, 9 de 9.** Nível 5 desbloqueia com 60% nos níveis 3 e 4
+combinados — ambos completos — e abriu com o **5.1 (Desenvolvimento
+seguro)**: segurança como propriedade do processo de construir (custo de
+corrigir cedo × tarde, dependência herdada sem escrever, ciclo de vida do
+segredo além do commit, limite da automação), não catálogo de
+vulnerabilidade — isso já é do nível 3. **Nível 5 em 1 de 6.**
 
 ### Funcionalidades
 
@@ -409,6 +418,7 @@ desbloqueia com 60% nos níveis 3 e 4 combinados — ambos completos agora.
   | 3.7 | 3,2% | ok (módulo novo, 04/09/2026 — rascunho nasceu em 97,0%, causa raiz era `correta` fixo no índice 0 em toda questão; corrigido por rotação de posição + reequilíbrio de comprimento antes do primeiro checkpoint) |
   | 3.8 | 18,8% | ok (módulo novo, 05/09/2026 — viés recorreu nos três lotes de escrita: 62,5%→50%→44% antes de cada correção; publicado bem abaixo do teto) |
   | 3.9 | 9,4% | ok (módulo novo, 05/09/2026 — viés recorreu nos três lotes de escrita: 100%→56%→47% antes de cada correção; publicado bem abaixo do teto) |
+  | 5.1 | 6,1% | ok (módulo novo, 06/09/2026 — escrito numa única passagem, não em checkpoints; nasceu em 67% de `mais_longa` e, mais grave, correta no índice 1 em 33 de 34 questões — corrigido por script de rotação de posição, depois rebalanceado em duas passadas de comprimento) |
 
   **11 de 31 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
   0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8, 3.4 e 3.5,
@@ -471,6 +481,7 @@ desbloqueia com 60% nos níveis 3 e 4 combinados — ambos completos agora.
   | 3.7 | 25,8% (8/31) | 12,6% | ok (módulo novo, 04/09/2026) |
   | 3.8 | 19,4% (6/31) | 9,2% | ok (módulo novo, 05/09/2026) |
   | 3.9 | 9,4% (3/32) | 3,2% | ok (módulo novo, 05/09/2026) |
+  | 5.1 | 12,5% (4/32) | 5,0% | ok (módulo novo, 06/09/2026) |
 
   **Mediana do corpus: 35,5%.** O teto de 40% não foi escolhido de novo —
   foi conferido contra o mesmo critério estatístico independente já usado
@@ -1231,6 +1242,78 @@ desbloqueia com 60% nos níveis 3 e 4 combinados — ambos completos agora.
   `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 35
   módulos). +35 questões, +6 blocos de teoria. **Nível 3 (Ofensivo)
   completo, 9 de 9.**
+- **Varredura completa da regra 11, 05/09/2026 — resultado limpo.** Antes
+  de escrever conteúdo novo, os 35 módulos publicados foram varridos por
+  todo padrão de id cruzado (`N.M`, `N.M.tX`, `N.M.qX`), cruzado contra a
+  tabela de desbloqueio de `niveis.json`. Duas rodadas de falso positivo
+  descartadas antes de qualquer conclusão — a mais séria foi número de
+  seção de norma externa (`RFC 9989, seções 4.4 e 4.7`) tendo a forma
+  exata de um id de módulo. Restou um candidato, zero confirmados: `4.5.t4`
+  cita `3.3.q30` como atribuição de precedente no campo `fonte`, não como
+  "assumida como vista" — registrado, não corrigido, decisão do usuário.
+  Detalhe completo na regra 11, seção 7.
+- **Módulo 5.1 escrito, 05-06/09/2026 — Desenvolvimento seguro, segurança
+  como propriedade do processo de construir. Abre o nível 5 (1 de 6),
+  confirmado como o único nível que pode assumir todo o curso anterior
+  (`niveis.json`: 5 desbloqueia de 3 e 4, que desbloqueiam de 2, que
+  desbloqueia de 1, que desbloqueia de 0).** Levantamento de não-repetição
+  achou duas colisões reais, ambas reformuladas antes de escrever: o eixo
+  de dependência herdada colidia com `3.7.q30` (que já classifica
+  "dependência desatualizada" na categoria certa do OWASP Top 10, mas só
+  como exercício de classificação) — resolvido como referência cruzada,
+  5.1 explica o mecanismo da árvore transitiva por trás, sem reclassificar;
+  o eixo de segredo em código colidia **gravemente** com `1.7.t3-t5` (que
+  já ensina "segredo commitado — rotacionar, não apagar" quase com as
+  mesmas palavras do pedido original) — resolvido saindo do território do
+  commit para o resto do ciclo de vida (log, imagem de build, runtime),
+  fechando com a conexão estrutural a `3.9.t5` (segredo estático não
+  distingue identidade). Levantamento completo em
+  `data/rascunhos/nivel-5/fontes/nao-repetir-5.1.md`.
+
+  Quatro laboratórios, todos com dado inventado: custo de mudar uma
+  decisão cresce de 1 para 8 conforme dependentes reais se acumulam entre
+  desenho e produção; uma dependência direta inventada trouxe 8
+  transitivas, com falha a 4 elos de profundidade; uma chave de API
+  inventada vazou por traceback de exceção não tratada, sem nenhum commit
+  envolvido; uma função de regra de negócio com 100% de cobertura de linha
+  ainda deixou passar um resultado inválido (valor final negativo).
+
+  **Defeito de processo, o mais grave já visto na linha**: o módulo foi
+  escrito numa única passagem, em vez de checkpoints de 8/20/35 — e o
+  primeiro checkpoint (rodado logo depois) achou a correta no índice 1 em
+  **33 de 34 questões**, muito além de qualquer recaída de "índice fixo"
+  anterior (3.4, 3.6, 3.7 tiveram o mesmo problema, nunca nessa proporção).
+  Corrigido por script de rotação de posição com remapeamento de
+  `por_que_erradas`. Comprimento precisou de três passadas — 67%
+  `mais_longa` → 0% mas 42,4% `mais_curta` (overcorreção) → rebalanceado
+  para 6,1%/18,2%, ambos dentro do teto.
+
+  Duas lentes de revisão adversarial, com a lente de forma instruída a
+  caçar especificamente um `por_que_erradas` remapeado errado pelo script
+  de rotação — **nenhum encontrado**, as 33 questões conferidas
+  alternativa por alternativa. Achados reais corrigidos: citação cruzada
+  imprecisa (`3.7.q31` citada junto de `3.7.q30` como se fosse o mesmo
+  mecanismo — não é; removida, ficou só `q30`); um arquivo de laboratório
+  salvo em encoding errado (ISO-8859 em vez de UTF-8, corrigindo todo
+  acento em caractere corrompido ao ler); dois artefatos citando trecho
+  não-literal sem marcar a omissão; uma questão de caça-erro com distrator
+  que a própria explicação do módulo confirmava como verdadeiro (não era
+  distrator de verdade); um enunciado de pareamento chamando de "canal de
+  vazamento" um item que era a solução; e uma redundância real entre duas
+  questões testando a mesma conclusão exata — uma delas reformulada para
+  testar ação em vez de repetir o diagnóstico. Achados de redundância
+  adicionais, avaliados e mantidos como progressão pedagógica deliberada,
+  não repetição.
+
+  Publicado em **6,1% mais_longa / 18,2% mais_curta / 12,5%
+  evita_absoluto / 2,9% molde de dica** — molde empata com 3.8 e 3.9 como
+  a menor taxa já medida no curso. Contagem de 35 questões justificada por
+  eixo no relatório. Relatório completo em
+  `data/rascunhos/nivel-5/relatorios/5.1.md`.
+
+  Validação final: `pytest -q` (4.111 testes, 0 falhas) e
+  `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 36
+  módulos). +35 questões, +6 blocos de teoria. **Nível 5 em 1 de 6.**
 
 ---
 
