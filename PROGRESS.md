@@ -1434,6 +1434,26 @@ Seis hábitos, em ordem de retorno:
     que desbloqueie em paralelo com outro) citar conteúdo de fora do
     próprio nível ou anterior.
 
+    **Varredura completa do corpus, 05/09/2026 — resultado limpo.** Depois
+    do achado no 3.9, os 35 módulos publicados foram varridos por todo
+    padrão `N.M`/`N.M.tX`/`N.M.qX`, cruzado contra a tabela de desbloqueio
+    acima. Duas rodadas de falso positivo descartadas antes de qualquer
+    conclusão — a mais séria foi número de seção de norma externa (`RFC
+    9989, seções 4.4 e 4.7`; `Security Engineering, cap. 6.4.4`) tendo
+    exatamente a forma de um id de módulo; filtrado por cadeia decimal
+    mais longa e por marcador de citação externa na mesma string. Restou
+    **um candidato, zero confirmados**: `4.5.t4` cita `3.3.q30` no campo
+    `fonte` como atribuição de precedente ("enquadramento generaliza casos
+    já publicados no corpus"), não como "assumida como vista" — 4.5 é
+    nível 4, 3.3 é nível 3, mesma direção inválida da regra 11, mas forma
+    de citação mais fraca (não instrui o aluno a lembrar de algo). Cruzado
+    também com busca literal por `"assumida como vista"` (12 ocorrências,
+    todas em 3.8/3.9, todas válidas — 2.4/2.5/1.4, backward) e por
+    `"volte a"`/`"já ensinado"`/`"já visto"` em prosa — nenhuma outra
+    violação. Fora o candidato do 4.5 (não corrigido, só registrado — a
+    correção é decisão do usuário), a regra 11 não tinha mais nenhum caso
+    pendente no corpus publicado até esta data.
+
 ### Padrão aprendido: regra nascida, medida e descartada
 
 Este projeto já criou três regras de validador que nasceram de um defeito
