@@ -1,0 +1,24 @@
+=== suite de testes existente ===
+  valor=100.0, itens=2 -> 100.0 (esperado 100.0): passou
+  valor=100.0, itens=5 -> 90.0 (esperado 90.0): passou
+  valor=200.0, itens=10 -> 180.0 (esperado 180.0): passou
+
+  linhas/ramos executados pela suite: ['calcula_desconto', 'calcula_valor_final', 'entrada_da_funcao', 'inicializa_desconto', 'ramo_com_desconto', 'ramo_sem_desconto']
+  cobertura: 6/6 ramos = 100%
+
+=== caso que a suite nunca imaginou ===
+  valor_total=-50.0, itens=10 -> -45.0
+  a regra pretendida proibia valor final negativo ou maior que
+  o original -- nenhuma das duas checagens existe no codigo.
+  esse caso passa exatamente pelos MESMOS ramos que os três
+  testes existentes já cobrem (entrada, inicializa, ramo com
+  desconto, calcula desconto, calcula valor final) -- cobertura
+  de linha continua em 100%, e o resultado ainda está errado.
+
+=== leitura ===
+  cobertura de linha prova que todo caminho do código FOI
+  executado por algum teste -- nunca prova que o valor que saiu
+  era o valor certo para aquela entrada. a regra de negócio que
+  faltou (nunca aceitar valor de entrada inválido) não é um ramo
+  de código que a cobertura pudesse ter avisado que faltava --
+  é uma regra que ninguém escreveu no código nem no teste.

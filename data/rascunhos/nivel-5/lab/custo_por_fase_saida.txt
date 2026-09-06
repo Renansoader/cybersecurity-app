@@ -1,0 +1,15 @@
+=== mesma decisao, custo de mudar medido em cada fase ===
+  design:    0 dependentes -> custo de mudar = 1
+  codigo:    2 dependentes -> custo de mudar = 3
+  teste:     4 dependentes -> custo de mudar = 5
+  producao:  7 dependentes -> custo de mudar = 8
+
+=== leitura ===
+  a decisao em si nao mudou de fase para fase -- o que mudou foi
+  quanta coisa real foi construida em cima dela, assumindo que
+  ela nao ia mudar. o custo de mudar nao vem de a correcao ser
+  mais dificil tecnicamente: vem de precisar tocar em cada
+  dependente que so existe porque a decisao original parecia
+  definitiva. em producao, alguns desses dependentes (integracao
+  externa, dado ja gravado) nem estao sob o controle de quem
+  precisa corrigir.

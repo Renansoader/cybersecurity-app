@@ -1,0 +1,21 @@
+=== o que 'kit-web-rapido' realmente traz para o projeto ===
+  dependencia escolhida diretamente: 1 (kit-web-rapido)
+  dependencias transitivas trazidas junto: 8
+  total de codigo de terceiro agora rodando no projeto: 9
+  lista completa: ['analisador-de-texto', 'biblioteca-de-conexao', 'cliente-http-simples', 'fila-de-eventos', 'kit-web-rapido', 'leitor-de-certificado', 'motor-de-template', 'normalizador-de-unicode', 'relogio-monotonico']
+
+=== uma falha em 'relogio-monotonico', a folha mais distante ===
+  caminho ate ela a partir da dependencia direta: kit-web-rapido -> cliente-http-simples -> biblioteca-de-conexao -> fila-de-eventos -> relogio-monotonico
+  profundidade: 4 elos de distancia da escolha original
+  ninguem no projeto escreveu 'import relogio-monotonico' --
+  ele entrou porque outra coisa, que entrou por causa de outra
+  coisa, precisava dele.
+
+=== leitura ===
+  uma linha ("instale kit-web-rapido") trouxe 8 pacotes
+  que ninguem no projeto escolheu, leu ou revisou individualmente.
+  uma vulnerabilidade em qualquer um deles e uma vulnerabilidade
+  no projeto -- o codigo roda de qualquer jeito, apareca ele numa
+  linha de import escrita a mao ou no fundo de uma arvore de
+  cinco elos de profundidade. 'nao escrevi essa parte' descreve
+  autoria; nao muda quem executa o codigo quando ele falha.

@@ -1,0 +1,24 @@
+=== conteudo do log gerado ===
+2026-09-05 22:27:50,850 ERROR falha ao processar pedido:
+Traceback (most recent call last):
+  File "C:\Dev\cybersecurity-app\data\rascunhos\nivel-5\lab\segredo_fora_do_commit.py", line 35, in main
+    processar_pedido(4471)
+  File "C:\Dev\cybersecurity-app\data\rascunhos\nivel-5\lab\segredo_fora_do_commit.py", line 27, in processar_pedido
+    return chamar_servico_externo({"pedido": pedido_id, "auth": cabecalho_autenticacao})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Dev\cybersecurity-app\data\rascunhos\nivel-5\lab\segredo_fora_do_commit.py", line 22, in chamar_servico_externo
+    raise ConnectionError(f"timeout ao chamar servico externo com payload={payload!r}")
+ConnectionError: timeout ao chamar servico externo com payload={'pedido': 4471, 'auth': {'Authorization': 'Bearer sk-exemplo-inventado-000111222'}}
+
+
+a chave de API aparece no arquivo de log? True
+
+=== leitura ===
+  nenhum 'git add', nenhum commit -- a chave nunca chegou perto
+  de controle de versao. ela vazou porque o codigo, ao tratar
+  o erro, imprimiu a propria estrutura de dados que a carregava.
+  a resposta de 1.7 para segredo no historico do git (rotacionar,
+  nao apagar) continua certa aqui, mas o vazamento em si aconteceu
+  num lugar que revisao de commit nunca alcanca: log de execucao,
+  em producao, gerado por um caminho de codigo que ninguem pensou
+  em testar com uma chave de verdade.
