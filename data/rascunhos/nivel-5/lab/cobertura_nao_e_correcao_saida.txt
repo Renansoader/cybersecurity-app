@@ -10,15 +10,15 @@
   valor_total=-50.0, itens=10 -> -45.0
   a regra pretendida proibia valor final negativo ou maior que
   o original -- nenhuma das duas checagens existe no codigo.
-  esse caso passa exatamente pelos MESMOS ramos que os trÍs
-  testes existentes j· cobrem (entrada, inicializa, ramo com
+  esse caso passa exatamente pelos MESMOS ramos que os tr√™s
+  testes existentes j√° cobrem (entrada, inicializa, ramo com
   desconto, calcula desconto, calcula valor final) -- cobertura
-  de linha continua em 100%, e o resultado ainda est· errado.
+  de linha continua em 100%, e o resultado ainda est√° errado.
 
 === leitura ===
-  cobertura de linha prova que todo caminho do cÛdigo FOI
+  cobertura de linha prova que todo caminho do c√≥digo FOI
   executado por algum teste -- nunca prova que o valor que saiu
-  era o valor certo para aquela entrada. a regra de negÛcio que
-  faltou (nunca aceitar valor de entrada inv·lido) n„o È um ramo
-  de cÛdigo que a cobertura pudesse ter avisado que faltava --
-  È uma regra que ninguÈm escreveu no cÛdigo nem no teste.
+  era o valor certo para aquela entrada. a regra de neg√≥cio que
+  faltou (nunca aceitar valor de entrada inv√°lido) n√£o √© um ramo
+  de c√≥digo que a cobertura pudesse ter avisado que faltava --
+  √© uma regra que ningu√©m escreveu no c√≥digo nem no teste.

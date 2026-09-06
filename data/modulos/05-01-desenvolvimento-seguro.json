@@ -1,0 +1,1283 @@
+{
+  "id": "5.1",
+  "nivel": 5,
+  "titulo": "Desenvolvimento seguro — segurança como propriedade do processo de construir",
+  "objetivos": [
+    "Explicar por que o custo de corrigir uma decisão cresce com o número de dependentes que se acumulam sobre ela, e o que isso implica sobre quando a pergunta de segurança precisa ser feita",
+    "Explicar por que uma dependência transitiva é responsabilidade de quem a inclui, mesmo sem ter sido escrita ou escolhida diretamente",
+    "Reconhecer que o problema do segredo é o ciclo de vida inteiro, não só o commit, e por que segredo estático tem a mesma fraqueza estrutural que segredo de rede compartilhado",
+    "Avaliar o que revisão e teste automatizado pegam e o que nunca vão pegar, e reconhecer por que tratar segurança como etapa final de entrega é tarde demais"
+  ],
+  "pre_requisitos": [
+    "1.7",
+    "3.7",
+    "3.9"
+  ],
+  "teoria": [
+    {
+      "id": "5.1.t1",
+      "titulo": "Onde a decisão é barata",
+      "texto": "Toda decisão de projeto de software tem um raio de alcance que cresce com o tempo: no papel, mudar de ideia custa reescrever uma frase; depois de codificada, custa reescrever função e os testes que a cobrem; depois de implantada, custa coordenar com quem já depende do comportamento antigo. A pergunta \"isso é seguro?\" feita no desenho tem resposta barata — trocar uma palavra na especificação. A mesma pergunta feita depois que o sistema está no ar pode significar migrar dado já gravado, quebrar contrato de API que terceiro já integrou, ou aceitar o risco porque corrigir custou caro demais para ser prioridade.\n\nIsso não é sobre a dificuldade técnica da correção em si — é sobre quantas coisas reais foram construídas assumindo que a decisão original não mudaria. Cada fase do desenvolvimento acrescenta dependentes: código que assume o formato de um campo, teste que assume o comportamento de uma função, integração externa que assume o formato de uma resposta. O que sobe de fase para fase não é a complexidade da mudança — é o número de coisas que precisam mudar junto.\n\nA implicação prática: a pergunta de segurança não pode esperar o sistema estar pronto para ser feita pela primeira vez. Quanto mais cedo ela é feita, menos dependentes existem para tocar quando a resposta muda.",
+      "analogia": "Mudar a planta de uma casa antes da fundação ser feita é rabiscar um papel; mudar depois que a parede já foi erguida e a família já mora lá é obra.",
+      "erro_comum": "Achar que o custo de corrigir depois é sobre a correção ser tecnicamente mais difícil. O código a mudar muitas vezes tem o mesmo tamanho — o que mudou foi quanta coisa real depende dele continuar do jeito que está.",
+      "fonte": "Teoria consolidada de engenharia de software sobre custo de mudança; mecanismo medido em execução, custo_por_fase.py"
+    },
+    {
+      "id": "5.1.t2",
+      "titulo": "O custo composto de mudar depois",
+      "texto": "O laboratório deste módulo mede o mecanismo, não um número de mercado: a mesma decisão (o formato de um identificador de usuário) ganha dependentes reais conforme passa por design, código, teste e produção — e o custo de mudá-la, medido como quantas coisas precisam ser tocadas junto, sobe de 1 para 8 nesse percurso, na simulação. O número em si não é o ponto; o ponto é que ele sobe porque dependentes reais se acumulam, não porque a decisão ficou mais complicada.\n\nEm produção, dois dos dependentes que aparecem não estão nem sob controle de quem precisa corrigir: integração de terceiro que já espera o formato antigo, e dado real já gravado nesse formato. Corrigir nessa fase não é só questão de código — é coordenação com gente de fora, migração de dado que já existe, e às vezes aceitar que a correção não vale mais o custo, o que é exatamente como decisão insegura vira dívida permanente.\n\nO motivo de tratar isso como argumento de tempo, não de dificuldade: a mesma pessoa, com a mesma habilidade técnica, resolve o problema mais barato ou mais caro dependendo só de quando a pergunta foi feita.",
+      "analogia": "Um erro de digitação encontrado antes de imprimir o livro é uma tecla; encontrado depois que dez mil cópias já foram distribuídas é um recall.",
+      "erro_comum": "Concluir que, se o código de correção é pequeno, o custo também é pequeno. O tamanho do código muda pouco; o número de dependentes que a mudança precisa atravessar é o que decide o custo real.",
+      "fonte": "Execução real, custo_por_fase.py"
+    },
+    {
+      "id": "5.1.t3",
+      "titulo": "O que você herda sem escrever",
+      "texto": "O módulo 3.7 já mostrou como classificar o achado \"dependência desatualizada com vulnerabilidade conhecida\" — é a categoria Software Supply Chain Failures do OWASP Top 10. O que falta explicar é por que esse achado é tão comum: uma dependência declarada diretamente raramente é só ela mesma. Ela tem as próprias dependências, que têm as delas, formando uma árvore que ninguém no projeto navegou pessoalmente.\n\nO laboratório deste módulo mede isso com um grafo inventado: declarar uma única dependência direta trouxe, na simulação, oito outras dependências transitivas — código que ninguém no projeto escolheu, leu ou revisou individualmente. Uma falha na folha mais distante dessa árvore, a quatro elos de distância da escolha original, é uma falha que roda dentro do projeto do mesmo jeito que uma falha na própria dependência direta.\n\n\"Não escrevi essa parte\" descreve autoria — não muda quem executa o código quando ele falha, nem transfere a responsabilidade de ter incluído, mesmo que indiretamente, aquele código na cadeia de confiança do projeto. A decisão de adicionar uma dependência direta é, na prática, a decisão de confiar numa árvore inteira que ainda não foi lida.",
+      "analogia": "Contratar um fornecedor que subcontrata outro, que subcontrata mais um: a nota fiscal tem um nome só, mas o produto final depende de todos eles fazerem o trabalho certo.",
+      "erro_comum": "Auditar só as dependências declaradas diretamente no arquivo de manifesto, e considerar a cadeia de suprimento revisada. A maior parte da árvore está um ou mais níveis abaixo do que aparece na primeira lista.",
+      "fonte": "Execução real, arvore_de_dependencia_transitiva.py; 3.7.q30 (classificação de dependência desatualizada, assumida como vista)"
+    },
+    {
+      "id": "5.1.t4",
+      "titulo": "Segredo tem ciclo de vida em cima do código",
+      "texto": "O módulo 1.7 já ensinou a resposta certa para segredo commitado no Git: tratar como comprometido e rotacionar, porque apagar do commit não remove do histórico nem dos clones já feitos. Essa resposta continua certa — e continua sendo só uma fatia do problema, porque commit é apenas um dos lugares onde um segredo pode escapar.\n\nO laboratório deste módulo demonstra outro: uma exceção não tratada que imprime a própria estrutura de dados da chamada — incluindo a chave de autenticação — direto num arquivo de log, sem nenhum commit envolvido. O segredo nunca chegou perto do controle de versão; vazou porque o código, ao lidar com um erro comum (timeout de rede), registrou informação demais. O mesmo padrão se repete em imagem de contêiner que embute a chave no momento da construção, e em pipeline de integração contínua que imprime variável de ambiente no log da execução.\n\nO que une commit, log e imagem de contêiner não é o lugar do vazamento — é a raiz estrutural: um segredo estático, a mesma string usada por tudo que precisa dela, tem exatamente a fraqueza que o módulo 3.9 já demonstrou para senha de rede em modo pessoal — ninguém revoga uma cópia sem invalidar todas as outras, porque a função de verificação nunca soube distinguir uma cópia da outra. É por isso que um cofre de segredo com credencial de curta duração, gerada por identidade e não compartilhada, resolve uma categoria de problema que \"esconder melhor a string\" nunca resolve.",
+      "analogia": "Trocar a fechadura depois que uma cópia da chave vazou resolve aquele vazamento específico; construir a fechadura para aceitar um crachá que expira sozinho a cada turno resolve a categoria inteira.",
+      "erro_comum": "Tratar \"não vazou pelo Git\" como prova de que o segredo está seguro. O commit é só um dos lugares onde ele pode escapar — log, imagem de build e variável de ambiente impressa por engano são igualmente reais.",
+      "fonte": "Execução real, segredo_fora_do_commit.py; 1.7.t3 (segredo commitado, assumida como vista); 3.9.t5 (segredo estático não distingue identidade, assumida como vista)"
+    },
+    {
+      "id": "5.1.t5",
+      "titulo": "O que automação pega, e o que ela nunca vai pegar",
+      "texto": "O laboratório deste módulo constrói uma função de regra de negócio, cobre cada linha dela com testes automatizados, e chega a 100% de cobertura de linha — toda instrução do código foi executada por algum teste. Em seguida, uma entrada que a suite nunca imaginou (um valor total negativo) passa exatamente pelos mesmos caminhos já cobertos, produz um resultado que a regra pretendida proibia, e a cobertura continua marcando 100%.\n\nO motivo não é falha da ferramenta: cobertura de linha mede se um caminho do código foi executado, nunca se o valor que saiu dele estava certo para aquela entrada. Teste automatizado, análise estática e ferramentas de varredura de padrão conhecido são excelentes numa coisa específica — confirmar a ausência do que já se sabe procurar, ou a execução do que já foi escrito. Nenhuma delas inventa a regra de negócio que ninguém escreveu, porque não existe código nem teste que a contradiga: a falta simplesmente não está lá.\n\nÉ isso que decide onde colocar atenção humana: não em reconferir o que a automação já cobre bem, e sim em imaginar a entrada, o cenário e a regra que ainda não foram escritos em lugar nenhum — o ponto cego que nenhuma ferramenta automatizada vê, porque ver ali exigiria saber de antemão o que está faltando.",
+      "analogia": "Um detector de metais apitando em 100% dos testes com os objetos que ele foi calibrado para detectar não prova que ele acha faca de cerâmica — prova que ele acha o que já sabia procurar.",
+      "erro_comum": "Tratar cobertura de teste alta como sinônimo de qualidade alta. Cobertura mede execução de código, não correção de comportamento — as duas divergem exatamente nos casos que a suite nunca imaginou.",
+      "fonte": "Execução real, cobertura_nao_e_correcao.py"
+    },
+    {
+      "id": "5.1.t6",
+      "titulo": "O contraponto: segurança como etapa final",
+      "texto": "Tratar segurança como etapa final de entrega inverte, na prática, tudo o que este módulo mediu: a decisão mais barata (t1/t2) já foi tomada, os dependentes já se acumularam, e mudar agora custa o máximo que já vai custar. A árvore de dependência (t3) já está instalada havia meses. O segredo (t4), se existir, já vazou pelo caminho que ninguém verificou. E a lacuna que automação nunca cobre (t5) só aparece quando alguém pergunta \"o que não testamos\" — pergunta que uma etapa final, sob pressão de prazo, raramente tem tempo de fazer direito.\n\nO oposto de tratar segurança como etapa final não é adicionar mais uma etapa — é mover as mesmas quatro perguntas deste módulo para o ponto em que elas custam menos: decidir formato e regra no desenho, revisar a árvore de dependência antes de declará-la fixa, tratar segredo com ciclo de vida desde a primeira linha, e perguntar constantemente o que a suite de testes ainda não imaginou. Nenhuma dessas perguntas é nova neste ponto do curso — o que muda é quando elas são feitas.",
+      "analogia": "Inspecionar os freios de um carro antes de ele sair da fábrica custa uma parada na linha de montagem; descobrir o defeito depois de vendido custa um recall, mais a confiança de quem já comprou.",
+      "erro_comum": "Achar que \"segurança desde o início\" significa gastar mais tempo total. Geralmente significa gastar o mesmo tempo, mais cedo — quando ele ainda compra silêncio, não conserto.",
+      "fonte": "Síntese, teoria 5.1.t1-t5"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "5.1.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que a mesma correção de segurança costuma custar mais quando feita depois do sistema estar em produção do que quando feita no desenho?",
+      "alternativas": [
+        "Porque o código de produção é sempre escrito numa linguagem de programação mais lenta que o código de protótipo",
+        "Porque desenvolvedores mais experientes só trabalham em sistemas já em produção",
+        "Porque mais coisas passam a depender da decisão original conforme o tempo passa",
+        "Porque ambiente de produção sempre usa criptografia mais forte, o que dificulta qualquer alteração"
+      ],
+      "correta": 2,
+      "dicas": [
+        "O código muda de linguagem entre o desenho e a produção?",
+        "Experiência do desenvolvedor e força de criptografia têm relação com o motivo do custo subir?",
+        "Pense no que existe em produção que não existia no desenho."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que existe em produção, apoiado na decisão original, que não existia quando ela foi tomada no papel?",
+      "explicacao": "O motivo é o acúmulo de dependentes: código, teste e integração externa que passam a assumir que a decisão original não muda. Linguagem de programação não muda entre fases, experiência do desenvolvedor não é o fator, e criptografia não tem relação com dificuldade de alterar uma decisão de formato ou regra.",
+      "por_que_erradas": {
+        "0": "A linguagem de programação usada não muda entre desenho e produção.",
+        "1": "Nível de experiência do desenvolvedor não determina o custo de mudar uma decisão já acumulada.",
+        "3": "Força de criptografia não tem relação com o número de dependentes de uma decisão."
+      },
+      "fonte": "Teoria 5.1.t1",
+      "tags": [
+        "desenvolvimento-seguro",
+        "custo-de-mudanca",
+        "timing"
+      ]
+    },
+    {
+      "id": "5.1.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Segundo este módulo, o que realmente decide se corrigir uma decisão de projeto será barato ou caro?",
+      "alternativas": [
+        "Quanto foi construído assumindo que a decisão não mudaria",
+        "O tamanho, em linhas de código, da correção necessária",
+        "O número de desenvolvedores disponíveis no time no momento da correção",
+        "A versão da linguagem de programação usada no projeto"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Um código pequeno de corrigir garante que poucas coisas dependem dele?",
+        "Número de desenvolvedores disponíveis muda o que precisa ser tocado, ou só quem toca?",
+        "Pense no que o laboratório deste módulo mediu como 'custo de mudar'."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma correção de poucas linhas pode, ainda assim, exigir tocar em muitas coisas fora do próprio código?",
+      "explicacao": "O que decide o custo é o número de dependentes acumulados — código, teste, integração, dado já gravado — não o tamanho da correção em si. Uma correção pequena em código pode exigir migrar dado real, atualizar integração externa e coordenar com terceiros, o que não aparece só olhando para o tamanho do código a mudar.",
+      "por_que_erradas": {
+        "1": "Tamanho da correção em código não reflete quantos dependentes existem fora dele.",
+        "2": "Disponibilidade de time afeta velocidade de execução, não o número de coisas que precisam mudar.",
+        "3": "Versão de linguagem não tem relação com o acúmulo de dependentes de uma decisão."
+      },
+      "fonte": "Teoria 5.1.t1, 5.1.t2",
+      "tags": [
+        "desenvolvimento-seguro",
+        "custo-de-mudanca",
+        "dependentes"
+      ]
+    },
+    {
+      "id": "5.1.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Por que dois dos dependentes que aparecem na fase de produção não estão nem sob controle de quem precisa corrigir a decisão original?",
+      "alternativas": [
+        "Porque a equipe de produção sempre é diferente da equipe que fez o desenho original",
+        "Porque servidores de produção ficam fisicamente em outro país, fora da jurisdição do time",
+        "Porque contratos de produção proíbem qualquer alteração de código depois do lançamento",
+        "Porque integração de terceiro e dado já gravado ficam fora do controle do time"
+      ],
+      "correta": 3,
+      "dicas": [
+        "Quem controla o formato que um integrador externo já espera receber?",
+        "Localização física do servidor tem relação com o motivo aqui?",
+        "Existe proibição contratual genérica contra qualquer alteração pós-lançamento?"
+      ],
+      "pergunta_socratica": "Antes de conferir: quem decide o formato que um sistema de terceiro já está esperando receber — quem corrige, ou quem integrou?",
+      "explicacao": "Integração de terceiro e dado já gravado envolvem decisões e dados que pertencem, ao menos em parte, a quem está fora do controle direto de quem precisa corrigir — mudar exige coordenação, não só reescrever código próprio. Não é questão de equipes diferentes, localização física ou proibição contratual genérica.",
+      "por_que_erradas": {
+        "0": "A composição das equipes não é o motivo estrutural do problema.",
+        "1": "Localização física do servidor não tem relação com dependentes externos.",
+        "2": "Não existe essa proibição contratual genérica no cenário descrito."
+      },
+      "fonte": "Teoria 5.1.t2",
+      "tags": [
+        "desenvolvimento-seguro",
+        "producao",
+        "coordenacao-externa"
+      ]
+    },
+    {
+      "id": "5.1.q4",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Uma equipe descobre, ainda na fase de desenho, que o formato escolhido para armazenar senha permitiria reversão. Corrigir agora significa mudar uma frase na especificação. A mesma equipe descobre o mesmo problema seis meses depois, com o sistema em produção e milhares de senhas já armazenadas nesse formato. O que mudou entre os dois cenários?",
+      "alternativas": [
+        "A gravidade técnica do problema, que fica pior com o tempo",
+        "O número de coisas que dependem da decisão errada, não a decisão em si",
+        "Nada relevante — o custo de corrigir é sempre o mesmo, cedo ou tarde",
+        "A equipe responsável, que precisa ser trocada quando o sistema já está em produção"
+      ],
+      "correta": 1,
+      "dicas": [
+        "A senha armazenada errado piora sozinha com o tempo, ou o que muda é quanto depende dela?",
+        "Custo igual em qualquer momento seria consistente com o resto da teoria deste módulo?",
+        "Trocar de equipe é necessário para corrigir uma decisão de formato?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a senha já armazenada piora com o tempo, ou o que piora é quanto sistema já confia nela?",
+      "explicacao": "A decisão errada continua sendo a mesma decisão errada — o que muda é o número de senhas reais já gravadas nesse formato, que agora precisam de migração, não só de correção de especificação. Não há piora técnica automática com o tempo, o custo não é constante (contradiz toda a teoria do módulo), e não há necessidade de trocar equipe.",
+      "por_que_erradas": {
+        "0": "O formato em si não piora tecnicamente sozinho com o tempo.",
+        "2": "Custo constante contradiz o mecanismo de acúmulo de dependentes já demonstrado.",
+        "3": "Corrigir uma decisão de formato não exige trocar a equipe responsável."
+      },
+      "fonte": "Teoria 5.1.t1, 5.1.t2; 2.4 (armazenamento de senha, assumida como vista)",
+      "tags": [
+        "desenvolvimento-seguro",
+        "cenario",
+        "custo-de-mudanca"
+      ]
+    },
+    {
+      "id": "5.1.q5",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Qual prática move a pergunta de segurança para o ponto em que ela custa menos, segundo o mecanismo descrito neste módulo?",
+      "alternativas": [
+        "Contratar mais desenvolvedores para acelerar a fase de correção em produção",
+        "Aumentar o orçamento de suporte técnico para lidar com incidentes pós-lançamento",
+        "Perguntar 'isso é seguro?' no desenho, antes de qualquer dependente existir",
+        "Adiar toda decisão de formato até o sistema já estar em uso, para decidir com mais dados"
+      ],
+      "correta": 2,
+      "dicas": [
+        "Contratar mais gente muda quantos dependentes existem, ou só a velocidade de lidar com eles?",
+        "Orçamento de suporte atua antes ou depois do incidente já ter acontecido?",
+        "Adiar a decisão até o sistema estar em uso adia também o acúmulo de dependentes, ou só a decisão?"
+      ],
+      "pergunta_socratica": "Antes de conferir: mais gente ou mais orçamento reduzem quantos dependentes uma decisão já acumulou?",
+      "explicacao": "Só perguntar cedo reduz o número de dependentes que existirão quando a resposta mudar — as outras opções atuam depois do fato (mais gente e orçamento lidam com o custo já alto) ou pioram o problema (adiar a decisão não impede o acúmulo de dependentes durante a espera, só atrasa quando a pergunta é feita).",
+      "por_que_erradas": {
+        "0": "Mais desenvolvedores aceleram a correção, mas não reduzem quantos dependentes precisam ser tocados.",
+        "1": "Orçamento de suporte atua depois do incidente, não antes do acúmulo de dependentes.",
+        "3": "Adiar a decisão não impede dependentes de se acumularem sobre o formato provisório usado enquanto isso."
+      },
+      "fonte": "Teoria 5.1.t1, 5.1.t6",
+      "tags": [
+        "desenvolvimento-seguro",
+        "ataque-defesa",
+        "timing"
+      ]
+    },
+    {
+      "id": "5.1.q6",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "trecho": "RELATÓRIO DE PLANEJAMENTO — trecho\n\"A correção do formato de identificador é urgente, mas vamos adiar a discussão de segurança para depois do lançamento, quando tivermos dados reais de uso para decidir com mais informação.\"",
+      "enunciado": "Qual é o erro de raciocínio neste trecho?",
+      "alternativas": [
+        "Adiar não gera custo, porque dependente só se acumula após lançamento formal",
+        "O erro é achar que dado de uso real é sempre irrelevante para qualquer decisão de segurança",
+        "O erro é achar que existe urgência real nesse tipo de correção",
+        "O relatório está correto — dado real de uso é sempre necessário para decidir sobre formato"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Dependentes só se acumulam depois do 'lançamento formal', ou já durante o desenvolvimento anterior a ele?",
+        "'Dado real de uso' ajudaria a decidir sobre um problema de formato que já existe antes de qualquer uso?",
+        "Pense no que já está sendo construído em cima do formato, mesmo antes do lançamento."
+      ],
+      "pergunta_socratica": "Antes de conferir: código e teste que assumem o formato atual já existem antes do sistema ser lançado?",
+      "explicacao": "O erro central é achar que adiar não tem custo: dependentes (código, teste, dado de desenvolvimento) já se acumulam antes de qualquer lançamento formal, então esperar o lançamento para decidir já significa decidir mais tarde do que precisava. O tipo de dado que se ganha esperando (uso real) não ajuda a avaliar segurança de formato, que é uma questão estrutural, não de comportamento de uso.",
+      "por_que_erradas": {
+        "1": "Dado de uso real pode informar outras decisões de segurança; o que ele não faz é avaliar a segurança estrutural de um formato já fixado.",
+        "2": "A urgência da correção não é o ponto contestável do trecho.",
+        "3": "O relatório não está correto — a premissa de que só dado real decide é o próprio erro."
+      },
+      "fonte": "Teoria 5.1.t1, 5.1.t2",
+      "tags": [
+        "desenvolvimento-seguro",
+        "caca-erro",
+        "timing"
+      ]
+    },
+    {
+      "id": "5.1.q7",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        0
+      ],
+      "artefato": "=== mesma decisao, custo de mudar medido em cada fase ===\n  design:    0 dependentes -> custo de mudar = 1\n  codigo:    2 dependentes -> custo de mudar = 3\n  teste:     4 dependentes -> custo de mudar = 5\n  producao:  7 dependentes -> custo de mudar = 8",
+      "enunciado": "O que esta saída demonstra sobre a mesma decisão medida em quatro momentos diferentes?",
+      "alternativas": [
+        "Que a decisão em si ficou mais complexa tecnicamente a cada fase",
+        "Que cada fase usa uma linguagem de programação diferente, o que explica o aumento",
+        "Que o número de dependentes é aleatório e não segue nenhum padrão",
+        "Que dependentes reais se acumulam com o tempo; a decisão não mudou"
+      ],
+      "correta": 3,
+      "dicas": [
+        "A decisão medida ('formato do identificador de usuário') muda de nome ou de conteúdo entre as fases?",
+        "O número de dependentes cresce de forma constante, ou aleatória, entre as fases?",
+        "Linguagem de programação aparece nesta saída?"
+      ],
+      "pergunta_socratica": "Antes de conferir: a decisão que está sendo medida muda de uma fase para outra, ou só o número de dependentes muda?",
+      "explicacao": "A decisão ('formato do identificador de usuário') é a mesma nas quatro linhas — o que cresce é o número de dependentes, e o custo de mudar cresce junto, de forma direta (custo = 1 + dependentes). Não há mudança de linguagem nem aleatoriedade: o crescimento é determinístico, dependente de quanto foi construído em cima da decisão original.",
+      "por_que_erradas": {
+        "0": "A saída não mede complexidade técnica da decisão, mede número de dependentes.",
+        "1": "Linguagem de programação não aparece em nenhum ponto desta saída.",
+        "2": "O crescimento é determinístico (1, 3, 5, 8), não aleatório."
+      },
+      "fonte": "Execução real, custo_por_fase.py",
+      "tags": [
+        "desenvolvimento-seguro",
+        "artefato",
+        "custo-de-mudanca"
+      ]
+    },
+    {
+      "id": "5.1.q8",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        0
+      ],
+      "enunciado": "Duas equipes corrigem a mesma falha de projeto. A equipe A corrige no desenho, antes de qualquer código existir. A equipe B corrige seis meses depois, com o sistema em produção e integração de três parceiros externos já ativa. As duas equipes têm o mesmo nível técnico. Por que a equipe B provavelmente gasta mais tempo, mesmo sendo igualmente competente?",
+      "alternativas": [
+        "Porque a equipe B precisa aprender a tecnologia do zero antes de corrigir",
+        "Porque a equipe B coordena com dependentes que a equipe A nunca teve",
+        "Porque a equipe A trabalha num sistema mais simples, por definição",
+        "Porque a equipe B é sempre menor em número de pessoas que a equipe A"
+      ],
+      "correta": 1,
+      "dicas": [
+        "As duas equipes têm o mesmo nível técnico — a diferença de tempo vem de habilidade, ou de outra coisa?",
+        "Aprender tecnologia do zero é necessário para uma correção de projeto já compreendido?",
+        "Pense em quantas partes externas a equipe B precisa envolver, que a equipe A nunca precisou."
+      ],
+      "pergunta_socratica": "Antes de conferir: a diferença de tempo entre as duas equipes vem da competência delas, ou de quanto cada uma precisa coordenar?",
+      "explicacao": "Com competência técnica igual, a diferença vem do que cada equipe precisa tocar: a equipe A muda uma decisão sem dependente nenhum; a equipe B precisa coordenar com integrações externas e dado já gravado, além do próprio código. Não é sobre aprender tecnologia, simplicidade do sistema por definição, ou tamanho de equipe — é sobre quantos dependentes cada uma enfrenta.",
+      "por_que_erradas": {
+        "0": "Nada no cenário indica necessidade de aprender tecnologia nova.",
+        "2": "Simplicidade do sistema não está definida pelo momento da correção, e sim pelo próprio sistema.",
+        "3": "Tamanho de equipe não é dado nem é o fator explicativo aqui."
+      },
+      "fonte": "Teoria 5.1.t1, 5.1.t2",
+      "tags": [
+        "desenvolvimento-seguro",
+        "cenario",
+        "coordenacao-externa"
+      ]
+    },
+    {
+      "id": "5.1.q9",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "O que é uma dependência transitiva?",
+      "alternativas": [
+        "Uma dependência que muda de versão automaticamente sem aviso",
+        "Uma dependência que só funciona em sistemas operacionais específicos",
+        "Uma dependência da sua dependência, não escolhida diretamente",
+        "Uma dependência que exige pagamento de licença para uso comercial"
+      ],
+      "correta": 2,
+      "dicas": [
+        "'Transitiva' aqui descreve troca automática de versão, ou uma relação de segundo grau entre pacotes?",
+        "Compatibilidade de sistema operacional e modelo de licença têm relação com essa definição?",
+        "Pense em quem escolheu, de fato, cada pacote da árvore."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem escolhe, de fato, a dependência de uma dependência que você instalou?",
+      "explicacao": "Dependência transitiva é a dependência de uma dependência — ao instalar um pacote diretamente, tudo que ele mesmo depende entra junto, sem que ninguém no projeto tenha escolhido cada peça individualmente. Não tem relação com atualização automática de versão, compatibilidade de sistema operacional ou modelo de licenciamento.",
+      "por_que_erradas": {
+        "0": "Atualização automática de versão é comportamento de gerenciador de pacote, não definição de dependência transitiva.",
+        "1": "Compatibilidade de sistema operacional é característica de cada pacote, não da relação transitiva.",
+        "3": "Modelo de licenciamento é independente do conceito de dependência transitiva."
+      },
+      "fonte": "Teoria 5.1.t3",
+      "tags": [
+        "desenvolvimento-seguro",
+        "dependencia-transitiva",
+        "conceito"
+      ]
+    },
+    {
+      "id": "5.1.q10",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Por que \"não escrevi essa parte do código\" não transfere a responsabilidade sobre uma falha numa dependência transitiva?",
+      "alternativas": [
+        "Porque o código roda dentro do projeto do mesmo jeito, escrito por quem for",
+        "Porque todo código de terceiro é, por lei, propriedade de quem o instala",
+        "Porque dependências transitivas são sempre revisadas por auditoria externa automática",
+        "Porque contratos de licença de software sempre responsabilizam quem escreveu o código original"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Autoria do código muda quem sofre a consequência quando ele falha no seu sistema?",
+        "Existe auditoria externa automática garantida para toda dependência transitiva?",
+        "A pergunta é sobre responsabilidade legal de terceiro, ou sobre quem opera o sistema que falha?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o fato de não ter escrito uma linha de código muda quem sofre as consequências quando ela falha dentro do seu sistema?",
+      "explicacao": "Autoria não é o que importa aqui — é execução: o código roda dentro do sistema de quem o incluiu, direta ou transitivamente, e as consequências de uma falha recaem sobre esse sistema, não sobre quem escreveu a linha original. Não há propriedade automática por lei, nem auditoria externa garantida, e a questão não é sobre responsabilidade contratual de terceiro.",
+      "por_que_erradas": {
+        "1": "Não existe essa regra legal automática sobre propriedade de código de terceiro.",
+        "2": "Nenhuma auditoria externa automática é garantida para dependências transitivas.",
+        "3": "A responsabilidade contratual do autor original não muda quem sofre a consequência operacional da falha."
+      },
+      "fonte": "Teoria 5.1.t3",
+      "tags": [
+        "desenvolvimento-seguro",
+        "responsabilidade",
+        "dependencia-transitiva"
+      ]
+    },
+    {
+      "id": "5.1.q11",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Segundo este módulo, o que o módulo 3.7 já ensinou sobre dependência desatualizada, e o que 5.1 acrescenta?",
+      "alternativas": [
+        "3.7 ensina a corrigir a dependência; 5.1 ensina a evitar dependências por completo",
+        "3.7 e 5.1 ensinam exatamente a mesma coisa, com palavras diferentes",
+        "3.7 ensina sobre redes; 5.1 ensina sobre bancos de dados, sem relação entre os dois",
+        "3.7 classifica o achado; 5.1 explica o mecanismo da árvore por trás dele"
+      ],
+      "correta": 3,
+      "dicas": [
+        "3.7 (OWASP Top 10) ensina a corrigir dependências, ou a reconhecer a categoria de um achado?",
+        "5.1 propõe eliminar dependências, ou entender por que elas se acumulam em árvore?",
+        "Pense no que cada módulo mede: rótulo de categoria, ou mecanismo estrutural."
+      ],
+      "pergunta_socratica": "Antes de conferir: classificar um achado numa categoria e explicar por que esse achado é tão comum são a mesma tarefa?",
+      "explicacao": "3.7 ensina a mapear um achado de dependência desatualizada para a categoria certa do OWASP Top 10 (exercício de classificação); 5.1 explica o mecanismo por trás — por que uma árvore de dependências transitivas existe e por que ela é responsabilidade de quem a inclui. Não são a mesma coisa repetida, não envolvem eliminar dependências, e não são assuntos sem relação.",
+      "por_que_erradas": {
+        "0": "Nem 3.7 nem 5.1 propõem eliminar dependências por completo.",
+        "1": "Os dois módulos abordam ângulos diferentes — classificação e mecanismo — não o mesmo conteúdo repetido.",
+        "2": "Os dois módulos tratam do mesmo tema (dependência de terceiro), com relação direta entre si."
+      },
+      "fonte": "Teoria 5.1.t3; 3.7.q30 (assumida como vista)",
+      "tags": [
+        "desenvolvimento-seguro",
+        "referencia-cruzada",
+        "dependencia-transitiva"
+      ]
+    },
+    {
+      "id": "5.1.q12",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Uma equipe revisa manualmente as cinco bibliotecas que aparecem no arquivo de manifesto do projeto, aprova todas, e declara a cadeia de suprimento auditada. O que essa auditoria provavelmente deixou de fora?",
+      "alternativas": [
+        "Nada — revisar as dependências declaradas diretamente é suficiente por definição",
+        "As dependências dessas próprias bibliotecas, também em execução",
+        "O sistema operacional do servidor, que não é considerado dependência",
+        "A velocidade de download de cada biblioteca durante a instalação"
+      ],
+      "correta": 1,
+      "dicas": [
+        "As cinco bibliotecas do manifesto são, elas mesmas, livres de dependência própria?",
+        "Velocidade de download tem relação com o que a auditoria deveria cobrir?",
+        "Pense na árvore que o laboratório deste módulo mediu, não só na primeira lista visível."
+      ],
+      "pergunta_socratica": "Antes de conferir: as cinco bibliotecas revisadas manualmente têm, elas mesmas, dependências próprias que também entraram no projeto?",
+      "explicacao": "Revisar só as dependências diretas do manifesto deixa de fora a árvore de dependências transitivas — código que entrou junto, sem estar na lista de primeiro nível. Sistema operacional é uma camada diferente, não parte desta árvore, e velocidade de download não tem relação com cobertura de auditoria.",
+      "por_que_erradas": {
+        "0": "A auditoria não é suficiente por definição — a árvore transitiva pode ser bem maior que a lista direta.",
+        "2": "Sistema operacional do servidor é uma camada separada da árvore de dependências do projeto.",
+        "3": "Velocidade de download é característica de rede, sem relação com cobertura de auditoria."
+      },
+      "fonte": "Teoria 5.1.t3; execução real, arvore_de_dependencia_transitiva.py",
+      "tags": [
+        "desenvolvimento-seguro",
+        "cenario",
+        "auditoria",
+        "dependencia-transitiva"
+      ]
+    },
+    {
+      "id": "5.1.q13",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "artefato": "=== o que 'kit-web-rapido' realmente traz para o projeto ===\n  dependencia escolhida diretamente: 1 (kit-web-rapido)\n  dependencias transitivas trazidas junto: 8\n  total de codigo de terceiro agora rodando no projeto: 9\n  [...]\n\n=== uma falha em 'relogio-monotonico', a folha mais distante ===\n  caminho ate ela a partir da dependencia direta: kit-web-rapido -> cliente-http-simples -> biblioteca-de-conexao -> fila-de-eventos -> relogio-monotonico\n  profundidade: 4 elos de distancia da escolha original",
+      "enunciado": "O que esta saída demonstra sobre a relação entre a escolha do desenvolvedor e o código que de fato passa a rodar no projeto?",
+      "alternativas": [
+        "Que o desenvolvedor escolheu, um por um, os nove pacotes que passaram a rodar",
+        "Que 'relogio-monotonico' é o pacote mais importante do projeto, por estar mais distante",
+        "Que uma escolha direta trouxe uma árvore inteira de código nunca revisada",
+        "Que a profundidade de quatro elos torna essa dependência imune a falhas"
+      ],
+      "correta": 2,
+      "dicas": [
+        "O desenvolvedor digitou o nome de quantos pacotes, segundo a saída?",
+        "Distância na árvore tem relação com importância do pacote, ou só com quão indireta foi a escolha?",
+        "Profundidade da dependência protege contra falha, ou só reduz a visibilidade dela?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o desenvolvedor escreveu 'import' para cada um dos nove pacotes, ou só para um deles?",
+      "explicacao": "A saída mostra uma escolha direta (1 pacote) trazendo oito outros, transitivamente, sem revisão individual — nove no total rodando no projeto. Distância na árvore não indica importância nem imunidade a falha; só indica quão indireta foi a inclusão daquele código.",
+      "por_que_erradas": {
+        "0": "O desenvolvedor só escolheu diretamente um pacote; os outros oito vieram transitivamente.",
+        "1": "Distância na árvore não determina importância do pacote para o funcionamento do sistema.",
+        "3": "Profundidade não confere imunidade nenhuma — o código na folha ainda executa normalmente."
+      },
+      "fonte": "Execução real, arvore_de_dependencia_transitiva.py",
+      "tags": [
+        "desenvolvimento-seguro",
+        "artefato",
+        "dependencia-transitiva"
+      ]
+    },
+    {
+      "id": "5.1.q14",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "trecho": "POLÍTICA DE DEPENDÊNCIAS — trecho\n\"Nossa política exige aprovação manual de qualquer biblioteca antes de ser adicionada ao projeto. Como todas as bibliotecas atuais já passaram por essa aprovação, consideramos a cadeia de suprimento do projeto totalmente segura.\"",
+      "enunciado": "Qual é a falha de raciocínio desta política?",
+      "alternativas": [
+        "A política ignora que aprovação manual não cobre a árvore transitiva inteira",
+        "A política erra ao exigir aprovação manual, que deveria ser automática",
+        "A política está correta, porque aprovação manual é suficiente por definição",
+        "A política erra porque nenhuma biblioteca deveria ser aprovada, mesmo manualmente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Aprovação manual de uma biblioteca direta revisa também as dependências dela?",
+        "'Totalmente segura' é uma conclusão que a aprovação manual, sozinha, sustenta?",
+        "Pense na diferença entre a lista de bibliotecas aprovadas e a árvore de código que realmente roda."
+      ],
+      "pergunta_socratica": "Antes de conferir: aprovar manualmente uma biblioteca direta significa ter revisado também tudo que ela traz consigo?",
+      "explicacao": "A política confunde aprovar a lista de dependências diretas com revisar a árvore inteira que realmente roda no projeto. Aprovação manual de cada biblioteca direta não alcança dependências transitivas, que continuam sem revisão individual — 'totalmente segura' é uma conclusão que não se sustenta só com isso.",
+      "por_que_erradas": {
+        "1": "O tipo de aprovação (manual ou automática) não é o ponto central do erro.",
+        "2": "Aprovação manual das diretas não é suficiente para cobrir a árvore transitiva inteira.",
+        "3": "A política não precisa proibir toda biblioteca; precisa reconhecer o alcance real da aprovação que já faz."
+      },
+      "fonte": "Teoria 5.1.t3",
+      "tags": [
+        "desenvolvimento-seguro",
+        "caca-erro",
+        "dependencia-transitiva",
+        "politica"
+      ]
+    },
+    {
+      "id": "5.1.q15",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Qual prática cobre parte do risco de dependência transitiva que a aprovação manual de dependências diretas nunca alcança?",
+      "alternativas": [
+        "Aumentar o número de pessoas responsáveis por aprovar cada dependência direta",
+        "Exigir que toda dependência direta seja escrita internamente pelo próprio time",
+        "Reduzir o número de dependências diretas para exatamente uma por projeto",
+        "Gerar e revisar a árvore completa, incluindo as transitivas"
+      ],
+      "correta": 3,
+      "dicas": [
+        "Mais pessoas aprovando a mesma lista direta alcança as transitivas?",
+        "Escrever tudo internamente é realista, ou o ponto é lidar com o que já se depende de terceiro?",
+        "O que precisa ser gerado e olhado para enxergar a árvore inteira, não só o primeiro nível?"
+      ],
+      "pergunta_socratica": "Antes de conferir: mais pessoas revisando a mesma lista de dependências diretas alcançam as transitivas escondidas atrás delas?",
+      "explicacao": "Só gerar e revisar a árvore completa — não apenas a lista de primeiro nível — dá visibilidade sobre o que realmente roda no projeto. Mais aprovadores para a mesma lista direta não muda o alcance da revisão, escrever tudo internamente não é realista nem elimina a necessidade de terceiros, e reduzir a uma dependência direta não impede essa única dependência de ter sua própria árvore.",
+      "por_que_erradas": {
+        "0": "Mais pessoas revisando a mesma lista direta não estende o alcance às transitivas.",
+        "1": "Escrever tudo internamente não é uma prática realista de gestão de dependências.",
+        "2": "Uma única dependência direta ainda pode ter uma árvore transitiva inteira atrás dela."
+      },
+      "fonte": "Teoria 5.1.t3",
+      "tags": [
+        "desenvolvimento-seguro",
+        "ataque-defesa",
+        "dependencia-transitiva"
+      ]
+    },
+    {
+      "id": "5.1.q16",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Coloque em ordem os passos de avaliar o risco real de uma nova dependência antes de adicioná-la ao projeto.",
+      "itens": [
+        "Identificar a dependência direta que se pretende adicionar",
+        "Gerar a árvore completa de dependências transitivas que ela traz consigo",
+        "Verificar, para cada pacote da árvore, se há vulnerabilidade conhecida publicada",
+        "Decidir se o risco agregado da árvore inteira é aceitável para o projeto"
+      ],
+      "ordem_correta": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "dicas": [
+        "É possível gerar a árvore antes de saber qual dependência direta será adicionada?",
+        "Verificar vulnerabilidade em cada pacote da árvore é possível antes de a árvore estar completa?",
+        "A decisão final depende de já ter visto o risco de qual conjunto de pacotes?"
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para verificar vulnerabilidade numa árvore que ainda não foi gerada?",
+      "explicacao": "Primeiro identifica-se a dependência direta pretendida; depois gera-se a árvore completa que ela traz; só então é possível verificar vulnerabilidade conhecida em cada pacote da árvore; e a decisão final de aceitar ou não o risco só faz sentido depois de conhecer o risco agregado de tudo que entraria.",
+      "fonte": "Teoria 5.1.t3",
+      "tags": [
+        "desenvolvimento-seguro",
+        "ordenacao",
+        "dependencia-transitiva"
+      ]
+    },
+    {
+      "id": "5.1.q17",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        1
+      ],
+      "enunciado": "Por que uma vulnerabilidade numa dependência transitiva de quarto nível é, na prática, tão real quanto uma na dependência direta?",
+      "alternativas": [
+        "Porque dependências de quarto nível são sempre reescritas automaticamente pelo gerenciador de pacote",
+        "Porque o código dela executa dentro do projeto exatamente como qualquer outro código incluído",
+        "Porque dependências de quarto nível têm prioridade de correção mais alta que as diretas",
+        "Porque nenhuma dependência de quarto nível chega a ser instalada de fato"
+      ],
+      "correta": 1,
+      "dicas": [
+        "O código de uma dependência distante roda de um jeito diferente do código de uma dependência direta?",
+        "Existe reescrita automática garantida para dependências de quarto nível?",
+        "'Instalado' e 'executado' significam coisas diferentes aqui?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o código de uma dependência de quarto nível é instalado e executado do mesmo jeito que o de uma dependência direta?",
+      "explicacao": "Distância na árvore não muda como o código é instalado e executado — uma falha numa dependência de quarto nível roda dentro do projeto normalmente. Não há reescrita automática garantida, não há prioridade de correção maior por distância, e a dependência de fato é instalada, não apenas referenciada.",
+      "por_que_erradas": {
+        "0": "Não existe reescrita automática garantida por posição na árvore.",
+        "2": "Prioridade de correção depende do risco real, não da distância na árvore.",
+        "3": "Dependências transitivas são de fato instaladas, não apenas listadas."
+      },
+      "fonte": "Teoria 5.1.t3; execução real, arvore_de_dependencia_transitiva.py",
+      "tags": [
+        "desenvolvimento-seguro",
+        "dependencia-transitiva",
+        "execucao"
+      ]
+    },
+    {
+      "id": "5.1.q18",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Segundo o módulo 1.7, qual é a resposta correta quando um segredo é commitado por engano num repositório Git?",
+      "alternativas": [
+        "Apagar o arquivo e fazer um novo commit removendo o conteúdo",
+        "Renomear o arquivo que continha o segredo para evitar buscas futuras",
+        "Tratar a credencial como comprometida, e rotacioná-la de fato",
+        "Esperar para ver se alguém encontra o segredo antes de agir"
+      ],
+      "correta": 2,
+      "dicas": [
+        "Apagar um arquivo num commit novo remove o conteúdo do histórico anterior?",
+        "Renomear o arquivo muda o que já está gravado nos commits antigos?",
+        "Pense na diferença entre remover algo daqui para frente e desfazer o que já aconteceu."
+      ],
+      "pergunta_socratica": "Antes de conferir: apagar um arquivo num commit novo desfaz o que já foi gravado nos commits anteriores?",
+      "explicacao": "A única resposta correta é tratar a credencial como comprometida e rotacioná-la — gerar uma nova, atualizar quem usa, revogar a antiga. Apagar o arquivo não remove nada do histórico nem dos clones já feitos; renomear tem o mesmo problema; esperar deixa a credencial exposta pelo tempo que levar.",
+      "por_que_erradas": {
+        "0": "Apagar num commit novo não remove o conteúdo do histórico de commits anteriores.",
+        "1": "Renomear o arquivo não afeta o conteúdo já gravado em commits antigos.",
+        "3": "Esperar deixa a credencial exposta e comprometida por mais tempo, sem necessidade."
+      },
+      "fonte": "1.7.t3 (assumida como vista)",
+      "tags": [
+        "desenvolvimento-seguro",
+        "segredo",
+        "git",
+        "referencia-cruzada"
+      ]
+    },
+    {
+      "id": "5.1.q19",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Por que este módulo trata segredo commitado no Git como só uma fatia do problema, e não o problema inteiro?",
+      "alternativas": [
+        "Porque commit é apenas um entre vários lugares onde um segredo pode escapar",
+        "Porque o Git é o único lugar onde segredo realmente importa proteger",
+        "Porque segredo commitado no Git nunca é considerado comprometido de verdade",
+        "Porque o módulo 1.7 já resolveu esse problema por completo, sem nada a acrescentar"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O laboratório deste módulo demonstra vazamento através de qual mecanismo — commit, ou outro?",
+        "1.7 resolveu tudo sobre segredo, ou só a parte específica do histórico do Git?",
+        "Pense em log, imagem de build e variável de ambiente como outros lugares possíveis."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe algum jeito de um segredo vazar sem nunca passar por um commit?",
+      "explicacao": "Log de execução, imagem de contêiner e variável de ambiente impressa por engano são outros lugares reais onde um segredo escapa, sem nenhum commit envolvido — o laboratório deste módulo demonstra exatamente isso. Git não é o único lugar que importa, segredo commitado é sim considerado comprometido, e 1.7 cobre bem sua fatia específica, mas não o ciclo de vida inteiro.",
+      "por_que_erradas": {
+        "1": "Git é um lugar importante, mas não o único onde segredo pode vazar.",
+        "2": "Segredo commitado no Git é tratado como comprometido, segundo 1.7.",
+        "3": "1.7 cobre a fatia do histórico do Git, não o ciclo de vida inteiro do segredo."
+      },
+      "fonte": "Teoria 5.1.t4",
+      "tags": [
+        "desenvolvimento-seguro",
+        "segredo",
+        "ciclo-de-vida"
+      ]
+    },
+    {
+      "id": "5.1.q20",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "artefato": "ConnectionError: timeout ao chamar servico externo com payload={'pedido': 4471, 'auth': {'Authorization': 'Bearer sk-exemplo-inventado-000111222'}}\n\na chave de API aparece no arquivo de log? True",
+      "enunciado": "Como a chave de API chegou a este arquivo de log, segundo o mecanismo demonstrado?",
+      "alternativas": [
+        "Alguém commitou o arquivo de configuração contendo a chave por engano",
+        "Um invasor externo acessou o servidor e copiou a chave diretamente para o log",
+        "O sistema de controle de versão sincronizou automaticamente a chave para o arquivo de log",
+        "Uma exceção não tratada imprimiu a estrutura de dados da chamada, que incluía a chave"
+      ],
+      "correta": 3,
+      "dicas": [
+        "Há algum commit envolvido nesta saída específica?",
+        "Existe evidência de acesso externo invasor nesta saída?",
+        "O que, tecnicamente, gerou esta linha de log — commit, exceção, ou ataque?"
+      ],
+      "pergunta_socratica": "Antes de conferir: esta saída aparece porque alguém commitou algo, ou porque um erro foi tratado de um jeito específico?",
+      "explicacao": "A saída é o texto de uma exceção (`ConnectionError`) que incluiu, na própria mensagem, os dados da chamada que falhou — inclusive a chave de autenticação. Não há commit nem invasor nesta cadeia: o vazamento veio de como o código lidou com um erro comum, imprimindo informação demais.",
+      "por_que_erradas": {
+        "0": "Não há menção a commit ou controle de versão nesta saída.",
+        "1": "Não há evidência de acesso externo invasor — o vazamento é interno, via log.",
+        "2": "Controle de versão não sincroniza automaticamente nada para arquivo de log."
+      },
+      "fonte": "Execução real, segredo_fora_do_commit.py",
+      "tags": [
+        "desenvolvimento-seguro",
+        "artefato",
+        "segredo",
+        "log"
+      ]
+    },
+    {
+      "id": "5.1.q21",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Uma equipe, depois de auditar o histórico do Git e não encontrar segredo commitado, quer fechar de vez o risco de vazamento de credencial. Qual verificação adicional cobre uma lacuna que a auditoria de histórico nunca alcança?",
+      "alternativas": [
+        "Repetir a mesma auditoria de histórico do Git com mais frequência",
+        "Revisar log de execução e imagem de build à procura de credencial impressa por engano",
+        "Aumentar o número de pessoas que revisam o histórico do Git",
+        "Migrar o repositório para um provedor de hospedagem diferente"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Repetir a mesma auditoria alcança um canal que ela já não cobria?",
+        "Mais pessoas revisando o mesmo histórico alcançam um canal diferente?",
+        "Trocar de provedor de hospedagem muda o que está registrado em log ou imagem de build?"
+      ],
+      "pergunta_socratica": "Antes de conferir: repetir a auditoria do histórico do Git, de qualquer jeito, alcança um canal que ela nunca cobriu?",
+      "explicacao": "Log de execução e imagem de build são canais que a auditoria de histórico do Git nunca alcança, não importa quantas vezes seja repetida ou por quantas pessoas — são lugares diferentes, verificados de formas diferentes. Repetir a mesma auditoria, aumentar revisores ou trocar de provedor de hospedagem não estendem a cobertura para esses outros canais.",
+      "por_que_erradas": {
+        "0": "Repetir a mesma auditoria não estende a cobertura para canais que ela nunca verificou.",
+        "2": "Mais pessoas revisando o mesmo histórico não alcançam um canal diferente.",
+        "3": "Trocar de provedor de hospedagem não afeta o que está registrado em log ou imagem de build."
+      },
+      "fonte": "Teoria 5.1.t4; execução real, segredo_fora_do_commit.py",
+      "tags": [
+        "desenvolvimento-seguro",
+        "cenario",
+        "segredo",
+        "acao"
+      ]
+    },
+    {
+      "id": "5.1.q22",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Por que um segredo estático (a mesma string usada por tudo que precisa dela) tem a mesma fraqueza estrutural que uma senha de rede em modo pessoal, já vista no módulo 3.9?",
+      "alternativas": [
+        "Porque as duas coisas usam exatamente o mesmo algoritmo de criptografia",
+        "Porque segredo estático e senha de rede pessoal são, tecnicamente, a mesma coisa",
+        "Porque nenhuma das duas sabe distinguir uma cópia legítima de outra",
+        "Porque as duas exigem o mesmo hardware para funcionar corretamente"
+      ],
+      "correta": 2,
+      "dicas": [
+        "A senha de rede em modo pessoal (3.9) consegue distinguir quem apresenta a senha certa?",
+        "Um segredo de aplicação compartilhado por vários serviços consegue distinguir qual serviço o apresentou?",
+        "Pense no que a função de verificação, nos dois casos, nunca recebeu como informação."
+      ],
+      "pergunta_socratica": "Antes de conferir: a função que verifica um segredo compartilhado recebe alguma informação sobre qual cópia está sendo usada?",
+      "explicacao": "Em ambos os casos, a função de verificação só confirma que quem apresentou o segredo o conhece — ela nunca recebeu identidade nenhuma para diferenciar uma cópia legítima de outra comprometida, exatamente como o módulo 3.9 demonstrou para senha de rede em modo pessoal. Não é sobre algoritmo de criptografia, não são a mesma coisa tecnicamente, e não há relação com hardware.",
+      "por_que_erradas": {
+        "0": "O paralelo não é sobre qual algoritmo de criptografia é usado.",
+        "1": "São mecanismos diferentes (senha de rede × segredo de aplicação); o paralelo é estrutural, não de identidade técnica.",
+        "3": "Hardware não é o fator comum entre os dois casos."
+      },
+      "fonte": "Teoria 5.1.t4; 3.9.t5 (assumida como vista)",
+      "tags": [
+        "desenvolvimento-seguro",
+        "segredo",
+        "identidade",
+        "referencia-cruzada"
+      ]
+    },
+    {
+      "id": "5.1.q23",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Ligue cada item (canal de vazamento, ou a solução estrutural) à característica que o distingue do caso já ensinado em 1.7 (segredo commitado no Git).",
+      "pares": [
+        [
+          "Log de execução",
+          "Vaza por uma exceção não tratada, sem nenhum commit envolvido"
+        ],
+        [
+          "Imagem de contêiner",
+          "Embute a credencial no momento da construção da imagem, fora do histórico de código"
+        ],
+        [
+          "Variável de ambiente impressa por engano",
+          "Escapa em tempo de execução, não em tempo de versionamento"
+        ],
+        [
+          "Cofre de segredo com credencial dinâmica",
+          "Muda o modelo: credencial de curta duração substitui a string fixa compartilhada"
+        ]
+      ],
+      "dicas": [
+        "Três dos quatro itens são canais de vazamento; um é a solução estrutural.",
+        "O que os três canais de vazamento têm em comum: nenhum passa por commit.",
+        "A solução estrutural resolve o problema por não repetir o quê entre as cópias?"
+      ],
+      "pergunta_socratica": "Antes de conferir: os três primeiros canais de vazamento têm alguma relação com commit de código?",
+      "explicacao": "Log, imagem de contêiner e variável de ambiente vazam segredo por caminhos que não passam pelo histórico do Git — cada um em tempo de execução ou construção, não de versionamento. O cofre com credencial dinâmica resolve a raiz estrutural do problema, porque a credencial deixa de ser uma cópia idêntica compartilhada e passa a carregar identidade, permitindo revogação individual.",
+      "fonte": "Teoria 5.1.t4; execução real, segredo_fora_do_commit.py",
+      "tags": [
+        "desenvolvimento-seguro",
+        "pareamento",
+        "segredo",
+        "ciclo-de-vida"
+      ]
+    },
+    {
+      "id": "5.1.q24",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Uma equipe quer reduzir o risco de segredo vazar por log de exceção, como no laboratório deste módulo. Qual mudança ataca a raiz do problema, e não só o sintoma?",
+      "alternativas": [
+        "Filtrar dado sensível antes de logar, sem registrar estruturas inteiras",
+        "Aumentar o espaço em disco reservado para arquivos de log",
+        "Reduzir a frequência com que o sistema tenta se conectar ao serviço externo",
+        "Trocar o formato do arquivo de log de texto para um formato binário"
+      ],
+      "correta": 0,
+      "dicas": [
+        "Mais espaço em disco muda o que é escrito no log, ou só quanto cabe nele?",
+        "Formato binário impede que o conteúdo sensível continue lá dentro?",
+        "Pense na causa raiz: o que exatamente foi impresso na mensagem de erro."
+      ],
+      "pergunta_socratica": "Antes de conferir: mudar o formato do arquivo de log muda o que está sendo escrito nele?",
+      "explicacao": "A raiz do problema é registrar a estrutura de dados inteira, incluindo o segredo, na mensagem de erro — filtrar ou mascarar dado sensível antes de logar ataca exatamente isso. Espaço em disco não muda o conteúdo escrito, frequência de tentativa de conexão não tem relação com o que vaza, e formato binário não impede que o dado sensível continue presente no arquivo.",
+      "por_que_erradas": {
+        "1": "Espaço em disco não afeta o que é escrito no conteúdo do log.",
+        "2": "Frequência de tentativa de conexão não tem relação com o que a mensagem de erro registra.",
+        "3": "Trocar o formato do arquivo não remove o dado sensível do seu conteúdo."
+      },
+      "fonte": "Teoria 5.1.t4; execução real, segredo_fora_do_commit.py",
+      "tags": [
+        "desenvolvimento-seguro",
+        "ataque-defesa",
+        "segredo",
+        "log"
+      ]
+    },
+    {
+      "id": "5.1.q25",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "Depois de um incidente de vazamento de segredo por log, uma equipe decide migrar de senha de aplicação fixa para um cofre com credencial de curta duração por identidade. O que essa mudança resolve que só rotacionar a senha vazada, uma vez, não resolveria?",
+      "alternativas": [
+        "Resolve o problema para sempre, tornando qualquer vazamento futuro impossível",
+        "Resolve apenas o custo de armazenamento das credenciais no banco de dados",
+        "Resolve o problema de desempenho da aplicação, que ficava mais lenta com senha fixa",
+        "Resolve a categoria: cada identidade tem credencial própria e revogável"
+      ],
+      "correta": 3,
+      "dicas": [
+        "Rotacionar uma senha fixa uma vez impede um vazamento futuro pelo mesmo mecanismo?",
+        "Desempenho e custo de armazenamento são os temas centrais desta comparação?",
+        "Pense na diferença entre corrigir uma cópia e mudar o modelo de identidade inteiro."
+      ],
+      "pergunta_socratica": "Antes de conferir: rotacionar uma senha fixa muda o fato de ela continuar sendo compartilhada por tudo que a usa?",
+      "explicacao": "Rotacionar a senha vazada resolve aquele incidente específico, mas mantém o mesmo modelo — segredo único compartilhado, vulnerável ao mesmo tipo de vazamento no futuro. Migrar para credencial por identidade muda o modelo: cada consumidor tem a própria credencial, revogável individualmente, sem repetir o problema estrutural. Não elimina vazamento para sempre (nenhum sistema garante isso), e não é sobre desempenho ou custo de armazenamento.",
+      "por_que_erradas": {
+        "0": "Nenhuma medida torna vazamento futuro impossível para sempre.",
+        "1": "Custo de armazenamento não é o problema estrutural em discussão.",
+        "2": "Desempenho da aplicação não é o tema desta comparação."
+      },
+      "fonte": "Teoria 5.1.t4",
+      "tags": [
+        "desenvolvimento-seguro",
+        "cenario",
+        "segredo",
+        "identidade"
+      ]
+    },
+    {
+      "id": "5.1.q26",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        2
+      ],
+      "enunciado": "O que todos os canais de vazamento de segredo discutidos neste módulo (commit, log, imagem de build, variável de ambiente) têm em comum, na raiz?",
+      "alternativas": [
+        "Todos exigem acesso físico ao servidor para acontecer",
+        "Todos envolvem um segredo estático, sem identidade distinguível",
+        "Todos são exclusivos de sistemas escritos em Python",
+        "Todos só acontecem em ambientes de teste, nunca em produção"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Acesso físico ao servidor é necessário para uma exceção imprimir uma variável em log?",
+        "Existe alguma linguagem de programação citada como exclusiva neste mecanismo?",
+        "Pense no que a t4 chama de 'raiz estrutural' entre os diferentes canais."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que os quatro canais de vazamento citados têm em comum, além do lugar onde acontecem?",
+      "explicacao": "A raiz comum é o segredo ser estático — a mesma string usada por tudo que precisa dela, sem que a função de verificação saiba distinguir uma cópia da outra. Nenhum dos canais exige acesso físico, nenhum é exclusivo de uma linguagem, e todos podem acontecer em produção, não só em teste.",
+      "por_que_erradas": {
+        "0": "Nenhum dos canais discutidos exige acesso físico ao servidor.",
+        "2": "O mecanismo não é exclusivo de nenhuma linguagem de programação específica.",
+        "3": "Os canais discutidos acontecem tipicamente em produção, não só em teste."
+      },
+      "fonte": "Teoria 5.1.t4",
+      "tags": [
+        "desenvolvimento-seguro",
+        "segredo",
+        "sintese"
+      ]
+    },
+    {
+      "id": "5.1.q27",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "O que cobertura de linha de teste realmente mede?",
+      "alternativas": [
+        "Se o resultado produzido pelo código está correto para cada entrada testada",
+        "Quantos usuários reais vão interagir com aquela parte do código",
+        "Se cada instrução do código foi executada por pelo menos um teste",
+        "Se o código segue o estilo de formatação recomendado pela equipe"
+      ],
+      "correta": 2,
+      "dicas": [
+        "Cobertura fala sobre o valor que saiu do código, ou sobre quais linhas rodaram?",
+        "Número de usuários reais aparece em alguma métrica de cobertura de linha?",
+        "Estilo de formatação é medido por cobertura, ou por outra ferramenta?"
+      ],
+      "pergunta_socratica": "Antes de conferir: cobertura de linha informa se o resultado estava certo, ou só se a linha rodou?",
+      "explicacao": "Cobertura de linha mede execução — se cada instrução rodou por algum teste — e nada diz sobre se o resultado produzido estava correto. Número de usuários reais não faz parte dessa métrica, e estilo de formatação é avaliado por outra categoria de ferramenta (linter de estilo), não por cobertura.",
+      "por_que_erradas": {
+        "0": "Corretude do resultado é uma questão diferente de execução de linha.",
+        "1": "Uso real por usuários não é medido por cobertura de teste.",
+        "3": "Estilo de formatação é avaliado por ferramentas diferentes de cobertura de linha."
+      },
+      "fonte": "Teoria 5.1.t5",
+      "tags": [
+        "desenvolvimento-seguro",
+        "cobertura-de-teste",
+        "conceito"
+      ]
+    },
+    {
+      "id": "5.1.q28",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "artefato": "valor_total=-50.0, itens=10 -> -45.0\na regra pretendida proibia valor final negativo ou maior que\no original -- nenhuma das duas checagens existe no codigo.\nesse caso passa exatamente pelos MESMOS ramos que os três\ntestes existentes já cobrem (entrada, inicializa, ramo com\ndesconto, calcula desconto, calcula valor final) -- cobertura\nde linha continua em 100%, e o resultado ainda está errado.",
+      "enunciado": "Por que a cobertura de linha permanece em 100% mesmo com o resultado incorreto nesta saída?",
+      "alternativas": [
+        "Porque o mesmo caminho de código já coberto é reaproveitado pelo caso incorreto",
+        "Porque a ferramenta de cobertura tem um defeito que não conta corretamente",
+        "Porque cobertura de 100% só é válida para valores positivos de entrada",
+        "Porque o teste automatizado precisa ser executado duas vezes para contar de verdade"
+      ],
+      "correta": 0,
+      "dicas": [
+        "O caso com valor negativo executa uma linha nova do código, ou uma já coberta pelos testes anteriores?",
+        "A validade da cobertura de 100% depende do sinal do valor de entrada?",
+        "Executar duas vezes o mesmo teste muda quais linhas foram cobertas?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o caso com valor negativo passa por uma linha de código que os três testes anteriores nunca executaram?",
+      "explicacao": "A cobertura mede execução de linha, e o caso com valor negativo passa exatamente pelos mesmos ramos já executados pelos três testes existentes — nenhuma linha nova roda, então a cobertura continua em 100%, mesmo com o resultado errado. Não há defeito na ferramenta de cobertura, a métrica não depende do sinal da entrada, e executar duas vezes não muda quais linhas foram cobertas.",
+      "por_que_erradas": {
+        "1": "A ferramenta de cobertura está funcionando corretamente — o problema é conceitual, não técnico.",
+        "2": "Cobertura de linha é válida independente do sinal do valor de entrada.",
+        "3": "Repetir a execução do mesmo teste não adiciona nenhuma linha nova coberta."
+      },
+      "fonte": "Execução real, cobertura_nao_e_correcao.py",
+      "tags": [
+        "desenvolvimento-seguro",
+        "artefato",
+        "cobertura-de-teste"
+      ]
+    },
+    {
+      "id": "5.1.q29",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Por que uma ferramenta de análise automatizada (teste, análise estática de código, varredura de padrão conhecido) nunca detecta uma regra de negócio que ninguém escreveu?",
+      "alternativas": [
+        "Porque essas ferramentas só funcionam em linguagens compiladas, nunca interpretadas",
+        "Porque essas ferramentas são desligadas automaticamente em ambiente de produção",
+        "Porque regra de negócio é sempre documentada fora do código, em local que a ferramenta não acessa",
+        "Porque não existe código nem teste que contradiga a ausência de uma regra nunca escrita"
+      ],
+      "correta": 3,
+      "dicas": [
+        "Uma ferramenta detecta a ausência de algo comparando contra o quê?",
+        "Existe essa restrição de linguagem compilada vs. interpretada para esse tipo de ferramenta?",
+        "Regra de negócio nunca escrita está documentada em algum lugar, para a ferramenta comparar?"
+      ],
+      "pergunta_socratica": "Antes de conferir: uma ferramenta automatizada consegue perceber a ausência de uma regra que não está escrita em código nem em teste?",
+      "explicacao": "Detecção automatizada compara comportamento contra algo já escrito — código, teste ou padrão conhecido. Uma regra que nunca foi escrita em lugar nenhum não tem contra o que ser comparada, então nenhuma ferramenta a detecta. Não há restrição de linguagem compilada ou interpretada, ferramentas continuam ativas em produção quando configuradas para isso, e a ausência descrita não pressupõe documentação em nenhum lugar.",
+      "por_que_erradas": {
+        "0": "Esse tipo de ferramenta funciona tanto em linguagens compiladas quanto interpretadas.",
+        "1": "Ferramentas de análise podem continuar ativas em produção, dependendo da configuração.",
+        "2": "O cenário não pressupõe existência de documentação externa da regra faltante."
+      },
+      "fonte": "Teoria 5.1.t5",
+      "tags": [
+        "desenvolvimento-seguro",
+        "automacao",
+        "limite"
+      ]
+    },
+    {
+      "id": "5.1.q30",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Uma equipe tem 100% de cobertura de teste e um pipeline de análise estática sem nenhum alerta pendente. Um gerente conclui que o código está livre de falha de lógica de negócio. Essa conclusão está correta?",
+      "alternativas": [
+        "Sim, cobertura de 100% e análise estática sem alerta garantem ausência de falha",
+        "Não, as duas métricas medem execução e padrão, nunca corrigem regra não escrita",
+        "Sim, mas apenas se o sistema também tiver certificação externa de qualidade",
+        "Não, porque cobertura de teste e análise estática medem exatamente a mesma coisa, de forma redundante"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Cobertura de linha e ausência de alerta garantem que toda intenção do time virou código de verdade?",
+        "Certificação externa muda a natureza do que cobertura e análise estática medem?",
+        "As duas métricas medem exatamente a mesma coisa, ou coisas diferentes que se complementam?"
+      ],
+      "pergunta_socratica": "Antes de conferir: cobertura de 100% e análise estática sem alerta garantem que nenhuma regra de negócio ficou sem ser escrita?",
+      "explicacao": "As duas métricas, mesmo perfeitas, medem execução de código e ausência de padrão conhecido de defeito — nenhuma das duas pode garantir que toda regra de negócio pretendida foi de fato escrita e está correta, porque isso exigiria comparar contra uma especificação que nenhuma ferramenta lê sozinha. Certificação externa não muda essa limitação estrutural, e as duas métricas não são redundantes: medem coisas diferentes, ambas com o mesmo tipo de limite.",
+      "por_que_erradas": {
+        "0": "Nenhuma das duas métricas garante correção de regra de negócio não escrita.",
+        "2": "Certificação externa não altera a limitação estrutural das duas métricas.",
+        "3": "Cobertura de teste e análise estática medem coisas diferentes, não a mesma coisa duas vezes."
+      },
+      "fonte": "Teoria 5.1.t5",
+      "tags": [
+        "desenvolvimento-seguro",
+        "cenario",
+        "automacao",
+        "limite"
+      ]
+    },
+    {
+      "id": "5.1.q31",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Já que automação nunca detecta uma regra de negócio nunca escrita, onde a atenção humana rende mais, segundo este módulo?",
+      "alternativas": [
+        "Em reconferir manualmente cada linha que a automação já cobre bem",
+        "Em aumentar a frequência de execução da mesma suite de testes já existente",
+        "Em imaginar a entrada e o cenário que ainda faltam ser escritos",
+        "Em substituir toda ferramenta automatizada por revisão manual completa"
+      ],
+      "correta": 2,
+      "dicas": [
+        "Reconferir o que a automação já cobre bem adiciona alguma cobertura nova?",
+        "Rodar a mesma suite com mais frequência encontra casos que ela nunca imaginou?",
+        "Substituir automação por revisão manual completa é proporcional ao problema descrito?"
+      ],
+      "pergunta_socratica": "Antes de conferir: rodar a mesma suite de testes com mais frequência encontra um caso que ela nunca foi escrita para cobrir?",
+      "explicacao": "Atenção humana rende mais onde a automação estruturalmente não alcança: imaginar o que ainda não foi escrito, não reconferir o que já está bem coberto. Aumentar frequência de execução da mesma suite não descobre casos novos, e substituir toda automação por revisão manual desperdiça exatamente o que automação faz bem (confirmar padrão já conhecido).",
+      "por_que_erradas": {
+        "0": "Reconferir o que já está bem coberto não adiciona cobertura de casos não imaginados.",
+        "1": "Frequência de execução não muda o que a suite foi escrita para testar.",
+        "3": "Substituir toda automação desperdiça a parte do problema que ela já resolve bem."
+      },
+      "fonte": "Teoria 5.1.t5",
+      "tags": [
+        "desenvolvimento-seguro",
+        "ataque-defesa",
+        "automacao",
+        "atencao-humana"
+      ]
+    },
+    {
+      "id": "5.1.q32",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Um projeto trata segurança como uma revisão feita só na semana antes do lançamento. Nessa revisão, a equipe encontra um problema de formato de dado que exigiria mudar o esquema do banco já populado com dados reais de teste extensivo. Por que essa situação ilustra o contraponto deste módulo?",
+      "alternativas": [
+        "Porque a decisão barata já passou, e agora custa o máximo acumulado",
+        "Porque revisão de segurança na semana final é sempre tecnicamente impossível de fazer",
+        "Porque bancos de dados nunca devem ser populados antes do lançamento oficial",
+        "Porque a equipe deveria ter contratado uma auditoria externa em vez de revisar internamente"
+      ],
+      "correta": 0,
+      "dicas": [
+        "A revisão na semana final aconteceu antes ou depois de código, teste e dado real se acumularem?",
+        "O problema é a auditoria ser interna, ou o momento em que ela acontece?",
+        "Pense em quantos dependentes já existem quando a revisão só acontece no fim."
+      ],
+      "pergunta_socratica": "Antes de conferir: o problema deste cenário é a revisão ser tarde, ou a revisão em si não ter sido feita direito?",
+      "explicacao": "A revisão feita só no fim chega depois que código, teste e dado real já se acumularam sobre a decisão de formato — exatamente o mecanismo de custo composto descrito em t1/t2, aplicado à prática de tratar segurança como etapa final. Não é impossibilidade técnica, não é sobre proibir dado de teste antes do lançamento, e o problema não é auditoria interna versus externa — é o momento em que a pergunta foi feita.",
+      "por_que_erradas": {
+        "1": "Revisão na semana final é tecnicamente possível; o problema é o custo acumulado até ali.",
+        "2": "Popular banco com dado de teste antes do lançamento não é o problema descrito.",
+        "3": "Auditoria interna versus externa não é o eixo do contraponto discutido aqui."
+      },
+      "fonte": "Teoria 5.1.t6",
+      "tags": [
+        "desenvolvimento-seguro",
+        "cenario",
+        "etapa-final",
+        "fechamento"
+      ]
+    },
+    {
+      "id": "5.1.q33",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Segundo o contraponto deste módulo, o que \"segurança desde o início\" realmente significa, em termos de tempo total gasto?",
+      "alternativas": [
+        "Significa gastar consideravelmente mais tempo total do que tratar segurança como etapa final",
+        "Significa eliminar completamente qualquer necessidade de revisão de segurança depois",
+        "Significa que nenhuma correção será necessária depois do lançamento",
+        "Significa gastar, em geral, o mesmo tempo, só que mais cedo, quando ele custa menos"
+      ],
+      "correta": 3,
+      "dicas": [
+        "O módulo defende gastar mais tempo total, ou gastar o tempo em outro momento?",
+        "Segurança desde o início elimina toda necessidade de revisão futura?",
+        "Pense na diferença entre 'quanto' e 'quando' o tempo é gasto."
+      ],
+      "pergunta_socratica": "Antes de conferir: a proposta deste módulo é gastar mais tempo no total, ou gastar o mesmo tempo em outro momento?",
+      "explicacao": "O ponto central do contraponto é sobre o momento, não sobre o total: fazer as mesmas perguntas mais cedo custa, em geral, o mesmo tempo — mas nesse momento ele compra silêncio (evita acúmulo de dependentes), em vez de conserto (desfazer o que já foi construído). Não elimina toda revisão futura nem toda correção — apenas reduz o custo relativo de cada uma.",
+      "por_que_erradas": {
+        "0": "O argumento do módulo é sobre quando o tempo é gasto, não sobre gastar mais tempo total.",
+        "1": "Revisão de segurança continua necessária depois; o que muda é o custo relativo dela.",
+        "2": "Correções continuam podendo ser necessárias; o módulo não promete eliminação total."
+      },
+      "fonte": "Teoria 5.1.t6",
+      "tags": [
+        "desenvolvimento-seguro",
+        "etapa-final",
+        "fechamento"
+      ]
+    },
+    {
+      "id": "5.1.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Uma equipe pergunta: \"qual das quatro práticas deste módulo (decidir cedo, revisar árvore de dependência, tratar ciclo de vida de segredo, testar o que a suite não imaginou) é a mais importante, para priorizarmos uma só?\" Qual é a resposta consistente com o resto do módulo?",
+      "alternativas": [
+        "Decidir cedo, porque as outras três dependem dela para funcionar",
+        "Nenhuma sozinha — cada uma cobre um problema que as outras três não cobrem",
+        "Tratar ciclo de vida de segredo, porque vazamento de credencial é sempre o risco mais grave",
+        "Testar o que a suite não imaginou, porque cobre qualquer falha que as outras três deixarem passar"
+      ],
+      "correta": 1,
+      "dicas": [
+        "Decidir cedo evita acúmulo de dependência transitiva insegura, ou são problemas independentes?",
+        "Testar o que a suite não imaginou detecta segredo vazado por log, ou é um problema diferente?",
+        "Pense se as quatro práticas resolvem a mesma coisa, ou coisas diferentes entre si."
+      ],
+      "pergunta_socratica": "Antes de conferir: as quatro práticas deste módulo resolvem o mesmo problema, cada uma à sua maneira, ou problemas diferentes?",
+      "explicacao": "As quatro práticas atacam problemas estruturalmente diferentes — timing de decisão, herança de dependência, ciclo de vida de segredo, limite de automação — e nenhuma cobre o que as outras cobrem. Decidir cedo não revisa árvore de dependência já instalada, e testar mais não detecta segredo vazado por log. Escolher uma só deixa as outras três lacunas completamente descobertas.",
+      "por_que_erradas": {
+        "0": "Decidir cedo não substitui revisão de dependência, tratamento de segredo ou limite de automação.",
+        "2": "Nenhuma categoria de risco é sempre a mais grave, independente de contexto.",
+        "3": "Testar o que a suite não imaginou não cobre falha de dependência transitiva ou vazamento de segredo."
+      },
+      "fonte": "Teoria 5.1.t6",
+      "tags": [
+        "desenvolvimento-seguro",
+        "cenario",
+        "fechamento",
+        "sintese"
+      ]
+    },
+    {
+      "id": "5.1.q35",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [
+        3
+      ],
+      "enunciado": "Qual frase resume melhor a tese central deste módulo?",
+      "alternativas": [
+        "Segurança é uma lista de vulnerabilidades técnicas que o time deve decorar",
+        "Segurança é responsabilidade exclusiva de quem revisa o código antes do lançamento",
+        "Segurança é propriedade de quando as decisões são tomadas, não etapa separada",
+        "Segurança é garantida automaticamente por ferramentas de teste e análise estática bem configuradas"
+      ],
+      "correta": 2,
+      "dicas": [
+        "Este módulo ensinou uma lista de vulnerabilidades específicas, ou um padrão sobre timing e processo?",
+        "A responsabilidade discutida neste módulo recai só sobre quem revisa no fim?",
+        "Automação, sozinha, garante segurança, segundo t5?"
+      ],
+      "pergunta_socratica": "Antes de conferir: este módulo ensinou uma lista de vulnerabilidades para decorar, ou um padrão sobre quando e como decisões são tomadas?",
+      "explicacao": "A tese que atravessa os quatro objetivos é de processo e timing — quando a decisão é tomada, o que se herda, como um segredo vive ao longo do tempo, o que automação nunca cobre — não uma lista de vulnerabilidades específicas (isso já é do nível 3). Não é responsabilidade exclusiva de quem revisa por último, e t5 já mostrou que automação sozinha nunca garante segurança.",
+      "por_que_erradas": {
+        "0": "O módulo não ensina catálogo de vulnerabilidades técnicas — isso é território do nível 3.",
+        "1": "A responsabilidade discutida se estende a todo o processo, não só à revisão final.",
+        "3": "T5 já estabeleceu que automação, sozinha, tem limite estrutural conhecido."
+      },
+      "fonte": "Teoria 5.1.t1-t6 (síntese)",
+      "tags": [
+        "desenvolvimento-seguro",
+        "fechamento",
+        "sintese"
+      ]
+    }
+  ]
+}
