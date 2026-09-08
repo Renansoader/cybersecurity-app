@@ -1,0 +1,1023 @@
+{
+  "id": "5.2",
+  "nivel": 5,
+  "titulo": "Segurança em nuvem — o que muda quando a infraestrutura não é sua",
+  "objetivos": [
+    "Reconhecer a linha de responsabilidade compartilhada entre provedor e cliente, e o que hardening e desenvolvimento seguro já cobrem sem repetir dentro dela",
+    "Distinguir identidade de carga de trabalho — assumida por uma máquina, não por uma pessoa — do modelo de usuário humano, e reconhecer quando a intuição de RBAC/menor privilégio de pessoa é aplicada indevidamente a ela",
+    "Reconhecer o padrão inseguro por conveniência como escolha do cliente, não neutralidade do provedor, mesmo quando nada foi configurado ativamente",
+    "Explicar o que muda em evidência, log e resposta a incidente quando a infraestrutura é efêmera, e reconhecer o que a nuvem resolve por construção sem exagerar para nenhum dos dois lados"
+  ],
+  "pre_requisitos": ["4.1", "2.6", "5.1"],
+  "teoria": [
+    {
+      "id": "5.2.t1",
+      "titulo": "Responsabilidade compartilhada: onde a linha cai",
+      "texto": "Quando a infraestrutura é própria, uma única equipe responde por tudo, da energia elétrica até a configuração do aplicativo. Alugar computação de um provedor não elimina essa cadeia de responsabilidade — reparte ela. O provedor garante que o hardware físico funciona, que o hipervisor está corrigido e que a rede do datacenter está de pé. Tudo que existe a partir do sistema operacional para cima — o que roda dentro da máquina, como ele está configurado, quem tem permissão de acessar o quê — continua do lado de quem aluga.\n\nA linha muda de lugar conforme o tipo de serviço contratado: um serviço gerenciado empurra mais camada para o provedor do que uma máquina virtual crua. Mas a linha nunca desaparece, e o erro mais comum é tratar 'gerenciado' como sinônimo de 'não preciso pensar em segurança disso' — o provedor automatiza o que está do lado dele, não decide o que está do lado do cliente.",
+      "analogia": "Alugar um apartamento mobiliado: o prédio, o elevador e o encanamento são do síndico; o que você guarda lá dentro e quem tem a chave é seu.",
+      "erro_comum": "Achar que 'gerenciado pelo provedor' significa que nenhuma configuração do lado do cliente precisa de atenção.",
+      "fonte": "NIST SP 800-144, Guidelines on Security and Privacy in Public Cloud Computing — divisão de responsabilidade por camada de serviço"
+    },
+    {
+      "id": "5.2.t2",
+      "titulo": "Identidade de carga de trabalho: quando o usuário é uma máquina",
+      "texto": "Nem toda identidade que acessa um recurso na nuvem pertence a uma pessoa. Uma aplicação, um script agendado ou um processo de infraestrutura recebe sua própria identidade para operar em nome dela — não uma senha que alguém digita, mas uma credencial que o próprio sistema usa sem intervenção humana no momento do uso. O que essa identidade pode fazer é descrito como um documento de permissão, não como uma linha numa tabela de papéis por departamento.\n\nA diferença central não é técnica, é de ciclo de vida: identidade de carga de trabalho nasce, é usada e é revogada por automação, do início ao fim. Uma pessoa raramente está no meio desse processo — o que muda o que faz sentido como controle, tema do próximo bloco.",
+      "analogia": "Um crachá emprestado a um robô entregador dentro do prédio, não a uma pessoa que pode ser questionada sobre o que estava fazendo.",
+      "erro_comum": "Tratar identidade de carga de trabalho como 'um usuário, só que automático' e importar sem ajuste todo hábito pensado para gente.",
+      "fonte": "Cloud Security Alliance, Security Guidance v4.0 — domínio de gerenciamento de identidade e acesso"
+    },
+    {
+      "id": "5.2.t3",
+      "titulo": "RBAC de pessoa não é RBAC de máquina — o que muda",
+      "texto": "Para uma pessoa, revisão periódica de acesso e um papel largo o bastante para cobrir tarefas futuras são escolhas razoáveis: gente pode ser questionada, esquece, muda de função aos poucos. Para uma identidade de carga de trabalho, o mesmo raciocínio falha de um jeito diferente. Revisão trimestral não pega uma credencial válida sendo usada de forma indevida entre uma revisão e outra — ela só é olhada de tempos em tempos, mas fica ativa o tempo todo. E um papel dimensionado para 'cobrir qualquer coisa que o serviço possa vir a precisar' dá a cada chamada dessa identidade a soma de todas as permissões que ela algum dia teve, para sempre.\n\nO padrão razoável se inverte: credencial de vida curta, escopo do tamanho da chamada específica que está sendo feita — não papel largo com auditoria de olho, que é o modelo pensado para gente.",
+      "analogia": "Dar a chave mestra do prédio inteiro para o entregador que só precisa entrar numa sala, porque 'assim ele não precisa pedir de novo'.",
+      "erro_comum": "Aplicar a régua de RBAC humano — revisão periódica, papel largo por conveniência administrativa — à credencial de máquina, achando que é o mesmo problema em escala menor.",
+      "fonte": "Cloud Security Alliance, Security Guidance v4.0 — princípio de menor privilégio aplicado a identidade não humana"
+    },
+    {
+      "id": "5.2.t4",
+      "titulo": "O padrão inseguro por conveniência — 'não mudei nada' não é defesa",
+      "texto": "Recursos de nuvem costumam nascer com uma configuração padrão escolhida para facilitar o primeiro uso, não para ser segura em todo caso possível — visibilidade mais aberta do que o necessário, alcance de rede mais largo do que o caso exige. Como ninguém mexeu ativamente nesse valor, é tentador tratá-lo como neutro, como se a escolha fosse do provedor e não do cliente.\n\nMas a linha de responsabilidade do bloco anterior já colocou essa configuração do lado de quem opera o recurso. Não mudar um padrão ainda é uma decisão — é herdar o valor que já estava lá, e essa herança pode não ter sido pensada para o dado que aquele recurso específico guarda.",
+      "analogia": "Deixar a porta destrancada porque 'já estava assim quando eu me mudei' — a porta continua destrancada por uma escolha, mesmo que ninguém a tenha tomado ativamente hoje.",
+      "erro_comum": "Tratar 'não configurei nada' como neutralidade, em vez de como aceitação silenciosa do valor padrão.",
+      "fonte": "Teoria 5.2.t1 — a linha de responsabilidade não desaparece quando ninguém a exerce"
+    },
+    {
+      "id": "5.2.t5",
+      "titulo": "Infraestrutura efêmera: o que sobra quando o disco some",
+      "texto": "Uma investigação forense tradicional assume que a máquina ainda existe para ser localizada e copiada depois do fato. Computação efêmera — uma instância ou um contêiner reciclado minutos depois de terminar seu trabalho — pode já não existir mais quando alguém chega para investigar. O mecanismo de 'copiar antes de examinar' continua válido enquanto o recurso ainda está de pé; o problema novo é que ele pode simplesmente não estar mais lá.\n\nA consequência prática: a única evidência que sobrevive é a que já tinha saído do recurso antes dele ser desligado — log e telemetria centralizados em outro lugar. Se essa centralização não existia antes do incidente, não há o que copiar depois — a janela de captura já fechou junto com o recurso.",
+      "analogia": "Chegar para fotografar a cena depois que o cenário de teatro já foi desmontado e guardado — só sobra o que alguém filmou durante a peça.",
+      "erro_comum": "Tratar log centralizado como boa prática opcional, em vez de pré-requisito para conseguir investigar depois que o recurso efêmero já não existe mais.",
+      "fonte": "Teoria 4.8.t2 — copiar antes de examinar, aplicado a um recurso que pode deixar de existir"
+    },
+    {
+      "id": "5.2.t6",
+      "titulo": "Contraponto: o que a nuvem realmente resolve",
+      "texto": "Nada do que este módulo ensinou remove a necessidade de julgamento — mas a nuvem tira da mesa algumas categorias inteiras de falha, por construção. Segurança física do datacenter, correção do hardware e do hipervisor, e replicação de dado armazenado em escala passam a ser trabalho do provedor, feito com uma consistência que uma equipe pequena dificilmente replicaria sozinha com o mesmo orçamento.\n\nO exagero para o lado oposto é igualmente errado: achar que nuvem resolve tudo — que nenhuma configuração pode ficar insegura, que a responsabilidade legal desaparece, que a investigação de um incidente deixa de ser trabalho de quem opera o recurso. Os dois exageros ignoram a mesma linha de responsabilidade do primeiro bloco: o provedor resolve o que está do lado dele, nunca o que está do lado do cliente.",
+      "analogia": "Um prédio com segurança patrimonial forte não torna dispensável trancar a porta do próprio apartamento.",
+      "erro_comum": "Pular de 'a nuvem é insegura porque não é meu hardware' direto para 'a nuvem resolve tudo' — os dois erros ignoram a linha de responsabilidade.",
+      "fonte": "Teoria 5.2.t1 — a mesma linha que reparte a obrigação também limita o que o provedor resolve sozinho"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "5.2.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Uma empresa aluga máquinas virtuais de um provedor de nuvem. O provedor corrige a falha de segurança do hipervisor e garante energia e rede do datacenter. Quem é responsável por aplicar a correção de segurança no sistema operacional que roda dentro da máquina virtual?",
+      "alternativas": [
+        "O provedor, porque ele já corrige o hipervisor e essa correção se propaga para dentro da máquina virtual",
+        "Nem um nem outro diretamente: a atualização chega por um agente de monitoramento que o provedor instala em cada máquina, fora do contrato de infraestrutura",
+        "O cliente, porque o que roda dentro do que ele aluga fica do lado dele da linha de responsabilidade",
+        "O provedor, mas só se o cliente contratar um plano de suporte adicional"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Correção do hipervisor não atravessa a fronteira para dentro do sistema operacional convidado — são camadas diferentes, cada uma com seu próprio ciclo de atualização.",
+        "1": "Não existe esse agente aplicando correção do sistema operacional convidado por fora do contrato — a atualização dentro da máquina continua sendo ação de quem a opera, dentro da mesma linha de responsabilidade.",
+        "3": "A linha de responsabilidade sobre o que roda dentro da máquina não muda por causa de um plano de suporte — suporte paga atendimento, não transfere a obrigação."
+      },
+      "dicas": [
+        "O hipervisor fica por baixo da máquina virtual; o sistema operacional convidado fica por dentro dela.",
+        "O provedor não enxerga o que o cliente instalou dentro da própria máquina virtual sem receber acesso a ela.",
+        "Compare 'quem corrige o hipervisor' com 'quem corrige o que está instalado dentro da máquina virtual' — são camadas diferentes."
+      ],
+      "pergunta_socratica": "Antes de conferir: o provedor consegue ver o que está instalado dentro da sua máquina virtual sem você dar acesso a ele?",
+      "explicacao": "A correção do hipervisor cobre a camada que sustenta a máquina virtual por baixo, não o que roda dentro dela. Aplicar a correção do sistema operacional convidado é tarefa de quem opera esse sistema — o cliente que alugou a máquina, não o provedor que a hospeda.",
+      "fonte": "Teoria 5.2.t1",
+      "tags": ["nuvem", "responsabilidade-compartilhada", "hardening"]
+    },
+    {
+      "id": "5.2.q2",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0, 2],
+      "enunciado": "Um repositório de armazenamento na nuvem foi criado com leitura pública, valor padrão da ferramenta de infraestrutura usada, e ninguém mudou essa opção. Um arquivo com dado sensível foi exposto por causa disso. De quem é a falha, do ponto de vista da linha de responsabilidade?",
+      "alternativas": [
+        "Do provedor, porque foi ele quem definiu esse valor de visibilidade dentro da própria ferramenta de infraestrutura usada",
+        "Do cliente: decidir manter ou trocar a visibilidade padrão fica do lado dele, mesmo sem mexer nela",
+        "De ninguém, porque padrão de ferramenta não é decisão de segurança de ninguém",
+        "Do cliente, mas só porque ele deveria ter contratado um serviço de auditoria"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O provedor definiu o valor padrão da ferramenta, mas manter esse valor depois de saber o que o recurso guarda é escolha de quem opera o recurso, não de quem escreveu a ferramenta.",
+        "2": "Toda opção configurável tem um responsável por decidir o valor dela — 'ninguém decidiu' não existe quando a opção existe e alguém tem controle sobre ela.",
+        "3": "Contratar auditoria ajuda a encontrar o problema depois, mas não é o que cria a responsabilidade — ela já existe antes de qualquer auditoria."
+      },
+      "dicas": [
+        "A pergunta não é quem escreveu o valor padrão, é quem tinha o controle de mudá-lo depois de saber o que estava exposto.",
+        "Compare com a ideia de herdar um valor: herdar ainda é aceitar.",
+        "O repositório já guardava o arquivo sensível antes do incidente — pense em quem tinha o botão de mudar a visibilidade dele."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem tinha o poder de trocar essa opção de visibilidade a qualquer momento depois da criação do recurso?",
+      "explicacao": "O padrão da ferramenta é ponto de partida, não decisão final. Quem opera o recurso tem o controle de mudar a visibilidade e a responsabilidade de avaliar se o padrão faz sentido para o dado guardado ali — não mudar continua sendo uma escolha do lado do cliente.",
+      "fonte": "Teoria 5.2.t4",
+      "tags": ["nuvem", "padrao-inseguro", "responsabilidade-compartilhada"]
+    },
+    {
+      "id": "5.2.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Uma aplicação recebe uma identidade própria para acessar outro recurso da nuvem em nome dela — não uma pessoa, o próprio processo. Alguém aplica à credencial dessa identidade a mesma regra usada para senha de funcionário: trocar a cada 90 dias. Qual é o problema real dessa escolha?",
+      "alternativas": [
+        "Não há problema: trocar a cada 90 dias é uma prática segura, independente do tipo de credencial",
+        "O problema é que 90 dias é curto demais; o ideal seria alongar o prazo para pelo menos um ano inteiro",
+        "O problema é que só pessoas deveriam ter credencial trocável; máquina não deveria autenticar sozinha",
+        "O certo é a credencial nascer com vida curta e expirar sozinha, não depender de troca por calendário"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Troca periódica é um padrão pensado para alguém lembrar e agir; carga de trabalho não esquece nem atrasa, mas também não avisa se a credencial vazou entre uma troca e outra — o problema não é a frequência, é o modelo escolhido.",
+        "1": "Alongar o prazo piora a mesma falha: quanto mais tempo a credencial fica parada e válida, maior a janela de uso indevido se ela vazar sem ninguém perceber.",
+        "2": "Máquina precisa de identidade para operar; o ponto não é impedir autenticação de carga de trabalho, é não copiar cegamente a régua pensada para pessoa."
+      },
+      "dicas": [
+        "A troca de credencial por calendário depende de alguém lembrar de agir; uma rotina automática não depende disso.",
+        "O risco de uma credencial válida por 90 dias não muda por ser usada por gente ou por máquina — o que muda é se existe uma alternativa melhor para cada caso.",
+        "Pense se trocar os 90 dias por outro número resolve o problema, ou se o problema é o calendário decidir a troca."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que uma credencial usada só por automação poderia expirar sozinha, sem que ninguém precise lembrar de trocá-la?",
+      "explicacao": "Rotação por calendário resolve o problema de uma pessoa esquecer de agir; carga de trabalho não tem esse problema, mas fica exposta por todo o intervalo entre trocas se a credencial vazar. O padrão adequado é vida curta automática, não uma versão mais frequente ou mais rara da mesma troca manual.",
+      "fonte": "Teoria 5.2.t3",
+      "tags": ["nuvem", "identidade-de-carga-de-trabalho", "credencial-de-vida-curta"]
+    },
+    {
+      "id": "5.2.q4",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Um time cria uma identidade de serviço para uma aplicação que só precisa ler um tipo de registro num banco de dados. Para 'não precisar voltar depois', o time concede a essa identidade permissão de leitura e escrita em todos os tipos de registro do banco, argumentando que assim cobre qualquer caso que a aplicação venha a precisar no futuro. Qual é o erro nesse raciocínio?",
+      "alternativas": [
+        "Copiar a lógica de acesso amplo de pessoa para máquina amplia o alcance de uma falha da aplicação para o banco inteiro, sem ganho real de conveniência",
+        "Não há erro: papel humano e papel de máquina seguem exatamente a mesma lógica de menor esforço administrativo, sem diferença relevante entre os dois casos",
+        "O erro é técnico, não de escopo: a identidade deveria ter sido criada com outro tipo de credencial",
+        "O erro é dar acesso de leitura à identidade de serviço, que deveria ser reservado só para pessoas"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A lógica de 'menor esforço administrativo' funciona para papel de pessoa porque pedir de novo tem custo humano; para identidade de máquina, o pedido também pode ser automatizado — o suposto ganho de conveniência não existe do mesmo jeito.",
+        "2": "O tipo de credencial não é o problema descrito; o problema é o alcance da permissão concedida, que continuaria excessivo mesmo com outro tipo de credencial.",
+        "3": "Acesso de leitura é exatamente o que a aplicação precisa; o erro está em somar escrita e todos os tipos de registro, não em conceder leitura."
+      },
+      "dicas": [
+        "Compare o que a aplicação precisa hoje com o que ela recebeu — a diferença é o tamanho do problema.",
+        "Compare quanto essa aplicação precisa de fato usar com quanto ela recebeu de acesso no banco.",
+        "Compare o que a aplicação lê hoje com o que a identidade concedida autoriza no banco inteiro."
+      ],
+      "pergunta_socratica": "Antes de conferir: se essa aplicação for comprometida amanhã, o que a permissão concedida hoje deixa um invasor fazer?",
+      "explicacao": "Dar permissão ampla 'para não voltar depois' transfere para uma identidade de máquina um raciocínio pensado para reduzir atrito de pessoa pedindo acesso de novo. Numa identidade de serviço, esse atrito pode ser automatizado, e o custo de errar para o lado largo é o alcance inteiro do banco, não só o incômodo de pedir de novo.",
+      "fonte": "Teoria 5.2.t3",
+      "tags": ["nuvem", "identidade-de-carga-de-trabalho", "menor-privilegio"]
+    },
+    {
+      "id": "5.2.q5",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "trecho": "# registro de configuração do recurso 'relatorios-financeiros'\nvisibilidade: publica  # valor padrão da ferramenta, nunca alterado desde a criação\ncriado_em: 2026-02-11\nultima_alteracao: nenhuma",
+      "enunciado": "Ao revisar esse registro depois de um incidente, o time concluiu que a configuração 'não era culpa de ninguém, porque nunca foi alterada'. O que está errado nessa conclusão?",
+      "alternativas": [
+        "O erro foi documentar o comentário 'valor padrão, não alterado' em vez de apagar a linha do registro",
+        "O erro foi a ferramenta ter esse valor padrão; o comportamento correto seria ela bloquear a criação do recurso até alguém escolher a visibilidade manualmente",
+        "O time tratou o padrão como neutro só por não tocar nele; manter 'pública' sabendo o que o recurso guarda já é uma escolha",
+        "Não há erro aqui: mudar a configuração padrão de um recurso já em produção depende de um processo formal de aprovação prévia, que ainda não tinha sido aberto"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "O comentário no registro só descreve o que aconteceu; apagá-lo não mudaria a visibilidade do recurso nem a responsabilidade sobre ela.",
+        "1": "Bloquear a criação até alguém escolher a visibilidade transferiria a decisão para a ferramenta, não resolveria o que já aconteceu: o valor ficou parado porque ninguém revisou, não porque a ferramenta permitiu a criação.",
+        "3": "Exigir aprovação formal é prática razoável para mudança em produção, mas não é o que faltou aqui: o time nem chegou a avaliar se o valor padrão fazia sentido, aprovação nenhuma resolveria essa omissão."
+      },
+      "dicas": [
+        "O registro mostra 'nunca alterado' como se isso explicasse a ausência de responsabilidade — confira se explica mesmo.",
+        "'Ninguém decidiu' e 'ninguém revisou uma decisão que já existia' descrevem situações diferentes — o registro mostra qual das duas.",
+        "O registro mostra 'nunca alterado' — pergunte quem tinha o botão de mudar a visibilidade de 'relatorios-financeiros' entre a criação e o incidente."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'nunca foi alterado' e 'ninguém é responsável' significam a mesma coisa?",
+      "explicacao": "O time confundiu ausência de ação com ausência de responsabilidade. Manter um valor padrão depois de saber o que o recurso guarda é uma escolha — silenciosa, mas escolha — e ela recai sobre quem tem o controle de mudar a configuração, não sobre a ferramenta que a ofereceu de início.",
+      "fonte": "Teoria 5.2.t4",
+      "tags": ["nuvem", "padrao-inseguro", "conveniencia"]
+    },
+    {
+      "id": "5.2.q6",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "trecho": "# script de resposta a incidente\nrecurso = orquestrador.buscar_conteiner(\"proc-relatorio-882\")\norquestrador.reciclar(recurso)  # a orquestração já reciclou o contêiner por rotina\ndisco = forense.copiar_disco(recurso.id)  # falha: recurso não existe mais",
+      "enunciado": "O script de resposta a incidente tentou copiar o disco do contêiner só depois de ele já ter sido reciclado pela orquestração. O que esse erro de ordem custou de verdade?",
+      "alternativas": [
+        "Nada, porque o comando de reciclagem só marca o contêiner para exclusão futura, sem apagar o disco de imediato",
+        "A única chance de copiar aquele disco específico antes de examinar, porque o recurso já não existia mais",
+        "Só o tempo do script, porque o disco pode ser recriado a partir da mesma imagem usada para criar o contêiner",
+        "A cadeia de custódia, que o próprio orquestrador documenta no momento da reciclagem"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O próprio trecho mostra `copiar_disco` falhando com 'recurso não existe mais' — a reciclagem não foi adiada, ela já retirou o disco de circulação no momento em que rodou.",
+        "2": "Recriar o contêiner a partir da imagem original devolve o estado inicial da imagem, não o estado que o contêiner tinha no momento do incidente — é outro objeto, não a evidência perdida.",
+        "3": "O trecho não mostra nenhum registro de cadeia de custódia sendo gerado pela orquestração — só um script de resposta a incidente tentando, e falhando, copiar o disco depois do fato."
+      },
+      "dicas": [
+        "Compare o que existia antes da linha `orquestrador.reciclar` com o que existe depois dela.",
+        "A imagem usada para criar o contêiner e o estado que ele tinha durante o incidente não são a mesma coisa.",
+        "O `copiar_disco` falhou porque o `orquestrador.reciclar` já tinha rodado antes — pense no que aquela chamada específica ainda podia alcançar."
+      ],
+      "pergunta_socratica": "Antes de conferir: depois que a orquestração recicla um contêiner, o estado que ele tinha durante o incidente ainda existe em algum lugar por padrão?",
+      "explicacao": "O princípio de copiar antes de examinar depende de o recurso ainda existir no momento da cópia. Com infraestrutura efêmera, a ordem errada — reciclar antes de copiar — não atrasa a investigação, ela elimina a evidência: o disco daquele contêiner específico não existe mais para nenhuma cópia posterior.",
+      "fonte": "Teoria 5.2.t5",
+      "tags": ["nuvem", "infraestrutura-efemera", "resposta-a-incidente"]
+    },
+    {
+      "id": "5.2.q7",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [0, 1, 3],
+      "enunciado": "Ligue cada situação ao princípio deste módulo que ela ilustra.",
+      "pares": [
+        ["Credencial de serviço trocada a cada 90 dias, como se fosse senha de pessoa", "Identidade de carga de trabalho pede vida curta automática, não troca por calendário"],
+        ["Visibilidade pública de um recurso mantida porque nunca foi alterada", "Omissão de configuração ainda é escolha do lado do cliente na linha de responsabilidade"],
+        ["Provedor corrige falha do hipervisor por baixo da máquina alugada", "Camada que fica do lado do provedor na responsabilidade compartilhada"],
+        ["Contêiner reciclado antes de alguém copiar o disco", "Janela de captura que desaparece junto com a infraestrutura efêmera"]
+      ],
+      "dicas": [
+        "Pense em qual bloco fala de credencial de vida curta, qual fala de padrão inseguro por conveniência, qual fala de hipervisor, e qual fala de contêiner reciclado.",
+        "Cada situação da coluna esquerda tem um bloco de teoria específico por trás — confira qual antes de ligar as colunas.",
+        "Nenhum par exige conhecimento fora do que os seis blocos deste módulo já cobriram."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro situações você já viu descrita quase com as mesmas palavras num dos blocos de teoria?",
+      "explicacao": "Cada situação corresponde a um mecanismo específico do módulo: vida curta de credencial de máquina, responsabilidade por omissão, fronteira do que o provedor cobre, e a janela de evidência que some com o recurso efêmero. Nenhum dos quatro é o mesmo mecanismo com outra roupagem.",
+      "fonte": "Teorias 5.2.t1, 5.2.t3, 5.2.t4 e 5.2.t5",
+      "tags": ["nuvem", "revisao", "pareamento"]
+    },
+    {
+      "id": "5.2.q8",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Uma equipe pequena, sem time de infraestrutura física dedicado, hospeda sua aplicação num provedor de nuvem. Qual benefício de segurança essa equipe recebe por construção, que dificilmente teria replicando o mesmo com hardware próprio no mesmo orçamento?",
+      "alternativas": [
+        "Garantia de que a configuração da aplicação deixa de precisar de atenção, porque o provedor passa a auditar tudo",
+        "Isenção total de responsabilidade legal sobre vazamento de dado de cliente hospedado na infraestrutura alugada",
+        "Dispensa do processo de resposta a incidente, porque o provedor assume a investigação inteira sozinho",
+        "Redundância e durabilidade de dado em escala, operada pelo provedor, sem a equipe desenhar isso sozinha"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O provedor não audita a configuração que o cliente decide dentro do que aluga — isso é exatamente o lado da linha de responsabilidade que continua com o cliente.",
+        "1": "Responsabilidade legal sobre dado de cliente não é transferida pelo uso de infraestrutura de terceiro; ela segue quem trata o dado, não quem hospeda o servidor.",
+        "2": "O provedor cuida da infraestrutura que é dele; investigar um incidente que envolve a aplicação e os dados do cliente continua sendo trabalho de quem opera esse lado."
+      },
+      "dicas": [
+        "Pense em algo que dependa de escala e engenharia contínua, não de decisão pontual de configuração.",
+        "Redundância de dado armazenado é engenharia contínua do provedor; configuração da aplicação, obrigação legal e investigação de incidente não são esse tipo de coisa.",
+        "A resposta certa é sobre um recurso do provedor funcionando por baixo, não sobre uma obrigação que desaparece."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das quatro alternativas fala de um recurso técnico do provedor, e quais falam de uma responsabilidade que teria simplesmente sumido?",
+      "explicacao": "A nuvem entrega, por construção, engenharia de escala que uma equipe pequena dificilmente replicaria sozinha — redundância e durabilidade de dado armazenado são exemplos reais. O erro oposto é esperar que essa mesma escala apague responsabilidade de configuração, obrigação legal ou o trabalho de investigar um incidente — nenhuma dessas três desaparece por estar na nuvem.",
+      "fonte": "Teoria 5.2.t6",
+      "tags": ["nuvem", "contraponto", "responsabilidade-compartilhada"]
+    },
+    {
+      "id": "5.2.q9",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Um time decide agendar revisão trimestral de permissões para uma identidade de serviço, copiando a prática usada para os times humanos. Qual é o problema dessa escolha?",
+      "alternativas": [
+        "Não há problema: revisão trimestral é prática de segurança sólida, igual para identidade humana e de serviço",
+        "O problema é medir o tempo errado: revisão trimestral olha o calendário, não se a tarefa que usa essa identidade ainda existe — a permissão deveria acompanhar o ciclo de vida da própria tarefa",
+        "O problema é só a frequência escolhida; revisão mensal resolveria a mesma falha sem mudar o modelo",
+        "Identidade de serviço não deveria ter permissão de escrita, só leitura de log, independente do caso"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Revisão periódica é pensada para alguém lembrar de agir num calendário; o problema aqui não é a pessoa esquecer, é a revisão não saber se a tarefa que usa a identidade ainda existe entre uma data e outra.",
+        "2": "Encurtar o intervalo ainda mede pelo calendário, não pela tarefa; a identidade pode sobreviver ao fim da tarefa por semanas mesmo com revisão mensal.",
+        "3": "A pergunta não é sobre qual permissão conceder, é sobre o que decide quando a permissão deveria acabar — restringir a permissão não resolve isso."
+      },
+      "dicas": [
+        "A permissão sumir sozinha depende da tarefa acabar; revisão trimestral depende de uma data do calendário chegar — são gatilhos diferentes.",
+        "Revisão trimestral pergunta 'já é hora de olhar de novo?', não 'essa tarefa ainda existe?'.",
+        "Compare com o ciclo de vida de uma tarefa: quando ela termina, o que deveria acontecer com a identidade que ela usava?"
+      ],
+      "pergunta_socratica": "Antes de conferir: revisão trimestral sabe, sozinha, se a tarefa que usa essa identidade ainda existe hoje?",
+      "explicacao": "Revisão por calendário mede o tempo errado: ela pergunta se já é hora de olhar de novo, não se a tarefa que usa a identidade ainda existe. O padrão adequado liga a permissão ao ciclo de vida da própria tarefa — quando ela termina, a identidade correspondente deveria deixar de valer junto, sem esperar a próxima data de revisão.",
+      "fonte": "Teoria 5.2.t3 e Teoria 5.2.t5",
+      "tags": ["nuvem", "identidade-de-carga-de-trabalho", "ciclo-de-vida-da-tarefa"]
+    },
+    {
+      "id": "5.2.q10",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Uma empresa usa um serviço de banco de dados totalmente gerenciado: o provedor aplica a correção do motor do banco automaticamente. Quem decide quais tabelas existem e quem tem permissão de lê-las?",
+      "alternativas": [
+        "O provedor, porque ele já controla o motor do banco e a correção se propaga para o esquema também",
+        "Ninguém precisa decidir isso: serviço gerenciado já define esquema e permissão padrão para cada cliente novo",
+        "O cliente, porque esquema de dados e permissão de acesso são decisões de quem usa o serviço",
+        "O provedor, mas só quando o cliente contrata o nível de suporte mais alto"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Corrigir o motor do banco (o programa que executa consultas) não dá ao provedor controle sobre o conteúdo e o acesso que o cliente decide colocar dentro dele.",
+        "1": "Não existe esquema ou permissão padrão que sirva igual para todo cliente — cada um decide sua própria estrutura de dados e quem acessa.",
+        "3": "O nível de suporte contratado muda o atendimento recebido, não quem controla esquema e permissão do próprio banco."
+      },
+      "dicas": [
+        "Separe o motor do banco (o programa) do que está guardado dentro dele (os dados e o acesso a eles).",
+        "'Gerenciado' descreve quem cuida da infraestrutura por baixo, não do conteúdo por cima.",
+        "O provedor corrige o motor do banco; o esquema de tabelas e as permissões de leitura guardadas dentro dele moram numa camada diferente."
+      ],
+      "pergunta_socratica": "Antes de conferir: o provedor sabe, sem que o cliente diga, quais tabelas deveriam existir no banco dele?",
+      "explicacao": "Serviço gerenciado move a manutenção do motor para o provedor, mas o esquema de dados e quem pode acessá-los continuam sendo decisão de quem usa o serviço — a mesma linha de responsabilidade do primeiro bloco, só que numa camada diferente da pilha.",
+      "fonte": "Teoria 5.2.t1",
+      "tags": ["nuvem", "responsabilidade-compartilhada", "servico-gerenciado"]
+    },
+    {
+      "id": "5.2.q11",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "trecho": "# inventário de regra de rede\nregra: permitir_entrada\n  de: irrestrita\n  para: porta_administracao\n  comentario: \"temporário, remover depois do teste\"\n  criado_em: 2025-11-03\n  expira_em: null",
+      "enunciado": "Essa regra segue marcada como 'temporária' catorze meses depois de criada. O que o campo `expira_em: null` revela sobre esse 'temporário'?",
+      "alternativas": [
+        "Que 'temporário' era só uma intenção escrita em comentário, sem nada no sistema forçando alguém a agir depois",
+        "Que o sistema tem um defeito técnico: o campo `expira_em` deveria ter sido preenchido pela própria ferramenta na criação",
+        "Que catorze meses é tempo suficiente para considerar a regra permanente e reescrever o comentário",
+        "Que o problema é só a origem irrestrita; a data de expiração não influencia o risco"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O campo `expira_em` existir e poder ser preenchido não é falha da ferramenta — nada nela impede o preenchimento; o que faltou foi alguém preencher, não um defeito técnico do sistema.",
+        "2": "Reescrever o comentário para 'permanente' resolveria a inconsistência do texto, mas não questiona se a regra ainda deveria existir — troca uma etiqueta errada por outra sem revisar o conteúdo.",
+        "3": "A combinação dos dois fatores é que importa: origem irrestrita já é ampla, e sem expiração ela fica assim indefinidamente — tratar os dois como independentes perde o ponto."
+      },
+      "dicas": [
+        "Compare o que o comentário diz com o que o campo `expira_em` realmente registra.",
+        "Um comentário de texto não é executado por nada; um campo de data pode ser.",
+        "O campo `expira_em` está com `null` há catorze meses — pense no que teria disparado alguma ação se ele tivesse uma data."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem, ou o quê, seria avisado automaticamente no dia em que essa regra deveria ter sido removida?",
+      "explicacao": "'Temporário' escrito em comentário não aciona nada sozinho — é só texto para humano ler, se algum humano voltar a ler. Sem um campo de expiração preenchido, a regra permanece exatamente como foi criada até que alguém, por iniciativa própria, decida revisá-la — o que este caso mostra que pode não acontecer por mais de um ano.",
+      "fonte": "Teoria 5.2.t4",
+      "tags": ["nuvem", "padrao-inseguro", "conveniencia"]
+    },
+    {
+      "id": "5.2.q12",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Por que um time que opera cargas de trabalho efêmeras na nuvem trata log centralizado como pré-requisito de investigação, e não como boa prática opcional?",
+      "alternativas": [
+        "Porque log centralizado custa menos para manter do que preservar cada recurso ativo só para investigação futura",
+        "Porque uma norma específica exige log centralizado para recurso hospedado em nuvem",
+        "Porque log centralizado substitui a necessidade de cadeia de custódia sobre a evidência",
+        "Porque o recurso que gerou o evento pode não existir mais na hora de investigar, e o log é a única cópia que sobrevive à reciclagem"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Custo de armazenamento é uma vantagem lateral, não a razão de o log centralizado ser pré-requisito — mesmo mais caro, ele continuaria necessário pelo mesmo motivo de sobrevivência da evidência.",
+        "1": "Não existe essa exigência legal genérica; a necessidade vem da engenharia do problema (o recurso pode sumir), não de norma.",
+        "2": "Log centralizado é uma fonte de evidência a mais, não substitui o princípio de preservar e documentar a integridade dela — os dois convivem, um não elimina o outro."
+      },
+      "dicas": [
+        "Se o recurso original for reciclado antes de alguém chegar, a evidência que só existia nele desaparece junto.",
+        "Um registro que só existe dentro do disco some junto com o disco, no momento em que a instância é reciclada.",
+        "O enunciado não menciona custo nem norma nenhuma — reveja se a alternativa que você está considerando inventou algo que não estava ali."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o recurso já não existe mais, de onde viria qualquer evidência sobre o que ele fez?",
+      "explicacao": "Com infraestrutura efêmera, o recurso que gerou o evento pode ser reciclado antes de qualquer investigação começar. Log centralizado, enviado para fora do recurso enquanto ele ainda existia, é a única forma de a evidência sobreviver a essa reciclagem — por isso vira pré-requisito, não conveniência.",
+      "fonte": "Teoria 5.2.t5",
+      "tags": ["nuvem", "infraestrutura-efemera", "log-centralizado"]
+    },
+    {
+      "id": "5.2.q13",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Uma equipe pequena usa um serviço de armazenamento gerenciado, que replica o dado em múltiplos locais físicos por padrão. Um dia, uma rotina interna da própria aplicação apaga por engano um conjunto de registros importantes. A replicação do provedor evita a perda desses registros?",
+      "alternativas": [
+        "Sim, porque replicação em múltiplos locais cobre também exclusão feita pela própria aplicação, além da falha física do hardware",
+        "Não necessariamente: replicação cobre falha de hardware, não erro da aplicação — isso pede backup lógico do cliente",
+        "Não, porque replicação de provedor protege só contra falha de rede, não contra falha de hardware nem exclusão",
+        "Depende só do plano de suporte contratado com o provedor, não do tipo de perda de dado"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Replicação copia o mesmo dado, incluindo a exclusão — se a aplicação apagou o registro, a cópia replicada também reflete essa exclusão; ela protege contra hardware falhar, não contra o próprio dado ser removido por engano.",
+        "2": "É exatamente o oposto: falha de hardware e do datacenter é o problema que a replicação resolve por construção; descrever isso como o que ela não cobre inverte o mecanismo do bloco anterior.",
+        "3": "O tipo de suporte contratado muda atendimento, não o mecanismo técnico de replicação nem o que ele cobre — a diferença aqui é o tipo de perda, não o plano."
+      },
+      "dicas": [
+        "Pense no que a replicação copia: ela copia o estado do dado, incluindo quando ele já foi apagado.",
+        "Replicação copia o estado do dado, incluindo o momento em que a própria rotina já apagou o registro.",
+        "A resposta certa distingue o tipo de falha que a replicação resolve do tipo que ela não resolve."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um registro é apagado pela própria aplicação, o que a replicação em outro local físico teria capturado?",
+      "explicacao": "Replicação protege contra falha física — disco, servidor, datacenter — porque mantém cópias íntegras em locais diferentes. Ela não distingue uma exclusão legítima de um erro de aplicação: as duas são só 'o estado atual do dado', replicado igual. Backup lógico, decidido e mantido pelo cliente, é o que cobre esse segundo caso.",
+      "fonte": "Teoria 5.2.t6",
+      "tags": ["nuvem", "contraponto", "durabilidade-de-dado"]
+    },
+    {
+      "id": "5.2.q14",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um time nomeia a identidade de serviço da aplicação de pagamento como 'identidade-do-time-financeiro', a mesma convenção usada para o papel humano do departamento inteiro. Depois, mais duas aplicações do mesmo time passam a usar essa identidade, porque 'já existe e é do time'. Qual é o problema, considerando o que muda entre identidade de pessoa e de carga de trabalho?",
+      "alternativas": [
+        "Não há problema: papel de departamento sempre foi pensado para ser reaproveitado por qualquer sistema daquele time",
+        "O problema é só de nomenclatura: bastaria renomear a identidade para algo mais técnico",
+        "Uma identidade pensada para papel de departamento mistura o alcance de três aplicações diferentes numa só; se uma for comprometida, as outras herdam o mesmo raio de permissão",
+        "O problema é que aplicação nenhuma deveria ter identidade própria, só pessoas deveriam autenticar diretamente"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Papel de departamento reaproveitado por pessoas funciona porque cada pessoa ainda responde individualmente pelo que faz; carga de trabalho não tem esse filtro — reaproveitar entre aplicações diferentes soma o alcance de todas numa credencial só.",
+        "1": "Trocar o nome não muda o que a identidade autoriza — o problema é o escopo compartilhado entre aplicações, não o rótulo usado para descrevê-la.",
+        "3": "Aplicação precisa de identidade própria para operar sem depender de uma pessoa presente o tempo todo; o ponto não é eliminar identidade de máquina, é não reaproveitar uma só entre tarefas diferentes."
+      },
+      "dicas": [
+        "Compare o escopo de permissão que cada uma das três aplicações realmente precisa, uma de cada vez.",
+        "As outras duas aplicações compartilham a mesma identidade da de pagamento — uma falha nela alcança as três.",
+        "A convenção de nome copiada do papel humano não muda o que a credencial autoriza por baixo."
+      ],
+      "pergunta_socratica": "Antes de conferir: as três aplicações precisam, cada uma, exatamente das mesmas permissões que a de pagamento usa?",
+      "explicacao": "Um papel de departamento reaproveitado por pessoas funciona porque cada uma responde individualmente; a mesma convenção aplicada a identidade de carga de trabalho soma o alcance de aplicações diferentes numa única credencial. Comprometer qualquer uma das três dá acesso ao raio de permissão das outras duas, que talvez nunca precisassem dele.",
+      "fonte": "Teoria 5.2.t2 e Teoria 5.2.t3",
+      "tags": ["nuvem", "identidade-de-carga-de-trabalho", "escopo-por-aplicacao"]
+    },
+    {
+      "id": "5.2.q15",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Coloque em ordem os passos que um time deveria seguir para decidir quem é responsável por uma configuração de segurança específica na nuvem.",
+      "itens": [
+        "Identificar em que camada da pilha a configuração vive (infraestrutura do provedor ou o que roda em cima dela)",
+        "Checar se essa camada está do lado do provedor ou do cliente na linha de responsabilidade",
+        "Se for do lado do cliente, decidir dentro do time quem é o dono operacional dessa configuração",
+        "Registrar a decisão, para que 'ninguém decidiu' nunca seja a resposta na próxima revisão"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "Antes de perguntar 'quem decide', é preciso saber onde a configuração mora.",
+        "Descobrir que é do lado do cliente não é o fim — ainda falta decidir quem, dentro do time, é o dono dela.",
+        "O último passo existe para evitar o erro visto no bloco de padrão inseguro por conveniência."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para decidir quem é o dono de uma configuração sem antes saber de que lado da linha ela está?",
+      "explicacao": "A ordem importa porque cada passo depende do anterior: sem saber a camada, não dá para checar o lado da responsabilidade; sem saber o lado, não dá para nomear um dono; e sem registrar a decisão, o time corre o risco de repetir a mesma pergunta do zero na próxima revisão.",
+      "fonte": "Teorias 5.2.t1 e 5.2.t4",
+      "tags": ["nuvem", "processo", "responsabilidade-compartilhada"]
+    },
+    {
+      "id": "5.2.q16",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "artefato": "$ python inventario_recursos.py --filtro visibilidade=publica\nrecurso-a1  visibilidade=publica  criado_por=modelo-padrao-times  alterado_por=ninguem\nrecurso-b2  visibilidade=publica  criado_por=modelo-padrao-times  alterado_por=ninguem\nrecurso-c3  visibilidade=publica  criado_por=modelo-padrao-times  alterado_por=ninguem\n... (mais 41 linhas iguais)\ntotal: 44 recursos",
+      "enunciado": "Todos os 44 recursos públicos vieram do mesmo 'modelo-padrao-times', um modelo de infraestrutura reutilizado para criar recursos novos rapidamente. Comparado a um único recurso configurado errado por engano, o que essa saída indica sobre o risco?",
+      "alternativas": [
+        "Risco pequeno: 44 recursos com o mesmo padrão são mais fáceis de corrigir de uma vez do que 44 erros diferentes",
+        "O padrão inseguro do modelo se multiplicou em escala: cada novo recurso nasce com o defeito, sem ninguém repetir o erro",
+        "O risco é menor, porque um modelo compartilhado passa por mais revisão do que uma configuração feita à mão",
+        "O risco é o mesmo de um recurso isolado, porque cada recurso continua sendo avaliado separadamente pelo time"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Ser mais fácil de corrigir de uma vez não reduz o risco enquanto a correção não acontece — os 44 recursos ficaram expostos ao mesmo tempo, não um de cada vez.",
+        "2": "Nada nesta saída mostra revisão nenhuma acontecendo sobre o modelo — 'alterado_por=ninguém' em todos os 44 é justamente o sinal de que a revisão não ocorreu.",
+        "3": "Um modelo reutilizado multiplica a decisão original automaticamente; o risco deixa de depender de 44 decisões humanas separadas e passa a depender de uma só, replicada."
+      },
+      "dicas": [
+        "Compare corrigir 44 recursos com um erro cada um, e corrigir 44 recursos que compartilham a mesma causa.",
+        "Repare em quem criou os recursos: uma pessoa cada vez, ou um modelo reutilizado?",
+        "Compare corrigir os 44 recursos depois com impedir que o 'modelo-padrao-times' continuasse gerando o número 45."
+      ],
+      "pergunta_socratica": "Antes de conferir: para esses 44 recursos existirem com o mesmo defeito, quantas vezes alguém precisou tomar a decisão de configurá-los assim?",
+      "explicacao": "Um modelo de infraestrutura reutilizado transforma uma decisão única — o padrão do modelo — em dezenas de recursos com o mesmo defeito, sem que ninguém precise repetir o erro manualmente a cada vez. O risco não é corrigir depois; é a velocidade com que o padrão inseguro se espalha antes de alguém notar.",
+      "fonte": "Teoria 5.2.t4",
+      "tags": ["nuvem", "padrao-inseguro", "escala"]
+    },
+    {
+      "id": "5.2.q17",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Por que o princípio de menor privilégio pede um mecanismo diferente para identidade de carga de trabalho do que pede para identidade de pessoa, mesmo sendo o mesmo princípio nos dois casos?",
+      "alternativas": [
+        "Porque o princípio de menor privilégio só vale para pessoa; carga de trabalho segue outro princípio, sem relação com privilégio",
+        "Porque, aplicado a uma automação que não esquece nem demora, o princípio pede vida curta e escopo estreito, não revisão periódica",
+        "Porque carga de trabalho não pode ser limitada por permissão, só por segmentação de rede",
+        "Porque o princípio se inverte por completo: para máquina, ampliar o privilégio reduz a necessidade de pedir acesso de novo"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Menor privilégio vale para os dois casos — o que muda não é o princípio, é o mecanismo que garante ele na prática.",
+        "2": "Permissão de acesso a recurso e segmentação de rede são controles diferentes; um não substitui o outro, e carga de trabalho pode e deve ser limitada por permissão também.",
+        "3": "Mais privilégio nunca é 'sempre mais seguro' para nenhum tipo de identidade — essa é exatamente a lógica que os blocos anteriores mostraram que falha."
+      },
+      "dicas": [
+        "O princípio não muda entre os dois casos — procure o que muda no mecanismo que o aplica.",
+        "Uma pessoa pode ser lembrada de agir; uma automação não espera lembrete nenhum para funcionar.",
+        "Releia o bloco sobre RBAC de máquina: ele disse que menor privilégio muda de princípio, ou só de mecanismo?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o princípio de menor privilégio muda entre pessoa e máquina, ou é o jeito de garanti-lo que muda?",
+      "explicacao": "Menor privilégio continua valendo nos dois casos — o que muda é como garanti-lo. Para pessoa, revisão periódica e papel largo funcionam porque alguém pode ser questionado; para máquina, que nunca esquece nem demora, o mecanismo que sobra é forçar o limite de forma automática: vida curta e escopo estreito, não uma versão mais frequente da mesma revisão humana.",
+      "fonte": "Teoria 5.2.t3",
+      "tags": ["nuvem", "identidade-de-carga-de-trabalho", "menor-privilegio"]
+    },
+    {
+      "id": "5.2.q18",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um provedor de nuvem oferece, por padrão, um painel de métricas básicas de uso da infraestrutura dele. Configurar um alerta específico para um padrão incomum de acesso à própria aplicação do cliente é responsabilidade de quem?",
+      "alternativas": [
+        "Do provedor, porque o painel de métricas básicas já mede o comportamento específico de cada aplicação hospedada",
+        "Do cliente, porque um alerta sobre a aplicação exige saber o que já era esperado só para ela",
+        "Nem um nem outro, porque alerta de segurança não faz parte do modelo de responsabilidade compartilhada",
+        "Do provedor, mas só depois que o cliente reportar manualmente o padrão de acesso incomum observado"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Métrica básica de infraestrutura mede uso genérico (processamento, rede, armazenamento), não o comportamento específico da aplicação do cliente — ela não sabe o que é 'incomum' para essa aplicação em particular.",
+        "2": "Alerta de segurança não escapa do modelo de responsabilidade — ele está do lado de quem tem o conhecimento necessário para definir o que é normal, que é o cliente.",
+        "3": "Esperar o cliente reportar primeiro inverte a lógica de um alerta, que deveria detectar o padrão antes de alguém precisar reportá-lo manualmente."
+      },
+      "dicas": [
+        "Pense em quem consegue dizer se um padrão de acesso foge do que já era esperado só para essa aplicação.",
+        "Métrica de infraestrutura e comportamento de aplicação não são a mesma coisa.",
+        "O painel do provedor mede processamento, rede e armazenamento — isso é o mesmo que saber o tráfego normal desta aplicação específica?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o provedor sabe, sem que o cliente configure nada, o que é um padrão de acesso incomum para uma aplicação específica?",
+      "explicacao": "O painel padrão de métricas cobre a infraestrutura de forma genérica; ele não conhece o comportamento esperado da aplicação de um cliente específico. Definir e configurar um alerta sobre esse comportamento exige o conhecimento que só quem opera a aplicação tem — por isso fica do lado do cliente, mesmo usando a infraestrutura de monitoramento do provedor.",
+      "fonte": "Teoria 5.2.t1",
+      "tags": ["nuvem", "responsabilidade-compartilhada", "monitoramento"]
+    },
+    {
+      "id": "5.2.q19",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [1, 2, 3],
+      "enunciado": "Ligue cada mecanismo à camada ou eixo do módulo a que ele pertence.",
+      "pares": [
+        ["Identidade de máquina com vida curta, expirando sozinha sem revisão manual", "Padrão razoável para identidade de carga de trabalho"],
+        ["Modelo de infraestrutura reutilizado que multiplica um defeito em escala", "Padrão inseguro por conveniência, ampliado por automação"],
+        ["Log enviado para fora do recurso antes de ele ser reciclado", "O que sobrevive quando a infraestrutura é efêmera"],
+        ["Replicação de dado em múltiplos locais físicos contra falha de hardware", "O que a nuvem resolve por construção, sem cobrir erro de aplicação"]
+      ],
+      "dicas": [
+        "Cada situação já apareceu, com outras palavras, num dos blocos de teoria deste módulo.",
+        "Cada par da coluna esquerda corresponde a um bloco de teoria específico: credencial de vida curta, modelo reutilizado em escala, log antes da reciclagem, ou replicação de dado.",
+        "Nenhum par exige conhecimento fora do que os seis blocos de teoria já cobriram."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro situações você reconhece de um bloco de teoria específico deste módulo?",
+      "explicacao": "Cada situação corresponde a um eixo distinto: identidade de máquina de vida curta, escala do padrão inseguro por conveniência, sobrevivência de evidência em infraestrutura efêmera, e o limite exato do que a nuvem resolve sozinha. Nenhum dos quatro é o mesmo mecanismo repetido.",
+      "fonte": "Teorias 5.2.t3, 5.2.t4, 5.2.t5 e 5.2.t6",
+      "tags": ["nuvem", "revisao", "pareamento"]
+    },
+    {
+      "id": "5.2.q20",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Uma equipe usa um serviço de execução de código mantido inteiramente pelo provedor, sem que ninguém precise agir para mantê-lo atualizado. Isso elimina a necessidade de a equipe cuidar de bibliotecas desatualizadas usadas pelo próprio código que ela escreveu?",
+      "alternativas": [
+        "Sim, porque a correção automática do sistema operacional cobre também o código que roda em cima dele",
+        "Sim, mas só enquanto a aplicação usar apenas bibliotecas já incluídas no próprio sistema operacional",
+        "Não: o provedor cuida do sistema por baixo, mas as bibliotecas do próprio código seguem sendo escolha do cliente",
+        "Depende do provedor contratado: alguns corrigem dependência de aplicação do cliente, outros não, sem um padrão comum entre eles"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Correção do sistema operacional por baixo não alcança bibliotecas e pacotes que a aplicação do cliente declarou e empacotou junto com o próprio código.",
+        "1": "Mesmo sem biblioteca de terceiro direta, o código da própria aplicação pode ficar desatualizado em relação a práticas de segurança — a dispensa não existe de nenhuma forma, com ou sem dependência externa.",
+        "3": "Não é questão de política variável de provedor: a linha de responsabilidade é estrutural — o provedor não gerencia o que está dentro do pacote de código que o cliente enviou, em nenhum caso."
+      },
+      "dicas": [
+        "Separe o sistema operacional que executa o código do código (e suas dependências) que foi enviado para rodar nele.",
+        "Isso já foi tratado no módulo sobre desenvolvimento seguro — de quem é a responsabilidade sobre uma dependência incluída no próprio código?",
+        "O sistema operacional que executa o código e as bibliotecas que o próprio código declara são coisas diferentes — quem corrige cada uma?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o provedor tem acesso para saber quais bibliotecas a aplicação do cliente declarou usar?",
+      "explicacao": "Execução gerenciada tira do cliente a manutenção do sistema operacional por baixo, mas não alcança o que o cliente empacotou dentro do próprio código — dependências continuam sendo escolha e responsabilidade de quem as incluiu, exatamente como o módulo de desenvolvimento seguro já mostrou para dependência transitiva, agora na fronteira entre infraestrutura gerenciada e código do cliente.",
+      "fonte": "Teoria 5.1.t3 e Teoria 5.2.t6",
+      "tags": ["nuvem", "contraponto", "dependencia"]
+    },
+    {
+      "id": "5.2.q21",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um provedor de nuvem permite ao cliente escolher a região onde os dados ficam armazenados, mas não qual servidor físico específico dentro dela. Essa divisão ilustra o quê sobre a linha de responsabilidade?",
+      "alternativas": [
+        "O cliente decide a jurisdição do dado; o servidor físico específico é escolha do provedor",
+        "O provedor decide tudo, incluindo a jurisdição; a escolha de região é só cosmética para a interface do cliente",
+        "O cliente decide o hardware físico específico; a jurisdição é decidida pelo provedor conforme a demanda",
+        "Nem o cliente nem o provedor decidem isso: a localização do dado muda de lugar sozinha entre os data centers"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A escolha de região tem efeito jurídico real — ela determina, por exemplo, sob qual legislação de proteção de dado aquele armazenamento cai; não é rótulo de interface.",
+        "2": "O cliente não escolhe o servidor físico específico dentro da região; essa granularidade fica com o provedor, que decide onde alocar a carga dentro da infraestrutura dele.",
+        "3": "A localização não muda sozinha: ela fica restrita à região que o cliente escolheu, e o provedor decide o servidor específico dentro dela, sempre dentro desse limite."
+      },
+      "dicas": [
+        "Pense em duas decisões separadas: 'em que região' e 'em qual servidor específico'.",
+        "Jurisdição tem efeito legal real, não é só preferência de desempenho.",
+        "A região do dado e o servidor físico dentro dela são escolhas separadas, tomadas por lados diferentes da linha."
+      ],
+      "pergunta_socratica": "Antes de conferir: escolher a região do dado tem efeito jurídico, ou é só uma preferência de desempenho?",
+      "explicacao": "A escolha de região tem peso jurídico real — decide sob qual legislação aquele dado está guardado — e fica do lado do cliente. O servidor físico específico dentro dessa região é decisão operacional que o provedor toma sozinho, sem o cliente escolher ou mesmo saber qual é.",
+      "fonte": "Teoria 5.2.t1",
+      "tags": ["nuvem", "responsabilidade-compartilhada", "residencia-de-dado"]
+    },
+    {
+      "id": "5.2.q22",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um pipeline de implantação contínua precisa de acesso a um recurso de nuvem. O time cria uma credencial de longa duração e a guarda como segredo no próprio sistema de pipeline, do mesmo jeito que guardaria a senha de um funcionário. Existe alternativa que evite até guardar esse segredo?",
+      "alternativas": [
+        "Não existe alternativa: um pipeline precisa de uma credencial fixa guardada em algum lugar, sem exceção",
+        "Sim: por federação, o pipeline prova quem é na hora da execução, sem segredo de longa duração guardado",
+        "Sim, mas só trocando o segredo de longa duração por um segredo de curta duração, ainda guardado do mesmo jeito",
+        "Não, porque federação de identidade exige que os dois lados usem o mesmo provedor de nuvem"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Existe alternativa real: federação de identidade permite o pipeline provar quem é sem credencial de longa duração armazenada — a suposição de que não há exceção é o que esse mecanismo derruba.",
+        "2": "Trocar a duração do segredo reduz a janela de exposição, mas ainda depende de guardar algo — federação evita guardar qualquer segredo, resolvendo um problema mais completo.",
+        "3": "Federação de identidade é feita justamente para conectar um sistema externo, de outro provedor ou fora da nuvem, à identidade — é o caso de uso central do mecanismo, não uma limitação dele."
+      },
+      "dicas": [
+        "'Trocar o segredo por um mais curto' e 'não ter segredo nenhum para guardar' resolvem problemas diferentes.",
+        "A pergunta é sobre eliminar o armazenamento, não sobre reduzir a duração dele.",
+        "A federação de identidade não exige que o pipeline e o provedor sejam do mesmo fornecedor — confira essa suposição em cada alternativa."
+      ],
+      "pergunta_socratica": "Antes de conferir: para o pipeline provar quem é, ele precisa necessariamente guardar algo com antecedência?",
+      "explicacao": "Federação de identidade deixa o pipeline provar quem é no momento da execução, sem depender de um segredo guardado com antecedência — o sistema externo e o provedor já combinaram essa confiança antes, e ela é usada na hora, sem virar credencial estática guardada em lugar nenhum.",
+      "fonte": "Teoria 5.2.t2 e Teoria 5.1.t4",
+      "tags": ["nuvem", "identidade-de-carga-de-trabalho", "federacao-de-identidade"]
+    },
+    {
+      "id": "5.2.q23",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um provedor lança um novo tipo de recurso com o registro de auditoria desligado por padrão, para não cobrar armazenamento de quem ainda está só avaliando o recurso. Um time passa a usar esse recurso no dia a dia da operação sem checar esse ajuste. Quem decidiu, na prática, que esse recurso não teria auditoria?",
+      "alternativas": [
+        "O time, ao colocar o recurso em produção sem revisar a opção que já era dele para decidir",
+        "O provedor, porque a decisão de desligar no lançamento já define o comportamento final do recurso",
+        "Ninguém decidiu, porque o recurso ainda estava na fase de configuração inicial quando isso aconteceu",
+        "O time, mas só porque não pagou pelo nível de suporte que liga a auditoria por contrato"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O provedor decide o valor inicial pensado para quem ainda avalia o recurso; ele não decide se esse valor continua fazendo sentido depois que o recurso vai para produção — essa segunda decisão é de quem opera.",
+        "2": "Colocar o recurso em produção marca o fim da fase de configuração inicial — a partir daí, qualquer opção mantida sem revisão já é escolha de quem opera, não estado provisório.",
+        "3": "Nenhuma cláusula de contrato de suporte ativa ou desativa auditoria; a opção continua sendo uma configuração que o time controla diretamente na tela do próprio recurso."
+      },
+      "dicas": [
+        "O recurso deixou de ser 'algo em avaliação' e passou a ser 'algo em produção' num momento específico — repare qual.",
+        "O padrão do provedor é sobre custo de quem ainda não decidiu usar — o time já decidiu usar.",
+        "O recurso passou de 'em avaliação' para 'em produção' sem ninguém tocar no ajuste de auditoria — pergunte quem tinha esse controle nesse momento."
+      ],
+      "pergunta_socratica": "Antes de conferir: o padrão desligado fazia sentido para o time enquanto ele ainda avaliava o recurso, ou depois que ele já estava em produção?",
+      "explicacao": "O padrão do provedor existe para não cobrar de quem só avalia o recurso. Colocá-lo em produção sem revisar a opção transforma um padrão de avaliação numa escolha operacional — silenciosa, mas do time, que teve o controle e a oportunidade de mudar essa configuração antes de depender dela.",
+      "fonte": "Teoria 5.2.t4",
+      "tags": ["nuvem", "padrao-inseguro", "auditoria"]
+    },
+    {
+      "id": "5.2.q24",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um time herdou a operação de um recurso criado por outro time, já configurado com acesso mais amplo do que o necessário. O novo time mantém a configuração porque 'não fomos nós que criamos assim'. Esse argumento resolve a responsabilidade sobre a configuração?",
+      "alternativas": [
+        "Sim, porque responsabilidade sobre configuração é de quem criou o recurso, não de quem passou a operá-lo depois",
+        "Sim, mas só até a próxima janela de manutenção programada pelo time atual",
+        "Não: quem opera agora tem o controle de mudar; mantê-la sem revisar é escolha do time atual",
+        "Não, mas só se o time atual tiver sido formalmente avisado da configuração no momento da transferência"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Quem criou o recurso não tem mais controle sobre ele depois da transferência de operação — a responsabilidade de mantê-lo ou mudá-lo acompanha quem tem o controle agora, não quem apertou o botão de criar.",
+        "1": "Não existe prazo natural de tolerância embutido numa janela de manutenção; a configuração é responsabilidade de alguém desde o momento em que o time atual assumiu a operação.",
+        "3": "Ter sido avisado formalmente não é condição para a responsabilidade existir — mesmo sem aviso, quem tem o controle operacional é quem pode e deve revisar a configuração."
+      },
+      "dicas": [
+        "Quem apertou o botão de criar o recurso e quem tem o botão de mudar a configuração hoje podem ser pessoas diferentes.",
+        "O recurso já existia antes deste time assumir a operação — pense em quem tem o botão de mudar a configuração dele hoje.",
+        "'Não fomos nós que criamos assim' descreve autoria; a pergunta é sobre quem pode mudar a configuração agora."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem consegue mudar essa configuração hoje, o time que criou ou o time que opera agora?",
+      "explicacao": "Responsabilidade acompanha quem tem o controle, não quem criou o recurso originalmente. Herdar uma configuração e mantê-la sem revisar, mesmo sem tê-la escrito, é escolha do time que opera agora — a mesma lógica de 'não mudei nada' do bloco de padrão inseguro, aplicada a um recurso herdado.",
+      "fonte": "Teoria 5.2.t4",
+      "tags": ["nuvem", "padrao-inseguro", "recurso-herdado"]
+    },
+    {
+      "id": "5.2.q25",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Comparado a alugar uma máquina virtual crua, um serviço de execução de função sob demanda (o cliente só envia o código, o provedor cuida do resto da execução) desloca a linha de responsabilidade em que direção?",
+      "alternativas": [
+        "Para o provedor: ele passa a cuidar do sistema operacional e do ambiente de execução também",
+        "Para o cliente: função sob demanda exige mais configuração manual do que uma máquina virtual crua",
+        "A linha não se desloca: o cliente segue com as mesmas camadas, seja qual for o tipo de serviço contratado",
+        "Para o provedor por completo: decisões sobre o próprio código deixam de ser do cliente"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "É o oposto: função sob demanda tira do cliente a configuração do sistema operacional e do ambiente de execução, que numa máquina virtual crua ficaria com ele.",
+        "2": "A linha se desloca conforme o tipo de serviço, como o primeiro bloco já mostrou — tratá-la como fixa ignora exatamente essa variação por camada de serviço.",
+        "3": "O código da função e o que ele faz com os dados continuam sendo decisão do cliente, mesmo em função sob demanda — nenhum serviço tira essa parte de quem escreveu o código."
+      },
+      "dicas": [
+        "Compare o que o cliente precisa configurar numa máquina virtual crua com o que precisa configurar numa função sob demanda.",
+        "A linha se move conforme o tipo de serviço — isso já foi tratado no primeiro bloco deste módulo.",
+        "O código da função e os dados que ela processa continuam existindo mesmo numa função sob demanda — quem decide o conteúdo deles?"
+      ],
+      "pergunta_socratica": "Antes de conferir: numa função sob demanda, quem escolhe o sistema operacional que executa o código?",
+      "explicacao": "Função sob demanda move para o provedor a manutenção do sistema operacional e do ambiente de execução — camadas que, numa máquina virtual crua, ficariam com o cliente. O que resta do lado do cliente é o código da função e as decisões sobre os dados que ele processa, nunca responsabilidade zero.",
+      "fonte": "Teoria 5.2.t1",
+      "tags": ["nuvem", "responsabilidade-compartilhada", "execucao-sob-demanda"]
+    },
+    {
+      "id": "5.2.q26",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um provedor aplica correção de segurança em toda a frota de hardware dele de uma vez, benefício de escala já visto neste módulo. Um time conclui que, por isso, não precisa rotacionar as próprias credenciais de aplicação, porque 'a infraestrutura já está sempre atualizada'. Essa conclusão é válida?",
+      "alternativas": [
+        "Sim, porque correção de hardware em escala cobre também o código e as credenciais da aplicação por cima",
+        "Sim, mas só para credencial usada exclusivamente entre serviços do mesmo provedor",
+        "Não, porque a frota de hardware é corrigida só parcialmente, segundo relatos de outros clientes",
+        "Não: correção de hardware cobre a infraestrutura física, não a credencial de aplicação do cliente"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Correção de hardware age na camada física e no sistema por baixo; ela não tem visibilidade nem controle sobre credenciais que a aplicação do cliente usa por cima dela.",
+        "1": "O provedor da credencial de aplicação não muda esse fato — entre serviços do mesmo provedor ou não, rotacionar a credencial continua sendo decisão de quem a criou e usa.",
+        "2": "Questionar se a correção realmente acontece é ponto diferente do que a pergunta trata — mesmo assumindo que a correção de hardware é completa, ela ainda não alcançaria a credencial de aplicação."
+      },
+      "dicas": [
+        "Pense em qual camada a correção de hardware alcança, e qual camada guarda a credencial da aplicação.",
+        "A resposta certa não questiona se a correção acontece — assume que sim, e ainda aponta o limite dela.",
+        "A correção de hardware nunca vê o que roda dentro da máquina — pense se ela teria acesso à credencial de aplicação para trocá-la."
+      ],
+      "pergunta_socratica": "Antes de conferir: corrigir o hardware por baixo troca, sozinho, uma credencial que a aplicação do cliente criou por cima?",
+      "explicacao": "Correção de hardware em escala é benefício real da nuvem, mas age na camada física e no sistema por baixo — nunca alcança credenciais que a aplicação do cliente cria e usa por cima. Rotacionar essas credenciais continua sendo decisão e rotina de quem as tem, com ou sem a frota de hardware atualizada.",
+      "fonte": "Teoria 5.2.t6",
+      "tags": ["nuvem", "contraponto", "credencial-de-aplicacao"]
+    },
+    {
+      "id": "5.2.q27",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Depois de um incidente de configuração exposta, alguém argumenta que 'a responsabilidade é compartilhada, então a culpa também é dividida entre cliente e provedor'. O que esse argumento erra sobre o modelo de responsabilidade compartilhada?",
+      "alternativas": [
+        "O modelo reparte camadas entre provedor e cliente; não divide a culpa de um incidente específico",
+        "Erra porque responsabilidade compartilhada obriga o provedor a assumir parte da culpa em incidentes de configuração",
+        "Não erra: incidente em nuvem tem responsabilidade dividida meio a meio, como regra do setor",
+        "Erra porque, na prática, a responsabilidade recai sobre quem contratou o serviço de auditoria externa"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Não existe fração mínima garantida de responsabilidade do provedor por incidente — o modelo aponta qual camada é de quem, e a falha específica cai inteira do lado de quem controlava aquela camada.",
+        "2": "Dividir meio a meio contraria o próprio propósito do modelo, que existe para separar, e não misturar, quem responde por cada camada.",
+        "3": "Contratar auditoria externa não transfere a responsabilidade sobre uma configuração — quem opera o recurso continua sendo quem responde pela camada onde a falha ocorreu."
+      },
+      "dicas": [
+        "Dividir quem cuida de cada parte da pilha e dividir a culpa de um caso concreto são operações diferentes.",
+        "Se a falha está numa configuração que só o cliente podia mudar, pergunte que fração dela caberia ao provedor.",
+        "O argumento contestado já dividia a culpa ao meio — veja se a alternativa que você está considerando também divide, só que noutra proporção."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a falha está numa configuração que só o cliente controla, faz sentido dividir a responsabilidade dela ao meio?",
+      "explicacao": "Responsabilidade compartilhada reparte camadas entre provedor e cliente, não divide ao meio a culpa de cada incidente. Uma falha específica cai inteira do lado de quem controlava a camada onde ela aconteceu — o modelo existe para apontar esse lado com clareza, não para diluir a responsabilidade de ninguém.",
+      "fonte": "Teoria 5.2.t1",
+      "tags": ["nuvem", "responsabilidade-compartilhada", "incidente"]
+    },
+    {
+      "id": "5.2.q28",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "# script de implantação\nchave_de_acesso = \"registrada em variavel de ambiente, sem data de expiracao\"\nidentidade_servico.autenticar(chave_de_acesso)\n# comentário do autor: 'igual ao login manual, só que automático'",
+      "enunciado": "O comentário do autor do script chama a chave de acesso de 'igual ao login manual, só que automático'. O que essa comparação esconde de errado?",
+      "alternativas": [
+        "Esconde que login manual também deveria usar chave sem expiração, para ser consistente",
+        "Esconde que login manual depende de decisão a cada uso; a chave do script fica pronta o tempo todo",
+        "Esconde que scripts automáticos deveriam se autenticar só por senha digitada manualmente a cada execução",
+        "Esconde só um detalhe de implementação, sem consequência real para a segurança do processo"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Login manual sem expiração pioraria o problema para pessoa também — a inconsistência não está em dar prazo a um e não ao outro, está em tratar os dois casos como equivalentes quando não são.",
+        "2": "Exigir senha manual a cada execução elimina a própria automação — o ponto não é impedir a autenticação automática, é não usar uma chave estática e permanente para fazer isso.",
+        "3": "Não é só detalhe de implementação: uma chave válida o tempo todo, guardada num script, fica exposta por muito mais tempo e para mais gente do que uma senha digitada por uma pessoa a cada uso."
+      },
+      "dicas": [
+        "Alguém decide digitar a própria senha a cada uso; a chave do script não espera decisão nenhuma para ser usada.",
+        "A comparação do comentário iguala dois casos que têm um ciclo de vida bem diferente.",
+        "A chave gravada na variável de ambiente do script não espera nenhuma decisão nova para ser usada de novo."
+      ],
+      "pergunta_socratica": "Antes de conferir: quantas vezes por dia alguém decide ativamente usar a chave guardada nesse script?",
+      "explicacao": "Login manual acontece sob decisão explícita, repetida a cada uso; a chave estática do script fica pronta e válida o tempo todo, sem nenhuma decisão nova sendo tomada entre um uso e outro. Chamar os dois de 'iguais, só que automático' esconde que a segunda fica exposta por muito mais tempo, para qualquer coisa com acesso ao script.",
+      "fonte": "Teoria 5.2.t3",
+      "tags": ["nuvem", "identidade-de-carga-de-trabalho", "credencial-estatica"]
+    },
+    {
+      "id": "5.2.q29",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "trecho": "# arquivo de infraestrutura como código, versão 2\nrecurso 'fila-eventos':\n  particoes: 8\n  # campo 'criptografia_em_repouso' removido nesta versão\n# revisor aprovou: 'sem mudança relevante, só reduziu o arquivo'",
+      "enunciado": "A versão anterior desse arquivo tinha `criptografia_em_repouso: false` escrito explicitamente. Na versão 2, o campo foi apenas removido, e o revisor aprovou dizendo que não havia mudança relevante. O que essa aprovação ignorou?",
+      "alternativas": [
+        "Ignorou que remover um campo aplica, já na próxima leitura do arquivo, o valor mais seguro definido pela própria ferramenta",
+        "Ignorou que a redução de linhas no arquivo é, por si só, um risco de manutenção",
+        "Ignorou que remover o campo não muda o valor atual do recurso — ele segue com o valor antigo, só invisível a quem lê o arquivo achando que reflete o estado real",
+        "Ignorou que o número de partições da fila também mudou entre as duas versões do arquivo"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Remover um campo não aplica nenhum valor novo sozinho — o trecho não mostra reaplicação nenhuma, só a ausência do campo; o comportamento real depende da ferramenta, e assumir uma reversão automática é a mesma suposição que causou o problema aqui.",
+        "1": "Arquivo menor não é risco por si só; o risco está em o arquivo parar de refletir o estado real do recurso, não no tamanho dele.",
+        "3": "O trecho não mostra nenhuma mudança no número de partições entre as versões — só o campo de criptografia foi removido, e é isso que a pergunta trata."
+      },
+      "dicas": [
+        "Pense no que acontece com o valor atual de um recurso quando um campo só é apagado do arquivo que o descreve.",
+        "Compare arquivo e recurso real: os dois continuam sincronizados depois dessa remoção?",
+        "O campo `criptografia_em_repouso` sumiu do arquivo, mas o recurso 'fila-eventos' não foi reaplicado — o que isso esconde de quem só lê o arquivo novo?"
+      ],
+      "pergunta_socratica": "Antes de conferir: apagar uma linha do arquivo muda o que está configurado no recurso de verdade, ou só o que aparece para quem lê o arquivo?",
+      "explicacao": "Remover um campo do arquivo de infraestrutura não reverte nada no recurso real — ele continua com o último valor aplicado, `false` neste caso. O que muda é que essa configuração deixa de aparecer para quem revisa o arquivo, criando a falsa impressão de que não há nada relevante para avaliar ali.",
+      "fonte": "Teoria 5.2.t4",
+      "tags": ["nuvem", "padrao-inseguro", "infraestrutura-como-codigo"]
+    },
+    {
+      "id": "5.2.q30",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um provedor oferece uma plataforma gerenciada de orquestração de contêineres: ele mantém o painel de controle sempre disponível e corrigido. Qual defesa cabe ao cliente, mesmo usando essa plataforma gerenciada?",
+      "alternativas": [
+        "Definir a permissão de cada carga de trabalho agendada, porque o painel gerenciado não decide isso pelo cliente",
+        "Pouca coisa: painel de controle gerenciado já cobre a permissão de cada carga de trabalho agendada nele",
+        "Só corrigir o próprio código da aplicação, já que a plataforma cuida da configuração de permissão",
+        "Só garantir que a plataforma está na versão mais recente, o que já resolve a permissão de cada carga de trabalho"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Painel de controle gerenciado cuida da disponibilidade e correção da orquestração em si — ele não decide, sozinho, que permissão cada carga de trabalho específica do cliente deveria ter.",
+        "2": "Corrigir só o código da aplicação deixa de fora a configuração de permissão da carga de trabalho, que é decisão separada do conteúdo do código.",
+        "3": "Manter a plataforma atualizada corrige falhas da orquestração em si, não substitui a decisão de que permissão cada carga de trabalho recebe."
+      },
+      "dicas": [
+        "Separe 'o painel funciona e está corrigido' de 'cada aplicação tem a permissão certa dentro dele'.",
+        "A plataforma gerenciada resolve disponibilidade; ela não decide o conteúdo de cada permissão específica.",
+        "O painel de controle da orquestração e a permissão de cada carga de trabalho agendada nela são decisões diferentes — quem toma a segunda?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o provedor sabe, sem o cliente configurar nada, que permissão cada carga de trabalho específica deveria ter?",
+      "explicacao": "Plataforma gerenciada cuida da disponibilidade e correção do painel de controle da orquestração — uma camada de infraestrutura. Definir a permissão de cada carga de trabalho agendada nela é decisão sobre o que cada aplicação do cliente pode fazer, e continua sendo do cliente, com a mesma lógica do primeiro bloco deste módulo.",
+      "fonte": "Teoria 5.2.t1",
+      "tags": ["nuvem", "responsabilidade-compartilhada", "orquestracao"]
+    },
+    {
+      "id": "5.2.q31",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um grupo de escalonamento automático reduz o número de instâncias no fim do expediente, todo dia, para economizar custo. Uma instância removida nesse processo tinha registrado, pouco antes de ser desligada, um evento incomum que ninguém investigou a tempo. O que garante que esse evento não se perdeu junto com a instância?",
+      "alternativas": [
+        "O fato de o desligamento ser rotina programada, e não incidente, já garante que nada se perde",
+        "A garantia de que a próxima instância criada terá o mesmo identificador e herdará os registros da anterior",
+        "A garantia de que o provedor preserva o disco de uma instância desligada por rotina, ao contrário de uma desligada por incidente",
+        "Só o log já enviado para fora da instância antes do desligamento — o motivo (rotina ou incidente) não muda isso"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O motivo do desligamento — rotina ou incidente — não muda o que acontece com o disco da instância; sem log centralizado, o evento se perde nos dois casos igualmente.",
+        "1": "Uma instância nova, mesmo com identificador parecido, não herda automaticamente os registros da anterior — são recursos diferentes, criados do zero a partir da mesma imagem.",
+        "2": "Não existe essa distinção por parte do provedor entre desligamento de rotina e de incidente — o mecanismo de preservação, quando existe, depende de configuração do cliente, não do motivo do desligamento."
+      },
+      "dicas": [
+        "Pense no que acontece fisicamente com o disco quando a instância é desligada, seja por rotina ou por resposta a um problema.",
+        "Instância nova e instância antiga são recursos diferentes, mesmo vindo da mesma imagem.",
+        "Compare o disco de uma instância desligada por rotina com o de uma desligada por incidente: algum dos dois recebe tratamento especial do provedor?"
+      ],
+      "pergunta_socratica": "Antes de conferir: o fato de o desligamento ser 'rotina', e não 'incidente', muda o que acontece com o disco da instância?",
+      "explicacao": "O motivo do desligamento — programado ou reativo a um incidente — não muda nada sobre o que acontece fisicamente com o disco da instância: ele deixa de existir do mesmo jeito. A única garantia real de que o evento sobrevive é ele já ter sido enviado para um log centralizado antes do desligamento, seja ele rotina ou emergência.",
+      "fonte": "Teoria 5.2.t5",
+      "tags": ["nuvem", "infraestrutura-efemera", "escalonamento-automatico"]
+    },
+    {
+      "id": "5.2.q32",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "artefato": "$ python comparar_config.py --recurso fila-eventos producao staging\ncampo                    producao      staging\ncriptografia_em_repouso  false         true\npoliticas_de_retencao    30_dias       90_dias\nquem_configurou          time-dados    time-dados",
+      "enunciado": "O mesmo time configurou os dois ambientes, mas produção ficou com criptografia em repouso desligada e staging com ela ligada. Considerando a linha de responsabilidade deste módulo, essa diferença é problema de quem?",
+      "alternativas": [
+        "Do time que configurou: a divergência mostra decisão inconsistente sobre o que já era dele decidir",
+        "Do provedor, porque o comparador de configuração deveria ter corrigido a diferença sozinho, sem intervenção humana",
+        "De ninguém, porque staging e produção podem ter configurações diferentes por definição",
+        "Do time, mas só porque staging deveria ter sido configurado igual a produção, não o contrário"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O comparador só relata diferença entre ambientes; ele não altera configuração nenhuma sozinho — corrigir a divergência continua sendo ação de quem opera os recursos.",
+        "2": "Diferença entre ambientes pode ser legítima em vários casos, mas essa configuração específica é a mesma decisão de segurança nos dois — 'poder ser diferente' não explica por que produção ficou com o valor mais fraco.",
+        "3": "A direção da correção é detalhe de implementação; o ponto da pergunta é de quem é a responsabilidade pela divergência, que é do time nos dois casos."
+      },
+      "dicas": [
+        "A saída mostra 'quem_configurou' igual nos dois ambientes — isso já aponta para quem decidiu os dois valores.",
+        "Nem toda diferença entre ambientes é aceitável; pense se essa configuração específica deveria mesmo variar.",
+        "A saída mostra 'time-dados' como quem configurou os dois ambientes — a pergunta é sobre quem tinha esse controle, não sobre qual valor deveria ter sido escolhido."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem aparece como responsável pela configuração dos dois ambientes na própria saída do comparador?",
+      "explicacao": "A saída mostra que o mesmo time configurou os dois ambientes, o que descarta a ideia de que a divergência veio de outro lugar. Deixar produção com configuração de segurança mais fraca do que staging é inconsistência de decisão de quem já tinha o controle sobre os dois valores — a mesma linha de responsabilidade do bloco 1, vista como inconsistência entre ambientes.",
+      "fonte": "Teoria 5.2.t1 e Teoria 5.2.t4",
+      "tags": ["nuvem", "responsabilidade-compartilhada", "comparacao-de-ambientes"]
+    },
+    {
+      "id": "5.2.q33",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Uma equipe migra sua aplicação de hardware próprio para a nuvem, com tempo e orçamento limitados, e precisa decidir a ordem entre dois itens: checar a configuração de visibilidade dos recursos novos, ou aguardar o próximo ciclo de auditoria trimestral, como fazia com o hardware próprio. O que este módulo sustenta sobre essa escolha?",
+      "alternativas": [
+        "Aguardar o ciclo trimestral é razoável, porque a cadência de revisão não muda entre hardware próprio e nuvem",
+        "Configuração de visibilidade deveria ser revisada só depois que a aplicação estiver estável em produção há pelo menos um ano",
+        "Os riscos de hardware próprio e de nuvem são o mesmo risco, medido pelo mesmo tempo de exposição em ambos os casos",
+        "Revisar a visibilidade agora é mais urgente: um padrão inseguro já expõe o recurso desde o primeiro dia"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "A cadência trimestral foi pensada para outro ritmo de mudança de infraestrutura; recursos de nuvem podem nascer com valor padrão exposto desde o primeiro dia, o que uma auditoria só trimestral não pega a tempo.",
+        "1": "Esperar um ano deixa o recurso exposto por todo esse período, se o padrão herdado for inseguro — o próprio bloco de padrão inseguro por conveniência já mostrou o custo de adiar essa revisão.",
+        "2": "O tempo de exposição não é o mesmo: um recurso de nuvem pode ficar exposto desde a criação por um valor padrão, enquanto hardware próprio depende de outra cadeia de decisão — os blocos anteriores deste módulo mostraram essa diferença em vários mecanismos."
+      },
+      "dicas": [
+        "Um recurso de nuvem pode ficar exposto desde a criação, não só depois de um ano de uso.",
+        "Auditoria trimestral foi pensada para um ritmo de mudança que pode não ser o da nuvem.",
+        "Um recurso de nuvem pode nascer exposto no dia da criação — pergunte se a auditoria trimestral chegaria a tempo disso."
+      ],
+      "pergunta_socratica": "Antes de conferir: um recurso de nuvem com configuração padrão exposta espera a próxima auditoria trimestral para começar a representar risco?",
+      "explicacao": "Recursos de nuvem podem nascer expostos desde o primeiro dia por causa de um valor padrão, risco que uma cadência de auditoria trimestral, pensada para outro ritmo de mudança, não cobre a tempo. Revisar a configuração de visibilidade logo na migração é mais urgente do que manter o mesmo calendário usado com hardware próprio.",
+      "fonte": "Teorias 5.2.t4 e 5.2.t6",
+      "tags": ["nuvem", "padrao-inseguro", "priorizacao"]
+    },
+    {
+      "id": "5.2.q34",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Coloque em ordem o ciclo de vida ideal de uma credencial de identidade de carga de trabalho.",
+      "itens": [
+        "A identidade é provisionada com escopo restrito à tarefa específica que ela vai executar",
+        "A credencial é usada durante a execução da tarefa, sem intervenção humana",
+        "A credencial expira sozinha, no tempo previsto, sem precisar de revisão manual",
+        "Uma nova credencial é provisionada, do zero, na próxima vez que a tarefa precisar rodar"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "O primeiro passo decide o escopo antes de qualquer uso acontecer.",
+        "Expiração automática vem antes de qualquer decisão de reprovisionar.",
+        "Nenhum passo depende de alguém lembrar de agir no meio do ciclo."
+      ],
+      "pergunta_socratica": "Antes de conferir: em algum desses quatro passos, alguém precisa lembrar de fazer alguma coisa manualmente?",
+      "explicacao": "O ciclo inteiro de uma credencial de carga de trabalho é pensado para não depender de intervenção humana em nenhum ponto: escopo restrito desde o início, uso automático, expiração automática e reprovisionamento do zero na próxima execução — nenhuma etapa espera alguém lembrar de revisar ou trocar nada.",
+      "fonte": "Teoria 5.2.t3",
+      "tags": ["nuvem", "identidade-de-carga-de-trabalho", "ciclo-de-vida"]
+    },
+    {
+      "id": "5.2.q35",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Ligue cada situação final ao mecanismo deste módulo que ela ilustra.",
+      "pares": [
+        ["Cliente escolhe a região do dado, mas não o servidor físico específico", "A linha de responsabilidade se desloca por camada, nunca desaparece"],
+        ["Pipeline recebe identidade temporária por federação, sem segredo guardado", "Identidade de carga de trabalho sem credencial estática"],
+        ["Campo de configuração removido do arquivo, mas o recurso real não muda", "Padrão inseguro por conveniência disfarçado de mudança neutra"],
+        ["Evento gravado pouco antes de uma instância ser desligada por rotina", "Evidência que só sobrevive se já estava em log centralizado"]
+      ],
+      "dicas": [
+        "Cada situação corresponde a um bloco de teoria específico deste módulo.",
+        "Pense em qual bloco fala de servidor físico e região, qual fala de federação sem segredo, qual fala de campo removido do arquivo, e qual fala de log antes do desligamento.",
+        "Nenhum par exige nada além do que os seis blocos de teoria já cobriram."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro situações você reconhece de um bloco de teoria específico?",
+      "explicacao": "As quatro situações fecham o módulo revisando um mecanismo central cada: deslocamento da linha de responsabilidade por camada, identidade de carga de trabalho sem segredo estático, padrão inseguro disfarçado de mudança neutra, e evidência que só sobrevive fora do recurso efêmero.",
+      "fonte": "Teorias 5.2.t1, 5.2.t2, 5.2.t4 e 5.2.t5",
+      "tags": ["nuvem", "revisao", "pareamento"]
+    }
+  ]
+}
