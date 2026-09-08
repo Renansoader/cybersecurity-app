@@ -3,20 +3,21 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-06 · módulo 5.1 (Desenvolvimento seguro)
-escrito e publicado — **abre o nível 5, o último (1 de 6)** — segurança
-como propriedade do processo de construir, não catálogo de vulnerabilidade
-(custo de corrigir cedo × tarde, o que se herda sem escrever numa árvore de
-dependência, ciclo de vida do segredo além do commit, o que automação pega
-e o que nunca vai pegar) · quatro laboratórios de simulação local, dado
-inventado em todos · escrito numa única passagem (não em checkpoints),
-o que causou o pior defeito de posição já visto no curso — correta no
-índice 1 em 33 de 34 questões — corrigido por script de rotação antes das
-lentes · lente achou citação cruzada imprecisa (3.7.q31 não é sobre o
-mecanismo discutido) e um arquivo de laboratório salvo com encoding
-errado, ambos corrigidos · varredura completa da regra 11 no corpus
-inteiro (35 módulos): só um candidato fraco, registrado, nenhuma violação
-real · 4.111 testes passando
+Última atualização: 2026-09-07 · módulo 5.2 (Segurança em nuvem) escrito e
+publicado — **nível 5 em 2 de 6** — o que muda quando a infraestrutura não
+é sua (responsabilidade compartilhada, identidade de carga de trabalho sem
+credencial estática, padrão inseguro por conveniência, infraestrutura
+efêmera e evidência, contraponto do que a nuvem resolve de verdade) ·
+regra 12 aplicada pela primeira vez (três lotes de 8/12/15 questões, nunca
+numa passagem só, lição direta do defeito de posição do 5.1) · mesmo assim
+o defeito de comprimento recorreu nos três lotes e foi corrigido a cada
+checkpoint · revisão adversarial achou uma citação cruzada errada
+(5.1.t3→5.1.t4) e uma questão sem teoria dona, cortada · **sétima e oitava
+variante do molde de dica encontradas na mesma rodada**: eliminação por
+contagem/tema em ~20 de 35 questões (achada só por leitura da lente, o
+medidor de prefixo não pega), e "Pense em/no" em 28,6% das dicas depois da
+primeira reescrita — três moldes seguidos na mesma correção, ver seção 5 ·
+4.221 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -26,18 +27,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 36 de 41 |
-| Questões | 1.262 |
-| Blocos de teoria | 218 |
-| Tags distintas | 932 |
-| Testes automatizados | 4.111 |
+| Módulos de conteúdo escritos | 37 de 41 |
+| Questões | 1.297 |
+| Blocos de teoria | 224 |
+| Tags distintas | 953 |
+| Testes automatizados | 4.221 |
 | Linhas de código Python | ~2.280 no app · ~3.950 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo) · **nível 5** 35 (1 de 6).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo) · **nível 5** 70 (2 de 6).
 
-Tipos de questão em uso: conceitual 499, cenário 280, ataque→defesa 105,
-caça ao erro 101, comando 57, artefato 93, pareamento 74, ordenação 53.
+Tipos de questão em uso: conceitual 508, cenário 289, ataque→defesa 110,
+caça ao erro 106, comando 57, artefato 95, pareamento 77, ordenação 55.
 
 ---
 
@@ -229,8 +230,8 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
-**Nível 5 — Engenharia, risco e carreira** (35 questões, 1 de 6)
-5.1 Desenvolvimento seguro
+**Nível 5 — Engenharia, risco e carreira** (70 questões, 2 de 6)
+5.1 Desenvolvimento seguro · 5.2 Segurança em nuvem
 
 **Nível 4 — Defensivo** (280 questões, 8 de 8, completo)
 4.1 Hardening · 4.2 Segurança de rede · 4.3 Defesa em profundidade · 4.4 Malware ·
@@ -260,11 +261,11 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 ## 5. O que falta
 
-### Conteúdo — 5 módulos
+### Conteúdo — 4 módulos
 
 - **Nível 3 — Ofensivo**: completo (9 de 9)
 - **Nível 4 — Defensivo**: completo (8 de 8)
-- **Nível 5 — Engenharia e carreira** (5 restantes, 1 de 6 pronto): nuvem,
+- **Nível 5 — Engenharia e carreira** (4 restantes, 2 de 6 pronto):
   modelagem de ameaças, GRC, economia da segurança, carreira
 
 ### Decisão de escopo — engenharia social não vira módulo novo, nível 3 fecha com 9 (não 10)
@@ -323,7 +324,13 @@ combinados — ambos completos — e abriu com o **5.1 (Desenvolvimento
 seguro)**: segurança como propriedade do processo de construir (custo de
 corrigir cedo × tarde, dependência herdada sem escrever, ciclo de vida do
 segredo além do commit, limite da automação), não catálogo de
-vulnerabilidade — isso já é do nível 3. **Nível 5 em 1 de 6.**
+vulnerabilidade — isso já é do nível 3 — e o **5.2 (Segurança em nuvem)**
+fechou logo depois: o que muda quando a infraestrutura não é sua
+(responsabilidade compartilhada por camada, identidade de carga de
+trabalho sem credencial estática, padrão inseguro por conveniência,
+infraestrutura efêmera e evidência, contraponto do que a nuvem resolve),
+primeiro módulo escrito sob a regra 12 (três lotes, nunca numa passagem
+só). **Nível 5 em 2 de 6.**
 
 ### Funcionalidades
 
@@ -419,6 +426,7 @@ vulnerabilidade — isso já é do nível 3. **Nível 5 em 1 de 6.**
   | 3.8 | 18,8% | ok (módulo novo, 05/09/2026 — viés recorreu nos três lotes de escrita: 62,5%→50%→44% antes de cada correção; publicado bem abaixo do teto) |
   | 3.9 | 9,4% | ok (módulo novo, 05/09/2026 — viés recorreu nos três lotes de escrita: 100%→56%→47% antes de cada correção; publicado bem abaixo do teto) |
   | 5.1 | 6,1% | ok (módulo novo, 06/09/2026 — escrito numa única passagem, não em checkpoints; nasceu em 67% de `mais_longa` e, mais grave, correta no índice 1 em 33 de 34 questões — corrigido por script de rotação de posição, depois rebalanceado em duas passadas de comprimento) |
+  | 5.2 | 20,0% | ok (módulo novo, 07/09/2026 — primeiro sob a regra 12, três lotes; viés recorreu nos três mesmo assim: 85,7%→64,7%→53,3% antes de cada correção; publicado dentro do teto) |
 
   **11 de 31 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
   0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8, 3.4 e 3.5,
@@ -482,6 +490,7 @@ vulnerabilidade — isso já é do nível 3. **Nível 5 em 1 de 6.**
   | 3.8 | 19,4% (6/31) | 9,2% | ok (módulo novo, 05/09/2026) |
   | 3.9 | 9,4% (3/32) | 3,2% | ok (módulo novo, 05/09/2026) |
   | 5.1 | 12,5% (4/32) | 5,0% | ok (módulo novo, 06/09/2026) |
+  | 5.2 | 20,0% (6/30) | 9,5% | ok (módulo novo, 07/09/2026) |
 
   **Mediana do corpus: 35,5%.** O teto de 40% não foi escolhido de novo —
   foi conferido contra o mesmo critério estatístico independente já usado
@@ -558,6 +567,30 @@ vulnerabilidade — isso já é do nível 3. **Nível 5 em 1 de 6.**
   Reescritas 12 das 23; concentração final 10%. Prova, na prática, o que
   a seção acima já previa: o medidor mede o que sabe medir, não o molde
   inteiro.
+
+  **Sétima e oitava variante, achadas em cadeia no 5.2, 07/09/2026 — o
+  encadeamento é o achado, não só as variantes em si.** A revisão
+  adversarial (lente de forma, sem contexto da escrita) achou a sétima
+  variante — **eliminação por contagem/tema na dica**, uma dica final que
+  não ensina mecanismo, ensina a descartar alternativa por propriedade
+  abstrata ("Três das quatro alternativas tentam...", "A resposta certa
+  fala/nomeia X, não Y") — em **~20 das 35 questões**, com prefixo textual
+  diferente em cada uma (mesma lição da sexta variante: o medidor só pega
+  prefixo exato). `medidor_molde_dica.py` mediu 5,7% no módulo, cego ao
+  padrão inteiro. Reescritas as ~23 ocorrências nomeando um objeto
+  concreto do enunciado de cada questão.
+
+  Essa reescrita **criou a oitava variante**: medição manual (fora do
+  medidor) achou 28,6% das 105 dicas do módulo abrindo com "Pense em/no/
+  na" — molde novo, nascido só para escapar do anterior. Reescritas 20
+  delas variando estrutura de frase, baixando para 9,5%. Essa segunda
+  reescrita, por sua vez, criou **três vazamentos de vocabulário do
+  gabarito**, pegos pelo `validar_modulo.py` e corrigidos numa terceira
+  rodada. **Três moldes diferentes numa única correção de revisão
+  adversarial, cada um só visível depois de resolver o anterior — isto é
+  o dado que os módulos futuros precisam esperar, não uma nota de
+  rodapé.** Medir de novo depois de cada reescrita em lote, nunca só
+  antes dela.
 
   **Piloto de correção — módulo 0.1, 01/09/2026.** Escolhido por ser o
   primeiro módulo do curso (vazamento ali contamina a base inteira) e por
@@ -1314,6 +1347,95 @@ vulnerabilidade — isso já é do nível 3. **Nível 5 em 1 de 6.**
   Validação final: `pytest -q` (4.111 testes, 0 falhas) e
   `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 36
   módulos). +35 questões, +6 blocos de teoria. **Nível 5 em 1 de 6.**
+- **Módulo 5.2 escrito, 07/09/2026 — Segurança em nuvem, o que muda quando
+  a infraestrutura não é sua. Primeiro módulo escrito sob a regra 12** (§7:
+  nunca numa passagem só, lição direta do defeito de posição do 5.1).
+  Levantamento de não-repetição mediu colisão real contra 4.1, 4.2, 4.8,
+  3.6, 2.6 e 5.1 antes de escrever: colisão severa achada no eixo de
+  identidade — o recorte original ("identidade é o novo perímetro") era
+  quase a tese literal de `2.6.t6` (Zero Trust, NIST SP 800-207) somada a
+  RBAC/ABAC/menor privilégio, todos já donos do mecanismo em 2.6.
+  Reformulado antes de escrever para **identidade de carga de trabalho**
+  (assumida por máquina, não pessoa) e **confiança entre contas** —
+  categoria que 2.6 não tem, porque a unidade dele é usuário/processo
+  dentro de um sistema só. Colisões leves em 4.1 (hardening já trata
+  nuvem como "mesmo mecanismo, outro nível de abstração") e 4.8 (forense
+  já ensina "copiar antes de examinar") resolvidas por referência cruzada,
+  não reescrita. 3.6 confirmado livre por leitura direta dos objetivos e
+  títulos de teoria, não só grep (regra 10). Levantamento completo em
+  `data/rascunhos/nivel-5/fontes/nao-repetir-5.2.md`.
+
+  **Amarra de contraste exigida antes de escrever o eixo 2**: pelo menos
+  três questões precisavam ser respondíveis errado por quem aplicasse a
+  intuição de RBAC/menor-privilégio humano ao caso de máquina — se não
+  desse pra construir o contraste, o eixo cairia. Fechou com exatamente
+  três (`q3` valor do segredo, `q4` alcance da permissão, `q9` gatilho de
+  expiração), cada uma com mecanismo diferente — não a mesma ideia
+  reformulada; ver a seção "Fechamento do eixo 2" no levantamento.
+
+  **Dívida nova, registrada e não escrita**: uma questão sobre "quem pode
+  assumir uma identidade de outra conta" não tinha bloco de teoria dono —
+  nenhum dos seis blocos do 5.2 cobre confiança entre contas. Cortada, não
+  mantida com fonte fraca ("questão sem teoria dona é dívida pior que
+  citação torta"), substituída por questão ancorada em `5.2.t2`+`5.2.t3`.
+  Fica candidato a bloco extra dentro de um módulo futuro do nível 5,
+  nunca a módulo novo — mesmo critério já usado para vishing/deepfake no
+  2.7 (§5).
+
+  Escrito em três lotes (8/12/15 questões) pela primeira vez sob a regra
+  12 — e o defeito de comprimento **recorreu nos três**, mesmo assim:
+  85,7%/71,4% no checkpoint 1, 64,7%/47,1% no checkpoint 2, 53,3%/50,0%
+  no checkpoint final antes da correção — sempre corrigido para dentro do
+  teto no mesmo checkpoint, nunca deixado para o fim. A regra 12 evita o
+  lote gigante (34 questões erradas de uma vez, como no 5.1); não evita a
+  recaída em lote menor — cada lote de escrita nova precisa do mesmo
+  cuidado de comprimento, do primeiro ao último.
+
+  Publicado em **20,0% mais_longa / 10,0% mais_curta / 20,0%
+  evita_absoluto / 5,7% molde de dica** (prefixo exato), todos dentro do
+  teto. Posição da correta sobre as 35: 22,9% / 25,7% / 20,0% / 17,1% —
+  nenhum índice acima de 32%, amarra cumprida.
+
+  **Duas lentes de revisão adversarial** acharam: uma citação cruzada
+  errada (`5.2.q22` citava `5.1.t3`, árvore de dependência — o mecanismo
+  certo, ciclo de vida do segredo além do commit, é `5.1.t4`, corrigido);
+  a questão órfã sem teoria dona (acima); um distrator absurdo demais
+  (`5.2.q1`) e um eco de vocabulário (`5.2.q33`), ambos corrigidos.
+
+  **Achado grave, e o encadeamento que ele disparou — sétima, oitava
+  variante do molde de dica na mesma rodada.** A lente de forma achou
+  **eliminação por contagem/tema** em ~20 das 35 questões — dica final
+  que não ensina mecanismo, ensina a descartar alternativa por
+  propriedade abstrata ("Três das quatro alternativas tentam...", "A
+  resposta certa fala/nomeia X, não Y") — sétima variante da família já
+  rastreada desde o 4.7 (seção 5), achada só por leitura da lente:
+  `medidor_molde_dica.py` mediu 5,7% de prefixo exato no módulo, cego ao
+  padrão porque cada dica reformula a mesma estrutura com palavras
+  diferentes — a mesma lição do "Pense em/Volte a" do 3.7. Reescritas as
+  ~23 ocorrências nomeando um objeto concreto do enunciado de cada questão
+  (recurso, campo, ator, intervalo).
+
+  **A própria reescrita criou a oitava variante**: medição manual (fora
+  do medidor, que só pega prefixo) achou 28,6% das 105 dicas do módulo
+  (30 de 105) abrindo com "Pense em/no/na" — molde novo, nascido para
+  fugir do molde anterior. Reescritas 20 delas variando estrutura de
+  frase (afirmação direta, comparação, "compare X com Y"), baixando para
+  9,5% (10/105). Essa segunda reescrita, por sua vez, criou **três
+  vazamentos de vocabulário do gabarito** (dica repetindo palavra
+  exclusiva da alternativa correta), pegos pelo próprio
+  `validar_modulo.py` e corrigidos numa terceira rodada — três moldes
+  diferentes numa única correção de revisão adversarial, cada um só
+  visível depois de resolver o anterior. **Isto é o dado, não a nota de
+  rodapé: módulos futuros devem esperar esse encadeamento sempre que
+  reescreverem dica em lote — medir de novo depois de cada reescrita, não
+  só antes dela.**
+
+  Contagem de 35 questões justificada por eixo no relatório. Relatório
+  completo em `data/rascunhos/nivel-5/relatorios/5.2.md`.
+
+  Validação final: `pytest -q` (4.221 testes, 0 falhas) e
+  `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 37
+  módulos). +35 questões, +6 blocos de teoria. **Nível 5 em 2 de 6.**
 
 ---
 
@@ -1536,6 +1658,13 @@ Seis hábitos, em ordem de retorno:
     violação. Fora o candidato do 4.5 (não corrigido, só registrado — a
     correção é decisão do usuário), a regra 11 não tinha mais nenhum caso
     pendente no corpus publicado até esta data.
+12. **O módulo nunca é escrito numa passagem só.** No 5.1, escrever as 35
+    questões de uma vez produziu o pior defeito posicional já medido no
+    curso — correta no índice 1 em 33 de 34 questões — e 67% de
+    `mais_longa`. Os checkpoints de 8/20/35 (regra 7) não são só medição —
+    são o que mantém o defeito num lote pequeno o bastante para corrigir
+    sem script de rotação em massa. Escrever em três lotes é obrigatório,
+    não recomendado.
 
 ### Padrão aprendido: regra nascida, medida e descartada
 
