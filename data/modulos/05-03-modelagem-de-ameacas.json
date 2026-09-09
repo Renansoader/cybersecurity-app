@@ -1,0 +1,1029 @@
+{
+  "id": "5.3",
+  "nivel": 5,
+  "titulo": "Modelagem de ameaças — pensar no ataque antes de ele existir",
+  "objetivos": [
+    "Definir o que é modelagem de ameaças e explicar por que uma lista de vulnerabilidade conhecida (CVE, checklist de conformidade) não cobre o mesmo território",
+    "Decompor um sistema em componentes e fluxos, e reconhecer a fronteira de confiança como a unidade que muda o resultado da análise",
+    "Reconhecer, num sistema em fase de desenho, as categorias de ameaça pelo mecanismo que cada uma descreve — não pela sigla decorada",
+    "Triar o resultado de um modelo de ameaça — mitigar, aceitar ou transferir — e reconhecer os limites estruturais do método, mesmo aplicado corretamente"
+  ],
+  "pre_requisitos": ["5.1", "4.1", "3.1"],
+  "teoria": [
+    {
+      "id": "5.3.t1",
+      "titulo": "Modelar ameaça: antecipação sem catálogo",
+      "texto": "Modelar ameaça é perguntar, antes de qualquer linha de código existir, o que poderia dar errado num desenho — não esperar o sistema rodar para descobrir. A pergunta não depende de um exploit já conhecido nem de um scanner já ter apontado nada: ela é feita sobre um componente que ainda é só uma caixa num texto de arquitetura, um fluxo que ainda é só uma seta prevista entre duas partes.\n\nO exercício funciona porque a maioria dos problemas de segurança nasce de uma suposição não verificada no desenho — 'o componente que chama este aqui já validou o dado' — não de um bug de implementação. Encontrar essa suposição antes de construir em cima dela custa uma conversa; encontrá-la depois custa reescrever o que já foi construído em cima.",
+      "analogia": "Um arquiteto perguntando, olhando a planta, por onde alguém entraria sem ser convidado — antes de a primeira parede ser erguida.",
+      "erro_comum": "Achar que modelar ameaça exige o sistema já rodando, porque 'não dá para atacar o que não existe' — a pergunta não é sobre atacar, é sobre a suposição por trás do desenho.",
+      "fonte": "Adam Shostack, Threat Modeling: Designing for Security (2014) — modelagem como atividade de desenho, não de auditoria pós-implantação"
+    },
+    {
+      "id": "5.3.t2",
+      "titulo": "Por que a lista de vulnerabilidade conhecida não é isso",
+      "texto": "Uma lista de vulnerabilidade conhecida — checklist de conformidade, catálogo de falha já documentada em outro sistema — descreve o que já aconteceu com alguém. Ela é valiosa e este curso já mostrou seu lugar: uma linha de base mede desvio de configuração contra um padrão conhecido (já visto neste nível), e um catálogo de categoria de vulnerabilidade organiza achado depois que ele existe (já visto no nível 3). Nenhum dos dois cobre a combinação nova e específica de componentes que só este sistema, com este desenho, pode produzir.\n\nA diferença não é de rigor, é de quando a pergunta é feita: lista de vulnerabilidade conhecida responde 'isso já aconteceu com alguém, evite'; modelagem de ameaça responde 'o que este desenho específico, que ninguém documentou antes, deixa passar'.",
+      "analogia": "Um manual de primeiros socorros lista o que fazer para ferimentos já catalogados; não prevê o acidente que ainda não aconteceu com ninguém.",
+      "erro_comum": "Rodar um scanner de vulnerabilidade conhecida, não achar nada, e concluir que o sistema foi 'modelado' — o scanner só sabe procurar o que já está no catálogo dele.",
+      "fonte": "Teoria 4.1.t6 (o limite do checklist) e módulo 3.7 (a lista como instrumento) — mesmo argumento, objeto diferente"
+    },
+    {
+      "id": "5.3.t3",
+      "titulo": "Decompor o sistema: componente, fluxo e fronteira de confiança",
+      "texto": "Modelar começa listando as partes do sistema (componente) e quem fala com quem (fluxo) — em texto, sem exigir diagrama. A parte que importa de verdade não é o componente sozinho, é o ponto onde um fluxo cruza uma fronteira de confiança: o lugar exato onde o nível de confiança muda, porque quem controla um lado do fluxo não é quem controla o outro.\n\nUm sistema todo operado pelo mesmo time, num mesmo ambiente, ainda tem fronteiras internas — entre um componente que recebe entrada de fora e um que só processa dado já validado, por exemplo. A unidade de análise é cada fluxo que cruza uma fronteira, não o sistema como bloco único: perguntar 'o que pode dar errado aqui' sobre o sistema inteiro de uma vez produz resposta vaga; perguntar sobre um fluxo específico produz resposta acionável.",
+      "analogia": "A entrega de um bastão numa corrida de revezamento: o corredor sozinho raramente erra, o momento de risco é a passagem de mão para mão.",
+      "erro_comum": "Tratar o sistema inteiro como uma caixa só e pedir 'o que pode dar errado', sem apontar qual fluxo específico, entre quais dois componentes, está sendo avaliado.",
+      "fonte": "Teoria 5.3.t1"
+    },
+    {
+      "id": "5.3.t4",
+      "titulo": "Vocabulário de categorias: o mecanismo, não a sigla",
+      "texto": "Cada fluxo que cruza uma fronteira de confiança pode falhar de um número limitado de jeitos estruturais: alguém finge ser quem não é (falsificação de identidade); o dado é alterado no caminho sem que o destino perceba (alteração indevida); quem agiu consegue negar depois, por falta de registro que sustente a autoria (repúdio); o dado chega a quem não deveria ver (divulgação indevida); o componente para de responder a quem tem direito de usá-lo (negação de serviço); ou um componente ganha, sem deveria, o nível de confiança de outro (elevação de privilégio).\n\nO vocabulário existe para virar seis perguntas feitas a cada fluxo, não para decorar a sigla que as agrupa: o destino deste fluxo sabe, com certeza, quem está do outro lado? o dado pode ser trocado no caminho sem ninguém perceber? quem envia pode negar depois? só quem deveria consegue ler? o componente aguenta ser inundado? alguém sai desse fluxo com mais confiança do que tinha antes?",
+      "analogia": "Uma lista de perguntas de verificação antes de decolar: não é o nome da lista que evita o acidente, é cada pergunta sendo feita de verdade.",
+      "erro_comum": "Decorar a sigla que nomeia as seis categorias e parar aí, sem aplicar nenhuma das seis perguntas a um fluxo real do sistema sendo desenhado.",
+      "fonte": "Teoria 5.3.t3"
+    },
+    {
+      "id": "5.3.t5",
+      "titulo": "O que fazer com o resultado: priorizar, aceitar, mitigar",
+      "texto": "Uma lista de ameaças encontradas no desenho não é o produto final — é o ponto de partida da triagem. Para cada uma: mitigar (mudar o desenho antes de construir, o momento mais barato, já visto neste nível), aceitar (o custo de mitigar supera o dano esperado, decisão legítima desde que registrada, não silenciosa) ou transferir/monitorar (reduzir o dano sem eliminar a causa).\n\nEssa triagem acontece sobre uma ameaça hipotética, antes de qualquer exploração real — diferente de priorizar um achado já confirmado, com evidência e reprodução, num teste de intrusão sobre um sistema que já existe (isso já é do nível 3). Modelar ameaça tria o que ainda pode ser mudado de graça; o teste de intrusão prioriza o que já custou caro.",
+      "analogia": "Decidir, ainda na planta do prédio, se vale reforçar uma parede ou aceitar o risco menor de não reforçar — bem mais barato que decidir isso depois de pronto.",
+      "erro_comum": "Tratar 'aceitar o risco' como covardia ou preguiça, e por isso deixar a ameaça de fora da lista em vez de registrar a decisão de aceitá-la.",
+      "fonte": "Teoria 3.1.t6 (priorização de achado confirmado) e Teoria 5.1.t2 (custo composto de mudar depois)"
+    },
+    {
+      "id": "5.3.t6",
+      "titulo": "O limite honesto: o que o método não pega",
+      "texto": "Um modelo de ameaça só cobre o que alguém pensou em listar: um componente que ninguém desenhou no papel — porque foi acrescentado depois, ou porque ninguém lembrou dele — não aparece em nenhuma fronteira de confiança analisada, e a omissão não avisa que existe. O modelo também não se atualiza sozinho: feito uma vez, no desenho inicial, ele não sabe que uma integração nova foi adicionada seis meses depois, a menos que alguém refaça o exercício.\n\nAs seis categorias organizam padrão de falha já conhecido; elas não garantem cobertura total — uma técnica genuinamente nova, que não se encaixa limpo em nenhuma das seis, pode escapar da lista de perguntas sem que ninguém perceba o vão. E o método aponta onde, estruturalmente, algo pode falhar — não se uma linha específica de código tem um bug; ele nunca substitui revisão de código nem teste.",
+      "analogia": "Uma planta de prédio aprovada não sabe, sozinha, que um novo andar foi construído em cima dela sem ninguém atualizar o desenho original.",
+      "erro_comum": "Tratar um modelo de ameaça feito uma vez, no início do projeto, como válido para sempre — sem refazer quando o sistema muda de verdade.",
+      "fonte": "Teoria 5.3.t4"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "5.3.q1",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Um time terminou de planejar um novo serviço, sem nenhuma linha de código escrita, e quer avaliar o que pode dar errado antes de construir. Qual das alternativas nomeia corretamente essa atividade?",
+      "alternativas": [
+        "Modelagem de ameaça: a pergunta é feita sobre o desenho, antes de existir algo para escanear",
+        "Varredura de vulnerabilidade, porque essa é a única nomenclatura usada neste tipo de avaliação de segurança",
+        "Nem um nem outro: sem uma linha de código sequer escrita nesse desenho, não existe o que avaliar por enquanto",
+        "Varredura de vulnerabilidade, desde que o time use uma ferramenta automatizada depois"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Varredura de vulnerabilidade compara um sistema já existente contra um catálogo de falha conhecida — não há sistema rodando aqui para comparar; o nome da técnica não muda isso.",
+        "2": "A ausência de código não impede avaliação: a suposição por trás de cada componente do desenho já pode ser questionada, e é exatamente isso que está sendo feito.",
+        "3": "Usar ferramenta automatizada depois não muda o que está acontecendo agora — a avaliação do desenho, sem sistema para escanear, continua sendo outra atividade."
+      },
+      "dicas": [
+        "Repare no que existe até agora: um desenho no papel, não um sistema rodando.",
+        "Varredura de vulnerabilidade precisa de algo concreto para comparar contra um catálogo — esse algo ainda não existe aqui.",
+        "A ferramenta usada depois não decide o que a atividade de hoje é."
+      ],
+      "pergunta_socratica": "Antes de conferir: um scanner de vulnerabilidade tem contra o que comparar, se nenhuma linha de código foi escrita?",
+      "explicacao": "Modelagem de ameaça acontece sobre o desenho, antes de qualquer implementação — a pergunta é sobre a suposição por trás de cada componente, não sobre uma falha já catalogada em código existente. Varredura de vulnerabilidade precisa de um sistema real para comparar contra um catálogo conhecido.",
+      "fonte": "Teoria 5.3.t1",
+      "tags": ["modelagem-de-ameacas", "definicao", "fase-de-desenho"]
+    },
+    {
+      "id": "5.3.q2",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Uma equipe roda um scanner de vulnerabilidade conhecida contra o sistema em produção, não encontra nada, e conclui que 'já modelamos as ameaças, está tudo coberto'. O que essa conclusão ignora?",
+      "alternativas": [
+        "Ignora que o scanner deveria ter sido rodado antes de o sistema ir para produção, não depois",
+        "Ignora que scanner de vulnerabilidade e modelagem de ameaça usam a mesma técnica, só com nome diferente",
+        "Ignora que o scanner só reconhece falha já catalogada, não a combinação nova de componentes deste sistema",
+        "Ignora que o resultado do scanner precisa ser revisado por duas pessoas antes de ser aceito"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "O momento de rodar o scanner (antes ou depois de ir para produção) não muda o que ele é capaz de encontrar — o limite é o catálogo que ele consulta, não o timing.",
+        "1": "As duas técnicas são diferentes: uma compara contra catálogo de falha já conhecida, a outra antecipa falha específica de um desenho que ainda não tem precedente documentado.",
+        "3": "Quantas pessoas revisam o resultado não muda o que o scanner é capaz de enxergar — o limite dele é estrutural, não de processo de revisão."
+      },
+      "dicas": [
+        "Um catálogo de falha conhecida só sabe procurar o que já foi documentado nele antes.",
+        "O scanner só apontaria algo se essa falha já tivesse acontecido, documentada, em outro lugar antes.",
+        "A resposta certa não fala de quando rodar a ferramenta nem de quantas pessoas revisam o resultado."
+      ],
+      "pergunta_socratica": "Antes de conferir: um catálogo de falha já documentada consegue prever uma combinação de componentes que nunca existiu antes?",
+      "explicacao": "Scanner de vulnerabilidade conhecida só reconhece o que já está no catálogo dele — falha já documentada em outro sistema. A combinação específica de componentes de um sistema novo pode ter um problema estrutural que nenhum catálogo ainda registrou, porque ele nunca aconteceu com ninguém antes. Confundir 'nada catalogado encontrado' com 'nada pode dar errado' é o erro central do bloco 2.",
+      "fonte": "Teoria 5.3.t2",
+      "tags": ["modelagem-de-ameacas", "vulnerabilidade-conhecida", "catalogo"]
+    },
+    {
+      "id": "5.3.q3",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Num desenho de sistema, dois componentes são operados pelo mesmo time, no mesmo ambiente. Ainda assim, pode existir uma fronteira de confiança entre eles?",
+      "alternativas": [
+        "Não: fronteira de confiança só existe entre sistemas de times ou empresas diferentes",
+        "Não: fronteira de confiança é sinônimo direto de fronteira de rede, e os dois componentes estão na mesma rede interna",
+        "Sim: usar linguagens de programação diferentes já cria, por si só, uma fronteira de confiança entre os dois componentes",
+        "Sim: um componente que recebe entrada externa e outro que só trata dado validado têm confiança diferente"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Fronteira de confiança é sobre onde o nível de confiança muda, não sobre quem é dono de cada lado — dois componentes do mesmo time podem ter papéis diferentes em relação a um dado ainda não validado.",
+        "1": "Fronteira de rede e fronteira de confiança são coisas diferentes — este módulo trata da segunda, que existe mesmo dentro da mesma rede.",
+        "2": "A linguagem de programação usada em cada componente não determina se existe diferença de confiança entre eles — o que importa é o que cada um assume sobre o dado que recebe."
+      },
+      "dicas": [
+        "O que muda entre os dois componentes não é quem os administra, é o que cada um pode assumir sobre o dado que recebe.",
+        "Um deles ainda não sabe se o dado é confiável; o outro já trata como se soubesse.",
+        "Dono do componente e endereço de rede são iguais nos dois lados aqui — o que muda é só a suposição sobre o dado."
+      ],
+      "pergunta_socratica": "Antes de conferir: os dois componentes fazem a mesma suposição sobre a confiabilidade do dado que recebem?",
+      "explicacao": "Fronteira de confiança marca onde o nível de confiança sobre um dado muda — isso pode acontecer dentro do mesmo time, da mesma rede, do mesmo ambiente, sempre que um componente assume algo sobre o dado que o outro lado do fluxo ainda não garantiu.",
+      "fonte": "Teoria 5.3.t3",
+      "tags": ["modelagem-de-ameacas", "fronteira-de-confianca", "decomposicao"]
+    },
+    {
+      "id": "5.3.q4",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "No desenho de um sistema novo, o componente de fila de mensagens vai entregar pedidos ao componente de faturamento. O time descreve o fluxo como 'a fila entrega, o faturamento processa' e passa direto para o próximo componente. O que falta nessa descrição para uma análise de fronteira de confiança?",
+      "alternativas": [
+        "Falta nomear o que o faturamento assume sobre o pedido: trata como já validado, ou como não confiável",
+        "Falta escolher o nome técnico da fila de mensagens antes de continuar o desenho",
+        "Falta desenhar um diagrama gráfico, porque descrição em texto não é suficiente para esse tipo de análise",
+        "Falta decidir qual linguagem de programação os dois componentes vão usar"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O nome técnico da tecnologia de fila não muda a suposição de confiança entre os dois componentes — é detalhe de implementação, não de análise de fronteira.",
+        "2": "A decomposição em componente e fluxo funciona em texto — este módulo não exige diagrama gráfico para identificar uma fronteira de confiança.",
+        "3": "A linguagem de programação de cada componente não determina o que um assume sobre o dado vindo do outro — a suposição de confiança independe dessa escolha técnica."
+      },
+      "dicas": [
+        "'A fila entrega, o faturamento processa' descreve o fluxo, mas não diz o que o faturamento assume sobre o conteúdo recebido.",
+        "A pergunta que falta responder é sobre suposição, não sobre nome de tecnologia ou linguagem.",
+        "Fronteira de confiança aparece quando um lado do fluxo assume algo que o outro lado ainda não garantiu."
+      ],
+      "pergunta_socratica": "Antes de conferir: o componente de faturamento trata o pedido recebido como já validado, ou verifica de novo?",
+      "explicacao": "A descrição do fluxo diz quem entrega e quem processa, mas não diz o que o receptor assume sobre o conteúdo — essa suposição não verificada é exatamente onde a fronteira de confiança mora. Sem nomeá-la, a análise fica incompleta mesmo com o fluxo bem descrito.",
+      "fonte": "Teoria 5.3.t3",
+      "tags": ["modelagem-de-ameacas", "fronteira-de-confianca", "fluxo"]
+    },
+    {
+      "id": "5.3.q5",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "# decomposição do sistema (rascunho de desenho)\ncomponentes:\n  - api_publica\n  - processador_de_pedidos\n  - banco_de_dados\nfluxos:\n  - de: api_publica\n    para: processador_de_pedidos\n    dado: pedido_bruto\n  - de: processador_de_pedidos\n    para: banco_de_dados\n    dado: pedido_validado\n# nota do time: 'só duas fronteiras de confiança aqui, entre api e processador, e entre processador e banco'",
+      "enunciado": "A nota do time conta duas fronteiras de confiança no rascunho. Considerando que `api_publica` recebe requisição de qualquer origem externa, o que essa contagem deixou de fora?",
+      "alternativas": [
+        "Deixou de fora o nome específico da tecnologia de banco de dados usada, informação que precisa constar no rascunho completo",
+        "Deixou de fora a fronteira entre quem está fora do sistema e a `api_publica`, que também é um nível de confiança",
+        "Deixou de fora um quarto componente que certamente existe no sistema real, mas não foi desenhado aqui",
+        "Deixou de fora a necessidade de renomear o campo `pedido_bruto` para `pedido_recebido` no rascunho"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O nome da tecnologia de banco de dados é detalhe de implementação — não afeta a contagem de fronteiras de confiança do desenho.",
+        "2": "O trecho não dá evidência de nenhum componente faltando — a lacuna identificada está na fronteira externa, não em um componente ausente.",
+        "3": "Renomear o campo de dado não muda nenhuma suposição de confiança entre as partes — é só rótulo, sem efeito na análise."
+      },
+      "dicas": [
+        "A contagem do time começa só depois do primeiro fluxo interno — o que existe antes desse primeiro fluxo?",
+        "Origem externa e qualquer componente interno já têm, por definição, níveis de confiança diferentes.",
+        "A fronteira que falta é a mais externa de todas, não uma interna adicional."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem está do lado de fora de `api_publica`, mandando a requisição, tem o mesmo nível de confiança que os componentes internos entre si?",
+      "explicacao": "O rascunho conta as fronteiras entre componentes internos, mas esquece a fronteira mais externa: entre quem está fora do sistema (origem não controlada) e o primeiro componente que recebe essa entrada. Essa é, estruturalmente, a fronteira de maior risco, porque do outro lado dela não há controle nenhum sobre quem está mandando o quê.",
+      "fonte": "Teoria 5.3.t3",
+      "tags": ["modelagem-de-ameacas", "fronteira-de-confianca", "decomposicao"]
+    },
+    {
+      "id": "5.3.q6",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "No desenho de um sistema de mensagens entre dois serviços internos, um componente vai anunciar sua própria identidade ao componente vizinho antes de trocar dado com ele, e o time propõe que o vizinho aceite esse anúncio sem nenhuma verificação. Que categoria estrutural de falha esse desenho deixa em aberto?",
+      "alternativas": [
+        "Negação de serviço: o componente vizinho pode ficar sobrecarregado por muitos anúncios de identidade seguidos",
+        "Divulgação indevida: o conteúdo do anúncio pode ser lido por quem não deveria",
+        "Falsificação de identidade: qualquer componente pode se anunciar com o nome de outro, sem prova",
+        "Alteração indevida: o conteúdo trocado depois do anúncio inicial pode ser modificado no caminho sem verificação"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "O cenário não descreve volume de anúncios nem sobrecarga — o problema descrito é aceitar qualquer identidade anunciada sem verificação, não quantidade.",
+        "1": "O cenário não trata de quem pode ler o conteúdo do anúncio, e sim de aceitar a identidade anunciada sem prova — são mecanismos diferentes.",
+        "3": "O problema descrito acontece no momento do anúncio de identidade, antes mesmo de qualquer dado ser trocado — alteração do dado é uma pergunta seguinte, não a que este desenho expõe agora."
+      },
+      "dicas": [
+        "O desenho descrito é sobre aceitar uma identidade anunciada sem prova nenhuma — pense em qual das seis perguntas do vocabulário isso responde.",
+        "A pergunta central é sobre quem prova ser quem, não sobre volume de tráfego nem sobre quem consegue ler o conteúdo depois.",
+        "A falha está em 'quem diz ser' o componente, não em 'o que ele diz' depois disso."
+      ],
+      "pergunta_socratica": "Antes de conferir: se qualquer componente pudesse se anunciar com o nome do outro, o vizinho teria como perceber?",
+      "explicacao": "Aceitar um anúncio de identidade sem verificação é exatamente a categoria de falsificação de identidade: qualquer parte pode se apresentar como outra, e o receptor não tem como distinguir. É uma falha estrutural do desenho proposto, identificável antes de qualquer linha de código existir.",
+      "fonte": "Teoria 5.3.t4",
+      "tags": ["modelagem-de-ameacas", "falsificacao-de-identidade", "vocabulario"]
+    },
+    {
+      "id": "5.3.q7",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um time está desenhando um serviço interno novo que vai processar solicitações de estorno. No desenho, nenhum componente prevê registrar quem solicitou cada estorno nem quando. Antes de qualquer implementação, isso já representa que categoria estrutural de risco?",
+      "alternativas": [
+        "Divulgação indevida: sem registro, um estorno pode vazar para quem não deveria ver",
+        "Elevação de privilégio: sem registro, um componente comum pode se tornar administrador pleno do sistema inteiro",
+        "Negação de serviço: sem registro, o serviço de estorno pode parar de responder sob carga",
+        "Repúdio: sem registro de autoria, quem solicitou um estorno pode negar tê-lo feito, sem contestação possível"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O cenário não descreve quem teria acesso indevido a um registro — o problema descrito é a ausência do registro em si, não o vazamento de um registro existente.",
+        "1": "Nada no desenho descrito envolve um componente ganhando nível de confiança maior do que tinha — o problema é rastreabilidade de quem agiu, não escalada de permissão.",
+        "2": "O cenário não menciona volume de solicitações nem capacidade do serviço — a ausência de registro não tem relação direta com o serviço parar de responder."
+      },
+      "dicas": [
+        "Pense no que acontece se alguém que solicitou um estorno indevido simplesmente negar ter feito isso.",
+        "A pergunta central da categoria certa é: existe algo que sustente que esta ação foi mesmo feita por quem diz não ter feito?",
+        "Divulgação fala de quem lê um dado; negação de serviço fala de capacidade de resposta; aqui o problema é provar autoria, não nenhum dos dois."
+      ],
+      "pergunta_socratica": "Antes de conferir: se ninguém registrar quem pediu um estorno, como o sistema provaria, depois, que uma pessoa específica pediu?",
+      "explicacao": "Sem um registro que amarre a ação de solicitar um estorno a quem a fez, a pessoa responsável pode negar ter agido, e não existe nada no desenho capaz de contestar essa negativa — essa é a categoria de repúdio, identificável só de olhar o desenho, antes de qualquer estorno real ser processado.",
+      "fonte": "Teoria 5.3.t4",
+      "tags": ["modelagem-de-ameacas", "repudio", "vocabulario"]
+    },
+    {
+      "id": "5.3.q8",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Coloque em ordem as etapas de um exercício de modelagem de ameaças sobre um sistema em fase de desenho.",
+      "itens": [
+        "Listar os componentes do sistema e os fluxos entre eles, em texto",
+        "Marcar onde cada fluxo cruza uma fronteira de confiança",
+        "Aplicar o vocabulário de categorias a cada fluxo que cruza uma fronteira",
+        "Triar cada ameaça encontrada: mitigar, aceitar ou transferir"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "Não dá para marcar fronteira de confiança antes de saber quais componentes e fluxos existem.",
+        "O vocabulário de categorias se aplica a um fluxo específico que já foi identificado como cruzando uma fronteira.",
+        "Triar o que fazer com uma ameaça só faz sentido depois de ela ter sido nomeada por categoria."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para aplicar o vocabulário de categorias a um fluxo antes de saber que esse fluxo cruza uma fronteira de confiança?",
+      "explicacao": "Cada etapa depende do resultado da anterior: listar componentes e fluxos vem antes de marcar fronteiras, porque não há o que marcar sem eles; marcar fronteiras vem antes de aplicar o vocabulário, que só faz sentido sobre um fluxo já identificado como sensível; e a triagem final depende de já existir uma lista de ameaças nomeadas.",
+      "fonte": "Teorias 5.3.t3, 5.3.t4 e 5.3.t5",
+      "tags": ["modelagem-de-ameacas", "processo", "ordenacao"]
+    },
+    {
+      "id": "5.3.q9",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um sistema de processamento em lote, rodando só internamente, nunca teve nenhuma vulnerabilidade publicada em sistemas parecidos. O time decide não modelar ameaça nenhuma, considerando o sistema 'seguro por natureza'. O que esse raciocínio ignora?",
+      "alternativas": [
+        "Ignora que processamento em lote é, por definição, mais seguro do que processamento em tempo real",
+        "Ignora que o time deveria ter rodado um scanner de vulnerabilidade antes de tomar essa decisão",
+        "Ignora que ausência de vulnerabilidade publicada não é ausência de risco nesta combinação de componentes",
+        "Ignora que sistema interno não pode ser atacado por definição, já que não está exposto diretamente à internet"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Processamento em lote não é estruturalmente mais seguro que processamento em tempo real — o tipo de processamento não determina a suposição de confiança entre os componentes envolvidos.",
+        "1": "Rodar um scanner ainda dependeria de um catálogo de falha já conhecida — não resolveria a limitação descrita, que é a ausência de precedente catalogado para esta combinação específica.",
+        "3": "Sistema interno, sem exposição direta à internet, ainda pode ser atingido por quem já tem acesso a outro componente da mesma rede — 'não pode ser atacado por definição' ignora essa rota."
+      },
+      "dicas": [
+        "'Nunca aconteceu com outro sistema parecido' e 'não pode acontecer com este' são afirmações diferentes.",
+        "O que muda entre um sistema exposto à internet e um alcançável só de dentro da rede é o ponto central aqui.",
+        "Processamento em lote e exposição à internet aparecem no enunciado, mas não decidem sozinhos se o risco existe."
+      ],
+      "pergunta_socratica": "Antes de conferir: a ausência de precedente catalogado prova que uma combinação nova de componentes é segura?",
+      "explicacao": "Ausência de vulnerabilidade publicada em sistemas parecidos não é prova de segurança — só significa que ninguém documentou um problema ainda, o que pode ser porque não existe, ou porque ninguém olhou com esse propósito. A combinação específica de componentes deste sistema pode ter uma suposição não verificada que nenhum catálogo cobre.",
+      "fonte": "Teoria 5.3.t2",
+      "tags": ["modelagem-de-ameacas", "catalogo", "sistema-interno"]
+    },
+    {
+      "id": "5.3.q10",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "# decomposição (rascunho)\ncomponentes:\n  - recebedor_de_upload\n  - processador_de_arquivo\nfluxos:\n  - de: recebedor_de_upload\n    para: processador_de_arquivo\n    dado: nome_do_arquivo\n# nota do time: 'processador_de_arquivo usa nome_do_arquivo diretamente para decidir onde salvar, sem reprocessar'",
+      "enunciado": "Considerando que `recebedor_de_upload` vai aceitar arquivo de qualquer usuário externo, o que a nota do time revela sobre a fronteira entre os dois componentes?",
+      "alternativas": [
+        "Revela que `processador_de_arquivo` usa o dado sem verificar, tratando a fronteira como se não existisse",
+        "Revela que os dois componentes deveriam ser fundidos num único bloco, eliminando de vez o fluxo entre eles",
+        "Revela que falta escolher, ainda no rascunho, a linguagem de programação de `processador_de_arquivo`",
+        "Revela que `recebedor_de_upload` deveria ter um nome bem mais descritivo dentro do rascunho"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Fundir os dois componentes não elimina a suposição de confiança sobre o dado — só move o problema para dentro de um componente maior, sem resolvê-lo.",
+        "2": "A linguagem de programação de `processador_de_arquivo` não é o que está em jogo — o problema é a suposição sobre o dado recebido, independente da tecnologia escolhida.",
+        "3": "O nome do componente no rascunho é só rótulo — não afeta a suposição de confiança entre `recebedor_de_upload` e `processador_de_arquivo`."
+      },
+      "dicas": [
+        "O nome do arquivo vem de fora, e é usado diretamente para decidir onde salvar — pense no que isso permite.",
+        "Fundir componentes muda a arquitetura, mas não decide, sozinho, se o dado é confiável.",
+        "O nome do rascunho e a linguagem de `processador_de_arquivo` não mudam se ele confia ou verifica o `nome_do_arquivo` recebido."
+      ],
+      "pergunta_socratica": "Antes de conferir: `processador_de_arquivo` verifica o nome do arquivo antes de usá-lo, ou usa como está?",
+      "explicacao": "O rascunho mostra `processador_de_arquivo` usando `nome_do_arquivo` diretamente, sem reprocessar, mesmo vindo de um usuário externo qualquer — a fronteira entre os dois componentes existe, mas nunca foi tratada como uma fronteira de confiança: o segundo componente trata o dado do primeiro como se já fosse seguro.",
+      "fonte": "Teoria 5.3.t3",
+      "tags": ["modelagem-de-ameacas", "fronteira-de-confianca", "decomposicao"]
+    },
+    {
+      "id": "5.3.q11",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "No desenho de dois serviços internos, o serviço A vai escrever o valor total de um pedido num cache compartilhado, e o serviço B vai ler esse valor para calcular o frete, sem nenhuma verificação de integridade planejada entre a escrita e a leitura. Que categoria estrutural de falha esse desenho deixa em aberto?",
+      "alternativas": [
+        "Negação de serviço: o cache pode ficar totalmente indisponível sob muitas escritas simultâneas de uma vez",
+        "Divulgação indevida: um processo com acesso ao cache pode ler o valor do pedido",
+        "Repúdio: o serviço B não teria como provar depois qual valor exato foi lido por ele",
+        "Alteração indevida: um processo com acesso de escrita pode mudar o valor entre a escrita e a leitura"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O cenário não descreve volume de escrita nem indisponibilidade — o problema descrito é sobre o conteúdo do valor, não sobre a capacidade do cache de responder.",
+        "1": "O cenário não trata de quem pode ler o cache, e sim de quem pode escrever nele sem ser A — são mecanismos diferentes, mesmo os dois envolvendo o mesmo cache.",
+        "2": "Repúdio é sobre negar autoria de uma ação; o problema aqui é o conteúdo do dado mudar entre dois pontos do fluxo, não sobre quem pode negar ter feito algo."
+      },
+      "dicas": [
+        "Pense em quem mais, além de A, poderia escrever nesse mesmo cache compartilhado.",
+        "O problema descrito acontece entre a escrita e a leitura, não no momento de nenhuma das duas isoladamente.",
+        "O que muda o valor entre a escrita de A e a leitura de B é o mecanismo certo aqui, não quem tem permissão de ler o cache."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe algo no desenho que impeça um terceiro processo de escrever nesse cache entre a escrita de A e a leitura de B?",
+      "explicacao": "Sem verificação de integridade entre escrita e leitura, qualquer processo com acesso de escrita ao cache compartilhado pode alterar o valor no meio do caminho, e nem A nem B teriam como perceber — essa é a categoria de alteração indevida, identificável só de olhar o desenho do fluxo.",
+      "fonte": "Teoria 5.3.t4",
+      "tags": ["modelagem-de-ameacas", "alteracao-indevida", "vocabulario"]
+    },
+    {
+      "id": "5.3.q12",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um time desenha um componente de depuração que vai receber cópia de toda mensagem trocada entre dois serviços internos, 'para facilitar investigação futura'. O desenho não decide ainda quem teria acesso de leitura a esse componente. Que categoria de risco esse desenho, ainda no papel, já expõe?",
+      "alternativas": [
+        "Negação de serviço: o componente de depuração pode ficar sobrecarregado de mensagens copiadas",
+        "Divulgação indevida: sem decidir quem lê o componente, dado sensível pode chegar a quem não deveria",
+        "Elevação de privilégio: o componente de depuração ganha, sozinho, controle total sobre os dois serviços originais",
+        "Falsificação de identidade: o componente de depuração pode se passar por um dos dois serviços originais"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O cenário não menciona volume de mensagens nem capacidade do componente — o problema descrito é sobre quem pode ler o conteúdo copiado, não sobre a carga que ele recebe.",
+        "2": "Receber cópia de mensagem não dá ao componente de depuração nenhum controle sobre os dois serviços originais — ele só acumula dado, não permissão de agir sobre eles.",
+        "3": "Nada no desenho descrito envolve o componente de depuração se apresentando como outro — o risco é sobre quem lê o que ele acumula, não sobre falsificar identidade."
+      },
+      "dicas": [
+        "O componente de depuração acumula uma cópia de tudo — pense em quem, além do time de investigação, poderia ter acesso a ele.",
+        "Copiar mensagem não dá controle sobre o que gerou a mensagem — separa o que o componente tem do que ele pode fazer.",
+        "A pergunta certa aqui é sobre quem pode ler o que foi acumulado, não sobre capacidade do componente nem sobre quem gerou a mensagem originalmente."
+      ],
+      "pergunta_socratica": "Antes de conferir: o desenho já decidiu quem pode ler o que o componente de depuração acumula?",
+      "explicacao": "Concentrar cópia de toda mensagem trocada num componente sem decidir quem pode lê-lo cria, desde o desenho, um ponto onde dado sensível originalmente restrito a dois serviços pode chegar a qualquer pessoa com acesso a esse componente — a categoria de divulgação indevida, identificável antes de qualquer mensagem real ser copiada.",
+      "fonte": "Teoria 5.3.t4",
+      "tags": ["modelagem-de-ameacas", "divulgacao-indevida", "vocabulario"]
+    },
+    {
+      "id": "5.3.q13",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "trecho": "# decomposição (rascunho)\ncomponentes:\n  - processador_de_pedidos\nregra_de_retentativa:\n  limite_por_chamador: nenhum\n  intervalo_entre_tentativas: nenhum\n# nota do time: 'qualquer chamador pode tentar de novo quantas vezes precisar'",
+      "enunciado": "A regra de retentativa do rascunho não limita nem a quantidade nem o intervalo entre tentativas de um mesmo chamador. Que categoria de risco esse desenho já expõe, antes de qualquer implementação?",
+      "alternativas": [
+        "Negação de serviço: um chamador pode consumir toda a capacidade só repetindo tentativas sem limite",
+        "Divulgação indevida: tentativas repetidas poderiam revelar dado sensível de outros chamadores distintos",
+        "Repúdio: sem limite de tentativa, um chamador poderia negar ter feito determinada tentativa",
+        "Alteração indevida: tentativas repetidas poderiam alterar o conteúdo de pedidos feitos antes"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O rascunho não descreve nenhum mecanismo pelo qual uma tentativa revelaria dado de outro chamador — o problema é volume de tentativa, não vazamento de conteúdo.",
+        "2": "Ausência de limite de tentativa não afeta se existe registro de quem tentou — a pergunta de repúdio é sobre autoria comprovável, não sobre quantidade permitida.",
+        "3": "O rascunho não descreve nenhuma tentativa alterando pedido já existente — o risco descrito é sobre capacidade de resposta, não sobre integridade de conteúdo antigo."
+      },
+      "dicas": [
+        "Pense no que acontece com a capacidade de `processador_de_pedidos` se um único chamador tentar milhares de vezes seguidas.",
+        "Ausência de limite e de intervalo, juntos, apontam pro mesmo tipo de esgotamento — não pra vazamento nem alteração.",
+        "Sem limite nem intervalo entre tentativas, o que se esgota é a capacidade de resposta do componente, não o registro de autoria nem o conteúdo de pedidos antigos."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe algo no rascunho que impeça um único chamador de tentar milhares de vezes seguidas?",
+      "explicacao": "Sem limite de quantidade nem intervalo entre tentativas, um único chamador — mal-intencionado ou só com um cliente mal configurado — pode consumir toda a capacidade de `processador_de_pedidos`, impedindo chamadores legítimos de serem atendidos. É a categoria de negação de serviço, visível já na regra de retentativa do rascunho.",
+      "fonte": "Teoria 5.3.t4",
+      "tags": ["modelagem-de-ameacas", "negacao-de-servico", "vocabulario"]
+    },
+    {
+      "id": "5.3.q14",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "No desenho de dois serviços internos novos, o time propõe que o serviço de relatórios chame o serviço de faturamento usando um token interno único, com escopo total sobre todas as operações de faturamento — 'assim simplifica o desenho inicial'. Qual é o risco estrutural dessa escolha, e o que a corrigiria ainda no desenho?",
+      "alternativas": [
+        "Não há risco relevante: token interno raramente é alvo de uso indevido por outro componente",
+        "O risco é só de desempenho: token com escopo total processa mais devagar do que um token restrito",
+        "O relatórios ganha, sem precisar, a confiança do faturamento — a correção é restringir o escopo do token",
+        "O risco é só de nomenclatura: o token precisaria apenas de um nome diferente, como 'token de leitura interno'"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "'Interno' descreve onde o token circula, não quem tem acesso a ele — um componente interno comprometido teria o mesmo alcance que o token permite, custe o que custar chamá-lo de interno.",
+        "1": "Escopo do token não determina velocidade de processamento — a preocupação de desempenho não descreve o risco estrutural do desenho proposto.",
+        "3": "Renomear o token não muda o que ele autoriza — o problema é o alcance real da permissão concedida, não o rótulo escolhido para ela."
+      },
+      "dicas": [
+        "Pense no que o serviço de relatórios realmente precisa fazer com o de faturamento: ler, ou qualquer operação?",
+        "Um token com escopo total dá ao serviço de relatórios o mesmo poder que o serviço de faturamento tem sobre si próprio.",
+        "A palavra 'interno' descreve onde o token roda, não o que ele autoriza."
+      ],
+      "pergunta_socratica": "Antes de conferir: o serviço de relatórios precisa de qualquer operação sobre faturamento, ou só de leitura?",
+      "explicacao": "Dar escopo total a um token só porque simplifica o desenho inicial concede ao serviço de relatórios o mesmo nível de confiança que o serviço de faturamento tem sobre si mesmo — se o serviço de relatórios for comprometido, o alcance do dano é o do faturamento inteiro. A correção, ainda no desenho, é restringir o escopo do token à operação de leitura que a chamada realmente precisa.",
+      "fonte": "Teoria 5.3.t4",
+      "tags": ["modelagem-de-ameacas", "elevacao-de-privilegio", "vocabulario"]
+    },
+    {
+      "id": "5.3.q15",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Depois de um exercício de modelagem, um time decide não mitigar uma ameaça específica, porque o custo de mudar o desenho supera o dano esperado, e registra essa decisão com a justificativa e uma data de revisão. Essa escolha resolve a ameaça, do ponto de vista do processo?",
+      "alternativas": [
+        "Não resolve nada: o processo não permite deixar de mitigar uma ameaça já encontrada",
+        "Não resolve: aceitar substitui mitigar só quando o time não consegue implementar a correção a tempo",
+        "Resolve só temporariamente, e deixa de valer assim que a data de revisão registrada passa",
+        "Resolve: aceitar com justificativa e data de revisão é triagem legítima, não omissão"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O processo permite, sim, deixar de mitigar — desde que a decisão de aceitar seja registrada e justificada; a alternativa nega uma saída que o próprio processo prevê.",
+        "1": "Aceitar é decisão baseada em comparar custo e dano esperado, não em falta de tempo para implementar — tratar como substituto de prazo apertado inverte o critério real da triagem.",
+        "2": "A data de revisão marca quando reavaliar a decisão, não uma expiração automática da aceitação — passar a data significa 'hora de rever', não 'a ameaça voltou a existir sozinha'."
+      },
+      "dicas": [
+        "Compare uma ameaça aceita com registro e justificativa com uma ameaça simplesmente esquecida da lista.",
+        "A data de revisão é um lembrete para reavaliar, não um prazo de validade da decisão.",
+        "A justificativa e a data de revisão são o que aparece no registro do time — compare isso com uma ameaça simplesmente ausente da lista."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma ameaça aceita com justificativa registrada é a mesma coisa que uma ameaça esquecida da lista?",
+      "explicacao": "Aceitar uma ameaça, com justificativa e data de revisão registradas, é uma das três saídas legítimas da triagem — ao lado de mitigar e transferir. A falha real não é aceitar, é deixar a ameaça de fora da lista sem nenhum registro, o que impede qualquer revisão futura.",
+      "fonte": "Teoria 5.3.t5",
+      "tags": ["modelagem-de-ameacas", "triagem", "aceitar-risco"]
+    },
+    {
+      "id": "5.3.q16",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Alguém tenta aplicar, a uma ameaça recém-listada num exercício de modelagem, o mesmo critério usado para priorizar um achado de teste de intrusão — 'só prioriza se tiver evidência, reprodução e impacto confirmado'. Por que esse critério não se aplica direto aqui?",
+      "alternativas": [
+        "Aplica-se direto: cada ameaça, modelada ou encontrada em teste, precisa do mesmo tipo de prova",
+        "Não se aplica: a ameaça ainda não tem exploração real; o critério aqui é custo contra dano esperado",
+        "Não se aplica, porque teste de intrusão é uma atividade opcional e modelagem de ameaça é obrigatória",
+        "Aplica-se, mas só depois que o sistema inteiro for colocado formalmente em produção"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Exigir evidência e reprodução de algo que ainda não existe é uma exigência impossível de cumprir — a ameaça modelada é hipotética por definição, antes de qualquer sistema rodando.",
+        "2": "Nenhuma das duas atividades é definida por obrigatoriedade neste módulo ou no 3.1 — a diferença real é o momento em que cada uma acontece, não uma hierarquia de importância.",
+        "3": "Esperar o sistema ir para produção transformaria a ameaça modelada num achado de teste — nesse ponto, já não seria mais triagem de projeto, seria outra atividade, mais tarde e mais cara."
+      },
+      "dicas": [
+        "'Reproduzir' exigiria um sistema já rodando — compare isso com o que existe aqui, que é só um desenho no papel.",
+        "O critério do teste de intrusão pressupõe algo que já aconteceu; a modelagem trabalha com o que ainda não aconteceu.",
+        "Pense no que substituiria 'evidência e reprodução' quando não existe nada ainda para reproduzir."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para reproduzir uma exploração num sistema que ainda não foi construído?",
+      "explicacao": "Evidência, reprodução e impacto confirmado pressupõem um achado real, num sistema que já existe — exatamente o que um teste de intrusão produz. Uma ameaça modelada é hipotética por definição: o critério certo para triá-la é comparar custo de mitigar contra dano esperado, não exigir prova de algo que ainda não aconteceu.",
+      "fonte": "Teoria 5.3.t5",
+      "tags": ["modelagem-de-ameacas", "triagem", "priorizacao"]
+    },
+    {
+      "id": "5.3.q17",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um modelo de ameaça foi feito no desenho inicial de um sistema com três componentes. Oito meses depois, um quarto componente foi integrado para processar pagamento internacional, e ninguém revisou o modelo. Um incidente evidencia justamente uma falha de confiança nesse quarto componente. Por que esse caso não é falha do método aplicado da primeira vez?",
+      "alternativas": [
+        "Porque o modelo não tem gatilho automático de repetição; a atualização depende de alguém lembrar de refazer",
+        "Porque o time deveria ter usado uma sigla mais abrangente na primeira modelagem, cobrindo o componente futuro",
+        "Porque incidente de pagamento internacional exige uma ferramenta de modelagem diferente da usada aqui",
+        "Porque o modelo da primeira vez estava incompleto, já que não previu um componente que ainda nem existia"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nenhuma sigla ou vocabulário de categoria previne um componente que ainda não existia no momento da modelagem — o problema não é de vocabulário, é de atualização.",
+        "2": "Não existe ferramenta diferente exigida por tipo de operação — o mesmo exercício de decompor, marcar fronteira e aplicar o vocabulário vale para qualquer componente, incluindo o de pagamento internacional.",
+        "3": "Não é razoável esperar que um modelo preveja um componente que só passou a existir depois dele — o modelo da primeira vez estava correto para o sistema que existia então."
+      },
+      "dicas": [
+        "Pense no que diferencia um modelo de ameaça de uma ferramenta que roda de novo sozinha a cada mudança.",
+        "O quarto componente não existia quando o modelo foi feito — a pergunta é sobre o que aconteceu depois disso.",
+        "Nenhum evento do sistema, como a integração do quarto componente, aciona sozinho uma nova rodada de modelagem."
+      ],
+      "pergunta_socratica": "Antes de conferir: algo no sistema avisa automaticamente que é hora de refazer o modelo de ameaça quando um componente novo é integrado?",
+      "explicacao": "Um modelo de ameaça não tem gatilho automático de repetição, diferente de um scanner que roda a cada execução ou de uma suíte de teste acionada a cada mudança de código — ele só é refeito se alguém decidir refazê-lo. Um componente integrado depois do exercício original simplesmente não existe para o modelo, e nada no processo avisa sozinho dessa lacuna.",
+      "fonte": "Teoria 5.3.t6",
+      "tags": ["modelagem-de-ameacas", "limite-do-metodo", "atualizacao"]
+    },
+    {
+      "id": "5.3.q18",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um time aplicou as seis perguntas do vocabulário de categorias a todo fluxo do sistema que desenhava. Nenhuma pergunta apontou risco num fluxo específico, onde o uso legítimo e repetido de um componente por um único cliente gera um custo de operação desproporcional, sem tornar o componente indisponível para ninguém. O que esse caso mostra sobre o vocabulário de seis categorias, mesmo aplicado com cuidado?",
+      "alternativas": [
+        "Mostra que o time aplicou as perguntas de forma incompleta, e deveria ter feito mais de seis",
+        "Mostra que negação de serviço já deveria ter capturado esse caso, já que custo desproporcional se encaixa nessa categoria",
+        "Mostra que as seis categorias organizam padrão conhecido, sem garantir cobertura de um risco genuinamente novo",
+        "Mostra que o time deveria ter usado um scanner de vulnerabilidade em vez do vocabulário de categorias"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "O número de perguntas não é o problema — mesmo aplicadas com cuidado, as seis categorias descrevem um conjunto limitado de padrões, e adicionar mais perguntas ad-hoc não garante cobrir um caso que não se encaixa em nenhuma delas por natureza.",
+        "1": "O caso descrito não torna o componente indisponível para ninguém — é justamente por isso que ele não se encaixa limpo na definição de negação de serviço, mesmo tendo uma consequência real de custo.",
+        "3": "Um scanner de vulnerabilidade compara contra catálogo de falha já documentada em outros sistemas — não resolveria um caso que é específico deste desenho e não se encaixa em nenhuma categoria conhecida."
+      },
+      "dicas": [
+        "O caso descrito não deixa ninguém sem conseguir usar o componente — pense se isso ainda cabe na definição estrita de negação de serviço.",
+        "As seis categorias vieram de padrões de falha já conhecidos — um caso genuinamente novo não tem obrigação de se encaixar em nenhuma delas.",
+        "O custo desproporcional descrito não reduz disponibilidade nem se encaixa nas outras cinco definições do vocabulário."
+      ],
+      "pergunta_socratica": "Antes de conferir: o caso descrito impede alguém de usar o componente, ou só custa caro para quem opera o sistema?",
+      "explicacao": "As seis categorias organizam os padrões de falha já conhecidos e testados pela prática — não são uma lista fechada capaz de prever qualquer risco possível. Um risco genuinamente novo, que não reduz disponibilidade nem se encaixa nas outras cinco definições, pode escapar de todas as seis perguntas sem que nenhuma acuse, mesmo com o time aplicando o método com cuidado real.",
+      "fonte": "Teoria 5.3.t6",
+      "tags": ["modelagem-de-ameacas", "limite-do-metodo", "vocabulario"]
+    },
+    {
+      "id": "5.3.q19",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "artefato": "$ python resultado_do_modelo.py --fluxo servico_relatorios-para-servico_faturamento\nfronteira: sim\ncategoria: alteracao_indevida\nmitigacao_recomendada: verificar integridade do valor recebido antes de usar\nstatus: mitigacao planejada para implementacao",
+      "enunciado": "Meses depois, a implementação real da verificação de integridade comparava o campo errado do valor recebido, e um valor alterado passou sem ser detectado. O resultado do modelo, mostrado acima, estava errado?",
+      "alternativas": [
+        "Sim, porque a categoria escolhida no resultado do modelo não era a certa para este caso",
+        "Sim, porque o modelo deveria ter incluído o código-fonte exato da verificação de integridade",
+        "Não é possível saber isso sem rodar o modelo de novo depois do próprio incidente",
+        "Não: o modelo apontou certo a fronteira e a categoria; o defeito foi da implementação"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "A categoria apontada (alteração indevida) é exatamente o mecanismo que falhou — o valor foi alterado sem detecção; o erro não está na categoria escolhida.",
+        "1": "Modelo de ameaça aponta o que precisa ser verificado, não como implementar a verificação linha por linha — exigir o código exato sairia do escopo do que o método se propõe a fazer.",
+        "2": "Rodar o modelo de novo não teria como revelar um defeito de implementação — o modelo opera no nível de desenho, não no nível de código, com ou sem repetição."
+      },
+      "dicas": [
+        "Compare o que a saída do modelo recomendou com o que a implementação realmente fez depois.",
+        "O modelo aponta 'o que verificar'; ele não examina 'a linha de código verificou certo'.",
+        "A resposta certa separa o escopo do modelo do escopo da implementação."
+      ],
+      "pergunta_socratica": "Antes de conferir: o resultado do modelo, mostrado acima, chega a mencionar qual campo específico deveria ser comparado na verificação?",
+      "explicacao": "O modelo cumpriu exatamente o que se propõe: apontar a fronteira, nomear a categoria de risco e recomendar o que precisa ser verificado. Comparar o campo errado na implementação da verificação é um defeito de código, fora do escopo do que um modelo de ameaça examina — ele aponta onde algo pode falhar estruturalmente, nunca se uma linha específica foi escrita certo.",
+      "fonte": "Teoria 5.3.t6",
+      "tags": ["modelagem-de-ameacas", "limite-do-metodo", "implementacao"]
+    },
+    {
+      "id": "5.3.q20",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [2, 3],
+      "enunciado": "Ligue cada situação ao mecanismo do módulo que ela ilustra.",
+      "pares": [
+        ["Token interno com escopo total dado a um serviço que só precisa ler", "Elevação de privilégio: um componente ganha mais confiança do que a chamada exige"],
+        ["Cache compartilhado sem verificação de integridade entre escrita e leitura", "Alteração indevida: o valor pode mudar no caminho sem ser percebido"],
+        ["Componente novo integrado seis meses depois, sem revisão do modelo original", "O modelo não tem gatilho automático que force sua repetição"],
+        ["Verificação de integridade recomendada pelo modelo, implementada comparando o campo errado", "O modelo aponta o que verificar, não se a implementação foi feita certo"]
+      ],
+      "dicas": [
+        "Cada situação corresponde a um bloco de teoria específico deste módulo.",
+        "Pense em qual bloco fala de escopo de token, qual fala de integridade de cache, qual fala de gatilho de atualização, e qual fala do limite entre desenho e implementação.",
+        "Nenhum par exige nada além do que os blocos de teoria já cobriram."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro situações você reconhece de um bloco de teoria específico deste módulo?",
+      "explicacao": "As quatro situações revisam mecanismos distintos: escopo de permissão entre serviços, integridade de dado em trânsito, ausência de gatilho de atualização do modelo, e a fronteira entre o que o modelo examina e o que só a implementação revela.",
+      "fonte": "Teorias 5.3.t4, 5.3.t5 e 5.3.t6",
+      "tags": ["modelagem-de-ameacas", "revisao", "pareamento"]
+    },
+    {
+      "id": "5.3.q21",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um time termina de revisar seu sistema contra a lista de vulnerabilidade mais prevalente da indústria (já vista no nível 3) sem encontrar nenhum item presente, e conclui que o sistema está com a modelagem de ameaça completa. O que essa conclusão confunde?",
+      "alternativas": [
+        "Confunde a ordem certa das duas atividades: a lista de prevalência deveria ter sido revisada depois da modelagem, não antes",
+        "Confunde catálogo de falha comum com a antecipação da combinação específica deste desenho",
+        "Confunde a lista de prevalência com um requisito legal obrigatório, imposto por norma que nenhum dos dois módulos exige cumprir",
+        "Confunde a ausência de item na lista com a garantia de que nenhum componente do sistema carrega bug de implementação escondido"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "A ordem entre as duas atividades não é o que está em jogo aqui — elas respondem perguntas diferentes, e nenhuma depende de a outra ter sido feita antes.",
+        "2": "Nenhum dos dois módulos trata a lista de prevalência como exigência legal — o problema da conclusão é de escopo do catálogo, não de natureza da obrigação.",
+        "3": "A conclusão do time é sobre modelagem de ameaça, não sobre bug de implementação — misturar as duas coisas não é o erro que o enunciado descreve."
+      },
+      "dicas": [
+        "A lista que o time revisou vale pra qualquer sistema parecido — não fala nada sobre o que só este time está construindo agora.",
+        "Nenhuma lista de prevalência foi feita pensando na mistura específica de peças que só este sistema tem.",
+        "A ordem de revisão e a natureza legal da lista não aparecem no raciocínio do time."
+      ],
+      "pergunta_socratica": "Antes de conferir: a lista de prevalência foi construída olhando para este sistema específico, ou para muitos sistemas diferentes ao longo do tempo?",
+      "explicacao": "A lista de vulnerabilidade mais prevalente organiza falha comum, observada em muitos sistemas — não foi construída olhando para a combinação exata de componentes deste desenho. Terminar essa revisão sem achados não substitui perguntar o que essa combinação específica, que ninguém documentou antes, pode deixar passar.",
+      "fonte": "Teoria 5.3.t2",
+      "tags": ["modelagem-de-ameacas", "lista-de-prevalencia", "definicao"]
+    },
+    {
+      "id": "5.3.q22",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um sistema reaproveita um componente de autenticação já usado, sem alteração, em três outros sistemas da empresa, todos sem incidente registrado até hoje. O time conclui que não precisa modelar ameaça para este componente neste sistema novo. Isso é razoável?",
+      "alternativas": [
+        "Não: o componente pode ter fronteiras de confiança diferentes neste sistema, mesmo com o mesmo código",
+        "Sim: histórico de três sistemas sem incidente é evidência estatística suficiente para dispensar qualquer modelagem",
+        "Não: reescrever o componente do zero, sem reaproveitar código dos outros três sistemas, resolveria completamente essa lacuna",
+        "Sim: os três outros sistemas serem da mesma empresa, do mesmo time e usarem a mesma infraestrutura garante que a fronteira de confiança é idêntica aqui"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Ausência de incidente registrado em três sistemas não prova que a combinação de componentes deste sistema novo produz o mesmo resultado — o histórico de outro contexto não decide o risco deste.",
+        "2": "Reescrever o componente do zero não é o que resolve a lacuna descrita — o problema não é o código do componente, é a fronteira de confiança que ele ocupa neste sistema específico.",
+        "3": "Mesma empresa e mesmo time não mudam o que está em jogo — o que importa é com quais outros componentes, deste sistema novo, a fronteira de confiança muda."
+      },
+      "dicas": [
+        "O componente é o mesmo, mas os vizinhos dele no fluxo deste sistema novo podem não ser.",
+        "Histórico de outro sistema não descreve a suposição de confiança entre este componente e os vizinhos daqui.",
+        "Quem é dono do time e da empresa não determina se a fronteira de confiança muda entre um sistema e outro."
+      ],
+      "pergunta_socratica": "Antes de conferir: os componentes vizinhos deste componente de autenticação, neste sistema novo, são os mesmos dos outros três sistemas?",
+      "explicacao": "Reaproveitar um componente sem incidente registrado em outros contextos não garante nada sobre a fronteira de confiança que ele ocupa num sistema novo, com vizinhos diferentes. A modelagem de ameaça avalia a combinação específica deste desenho, não o histórico isolado de uma peça reaproveitada.",
+      "fonte": "Teoria 5.3.t2",
+      "tags": ["modelagem-de-ameacas", "reaproveitamento", "catalogo"]
+    },
+    {
+      "id": "5.3.q23",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "# decomposição (rascunho)\ncomponentes:\n  - painel_administrativo\n  - pipeline_time_a\n  - pipeline_time_b\nfluxos:\n  - de: pipeline_time_a\n    para: painel_administrativo\n    dado: config_compartilhada\n  - de: pipeline_time_b\n    para: painel_administrativo\n    dado: config_compartilhada\n# nota do time: 'painel_administrativo sempre usa o valor mais recente de config_compartilhada, sem registrar de qual pipeline ele veio'",
+      "enunciado": "Considerando que `pipeline_time_a` e `pipeline_time_b` são operados por equipes diferentes, o que a nota do time revela sobre a fronteira em torno de `painel_administrativo`?",
+      "alternativas": [
+        "Revela que os dois pipelines deveriam escrever em arquivos separados, cada um com seu próprio nome",
+        "Revela que falta decidir, ainda no rascunho, qual das duas equipes é dona do componente `painel_administrativo`",
+        "Revela que `painel_administrativo` aplica a config sem checar qual dos dois lados escreveu por último",
+        "Revela que `config_compartilhada` deveria ter um nome mais descritivo dentro do rascunho de decomposição"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Separar os arquivos não resolve a suposição de confiança: mesmo em arquivos distintos, `painel_administrativo` ainda precisaria decidir como tratar escritas vindas de duas origens diferentes.",
+        "1": "Quem é dono do componente é pergunta organizacional — não muda a suposição de confiança sobre o dado recebido dos dois pipelines.",
+        "3": "O nome do dado no rascunho é rótulo — não afeta a suposição feita sobre quem escreveu por último nem sobre o conteúdo recebido."
+      },
+      "dicas": [
+        "Duas equipes diferentes escrevem no mesmo lugar — pense no que falta para saber qual delas mandou o valor mais recente.",
+        "O dono do componente e o nome do dado no rascunho não aparecem como o problema descrito.",
+        "Pense no que acontece se as duas equipes escreverem valores conflitantes ao mesmo tempo."
+      ],
+      "pergunta_socratica": "Antes de conferir: `painel_administrativo` distingue, de alguma forma, se o dado veio de `pipeline_time_a` ou de `pipeline_time_b`?",
+      "explicacao": "Duas origens diferentes escrevendo no mesmo dado compartilhado, aplicado sem checagem de procedência, é uma fronteira de confiança não tratada: `painel_administrativo` trata as duas equipes como uma fonte só, mesmo sendo times distintos com controle independente sobre o que escrevem.",
+      "fonte": "Teoria 5.3.t3",
+      "tags": ["modelagem-de-ameacas", "fronteira-de-confianca", "decomposicao"]
+    },
+    {
+      "id": "5.3.q24",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "No desenho de quatro processos assíncronos que compartilham a mesma fila, cada mensagem carrega um campo `tipo` indicando a qual worker ela pertence, mas worker_de_notificacao lê e processa qualquer mensagem da fila sem checar esse campo, mesmo quando o `tipo` aponta para outro worker. Isso configura uma fronteira de confiança não tratada?",
+      "alternativas": [
+        "Não, porque os quatro workers pertencem ao mesmo sistema e à mesma fila, então o campo `tipo` é só uma formalidade sem efeito real",
+        "Não, já que fila de mensagens é uma tecnologia própria para separar responsabilidade entre processos diferentes",
+        "Sim: hospedar um dos workers numa máquina física diferente das outras três, em outro data center, já seria suficiente para criar essa fronteira sozinho",
+        "Sim: processar mensagem sem checar o campo `tipo` trata mensagens destinadas a outro worker como se fossem próprias, misturando papéis diferentes"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O campo `tipo` existir e não ser checado é exatamente o problema — não é formalidade sem efeito, é a informação que faltou ser usada para decidir o que processar.",
+        "1": "A tecnologia de fila separa o transporte da mensagem, não decide sozinha se o processo que lê deveria agir só sobre mensagens do seu próprio tipo.",
+        "2": "Onde cada worker está hospedado fisicamente não é o que cria essa fronteira — o problema aparece mesmo com os quatro workers na mesma máquina, pela ausência de checagem do campo `tipo`."
+      },
+      "dicas": [
+        "Cada mensagem já diz, no campo `tipo`, para qual worker ela é — o que falta é alguém checar esse campo antes de agir.",
+        "Localização física não muda se o worker processa mensagem que não é dele.",
+        "worker_de_notificacao trata qualquer mensagem da fila como sua, independente do que o campo `tipo` diz."
+      ],
+      "pergunta_socratica": "Antes de conferir: worker_de_notificacao verifica o campo `tipo` antes de processar uma mensagem, ou processa qualquer uma que encontrar?",
+      "explicacao": "Compartilhar fila entre processos com papéis diferentes exige checar a que cada mensagem pertence — processar qualquer mensagem sem olhar o campo `tipo` mistura papéis diferentes, tratando uma mensagem destinada a outro worker como se fosse própria. É uma fronteira de confiança não tratada, distinta do problema de escrita conflitante entre múltiplas origens (visto em q23): aqui o problema é processar o que não é seu, não decidir qual origem escreveu por último.",
+      "fonte": "Teoria 5.3.t3",
+      "tags": ["modelagem-de-ameacas", "fronteira-de-confianca", "fluxo"]
+    },
+    {
+      "id": "5.3.q25",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "No desenho de um sistema, o time planeja registrar, para cada operação sensível, quem a executa e quando — mas decide deixar esse registro acessível a qualquer pessoa com login, sem restrição por papel. Nesse desenho, um usuário poderia negar ter feito uma operação registrada em seu nome, e outro usuário, sem relação com a operação, poderia ler esse mesmo registro por curiosidade. Qual categoria estrutural cobre o segundo risco, e não o primeiro?",
+      "alternativas": [
+        "Repúdio, porque o registro é o mesmo objeto nos dois casos, e a categoria se aplica ao objeto, não ao evento",
+        "Divulgação indevida: o acesso ao registro por quem não deveria ver é problema distinto de contestar autoria",
+        "Elevação de privilégio, porque ler o registro de outra pessoa é sempre um ganho de nível de confiança",
+        "Negação de serviço, porque muitas pessoas acessando o mesmo registro pode sobrecarregar o sistema de auditoria"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "A categoria não se aplica ao objeto registro em si, e sim ao mecanismo de cada problema — o registro existir e ser contestável é repúdio; quem pode lê-lo é outra pergunta, respondida por outra categoria.",
+        "2": "Ler um registro não dá, sozinho, nenhum controle adicional sobre o sistema — ganhar acesso de leitura a um dado não é o mesmo mecanismo que ganhar nível de confiança sobre uma ação.",
+        "3": "O enunciado não descreve volume de acesso nem indisponibilidade do sistema de auditoria — o segundo problema é sobre quem pode ver o conteúdo, não sobre capacidade de resposta."
+      },
+      "dicas": [
+        "O primeiro risco é sobre contestar autoria; o segundo é sobre quem teria permissão de ler o quê.",
+        "Um registro pode resolver a autoria de uma ação e, ao mesmo tempo, ficar acessível a quem não deveria vê-lo.",
+        "Alguém sem nenhuma relação com a operação poderia simplesmente abrir esse registro — isso não tem a ver com autoria nem com capacidade do sistema."
+      ],
+      "pergunta_socratica": "Antes de conferir: o registro existir e ser confiável resolveria, sozinho, a pergunta de quem pode lê-lo?",
+      "explicacao": "O primeiro risco (negar a operação) seria resolvido pela existência de um registro confiável de autoria — é repúdio. O segundo risco (leitura sem relação com a operação) é outra pergunta inteira: quem teria permissão de ver o conteúdo do registro. Um desenho pode responder bem à primeira pergunta e mal à segunda ao mesmo tempo, porque são mecanismos independentes.",
+      "fonte": "Teoria 5.3.t4",
+      "tags": ["modelagem-de-ameacas", "divulgacao-indevida", "contraste"]
+    },
+    {
+      "id": "5.3.q26",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "No desenho de um serviço novo, o time propõe manter um modo de depuração que aceita qualquer comando administrativo sem autenticação, 'só durante os primeiros meses após o lançamento, para facilitar suporte'. Qual é o risco estrutural dessa escolha, e o que a corrigiria ainda no desenho?",
+      "alternativas": [
+        "Qualquer processo com acesso à rede ganha, sem prova, o mesmo nível de confiança de um administrador — a correção é exigir autenticação",
+        "O risco é só temporário e desaparece sozinho assim que os primeiros meses passarem, sem precisar de nenhuma correção no desenho",
+        "O risco é só de desempenho: aceitar comando sem autenticação deixa o modo de depuração mais lento do que deveria",
+        "Não há risco relevante: documentar claramente o modo de depuração para toda a equipe de suporte elimina qualquer problema estrutural aqui"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Um prazo planejado não remove, sozinho, a falha estrutural — nada no desenho garante que o modo será desligado no prazo, e enquanto ele existir, o risco existe.",
+        "2": "Autenticação não determina velocidade de processamento — a preocupação de desempenho não descreve o problema estrutural do desenho proposto.",
+        "3": "Documentar o modo de depuração não muda quem consegue enviar comando administrativo a ele — a lacuna é de verificação, não de registro em documento."
+      },
+      "dicas": [
+        "Pense em quem, além da equipe de suporte, teria acesso à rede onde esse modo de depuração roda.",
+        "O prazo de 'primeiros meses' é uma intenção, não um mecanismo que desliga o modo sozinho.",
+        "Documentação e desempenho não resolvem quem pode enviar um comando administrativo sem prova de identidade."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguém que não é da equipe de suporte, mas tem acesso à mesma rede, conseguiria enviar um comando administrativo por esse modo?",
+      "explicacao": "Aceitar comando administrativo sem autenticação dá, a qualquer processo com acesso à rede, o mesmo nível de confiança de um administrador legítimo — é elevação de privilégio, mesmo sendo uma escolha temporária e bem-intencionada. A correção, ainda no desenho, é exigir autenticação real no modo de depuração, sem depender de o prazo planejado ser respeitado.",
+      "fonte": "Teoria 5.3.t4",
+      "tags": ["modelagem-de-ameacas", "elevacao-de-privilegio", "vocabulario"]
+    },
+    {
+      "id": "5.3.q27",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um time encontra uma ameaça de baixo custo de mitigação direta, mas decide, em vez de mudar o desenho agora, adicionar um alerta que avisa se o padrão de uso daquele fluxo mudar de forma suspeita, revisando a decisão a cada três meses. Essa escolha é qual das três saídas da triagem?",
+      "alternativas": [
+        "Mitigar, porque adicionar um alerta de monitoramento já conta como mudança no desenho do sistema todo",
+        "Aceitar, porque o time decidiu não mudar o desenho, e aceitar é a única saída que não altera nada",
+        "Transferir/monitorar: a causa continua no desenho, mas o dano esperado é reduzido por acompanhamento",
+        "Nenhuma das três: adicionar um alerta de monitoramento é uma quarta saída, fora do que a triagem do método prevê"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Mitigar muda a causa da ameaça no desenho; o alerta descrito não altera o fluxo em si, só monitora o que acontece com ele — a causa continua presente.",
+        "1": "Aceitar é decidir não agir, com justificativa registrada; o time aqui está agindo, adicionando um mecanismo de acompanhamento — não é a mesma escolha.",
+        "3": "Monitorar com revisão periódica é exatamente a terceira saída da triagem, ao lado de mitigar e aceitar — não é uma saída fora do processo."
+      },
+      "dicas": [
+        "O alerta não muda o fluxo original — ele só observa o que acontece com ele.",
+        "Compare esta escolha com simplesmente não fazer nada, que seria a saída de aceitar.",
+        "A causa da ameaça continua no desenho depois dessa decisão — pense no que isso indica."
+      ],
+      "pergunta_socratica": "Antes de conferir: depois dessa decisão, a causa original da ameaça ainda está presente no desenho, sim ou não?",
+      "explicacao": "Transferir/monitorar reduz o dano esperado por acompanhamento contínuo — um alerta que revela mudança suspeita de padrão — sem eliminar a causa estrutural da ameaça, que continua no desenho. É diferente de mitigar (muda a causa) e de aceitar (decide não agir sobre ela).",
+      "fonte": "Teoria 5.3.t5",
+      "tags": ["modelagem-de-ameacas", "triagem", "transferir"]
+    },
+    {
+      "id": "5.3.q28",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "trecho": "# decomposição (rascunho, versão revisada seis meses depois de um incidente)\ncomponentes:\n  - api_publica\n  - processador_de_pedidos\n  - banco_de_dados\n  - cache_de_sessao\n# nota da investigação do incidente: 'cache_de_sessao foi adicionado ao sistema no mês 2, nunca constou em nenhum rascunho de decomposição até esta revisão'",
+      "enunciado": "O modelo de ameaça original, feito no mês 1, não continha `cache_de_sessao` porque o componente ainda não existia. O incidente investigado envolveu justamente uma fronteira de confiança mal tratada nesse componente. Isso é falha do exercício de modelagem feito no mês 1?",
+      "alternativas": [
+        "Sim: um bom exercício de modelagem deveria ter previsto que um componente novo seria adicionado depois",
+        "Sim, porque o time deveria ter usado uma ferramenta que descobre componentes automaticamente pela rede",
+        "Não é possível saber sem refazer o modelo original do zero, reunindo de novo o mesmo time inteiro",
+        "Não: um componente que não existia no momento do exercício não aparece em nenhuma fronteira analisada"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Não é razoável exigir que um exercício de modelagem preveja um componente que ainda nem foi decidido — o modelo do mês 1 estava correto para o sistema que existia então.",
+        "1": "Uma ferramenta de descoberta automática por rede resolveria outro problema (inventário de componentes vivos), não a lacuna descrita, que é sobre o momento em que o exercício de modelagem foi feito.",
+        "2": "Refazer o modelo original não muda o fato histórico: `cache_de_sessao` não existia no mês 1, e por isso não podia constar em nenhuma decomposição feita naquele momento."
+      },
+      "dicas": [
+        "O componente em questão só passou a existir no mês 2 — o exercício foi feito no mês 1.",
+        "Nada no processo de modelagem avisa, sozinho, que um componente novo ficou de fora da decomposição.",
+        "A pergunta não é sobre refazer o exercício, é sobre se o exercício original tinha como prever algo que ainda não existia."
+      ],
+      "pergunta_socratica": "Antes de conferir: um componente que só passou a existir depois do exercício de modelagem poderia constar na decomposição feita antes dele existir?",
+      "explicacao": "Um componente ausente do rascunho — porque foi adicionado depois, ou porque ninguém lembrou dele — simplesmente não aparece em nenhuma fronteira de confiança analisada, e a omissão não se anuncia sozinha. Isso não é falha de quem fez o exercício originalmente; é um limite estrutural do método, que só cobre o que foi listado no momento em que foi feito.",
+      "fonte": "Teoria 5.3.t6",
+      "tags": ["modelagem-de-ameacas", "limite-do-metodo", "componente-omitido"]
+    },
+    {
+      "id": "5.3.q29",
+      "tipo": "conceitual",
+      "dificuldade": 1,
+      "objetivos": [0],
+      "enunciado": "Alguém propõe que 'modelagem de ameaça' e 'lista de vulnerabilidade conhecida' são a mesma atividade, só descrita com palavras diferentes por autores diferentes. Isso está certo?",
+      "alternativas": [
+        "Está certo, desde que as duas usem o mesmo vocabulário de categorias para nomear o que encontram",
+        "Está errado: uma responde 'o que já aconteceu', a outra 'o que este desenho específico deixa passar'",
+        "Está certo, porque as duas exigem o sistema já rodando para produzir qualquer resultado",
+        "Está errado, mas só porque uma das duas é obrigatória por norma interna e a outra não é"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Usar o mesmo vocabulário de categorias para descrever um achado não iguala as duas atividades — uma é sobre precedente já catalogado, a outra é sobre antecipar o que ainda não tem precedente.",
+        "2": "Modelagem de ameaça acontece sobre o desenho, sem exigir sistema rodando — essa é justamente uma das diferenças entre as duas atividades, não uma semelhança.",
+        "3": "Nenhuma das duas é definida, neste módulo ou no 3.7, por obrigatoriedade normativa — a diferença real é sobre quando a pergunta é feita e sobre o que ela cobre."
+      },
+      "dicas": [
+        "Uma das duas atividades precisa de um sistema real para comparar contra um catálogo; a outra não.",
+        "Uma das duas descreve falha já registrada por outra pessoa; a outra descreve o que ninguém documentou ainda, específico deste caso.",
+        "Vocabulário compartilhado para descrever um achado não decide se as duas atividades fazem a mesma pergunta."
+      ],
+      "pergunta_socratica": "Antes de conferir: as duas atividades respondem à mesma pergunta, ou a perguntas diferentes feitas em momentos diferentes?",
+      "explicacao": "As duas atividades são estruturalmente diferentes: lista de vulnerabilidade conhecida organiza o que já aconteceu, documentado, em outros sistemas; modelagem de ameaça antecipa o que a combinação específica deste desenho, sem precedente catalogado, pode deixar passar. Usar palavras parecidas para descrever um achado não torna as duas a mesma pergunta.",
+      "fonte": "Teoria 5.3.t2",
+      "tags": ["modelagem-de-ameacas", "definicao", "catalogo"]
+    },
+    {
+      "id": "5.3.q30",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "No desenho de um sistema que recebe notificação de um serviço externo de pagamento (um webhook), o componente que recebe a notificação vai atualizar o pedido correspondente direto no banco de dados, assumindo que qualquer notificação recebida nesse endpoint é legítima. Que fronteira de confiança esse desenho deixa sem tratamento?",
+      "alternativas": [
+        "A fronteira entre o serviço externo de pagamento e o componente interno que recebe a notificação, tratada como se não existisse",
+        "A fronteira entre o componente interno e o banco de dados, porque todo acesso a banco de dados é, por definição, uma fronteira de confiança",
+        "Nenhuma: como o pedido já existe no banco antes da notificação chegar, não há fronteira nova sendo cruzada",
+        "A fronteira entre o time que desenhou o componente e o time que opera o serviço de pagamento externo"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nem todo acesso a banco de dados é, por si só, uma fronteira de confiança relevante — o que importa aqui é a origem do dado que está sendo escrito, não o destino da escrita.",
+        "2": "O pedido já existir antes não elimina a pergunta sobre a notificação em si: o problema é se o conteúdo dessa notificação específica pode ser confiado sem verificação.",
+        "3": "Fronteira entre times é organizacional, não é o que o desenho descreve — o problema é a origem técnica da notificação sendo aceita sem verificação, não quem administra cada lado."
+      },
+      "dicas": [
+        "A notificação vem de fora do sistema — pense em quem mais poderia enviar algo parecido para o mesmo endpoint.",
+        "O banco de dados recebe a escrita, mas o problema começa antes disso, na entrada da notificação.",
+        "Fronteira entre times não é o mesmo que fronteira entre componentes técnicos do fluxo."
+      ],
+      "pergunta_socratica": "Antes de conferir: o componente que recebe a notificação verifica, de algum jeito, se ela realmente veio do serviço externo de pagamento?",
+      "explicacao": "A notificação chega de um serviço fora do controle do sistema — tratá-la como automaticamente legítima, sem nenhuma verificação, ignora justamente a fronteira de confiança entre o mundo externo e o primeiro componente que recebe essa entrada, a mesma categoria de lacuna vista em outros exemplos deste bloco.",
+      "fonte": "Teoria 5.3.t3",
+      "tags": ["modelagem-de-ameacas", "fronteira-de-confianca", "entrada-externa"]
+    },
+    {
+      "id": "5.3.q31",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "artefato": "$ python resultado_do_modelo.py --fluxo worker_de_notificacao-para-fila_compartilhada\nfronteira: sim\ncategoria: negacao_de_servico\nobservacao: 'worker aceita mensagem de qualquer um dos outros três workers sem checar origem'\nmitigacao_recomendada: limitar taxa de mensagens por segundo",
+      "enunciado": "A observação registrada no resultado acima ('aceita mensagem de qualquer um dos outros três workers sem checar origem') não corresponde à categoria escolhida no mesmo resultado. Qual seria a categoria mais adequada para essa observação específica?",
+      "alternativas": [
+        "Repúdio, porque sem checar origem não há como provar depois quem enviou cada mensagem",
+        "Divulgação indevida, porque aceitar qualquer mensagem expõe o conteúdo da fila a quem não deveria",
+        "Falsificação de identidade, porque qualquer processo pode se passar por um dos workers legítimos sem prova",
+        "A categoria escolhida (negação de serviço) está certa, e limitar taxa é de fato a mitigação certa para o problema descrito"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "A observação não fala de provar autoria de uma mensagem já aceita — fala de aceitar qualquer origem sem verificação, uma pergunta anterior a essa.",
+        "1": "A observação não trata de quem pode ler o conteúdo da fila — trata de quem pode escrever nela sem ser checado, um mecanismo diferente.",
+        "3": "Limitar taxa resolve volume, não identidade — a observação descreve um problema de aceitar qualquer remetente sem prova, que limitar taxa não corrige."
+      },
+      "dicas": [
+        "A observação fala de aceitar qualquer remetente, não de volume de mensagens nem de quem lê o conteúdo.",
+        "Compare 'aceitar mensagem de qualquer um sem checar origem' com as seis perguntas do vocabulário de categorias.",
+        "A mitigação sugerida no resultado (limitar taxa) resolve volume — pense se isso resolveria a observação registrada."
+      ],
+      "pergunta_socratica": "Antes de conferir: limitar quantas mensagens por segundo chegam resolve o problema de não saber quem realmente enviou cada uma?",
+      "explicacao": "A observação descreve aceitar mensagem de qualquer origem sem verificação — isso é falsificação de identidade, não negação de serviço. A categoria escolhida no resultado do modelo estava errada, e a mitigação recomendada (limitar taxa) resolveria volume, não o problema real descrito na própria observação: o resultado de um modelo pode ter um erro de categorização, exatamente como qualquer outro artefato produzido por pessoas.",
+      "fonte": "Teoria 5.3.t4",
+      "tags": ["modelagem-de-ameacas", "falsificacao-de-identidade", "categoria-errada"]
+    },
+    {
+      "id": "5.3.q32",
+      "tipo": "ataque_defesa",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Duas ameaças foram encontradas no mesmo exercício: a primeira tem custo de mitigação alto e dano esperado baixo; a segunda tem custo de mitigação baixo e dano esperado alto. O time decide aceitar a primeira e mitigar a segunda, registrando as duas decisões. Essa triagem é consistente com o critério do método?",
+      "alternativas": [
+        "Não: toda ameaça encontrada precisa ser mitigada, independente do custo, porque aceitar é sempre omissão disfarçada",
+        "Não, porque a ordem certa seria mitigar primeiro a de custo mais alto, já que exige mais planejamento",
+        "Sim, mas só porque as duas decisões foram registradas — o critério usado para escolher não importa",
+        "Sim: pesar custo contra impacto previsto, ameaça por ameaça, é o critério correto do método"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O processo prevê aceitar como saída legítima, desde que registrada e justificada — tratar toda aceitação como omissão nega uma saída que o próprio método reconhece.",
+        "1": "Custo de planejamento maior não é, sozinho, motivo para mitigar primeiro — o critério compara custo de mitigação contra dano esperado, não complexidade de planejamento.",
+        "2": "O registro é necessário, mas não é suficiente sozinho — o critério real por trás da escolha é o que decide se a triagem está certa, não só o fato de ter sido documentada."
+      },
+      "dicas": [
+        "Compare o custo de mitigar cada ameaça com o dano esperado de cada uma, separadamente.",
+        "O time aceitou a de custo alto e dano baixo, e mitigou a de custo baixo e dano alto — avalie essa combinação.",
+        "O registro das duas decisões é necessário, mas o que valida a triagem é o critério usado em cada escolha."
+      ],
+      "pergunta_socratica": "Antes de conferir: faz sentido gastar mais para mitigar uma ameaça de dano baixo do que uma de dano alto?",
+      "explicacao": "O critério da triagem é comparar custo de mitigação contra dano esperado, ameaça por ameaça — aceitar a de custo alto e dano baixo, e mitigar a de custo baixo e dano alto, é exatamente essa lógica aplicada corretamente, não uma exceção ao método.",
+      "fonte": "Teoria 5.3.t5",
+      "tags": ["modelagem-de-ameacas", "triagem", "custo-x-dano"]
+    },
+    {
+      "id": "5.3.q33",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um componente novo, ao ser integrado, herda automaticamente as mesmas credenciais de rede de um componente já existente e confiável, sem que ninguém tenha decidido isso explicitamente no desenho. Isso é mais bem descrito como falsificação de identidade ou como elevação de privilégio?",
+      "alternativas": [
+        "Falsificação de identidade, porque herdar credencial é o mesmo que se passar pelo componente já existente",
+        "Elevação de privilégio: o componente novo ganha, sem decisão explícita, o mesmo nível de confiança do antigo",
+        "As duas ao mesmo tempo, porque toda herança automática de credencial é sempre os dois mecanismos combinados de uma vez",
+        "Nenhuma das duas: herdar credencial automaticamente é só um detalhe de configuração, sem categoria de risco associada"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O componente novo não está se passando por outro perante um terceiro — ele está, de fato, usando a credencial; o problema é o nível de confiança que ela carrega, não uma identidade falsa.",
+        "2": "As duas categorias descrevem mecanismos diferentes — herança automática de credencial não envolve, por si só, ninguém se apresentando como outro perante um terceiro.",
+        "3": "Ganhar, sem decisão explícita, o mesmo nível de confiança de um componente já estabelecido é exatamente o tipo de risco que o vocabulário de categorias existe para nomear — não é um detalhe neutro."
+      },
+      "dicas": [
+        "Pense se o componente novo está fingindo ser outro perante alguém, ou se está de fato ganhando o mesmo poder de outro componente.",
+        "A pergunta central aqui é sobre o que o componente passa a poder fazer, não sobre quem ele finge ser perante terceiros.",
+        "Ninguém escolheu conceder esse poder ao componente novo — ele chegou sozinho, junto com a credencial herdada."
+      ],
+      "pergunta_socratica": "Antes de conferir: o componente novo precisa se apresentar como o componente antigo para algum terceiro, ou ele simplesmente já nasce com o mesmo poder?",
+      "explicacao": "O componente novo não está se passando por outro — ele está, de fato, adquirindo o mesmo nível de confiança de um componente já estabelecido, sem que ninguém tenha decidido isso explicitamente. É elevação de privilégio: um componente ganha mais confiança do que a integração deveria conceder, por herança automática em vez de concessão deliberada.",
+      "fonte": "Teoria 5.3.t4",
+      "tags": ["modelagem-de-ameacas", "elevacao-de-privilegio", "contraste"]
+    },
+    {
+      "id": "5.3.q34",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [1, 2],
+      "enunciado": "Coloque em ordem os passos para aplicar o vocabulário de categorias a um sistema recém-desenhado, do primeiro ao último.",
+      "itens": [
+        "Listar componentes e fluxos do sistema em texto",
+        "Identificar qual fluxo cruza uma fronteira de confiança",
+        "Para o fluxo identificado, fazer as seis perguntas do vocabulário de categorias",
+        "Registrar cada resposta positiva como uma ameaça a ser triada"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "Não dá para identificar fronteira de confiança sem antes saber quais componentes e fluxos existem.",
+        "As seis perguntas do vocabulário se aplicam a um fluxo já identificado como cruzando fronteira, não a qualquer fluxo.",
+        "Registrar como ameaça só faz sentido depois de uma das seis perguntas ter apontado risco."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para registrar uma ameaça antes de aplicar alguma das seis perguntas do vocabulário a um fluxo?",
+      "explicacao": "Cada etapa depende do resultado da anterior: listar componentes e fluxos vem primeiro, porque não há fronteira para identificar sem eles; identificar a fronteira vem antes das seis perguntas, que só fazem sentido sobre um fluxo já marcado como sensível; e registrar como ameaça é o resultado de uma resposta positiva a alguma das seis.",
+      "fonte": "Teorias 5.3.t3 e 5.3.t4",
+      "tags": ["modelagem-de-ameacas", "processo", "vocabulario"]
+    },
+    {
+      "id": "5.3.q35",
+      "tipo": "pareamento",
+      "dificuldade": 2,
+      "objetivos": [0, 3],
+      "enunciado": "Ligue cada situação ao raciocínio do módulo que ela ilustra.",
+      "pares": [
+        ["Time conclui que revisão contra lista de prevalência histórica encerra a modelagem de ameaça", "Iguala um catálogo de falha genérica à antecipação de algo que só este sistema específico pode ter"],
+        ["Componente reaproveitado de outros sistemas sem incidente registrado", "Histórico de outro contexto não decide a fronteira de confiança deste sistema novo"],
+        ["Ameaça aceita com justificativa e data de revisão registradas", "Triagem legítima, diferente de uma ameaça simplesmente esquecida da lista"],
+        ["Componente integrado depois do exercício de modelagem original, sem revisão", "Omissão que o método não anuncia sozinho, por não existir no momento do exercício"]
+      ],
+      "dicas": [
+        "Cada situação corresponde a um raciocínio específico deste módulo, já visto em questões anteriores.",
+        "Duas situações tratam de definição e catálogo; duas tratam de triagem e limite do método.",
+        "Nenhum par exige nada além do que os blocos de teoria já cobriram."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dessas quatro situações você reconhece de um raciocínio específico visto neste módulo?",
+      "explicacao": "As quatro situações revisam mecanismos distintos: a diferença entre catálogo de prevalência e antecipação específica, a independência entre histórico de outro contexto e fronteira deste sistema, a legitimidade de aceitar com registro, e o limite do método diante de um componente que não existia no momento do exercício.",
+      "fonte": "Teorias 5.3.t2, 5.3.t3, 5.3.t5 e 5.3.t6",
+      "tags": ["modelagem-de-ameacas", "revisao", "pareamento"]
+    }
+  ]
+}
