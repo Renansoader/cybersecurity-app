@@ -3,21 +3,21 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-07 · módulo 5.2 (Segurança em nuvem) escrito e
-publicado — **nível 5 em 2 de 6** — o que muda quando a infraestrutura não
-é sua (responsabilidade compartilhada, identidade de carga de trabalho sem
-credencial estática, padrão inseguro por conveniência, infraestrutura
-efêmera e evidência, contraponto do que a nuvem resolve de verdade) ·
-regra 12 aplicada pela primeira vez (três lotes de 8/12/15 questões, nunca
-numa passagem só, lição direta do defeito de posição do 5.1) · mesmo assim
-o defeito de comprimento recorreu nos três lotes e foi corrigido a cada
-checkpoint · revisão adversarial achou uma citação cruzada errada
-(5.1.t3→5.1.t4) e uma questão sem teoria dona, cortada · **sétima e oitava
-variante do molde de dica encontradas na mesma rodada**: eliminação por
-contagem/tema em ~20 de 35 questões (achada só por leitura da lente, o
-medidor de prefixo não pega), e "Pense em/no" em 28,6% das dicas depois da
-primeira reescrita — três moldes seguidos na mesma correção, ver seção 5 ·
-4.221 testes passando
+Última atualização: 2026-09-08 · módulo 5.3 (Modelagem de ameaças) escrito e
+publicado — **nível 5 em 3 de 6** — pensar no ataque antes de ele existir
+(decomposição em componente/fluxo/fronteira de confiança, vocabulário de
+seis categorias pelo mecanismo — nunca pela sigla, triagem mitigar/aceitar/
+transferir, limite honesto do método) · dado central de processo desta
+rodada: **decidir o índice da correta antes de escrever elimina o viés de
+posição na origem (lote 2 nasceu {0:3,1:2,2:3,3:3}, bruto); decidir que a
+correta não será a mais longa antes de escrever NÃO elimina o viés de
+comprimento (lote 3 nasceu 76,9% bruto, pior que qualquer lote anterior do
+módulo) — são duas técnicas de processo diferentes, comprimento só se
+corrige medindo depois** · **nona variante do molde de dica**: hedge
+condicional ("mas só se...", "desde que...") só em alternativas erradas,
+em 5 alternativas de 4 questões · **sétima variante reincidiu pela terceira
+vez consecutiva**, em paráfrase, com texto reciclado entre duas questões ·
+4.332 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -27,18 +27,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 37 de 41 |
-| Questões | 1.297 |
-| Blocos de teoria | 224 |
-| Tags distintas | 953 |
-| Testes automatizados | 4.221 |
+| Módulos de conteúdo escritos | 38 de 41 |
+| Questões | 1.332 |
+| Blocos de teoria | 230 |
+| Tags distintas | 975 |
+| Testes automatizados | 4.332 |
 | Linhas de código Python | ~2.280 no app · ~3.950 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo) · **nível 5** 70 (2 de 6).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo) · **nível 5** 105 (3 de 6).
 
-Tipos de questão em uso: conceitual 508, cenário 289, ataque→defesa 110,
-caça ao erro 106, comando 57, artefato 95, pareamento 77, ordenação 55.
+Tipos de questão em uso: conceitual 517, cenário 301, ataque→defesa 113,
+caça ao erro 111, comando 57, artefato 97, pareamento 79, ordenação 57.
 
 ---
 
@@ -265,8 +265,8 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 - **Nível 3 — Ofensivo**: completo (9 de 9)
 - **Nível 4 — Defensivo**: completo (8 de 8)
-- **Nível 5 — Engenharia e carreira** (4 restantes, 2 de 6 pronto):
-  modelagem de ameaças, GRC, economia da segurança, carreira
+- **Nível 5 — Engenharia e carreira** (3 restantes, 3 de 6 pronto):
+  GRC, economia da segurança, carreira
 
 ### Decisão de escopo — engenharia social não vira módulo novo, nível 3 fecha com 9 (não 10)
 
@@ -330,7 +330,14 @@ fechou logo depois: o que muda quando a infraestrutura não é sua
 trabalho sem credencial estática, padrão inseguro por conveniência,
 infraestrutura efêmera e evidência, contraponto do que a nuvem resolve),
 primeiro módulo escrito sob a regra 12 (três lotes, nunca numa passagem
-só). **Nível 5 em 2 de 6.**
+só) — e o **5.3 (Modelagem de ameaças)** fechou logo depois: pensar no
+ataque antes de ele existir (decomposição em componente/fluxo/fronteira de
+confiança, vocabulário de seis categorias pelo mecanismo, triagem
+mitigar/aceitar/transferir, limite honesto do método mesmo aplicado
+corretamente), maior risco de colisão do curso até então (2.6 e 3.6 já
+ensinavam elevação de privilégio, resolvido ancorando toda categoria em
+sistema em fase de desenho, nunca em RBAC/web já construído). **Nível 5 em
+3 de 6.**
 
 ### Funcionalidades
 
@@ -427,6 +434,7 @@ só). **Nível 5 em 2 de 6.**
   | 3.9 | 9,4% | ok (módulo novo, 05/09/2026 — viés recorreu nos três lotes de escrita: 100%→56%→47% antes de cada correção; publicado bem abaixo do teto) |
   | 5.1 | 6,1% | ok (módulo novo, 06/09/2026 — escrito numa única passagem, não em checkpoints; nasceu em 67% de `mais_longa` e, mais grave, correta no índice 1 em 33 de 34 questões — corrigido por script de rotação de posição, depois rebalanceado em duas passadas de comprimento) |
   | 5.2 | 20,0% | ok (módulo novo, 07/09/2026 — primeiro sob a regra 12, três lotes; viés recorreu nos três mesmo assim: 85,7%→64,7%→53,3% antes de cada correção; publicado dentro do teto) |
+  | 5.3 | 9,7% | ok (módulo novo, 08/09/2026 — três lotes; lote 1 nasceu 100% (7/7); lote 2, decidindo o índice da correta antes de escrever, eliminou o viés de posição na origem mas o de comprimento recorreu igual, bruto 66,7%; lote 3, decidindo que a correta não seria a mais longa antes de escrever, não preveniu nada — bruto 76,9% (10/13), pior que qualquer lote anterior do módulo; decidir posição antes funciona, decidir comprimento antes não funciona, são duas técnicas de processo diferentes; publicado bem abaixo do teto) |
 
   **11 de 31 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
   0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8, 3.4 e 3.5,
@@ -491,6 +499,7 @@ só). **Nível 5 em 2 de 6.**
   | 3.9 | 9,4% (3/32) | 3,2% | ok (módulo novo, 05/09/2026) |
   | 5.1 | 12,5% (4/32) | 5,0% | ok (módulo novo, 06/09/2026) |
   | 5.2 | 20,0% (6/30) | 9,5% | ok (módulo novo, 07/09/2026) |
+  | 5.3 | 9,7% (3/31) | 9,7% | ok (módulo novo, 08/09/2026) |
 
   **Mediana do corpus: 35,5%.** O teto de 40% não foi escolhido de novo —
   foi conferido contra o mesmo critério estatístico independente já usado
@@ -591,6 +600,40 @@ só). **Nível 5 em 2 de 6.**
   o dado que os módulos futuros precisam esperar, não uma nota de
   rodapé.** Medir de novo depois de cada reescrita em lote, nunca só
   antes dela.
+
+  **Nona variante, achada no 5.3, 08/09/2026 — hedge condicional só nas
+  erradas.** A revisão adversarial (lente de forma) achou uma alternativa
+  errada com qualificador do tipo "mas só se...", "desde que..." pendurado
+  no final, em **5 alternativas de 4 questões** (`5.3.q3`, `5.3.q22`×2,
+  `5.3.q24`, `5.3.q26`) — e nas 5 vezes o qualificador condicional aparecia
+  numa alternativa errada, nunca na correta. Nenhuma ferramenta automatizada
+  pega isso: `chutador_de_forma.py` mede comprimento e ausência de palavra
+  absoluta, não a presença de uma cláusula condicional; `medidor_molde_dica.py`
+  olha só as dicas, não as alternativas. Um aluno pode aprender "alternativa
+  com 'mas só se' pendurado = distratora" sem nunca precisar entender o
+  mecanismo. Corrigida pela mesma técnica já usada no 5.2 para hedge em
+  dica: trocar o qualificador condicional por uma afirmação direta e
+  falsificável (ex.: "Sim, mas só se os dois componentes usarem linguagem
+  de programação diferente" virou "Sim: usar linguagens de programação
+  diferentes já cria, por si só, uma fronteira de confiança entre os dois
+  componentes" — continua errada, agora por um motivo verificável, não por
+  uma marca de forma).
+
+  **Sétima variante reincidiu pela terceira vez consecutiva no 5.3,
+  08/09/2026, agora em paráfrase e com texto reciclado entre questões.**
+  Depois de corrigida no 5.2 (achada pela lente) e de o alerta explícito
+  ter sido dado antes de escrever o 5.3, a eliminação por contagem/tema
+  reapareceu em 6 dicas do eixo de vocabulário de categorias (`5.3.q6`,
+  `q7`, `q11`, `q12`, `q13`, `q25`) — do tipo "as outras três categorias
+  não aparecem neste cenário". Duas delas (`q7` e `q12`) tinham o **mesmo
+  texto, palavra por palavra, reciclado entre questões diferentes** — sinal
+  de que a dica nasceu como preenchimento genérico, não como raciocínio
+  sobre a questão específica. **Reincidência é o comportamento normal desta
+  variante, não uma exceção a explicar** — já são três rodadas seguidas
+  (5.2 achado original, 5.3 checkpoint 1 achado avulso em `q3`, 5.3 revisão
+  final achado em 6 questões): o processo que funciona não é "avisar antes
+  de escrever", é medir de novo, por leitura manual, em toda revisão
+  adversarial futura, sempre.
 
   **Piloto de correção — módulo 0.1, 01/09/2026.** Escolhido por ser o
   primeiro módulo do curso (vazamento ali contamina a base inteira) e por
@@ -1436,6 +1479,90 @@ só). **Nível 5 em 2 de 6.**
   Validação final: `pytest -q` (4.221 testes, 0 falhas) e
   `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 37
   módulos). +35 questões, +6 blocos de teoria. **Nível 5 em 2 de 6.**
+- **Módulo 5.3 escrito, 08/09/2026 — Modelagem de ameaças, pensar no ataque
+  antes de ele existir. Maior risco de colisão medido no curso até então.**
+  Levantamento de não-repetição mediu, por leitura (não só grep), 8
+  módulos apontados (5.1, 4.1, 4.3, 3.1, 3.6, 2.6, 1.4) mais o 3.7 por
+  iniciativa própria: colisão **severa** de mecanismo achada em dois —
+  2.6 já ensina elevação de privilégio via RBAC/ACL mal desenhado, 3.6 já
+  ensina a mesma categoria aplicada a autorização web já construída.
+  Resolvido ancorando toda categoria do eixo 3 (vocabulário) em sistema em
+  **fase de desenho**, nunca em aplicação já rodando ou modelo de RBAC já
+  ensinado — regra verificada mecanicamente a cada checkpoint (tempo
+  verbal futuro/planejado, nunca código já escrito, requisição já feita ou
+  usuário já autenticado). Colisões leves em 4.1 (mesma forma retórica de
+  "X não é Y"), 4.3 (fronteira de confiança vs. falha de modo comum), 1.4
+  (fronteira de rede vs. fronteira de confiança) e 3.1 (priorização de
+  achado confirmado vs. triagem de projeto hipotético), todas resolvidas
+  por referência cruzada nomeada, não reescrita. Levantamento completo em
+  `data/rascunhos/nivel-5/fontes/nao-repetir-5.3.md`.
+
+  **Regra 12 contém o dano; não corrige o hábito — dado do lote 1.** Mesmo
+  logo depois de documentar o defeito de índice fixo do 5.1 (33 de 34), o
+  lote 1 do 5.3 (8 questões) nasceu com a correta no índice 1 em **7 de
+  7** questões de múltipla escolha — o mesmo defeito, na mesma proporção,
+  só que contido a um lote pequeno em vez de contaminar o módulo inteiro.
+  A regra 12 cumpriu exatamente o que promete (limitar o tamanho do dano);
+  não mudou o hábito de escrita, que só muda quando a atenção de variar
+  entra no processo de escrever cada questão, não só na medição depois.
+
+  **Mudança de processo testada e confirmada no lote 2: decidir o índice
+  da correta antes de escrever as alternativas elimina o viés de posição
+  na origem.** Lote 2 (12 questões) nasceu, bruto, sem correção nenhuma,
+  em {0:3, 1:2, 2:3, 3:3} — zero recaída de índice fixo. Mas o
+  comprimento recorreu de qualquer jeito, bruto, em 11 de 11 questões do
+  mesmo lote (66,7% mais_longa) — defeito independente: nasce do hábito de
+  explicar o mecanismo inteiro na correta e resolver as erradas em uma
+  linha, e decidir a posição antes não toca nisso.
+
+  **Amarra experimental do lote 3, testada e refutada: decidir que a
+  correta não será a mais longa, antes de escrever, NÃO funciona como
+  decidir a posição antes.** Medição bruta, antes de qualquer correção:
+  **76,9% mais_longa (10 de 13)** — pior do que qualquer lote anterior do
+  módulo, incluindo o lote 1 sem amarra nenhuma. Posição é uma decisão
+  discreta tomada uma vez, antes de existir texto; comprimento nasce
+  frase a frase enquanto o texto é escrito, e uma intenção declarada no
+  início não tem mecanismo para se impor sobre o hábito de escrita.
+  **Conclusão de processo para os módulos futuros: posição se resolve
+  decidindo antes; comprimento só se resolve medindo depois de cada
+  lote, sempre — as duas exigem técnicas diferentes, não a mesma
+  disciplina aplicada duas vezes.**
+
+  Corrigidas as 10 questões do lote 3, e as 5 do lote 1 e 2 restantes
+  quando aplicável, sem trocar absoluto por hedge (lição carregada do
+  5.2). Publicado em **9,7% mais_longa / 9,7% mais_curta / 9,7%
+  evita_absoluto / 5,7% molde de dica** (prefixo exato), todos dentro do
+  teto. Posição da correta sobre as 31 questões com índice: {0:8, 1:7,
+  2:8, 3:8} — máximo 25,8%, bem abaixo dos 32% pedidos.
+
+  **Duas lentes de revisão adversarial.** Lente 1 (factual/citação): zero
+  achados nas seis checagens — todas as citações internas e externas
+  (4.1.t6, 3.7, 3.1.t6, 5.1.t2) conferidas lendo os arquivos citados;
+  nenhuma sigla (STRIDE) usada como resposta correta memorizável, a
+  palavra nem aparece no módulo.
+
+  Lente 2 (forma/molde) achou quatro problemas. **Sétima variante
+  reincidiu pela terceira vez consecutiva**, em paráfrase, em 6 dicas do
+  eixo de vocabulário (`q6`, `q7`, `q11`, `q12`, `q13`, `q25`) — duas
+  delas (`q7`/`q12`) com o mesmo texto reciclado entre questões
+  diferentes. **Nona variante, nova: hedge condicional ("mas só se...",
+  "desde que...") aparecendo só em alternativas erradas**, nunca na
+  correta, em 5 alternativas de 4 questões (`q3`, `q22`×2, `q24`, `q26`) —
+  corrigida trocando o condicional por afirmação direta falsificável,
+  mesma técnica do hedge em dica do 5.2. Uma questão (`q25`) violava a
+  regra mecânica do eixo 3 ao descrever sistema já em operação em vez de
+  fase de desenho — reescrita. Uma quase-duplicata (`q23`/`q24`, mesmo
+  mecanismo de "múltiplas origens tratadas como fonte única") —
+  `q24` redesenhada com mecanismo distinto (checagem de campo de tipo/
+  destinatário, não disputa de procedência). Ver as duas novas variantes
+  detalhadas na seção 5. Todas as correções revalidadas por todas as
+  ferramentas antes de publicar, não só a que motivou a correção.
+
+  Relatório completo em `data/rascunhos/nivel-5/relatorios/5.3.md`.
+
+  Validação final: `pytest -q` (4.332 testes, 0 falhas) e
+  `validar_modulo.py data/modulos/*.json` (exit 0, 0 falhas em 38
+  módulos). +35 questões, +6 blocos de teoria. **Nível 5 em 3 de 6.**
 
 ---
 
