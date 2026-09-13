@@ -3,21 +3,26 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-08 · módulo 5.3 (Modelagem de ameaças) escrito e
-publicado — **nível 5 em 3 de 6** — pensar no ataque antes de ele existir
-(decomposição em componente/fluxo/fronteira de confiança, vocabulário de
-seis categorias pelo mecanismo — nunca pela sigla, triagem mitigar/aceitar/
-transferir, limite honesto do método) · dado central de processo desta
-rodada: **decidir o índice da correta antes de escrever elimina o viés de
-posição na origem (lote 2 nasceu {0:3,1:2,2:3,3:3}, bruto); decidir que a
-correta não será a mais longa antes de escrever NÃO elimina o viés de
-comprimento (lote 3 nasceu 76,9% bruto, pior que qualquer lote anterior do
-módulo) — são duas técnicas de processo diferentes, comprimento só se
-corrige medindo depois** · **nona variante do molde de dica**: hedge
-condicional ("mas só se...", "desde que...") só em alternativas erradas,
-em 5 alternativas de 4 questões · **sétima variante reincidiu pela terceira
-vez consecutiva**, em paráfrase, com texto reciclado entre duas questões ·
-4.332 testes passando
+Última atualização: 2026-09-13 · módulo 5.4 (GRC: governança, risco e
+conformidade) escrito e publicado — **nível 5 em 4 de 6** — governança
+como decisão registrada com dono nomeado, risco como comparação de
+portfólio (não triagem de um risco por vez), os dois erros simétricos
+entre conformidade e segurança, auditoria como distinção entre prática e
+prova de prática, limite honesto do GRC (governa a decisão, não a sorte)
+· dado central de processo desta rodada, agora confirmado em dois módulos
+seguidos (ver regra 13): **decidir posição antes de escrever funciona;
+decidir comprimento antes não funciona, nunca; corrigir comprimento por
+uma alavanca só (só cortar a correta) produz viés espelhado, não elimina
+o defeito — a correção exige as duas alavancas juntas, medidas nas duas
+pontas, sempre** · **décima variante do molde de dica, a mais disseminada
+já achada no curso**: esqueleto "Nem X, nem Y, [verbo]" em 22 de 35
+questões (63%) — medidor só achou 5,7%, cego ao padrão por ser estrutural,
+não lexical (terceira vez que o limite da ferramenta fica explícito:
+sexta variante no 3.7, sétima no 5.2, décima agora) · **sétima variante,
+quarta reincidência**, 4 cópias quase idênticas sem variar entre módulos
+· **primeiro corte de questão por falha no teste "ensina a decidir?"**
+(`5.4.q20`), substituída por questão nova testada antes de aceitar
+(`5.4.q36`) · 4.445 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -27,18 +32,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 38 de 41 |
-| Questões | 1.332 |
-| Blocos de teoria | 230 |
-| Tags distintas | 975 |
-| Testes automatizados | 4.332 |
+| Módulos de conteúdo escritos | 39 de 41 |
+| Questões | 1.367 |
+| Blocos de teoria | 236 |
+| Tags distintas | 1.003 |
+| Testes automatizados | 4.445 |
 | Linhas de código Python | ~2.280 no app · ~3.950 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo) · **nível 5** 105 (3 de 6).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo) · **nível 5** 140 (4 de 6).
 
-Tipos de questão em uso: conceitual 517, cenário 301, ataque→defesa 113,
-caça ao erro 111, comando 57, artefato 97, pareamento 79, ordenação 57.
+Tipos de questão em uso: conceitual 523, cenário 314, ataque→defesa 117,
+caça ao erro 116, comando 57, artefato 102, pareamento 79, ordenação 59.
 
 ---
 
@@ -230,8 +235,9 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
-**Nível 5 — Engenharia, risco e carreira** (70 questões, 2 de 6)
-5.1 Desenvolvimento seguro · 5.2 Segurança em nuvem
+**Nível 5 — Engenharia, risco e carreira** (140 questões, 4 de 6)
+5.1 Desenvolvimento seguro · 5.2 Segurança em nuvem · 5.3 Modelagem de
+ameaças · 5.4 GRC: governança, risco e conformidade
 
 **Nível 4 — Defensivo** (280 questões, 8 de 8, completo)
 4.1 Hardening · 4.2 Segurança de rede · 4.3 Defesa em profundidade · 4.4 Malware ·
@@ -265,8 +271,8 @@ Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 
 - **Nível 3 — Ofensivo**: completo (9 de 9)
 - **Nível 4 — Defensivo**: completo (8 de 8)
-- **Nível 5 — Engenharia e carreira** (3 restantes, 3 de 6 pronto):
-  GRC, economia da segurança, carreira
+- **Nível 5 — Engenharia e carreira** (2 restantes, 4 de 6 pronto):
+  economia da segurança, carreira
 
 ### Decisão de escopo — engenharia social não vira módulo novo, nível 3 fecha com 9 (não 10)
 
@@ -435,6 +441,7 @@ sistema em fase de desenho, nunca em RBAC/web já construído). **Nível 5 em
   | 5.1 | 6,1% | ok (módulo novo, 06/09/2026 — escrito numa única passagem, não em checkpoints; nasceu em 67% de `mais_longa` e, mais grave, correta no índice 1 em 33 de 34 questões — corrigido por script de rotação de posição, depois rebalanceado em duas passadas de comprimento) |
   | 5.2 | 20,0% | ok (módulo novo, 07/09/2026 — primeiro sob a regra 12, três lotes; viés recorreu nos três mesmo assim: 85,7%→64,7%→53,3% antes de cada correção; publicado dentro do teto) |
   | 5.3 | 9,7% | ok (módulo novo, 08/09/2026 — três lotes; lote 1 nasceu 100% (7/7); lote 2, decidindo o índice da correta antes de escrever, eliminou o viés de posição na origem mas o de comprimento recorreu igual, bruto 66,7%; lote 3, decidindo que a correta não seria a mais longa antes de escrever, não preveniu nada — bruto 76,9% (10/13), pior que qualquer lote anterior do módulo; decidir posição antes funciona, decidir comprimento antes não funciona, são duas técnicas de processo diferentes; publicado bem abaixo do teto) |
+  | 5.4 | 9,1% (3/33) | ok (módulo novo, 13/09/2026 — quarto módulo de GRC; três lotes, viés recorreu nos três: lote 1 100% bruto (7/7), lote 2 100% bruto (12/12), lote 3 100% bruto (14/14) — quinta reincidência seguida do mesmo hábito de escrita, confirmando de novo a lição do 5.3: escrever com cuidado não substitui medir depois. Corrigir com uma alavanca só (lote 2, só cortar a correta) produziu viés espelhado — `mais_curta` subiu a 26,3%, o dobro das outras duas métricas do mesmo checkpoint — e a partir do lote 3 a correção passou a usar as duas alavancas sempre juntas (encurtar a correta E alongar o distrator mais curto), medindo as duas pontas a cada rodada; publicado bem abaixo do teto) |
 
   **11 de 31 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
   0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8, 3.4 e 3.5,
@@ -500,6 +507,7 @@ sistema em fase de desenho, nunca em RBAC/web já construído). **Nível 5 em
   | 5.1 | 12,5% (4/32) | 5,0% | ok (módulo novo, 06/09/2026) |
   | 5.2 | 20,0% (6/30) | 9,5% | ok (módulo novo, 07/09/2026) |
   | 5.3 | 9,7% (3/31) | 9,7% | ok (módulo novo, 08/09/2026) |
+  | 5.4 | 21,2% (7/33) | 10,7% | ok (módulo novo, 13/09/2026) |
 
   **Mediana do corpus: 35,5%.** O teto de 40% não foi escolhido de novo —
   foi conferido contra o mesmo critério estatístico independente já usado
@@ -634,6 +642,62 @@ sistema em fase de desenho, nunca em RBAC/web já construído). **Nível 5 em
   final achado em 6 questões): o processo que funciona não é "avisar antes
   de escrever", é medir de novo, por leitura manual, em toda revisão
   adversarial futura, sempre.
+
+  **Sétima variante, quarta reincidência, no 5.4, 12/09/2026 — quatro
+  cópias quase idênticas, sem mudar de módulo pra módulo.** A revisão
+  adversarial (lente de forma) achou "Nenhuma das opções que [tema
+  abstrato] tem apoio no [cenário/registro]" em `5.4.q4`, `q5`, `q21` e
+  `q28` — mesma família de eliminação por contagem/tema já vista no 5.2 e
+  no 5.3, agora sem sequer variar a paráfrase entre módulos diferentes.
+  Reescritas as quatro nomeando um objeto concreto do próprio enunciado
+  (o ticket ausente, o checklist assinado, a ferramenta de isolamento, o
+  relatório mensal entregue).
+
+  **Décima variante, achada no 5.4, 12/09/2026 — a mais disseminada já
+  encontrada no curso, e achada só por leitura, nunca pelo medidor.** A
+  lente de forma achou o esqueleto "Nem X, nem Y, [verbo]" fechando a
+  dica 3 em **22 de 35 questões (63%)** — mais que o dobro da sétima
+  variante no 5.2 (~20/35) e a maior concentração de molde já registrada
+  neste projeto. `medidor_molde_dica.py`, rodado no mesmo arquivo, mediu
+  **5,7%** — cego a 92% do próprio padrão que estava medindo, porque o
+  molde é estrutural (mesma forma gramatical, substantivos diferentes a
+  cada questão), e a ferramenta só compara prefixo léxico exato de 5
+  palavras. **Este é o limite da ferramenta ficando explícito pela
+  terceira vez** — sexta variante no 3.7 (`Pense em/no/na...`/`Volte a
+  [id]...`, invisível por causa do id variável), sétima variante no 5.2
+  (eliminação por tema, prefixo textual diferente a cada vez), décima
+  variante agora (esqueleto gramatical idêntico, léxico diferente): as
+  três variantes mais disseminadas do corpus inteiro foram achadas pela
+  mesma via — leitura manual da revisão adversarial — e nenhuma delas
+  pelo medidor automático, que segue útil para o que mede (prefixo
+  exato), mas nunca foi, e não é, suficiente sozinho. Reescritas as 21
+  ocorrências restantes (uma das 22 original, em `5.4.q20`, saiu do
+  módulo por outro motivo — ver abaixo), cada uma com estrutura de frase
+  diferente (afirmação direta, reformulação positiva, contraste), sem
+  template comum entre elas — conferido por leitura depois da reescrita,
+  seguindo a lição já registrada acima (a correção de um molde em lote
+  cria o próximo três vezes seguidas antes desta): nenhum prefixo de 4
+  palavras se repetiu mais de uma vez entre as 35 dicas de fechamento do
+  módulo publicado.
+
+  **`5.4.q20` cortada por não passar no teste "ensina a decidir?", não
+  consertada — primeira vez neste curso que uma questão é descartada em
+  vez de reescrita.** A mesma revisão adversarial aplicou, de forma
+  cética, o teste pedagógico do projeto às 35 questões do módulo: 34
+  passaram, `q20` não — reafirmava quase literalmente a tese de `5.4.t1`/
+  `t2` (registro sobrevive à saída de quem decidiu), sem ambiguidade real
+  pra pesar e com duas alternativas erradas absurdas por bom senso puro,
+  sem precisar de nenhuma teoria do módulo. Consertar uma questão que
+  falha esse teste reescreve só a forma, não resolve a ausência
+  de decisão real — por isso a regra aplicada foi cortar, e escrever uma
+  substituta do zero, testada contra o mesmo critério antes de aceitar.
+  `5.4.q36` entrou no lugar (mesmo eixo, governança): dono técnico de
+  sistema entra de licença médica, gerente assume a decisão de risco e
+  registra nome, critério e data como responsável temporário — testa se o
+  aluno distingue autoridade nomeada numa política (papel padrão) de
+  autoridade de fato com delegação documentada, mecanismo novo dentro do
+  eixo, sem repetir nenhum dos outros seis casos de governança já escritos
+  no módulo.
 
   **Piloto de correção — módulo 0.1, 01/09/2026.** Escolhido por ser o
   primeiro módulo do curso (vazamento ali contamina a base inteira) e por
@@ -1792,6 +1856,39 @@ Seis hábitos, em ordem de retorno:
     são o que mantém o defeito num lote pequeno o bastante para corrigir
     sem script de rotação em massa. Escrever em três lotes é obrigatório,
     não recomendado.
+13. **Posição e comprimento são dois defeitos de forma diferentes, com duas
+    técnicas de correção diferentes — e comprimento só se corrige medindo
+    depois, nunca decidindo antes.** Testado e refutado no 5.3 (checkpoint
+    3): decidir, antes de escrever cada questão, que o índice da correta
+    seria variado eliminou o viés de posição na origem (lote 2 nasceu já
+    equilibrado); decidir, antes de escrever, que a correta não seria a
+    mais longa não preveniu nada (lote 3 nasceu em 76,9%, pior que
+    qualquer lote anterior do mesmo módulo). O 5.4 reincidiu nos três
+    lotes seguidos (100% bruto em cada um) mesmo com a lição já registrada
+    e escrita no processo — confirma que a técnica que funciona pra
+    posição (decidir antes) não transfere pra comprimento (que exige medir
+    e corrigir depois de cada lote, sempre, sem exceção).
+
+    **Corrigir comprimento por uma alavanca só produz viés espelhado, não
+    elimina o defeito — mesma família de erro já vista no 5.2 com hedge
+    condicional trocado por absoluto.** No 5.4, lote 2, cortar só a
+    alternativa correta (sem alongar nenhum distrator) baixou `mais_longa`
+    a 10,5%, mas empurrou `mais_curta` a 26,3% — o dobro das outras duas
+    métricas do mesmo checkpoint. No lote 3, a mesma tentativa de corrigir
+    com uma alavanca só chegou a empurrar `mais_curta` a 43% numa rodada
+    intermediária, antes de recalibrar. O defeito não desaparece com uma
+    alavanca só, só troca de sinal: a correta deixa de ser reconhecível
+    por ser a mais longa e passa a ser reconhecível por ser a mais curta,
+    pra um aluno que perceba o padrão inverso. **Regra de processo que
+    sobrevive**: toda correção de comprimento usa as duas alavancas juntas
+    — encurtar a correta E alongar o distrator mais curto — medindo as
+    duas pontas (`mais_longa` e `mais_curta`) a cada correção, nunca só a
+    métrica que estourou o teto; e `validar_modulo.py` roda depois de
+    **toda** correção de comprimento, não só no fim do lote, porque a
+    reescrita de frase que qualquer uma das duas alavancas exige puxa
+    vocabulário do gabarito pra dentro da dica ou do enunciado — 5
+    vazamentos no lote 1 do 5.4, 1 no lote 2, 3 no lote 3, todos causados
+    pela correção anterior, nunca pela escrita original.
 
 ### Padrão aprendido: regra nascida, medida e descartada
 
