@@ -1,0 +1,1044 @@
+{
+  "id": "5.4",
+  "nivel": 5,
+  "titulo": "GRC: governança, risco e conformidade — quem decide, com base em quê",
+  "objetivos": [
+    "Reconhecer governança como decisão registrada com dono nomeado, e explicar por que isso é controle de segurança, não papelada",
+    "Comparar risco entre itens heterogêneos usando um número explícito, e reconhecer o que esse número esconde sobre a confiança por trás dele",
+    "Distinguir os dois erros simétricos entre conformidade e segurança: conformidade sem segurança real, e segurança real sem conformidade demonstrável",
+    "Distinguir prática de evidência de prática, e reconhecer o limite estrutural do que GRC protege — mesmo aplicado corretamente"
+  ],
+  "pre_requisitos": ["5.3", "4.1", "2.6"],
+  "teoria": [
+    {
+      "id": "5.4.t1",
+      "titulo": "Governança: decisão registrada, dono nomeado",
+      "texto": "Governança, neste curso, não é o conjunto de políticas que uma empresa publica — é o mecanismo que faz uma decisão de segurança existir de um jeito que sobrevive à pessoa que a tomou: alguém com autoridade reconhecida decide (aceitar um risco, aprovar uma exceção, priorizar uma correção), a decisão fica registrada com data e critério, e um nome específico responde por ela. Sem essas três peças — autoridade, registro, dono — a decisão não existe de um jeito que qualquer pessoa de fora consiga verificar depois; existe só na memória de quem decidiu, e desaparece quando essa pessoa sai do time ou esquece.\n\nUma política escrita descreve o que deveria acontecer; governança é a decisão específica que realmente aconteceu, com nome e critério atrelados a ela.",
+      "analogia": "Um cheque sem assinatura reconhecida não é dinheiro, é papel — a decisão sem dono nomeado e sem registro tem a mesma forma de uma decisão real, mas não tem o mesmo peso quando alguém precisa cobrar dela depois.",
+      "erro_comum": "Achar que governança é a política escrita em si — o documento existir não é o mecanismo; o mecanismo é a decisão específica, com dono e critério, que aquele documento deveria produzir toda vez que aplicado.",
+      "fonte": "(abre o eixo de governança do módulo)"
+    },
+    {
+      "id": "5.4.t2",
+      "titulo": "Sem dono nomeado, a decisão não existe — mesmo tendo sido tomada",
+      "texto": "Uma decisão de segurança pode ter sido genuinamente tomada — alguém, numa reunião, decidiu aceitar um risco específico — e mesmo assim não existir para efeito de governança, porque ninguém registrou quem decidiu, com base em quê, nem por quanto tempo a decisão vale. Isso importa porque o mesmo risco, sem dono nomeado, tende a ser redescoberto do zero por outra pessoa meses depois, tratado como novidade — ou pior: ninguém percebe que ele já foi aceito conscientemente, e o time gasta esforço tentando corrigir algo que uma autoridade já decidiu deixar como está.",
+      "analogia": "Uma promessa feita de boca, sem testemunha nem data, é indistinguível de uma promessa nunca feita, na hora em que alguém precisa cobrar dela.",
+      "erro_comum": "Tratar 'decidimos isso numa reunião' como equivalente a 'isso está governado' — a reunião produz a decisão, o registro com dono e prazo é o que transforma a decisão em algo que resiste ao tempo e à rotatividade de time.",
+      "fonte": "Teoria 5.4.t1"
+    },
+    {
+      "id": "5.4.t3",
+      "titulo": "Risco como comparação: o número e o que ele esconde",
+      "texto": "Comparar um risco técnico (uma vulnerabilidade num servidor) com um risco de fornecedor e um risco de processo exige alguma forma de colocar os três na mesma régua — e a régua mais comum é um score, geralmente probabilidade vezes impacto. O número resolve um problema real: sem ele, a comparação vira 'qual dos três parece mais assustador hoje', decisão por sensação, não por critério. Mas o número também esconde algo: a probabilidade de um risco técnico costuma vir de dado real (histórico de exploração, exposição medida); a probabilidade de um risco de fornecedor, muitas vezes, é estimativa de quem preenche o formulário. Dois riscos com o mesmo score numérico podem ter graus de confiança completamente diferentes por trás — comparar os números sem comparar a confiança neles é comparar coisas que só parecem da mesma natureza.",
+      "analogia": "Dois termômetros marcando a mesma temperatura não garantem o mesmo grau de calibração — um pode estar certo, o outro sistematicamente errado, e o número sozinho não conta essa diferença.",
+      "erro_comum": "Tratar dois riscos com o mesmo score como equivalentes em certeza, e priorizar entre eles só pela ordem do número, sem perguntar de onde cada número veio.",
+      "fonte": "Teoria 5.3.t5 (triagem de um risco por vez) — aqui o problema é outro: comparar muitos riscos heterogêneos ao mesmo tempo, competindo pelo mesmo orçamento de correção"
+    },
+    {
+      "id": "5.4.t4",
+      "titulo": "Conformidade e segurança se cruzam, não se contêm",
+      "texto": "Dois erros simétricos existem, e o curso já mostrou um deles: um sistema pode estar em conformidade — passar em toda auditoria, cumprir todo item de um benchmark — e ainda ser inseguro, porque o benchmark não cobre o vetor específico que um atacante real usaria (isso já foi visto como o limite do checklist, na configuração de uma máquina). O erro simétrico, menos falado, é igual de real: um sistema pode estar genuinamente seguro — um controle funciona, reduz risco de verdade — e mesmo assim estar fora de conformidade, porque ninguém documentou que o controle existe, como ele foi testado, ou desde quando está no ar. Nesse segundo caso, o sistema pode ser tecnicamente seguro e organizacionalmente indefensável: numa auditoria, o que não está demonstrado conta como se não existisse.",
+      "analogia": "Um estudante que sabe a matéria de cor mas não consegue mostrar o raciocínio na prova tira nota baixa do mesmo jeito que quem não sabia — saber não é o mesmo que conseguir demonstrar que sabe, para quem só pode avaliar pela prova.",
+      "erro_comum": "Tratar 'estamos seguros' como suficiente para dispensar registro e evidência — a pergunta de conformidade não é se o controle funciona, é se dá para provar que ele funciona para quem não estava olhando quando ele foi implementado.",
+      "fonte": "Teoria 4.1.t6 (o limite do checklist: conformidade não é segurança) — aqui o erro simétrico: segurança real sem conformidade demonstrável"
+    },
+    {
+      "id": "5.4.t5",
+      "titulo": "Auditoria e evidência: 'fazemos' não é 'provamos que fazemos'",
+      "texto": "Um time pode executar uma prática de segurança de verdade — revisar código antes de cada release, por exemplo — e mesmo assim falhar uma auditoria, porque a prática não deixou rastro que alguém de fora consiga verificar depois do fato. A pergunta de auditoria nunca é 'vocês fazem isso?', é 'o que existe, hoje, que prova que isso aconteceu, quando aconteceu, e quem fez?' — um registro, um log assinado, um ticket fechado com aprovador nomeado. A prática sem evidência não é mentira, mas também não é auditável: para quem está de fora, prática real sem rastro e prática que nunca aconteceu são indistinguíveis.",
+      "analogia": "Um exame de sangue feito sem registro do resultado não ajuda o médico seguinte a saber o que já foi checado — o exame aconteceu, mas não deixou nada que sirva de prova pra próxima decisão.",
+      "erro_comum": "Tratar a existência da prática como suficiente, e só pensar em evidência quando a auditoria já está em cima — evidência criada depois do fato costuma ser reconstrução, não registro real.",
+      "fonte": "Teoria 5.4.t4 (o erro simétrico de segurança sem conformidade demonstrável) — aqui o mecanismo específico: o que conta como prova, e por que fazer e provar que fez são ações diferentes"
+    },
+    {
+      "id": "5.4.t6",
+      "titulo": "O limite honesto do GRC",
+      "texto": "GRC organiza decisão, registro e prova — não impede ataque, não detecta técnica nova, não substitui controle técnico nenhum. Um risco pode ser identificado corretamente, levado à autoridade certa, aceito com justificativa documentada, revisado dentro do prazo combinado — processo seguido à risca do início ao fim — e mesmo assim virar um incidente real, porque o processo governa a qualidade da decisão, não a qualidade da sorte nem a capacidade de um atacante específico. Isso não é falha do processo: é o limite estrutural dele. GRC não pretende eliminar risco, pretende garantir que o risco que permanece foi escolhido conscientemente, por quem tinha autoridade pra escolher — a diferença entre um incidente depois de um risco aceito de forma responsável e um incidente depois de um risco que ninguém sequer viu é enorme para quem responde por ele depois, mesmo os dois tendo o mesmo estrago técnico.",
+      "analogia": "Um piloto que segue todo protocolo de segurança de voo ainda pode enfrentar uma falha mecânica rara — o protocolo não garante o voo sem incidente, garante que, se algo acontecer, existe um processo de decisão defensável por trás de cada escolha feita até ali.",
+      "erro_comum": "Tratar um incidente depois de um risco aceito corretamente como prova de que o processo de GRC falhou — o processo falha quando a decisão não foi tomada por quem devia, com o critério que devia; não falha só porque o risco aceito se materializou.",
+      "fonte": "Teoria 5.4.t3 (risco como comparação) e Teoria 5.3.t6 (limite honesto de um método correlato, modelagem de ameaças)"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "5.4.q1",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um time de segurança decide, numa reunião, aceitar um risco específico encontrado num sistema. Seis meses depois, outra pessoa do mesmo time encontra o mesmo risco e o trata como descoberta nova, abrindo um projeto de correção do zero. O que faltou na decisão original para isso não acontecer?",
+      "alternativas": [
+        "Faltou a reunião ter sido maior, com mais pessoas do time presentes decidindo tudo junto",
+        "Faltou usar uma ferramenta automatizada de gestão de risco para registrar a decisão",
+        "Faltou registrar a decisão com dono e critério, de um jeito que ficasse verificável depois",
+        "Faltou a decisão ter sido tomada por alguém do time de auditoria, não do time de segurança"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "O tamanho da reunião não é o que faz uma decisão sobreviver ao tempo — mesmo uma reunião grande, sem registro nem dono nomeado, produz o mesmo esquecimento.",
+        "1": "A ferramenta usada para registrar é detalhe de implementação — o que falta é o registro em si, com dono e critério, existir de algum jeito verificável, não uma ferramenta específica.",
+        "3": "Quem toma a decisão (segurança ou auditoria) não é o que determina se ela sobrevive ao tempo — o que importa é se ficou registrada com dono e critério, independente da área de quem decidiu."
+      },
+      "dicas": [
+        "A decisão foi tomada de verdade — o problema não é a decisão em si, é o que aconteceu depois dela.",
+        "Seis meses e uma pessoa diferente bastaram para o risco 'desaparecer' — pense no que faria ele não desaparecer.",
+        "O tamanho da reunião e a ferramenta usada são detalhes irrelevantes aqui — o que faltou foi outra coisa."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a pessoa que encontrou o risco de novo pudesse consultar um registro com nome e data da decisão original, ela ainda trataria como descoberta nova?",
+      "explicacao": "A decisão foi genuinamente tomada, mas sem dono nomeado e critério registrado, ela existe só na memória de quem estava na sala — e desaparece quando essa memória não é consultada. Governança é exatamente o mecanismo que faz a decisão sobreviver à pessoa que a tomou.",
+      "fonte": "Teoria 5.4.t2",
+      "tags": ["grc", "governanca", "dono-nomeado"]
+    },
+    {
+      "id": "5.4.q2",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Uma empresa publica uma política de segurança de dez páginas, aprovada pela diretoria, cobrindo praticamente todo processo da empresa. Nenhuma decisão de aceitar ou recusar um risco específico, tomada nos últimos dois anos, tem registro de quem decidiu ou por quê. Essa empresa tem governança de segurança?",
+      "alternativas": [
+        "Não: a política existir não produz o mecanismo — a decisão específica, com dono e critério, nunca foi registrada",
+        "Sim: uma política aprovada pela diretoria já é, por definição, o nível mais alto de governança possível",
+        "Não: o problema real é que a política deveria ter sido revisada por um comitê técnico interno, não pela diretoria",
+        "Sim: uma política revisada anualmente pela diretoria já garante que toda decisão de risco desse período ficou registrada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O nível de quem aprova a política não é o que determina governança — o documento existir não é o mecanismo, o mecanismo é a decisão específica registrada.",
+        "2": "Quem revisa a política (comitê técnico ou diretoria) não resolve a ausência descrita — o problema não é quem escreveu o documento, é a falta de registro das decisões de risco tomadas depois dele.",
+        "3": "Revisar a política anualmente não garante nada sobre as decisões de risco tomadas no meio do caminho — política e decisão registrada são coisas diferentes."
+      },
+      "dicas": [
+        "A política existe, é aprovada, é revisada — mas nenhuma decisão de risco tem nome nem justificativa ligados a ela.",
+        "O documento diz o que deveria acontecer; o registro de uma decisão real é outra coisa, e é esse que está faltando.",
+        "Quem aprova ou revisa a política não é o ponto central desta pergunta."
+      ],
+      "pergunta_socratica": "Antes de conferir: a política de dez páginas prova que alguma decisão específica de risco foi tomada e por quem?",
+      "explicacao": "Uma política bem escrita e aprovada no mais alto nível não é, sozinha, governança — ela descreve o que deveria acontecer. Governança é a decisão específica, tomada por alguém com autoridade, registrada com critério e dono. Sem isso, mesmo uma política robusta convive com dois anos de decisões de risco sem rastro nenhum.",
+      "fonte": "Teoria 5.4.t1",
+      "tags": ["grc", "governanca", "politica-vs-decisao"]
+    },
+    {
+      "id": "5.4.q3",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um time tem orçamento para corrigir só um entre três riscos este trimestre: uma vulnerabilidade técnica com score 8 (baseado em exploração real documentada), um risco de fornecedor com score 8 (baseado em autoavaliação do próprio fornecedor, sem verificação independente), e um risco de processo com score 6 (baseado em auditoria interna recente). Escolher só pelo número mais alto, ignorando de onde cada score veio, é razoável aqui?",
+      "alternativas": [
+        "Sim: comparar risco por risco, decidindo mitigar, aceitar ou transferir cada um isoladamente, é o critério correto",
+        "Sim: quando dois riscos empatam no score, o critério de desempate é sempre a ordem alfabética da categoria",
+        "Não: o risco de fornecedor deveria ter sido descartado da lista inteira por não ser tecnicamente um risco real",
+        "Não: os dois scores 8 vêm de bases de confiança muito diferentes, e isso fica ignorado ao tratá-los como iguais"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Essa é a lógica de decidir sobre um risco por vez, isolado — útil quando existe um risco só, mas aqui o problema é comparar três riscos que competem pelo mesmo orçamento limitado.",
+        "1": "Ordem alfabética não tem nenhuma relação com a confiança por trás de cada score — não é um critério de desempate que este cenário sustenta.",
+        "2": "Descartar o risco de fornecedor da lista não resolve o problema descrito — ele continua sendo um risco real, só que com um score baseado em fonte menos verificável, o que é exatamente o ponto a considerar, não a ignorar."
+      },
+      "dicas": [
+        "Os dois riscos de score 8 não vieram da mesma fonte — um tem exploração documentada, o outro é autoavaliação sem checagem.",
+        "O orçamento é pra um só entre três — a pergunta é sobre comparar os três, não sobre decidir cada um isoladamente.",
+        "Ordem alfabética e tirar um item da lista não resolvem de onde vem cada número comparado."
+      ],
+      "pergunta_socratica": "Antes de conferir: os dois riscos de score 8 mereceriam a mesma confiança na hora de escolher qual corrigir primeiro?",
+      "explicacao": "Comparar três riscos pelo número sozinho, sem considerar de onde cada score veio, trata uma exploração real documentada como equivalente a uma autoavaliação sem verificação — mesmo os dois tendo o mesmo score. Decidir sobre um risco por vez (mitigar, aceitar, transferir) é outra pergunta, já vista em outro módulo; aqui o problema é comparar vários riscos heterogêneos disputando o mesmo orçamento, e o número sozinho esconde a diferença de confiança entre eles.",
+      "fonte": "Teoria 5.4.t3",
+      "tags": ["grc", "risco", "comparacao-de-portfolio"]
+    },
+    {
+      "id": "5.4.q4",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "trecho": "# registro de controle (rascunho de auditoria)\ncontrole: 'revisão de código antes de cada deploy'\nstatus_tecnico: implementado e funcionando há 8 meses, confirmado por entrevista com o time\nevidencia_registrada: nenhuma — sem log de revisão, sem aprovador nomeado, sem ticket",
+      "enunciado": "O registro acima descreve um controle que o time confirma, em entrevista, que funciona de verdade. Qual dos dois erros simétricos entre conformidade e segurança este caso ilustra?",
+      "alternativas": [
+        "Conformidade sem segurança real: o controle está documentado, mas não impede um ataque de verdade",
+        "Segurança real sem conformidade demonstrável: o controle funciona de verdade, mas nada prova isso",
+        "Nenhum dos dois: se o time confirma que o controle funciona, o caso está resolvido e não há erro nenhum aqui",
+        "Os dois ao mesmo tempo: o controle não funciona de verdade e também não tem evidência nenhuma registrada"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O caso descrito não tem documentação nenhuma — o erro descrito aqui é o oposto: falta de conformidade demonstrável, não excesso de conformidade sem segurança real.",
+        "2": "O time confirmar em entrevista não é a mesma coisa que existir prova verificável — para uma auditoria, ausência de log, aprovador e ticket é indistinguível de o controle nunca ter existido.",
+        "3": "Nada no caso indica que o controle não funciona — a entrevista confirma que ele funciona; o problema é só a ausência de evidência registrada, não a ausência de funcionamento."
+      },
+      "dicas": [
+        "O time confirma que o controle funciona — o problema não está no funcionamento do controle.",
+        "Compare o que existe (confirmação verbal) com o que uma auditoria consegue verificar sem entrevistar ninguém.",
+        "O registro não cita nenhum log, aprovador ou ticket — só a entrevista confirma o funcionamento."
+      ],
+      "pergunta_socratica": "Antes de conferir: uma auditoria que não pudesse entrevistar o time conseguiria confirmar que este controle roda há 8 meses?",
+      "explicacao": "O controle funciona de verdade — isso é confirmado pela entrevista — mas não deixou nenhum rastro verificável (log, aprovador, ticket). Para quem avalia de fora, sem poder entrevistar, esse caso é indistinguível de o controle nunca ter existido: é o erro simétrico ao checklist sem segurança real, já visto em outro módulo — aqui é segurança real sem conformidade demonstrável.",
+      "fonte": "Teoria 5.4.t4",
+      "tags": ["grc", "conformidade", "erro-simetrico"]
+    },
+    {
+      "id": "5.4.q5",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um sistema passa em todos os itens de um benchmark de configuração, com evidência completa arquivada para cada item — checklist assinado, data, responsável. Um teste de intrusão real, feito por outro time, encontra uma falha grave que nenhum item do benchmark cobria. Qual dos dois erros simétricos entre conformidade e segurança este caso ilustra?",
+      "alternativas": [
+        "Segurança real sem conformidade demonstrável: o sistema está seguro, mas ninguém consegue provar isso",
+        "Nenhum dos dois: um teste de intrusão encontrar falha não tem relação com conformidade, são atividades independentes",
+        "Conformidade sem segurança real: cumprir e provar cumprir a lista inteira de itens não impediu uma falha séria fora dela",
+        "Os dois ao mesmo tempo: o sistema não está em conformidade nenhuma e também não está seguro"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "O caso descrito tem evidência completa e arquivada — o problema não é falta de prova de conformidade, é a conformidade existir e ainda não bastar.",
+        "1": "As duas atividades são independentes na origem, mas o caso pede justamente para ligar os dois resultados: cumprir o benchmark inteiro e ainda ter uma falha grave é o mecanismo do primeiro erro simétrico.",
+        "3": "O sistema está, pelo enunciado, plenamente em conformidade, com evidência completa; a falha achada não muda esse fato, só mostra que conformidade não bastou."
+      },
+      "dicas": [
+        "O sistema tem prova arquivada de cada item — a evidência não é o problema aqui.",
+        "A falha achada pelo teste de intrusão não está em nenhum item do benchmark — pense no que isso diz sobre o alcance da lista.",
+        "O checklist assinado, com data e responsável, já está arquivado pra cada item do benchmark."
+      ],
+      "pergunta_socratica": "Antes de conferir: o benchmark cumprido por completo garantiu, sozinho, que nenhuma falha grave existisse?",
+      "explicacao": "O sistema está plenamente em conformidade — cumpre e prova cumprir todo o benchmark — e mesmo assim tem uma falha grave que o benchmark simplesmente não cobria. É o erro já visto na configuração de uma máquina: conformidade não é segurança, porque a lista nunca é o território inteiro.",
+      "fonte": "Teoria 5.4.t4",
+      "tags": ["grc", "conformidade", "erro-simetrico"]
+    },
+    {
+      "id": "5.4.q6",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "artefato": "$ cat log_de_revisoes.txt\n2026-01-14 revisão de código - sem aprovador registrado\n2026-02-11 revisão de código - sem aprovador registrado\n2026-03-09 revisão de código - sem aprovador registrado\n# nota do time: 'todas as revisões foram feitas, só não registramos quem aprovou cada uma'",
+      "enunciado": "O log acima mostra três entradas confirmando que a revisão de código aconteceu nas três datas. Falta o nome do aprovador em cada uma. Para efeito de auditoria, essa lacuna importa?",
+      "alternativas": [
+        "Não: a data de cada revisão já é evidência suficiente de que a prática aconteceu, independente de quem aprovou",
+        "Sim: sem o aprovador nomeado, o registro prova que algo aconteceu, mas não prova quem validou o resultado",
+        "Não: revisão de código é uma prática técnica, e práticas técnicas não precisam de aprovador nomeado no registro",
+        "Sim: o log estar guardado num arquivo de texto simples, em vez de um sistema mais seguro, já invalida qualquer evidência registrada nele"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "A data sozinha prova que alguma atividade aconteceu, mas não prova que alguém com autoridade validou o resultado — essas são perguntas diferentes que a auditoria faz.",
+        "2": "Nenhuma prática, técnica ou não, fica isenta de precisar de um responsável nomeado no registro — é justamente a ausência disso que a auditoria não consegue verificar aqui.",
+        "3": "O formato do arquivo onde o log é guardado não é o que está em jogo neste caso — o problema é o conteúdo do registro não nomear quem aprovou, não onde ele é armazenado."
+      },
+      "dicas": [
+        "A data confirma que algo rodou naquele dia — pense no que falta pra saber quem tinha autoridade de dar aval.",
+        "Onde o arquivo é guardado não muda o que falta dentro de cada linha do registro.",
+        "'Revisão de código é prática técnica' não isenta o registro de precisar de um responsável nomeado."
+      ],
+      "pergunta_socratica": "Antes de conferir: esse log prova que alguém com autoridade validou cada revisão, ou só que alguma atividade aconteceu numa data?",
+      "explicacao": "Uma data no log prova que algo aconteceu, mas não prova quem teve autoridade pra validar aquele resultado — e é exatamente essa segunda pergunta que uma auditoria faz. A prática aconteceu de verdade; o registro, do jeito que está, não é evidência completa dela.",
+      "fonte": "Teoria 5.4.t5",
+      "tags": ["grc", "auditoria", "evidencia"]
+    },
+    {
+      "id": "5.4.q7",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um risco foi identificado, levado à autoridade certa, aceito com justificativa registrada, e revisado dentro do prazo combinado — três revisões seguidas confirmaram a decisão de aceitar. No prazo da quarta revisão, antes de acontecer, o risco se materializou num incidente real. O processo de GRC falhou aqui?",
+      "alternativas": [
+        "Não: o processo garantiu decisão tomada e revisada por quem tinha autoridade, nunca prometeu ausência de risco",
+        "Sim: todo risco aceito que se materializa prova que a decisão de aceitar estava errada desde o início",
+        "Sim: a revisão deveria ter sido mensal desde o início, não no intervalo maior que foi combinado",
+        "Não: o processo só seria responsável se o incidente tivesse acontecido depois da quarta revisão programada, não antes dela"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Um risco aceito conscientemente pode se materializar mesmo quando a decisão de aceitar foi correta no momento em que foi tomada — a decisão erra quando é tomada sem autoridade ou sem critério, não quando o risco aceito acontece de fato.",
+        "2": "O intervalo de revisão combinado não é, por si só, o problema descrito — nada no cenário indica que um intervalo mensal teria mudado o resultado, e a pergunta central é sobre o processo de decisão, não sobre a cadência de revisão.",
+        "3": "O momento exato em que o incidente aconteceu, antes ou depois de uma revisão programada, não muda se o processo de decisão foi seguido corretamente até ali."
+      },
+      "dicas": [
+        "A decisão passou pelas etapas certas — autoridade reconhecida, justificativa registrada, três checagens dentro do prazo — do início ao fim.",
+        "Pense na diferença entre 'o processo garante uma boa decisão' e 'o processo garante que nada de ruim acontece'.",
+        "O momento exato do incidente, ou a cadência de revisão, não são o ponto central deste caso."
+      ],
+      "pergunta_socratica": "Antes de conferir: o processo de GRC promete que um risco aceito conscientemente nunca vai se materializar?",
+      "explicacao": "O processo foi seguido corretamente do início ao fim: autoridade certa, justificativa registrada, revisões no prazo. O risco aceito virar incidente real não prova que a decisão estava errada — prova só que GRC governa a qualidade da decisão, não a qualidade da sorte. É o limite estrutural do método: ele garante uma decisão defensável, não a ausência de consequência.",
+      "fonte": "Teoria 5.4.t6",
+      "tags": ["grc", "limite-do-metodo", "risco-aceito"]
+    },
+    {
+      "id": "5.4.q8",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [0, 1],
+      "enunciado": "Coloque em ordem os passos de uma decisão de risco governada corretamente, do primeiro ao último.",
+      "itens": [
+        "Identificar o risco e estimar seu score, registrando de onde veio a estimativa",
+        "Levar o risco à pessoa com autoridade reconhecida para decidir sobre ele",
+        "Registrar a decisão tomada (mitigar, aceitar ou transferir), com dono nomeado e critério",
+        "Revisar a decisão no prazo combinado, mantendo ou atualizando o registro"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "Não dá pra levar um risco à autoridade certa antes de saber o que ele é e de onde vem a estimativa.",
+        "A decisão só existe, para efeito de governança, depois de registrada com dono e critério — não antes.",
+        "Revisar um registro só faz sentido depois de ele existir."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá para revisar uma decisão que ainda não foi registrada?",
+      "explicacao": "Cada etapa depende da anterior: estimar o risco e sua origem vem primeiro, porque a autoridade decisora precisa desses dois dados; levar à autoridade certa vem antes do registro, porque é ela quem decide; registrar com dono e critério é o que transforma a decisão em algo revisável; e revisar no prazo só faz sentido sobre um registro que já existe.",
+      "fonte": "Teorias 5.4.t1, 5.4.t2 e 5.4.t3",
+      "tags": ["grc", "processo", "governanca"]
+    },
+    {
+      "id": "5.4.q9",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Uma exceção de segurança é aprovada por um gerente numa thread de chat da empresa, com justificativa escrita na própria mensagem. A política de retenção da empresa apaga toda thread depois de 90 dias. Passados os 90 dias, o que aconteceu com essa decisão, do ponto de vista de governança?",
+      "alternativas": [
+        "A decisão foi registrada, mas o canal em que ficou se apaga sozinho — sem cópia durável, ela some com a thread",
+        "Nada mudou: uma aprovação por chat já conta como registro permanente, independente da política de retenção do canal",
+        "A decisão deixa de valer automaticamente depois de 90 dias, porque toda exceção sem registro permanente expira sozinha",
+        "O problema é só que o gerente deveria ter aprovado por e-mail, não por chat, já que e-mail é mais formal"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A retenção de 90 dias realmente apaga a thread — uma aprovação por chat não vira registro permanente só por ter sido escrita, se o canal tem prazo de descarte.",
+        "2": "Nenhuma regra de governança faz uma decisão expirar sozinha por falta de registro durável — ela só perde verificabilidade, não deixa de valer automaticamente.",
+        "3": "O canal usado não é o ponto central — e-mail também pode ser apagado; o que importa é se o registro sobrevive, não qual ferramenta foi escolhida."
+      },
+      "dicas": [
+        "A decisão foi tomada de verdade, com justificativa até escrita — o problema aparece só depois, com o tempo.",
+        "Registro que não sobrevive ao prazo do sistema tem o mesmo efeito de registro que nunca existiu.",
+        "Repare que a resposta certa não fala em trocar de canal nem em prazo automático de validade."
+      ],
+      "pergunta_socratica": "Antes de conferir: se alguém precisar provar essa exceção daqui a um ano, o que vai encontrar?",
+      "explicacao": "A decisão existiu e foi até registrada por escrito — mas um registro que depende de um canal com prazo de apagamento automático não é um registro durável. Passados os 90 dias, a exceção volta a existir só na lembrança de quem estava na conversa, o mesmo problema do dono sem registro persistente, só que causado pela ferramenta escolhida, não pela ausência de anotação.",
+      "fonte": "Teoria 5.4.t2",
+      "tags": ["grc", "governanca", "registro-duravel"]
+    },
+    {
+      "id": "5.4.q10",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um analista júnior, sem autoridade formal para aceitar riscos, decide sozinho que um risco encontrado 'pode ficar assim mesmo', registra a decisão com data e justificativa, e comunica ao time. Essa decisão está governada?",
+      "alternativas": [
+        "Sim: o registro tem data, justificativa e foi comunicado ao time, o que já cumpre os requisitos de uma decisão governada",
+        "Não: falta autoridade reconhecida pra decidir — registro bem-feito não substitui essa competência formal",
+        "Sim: mais de um ano de experiência na função já garante competência suficiente pra decidir sozinho",
+        "Não, porque só o diretor de segurança da empresa pode aceitar qualquer risco, sem exceção, independente do tamanho do risco"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Registro com data e justificativa é uma das peças, mas não substitui a autoridade reconhecida para decidir — sem ela, a forma existe, o mecanismo não.",
+        "2": "Tempo de experiência não é o mesmo que autoridade formal reconhecida para aceitar risco — anos de casa não atribuem, sozinhos, essa competência.",
+        "3": "Exigir sempre a mesma pessoa específica, para qualquer risco, não é o que define autoridade reconhecida — o requisito é existir autoridade adequada ao risco, não ser sempre o mesmo cargo."
+      },
+      "dicas": [
+        "O registro, nesse caso, está bem feito — data, justificativa, comunicação ao time.",
+        "Falta uma das peças da governança, e não é a que envolve o registro em si.",
+        "Tempo de casa e exigir sempre a mesma pessoa são pistas falsas — a resposta mora em outro lugar."
+      ],
+      "pergunta_socratica": "Antes de conferir: um registro bem feito, por si só, dá a quem escreveu autoridade pra decidir?",
+      "explicacao": "Das peças de governança — autoridade, registro, dono — esse caso tem registro e dono, mas não autoridade reconhecida: o analista decidiu sozinho, sem ter essa competência atribuída a ele. Um registro cuidadoso não supre a falta de quem tem, de fato, poder reconhecido pra tomar aquele tipo de decisão.",
+      "fonte": "Teoria 5.4.t1",
+      "tags": ["grc", "governanca", "autoridade-reconhecida"]
+    },
+    {
+      "id": "5.4.q11",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Dois riscos, ambos com score 7, vêm de fontes igualmente confiáveis (auditoria interna recente para os dois). Um deles tem um prazo de exploração conhecido de dias, por causa de uma prova de conceito pública já circulando; o outro não tem nenhum prazo conhecido. Escolher com base só no score, tratando os dois como equivalentes, ignora o quê?",
+      "alternativas": [
+        "Ignora que scores idênticos vindos de fontes diferentes nunca podem ser comparados diretamente",
+        "Ignora que o risco com prova de conceito pública deveria, na verdade, ter recebido um score mais baixo",
+        "Ignora que o score sozinho não mostra urgência de tempo, mesmo com confiança igual nos dois riscos",
+        "Ignora que risco vindo de auditoria interna sempre deve ser priorizado sobre qualquer outro tipo de risco"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Aqui as duas fontes são igualmente confiáveis (mesma origem, auditoria interna) — o problema deste cenário não é diferença de confiança, é diferença de urgência temporal.",
+        "1": "Nada no cenário indica que o score atribuído esteja errado — o ponto não é recalcular o score, é perceber o que ele não mostra.",
+        "3": "A origem (auditoria interna) é a mesma para os dois riscos neste cenário — não há base para priorizar um tipo de risco sobre outro só pela origem."
+      },
+      "dicas": [
+        "As duas fontes têm o mesmo nível de confiança aqui — não é esse o ponto do cenário.",
+        "Um dos dois riscos tem uma informação a mais: um prazo concreto de exploração.",
+        "O score é o mesmo número para os dois — pense no que esse número, sozinho, não registra."
+      ],
+      "pergunta_socratica": "Antes de conferir: um score de 7 registrado hoje diz alguma coisa sobre quando o risco pode virar um ataque?",
+      "explicacao": "O score compara magnitude, mas não registra urgência de tempo. Dois riscos de mesmo score e mesma confiança podem ter janelas de exploração completamente diferentes — um com prova de conceito pública circulando já tem um relógio correndo que o número sozinho não mostra. Tratá-los como equivalentes por terem o mesmo score ignora essa dimensão que o score nunca carregou.",
+      "fonte": "Teoria 5.4.t3",
+      "tags": ["grc", "risco", "urgencia-temporal"]
+    },
+    {
+      "id": "5.4.q12",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "# planilha_riscos.csv (recorte)\nrisco,score,metodo\nvulnerabilidade-servidor-x,8,probabilidade(1-10) x impacto(1-10) dividido por 10\nfornecedor-y-atraso-entrega,8,classificado como 'alto' pelo time de compras, convertido para 8 sem escala definida\nprocesso-z-sem-log,6,auditoria interna, escala documentada de 1 a 10",
+      "enunciado": "A planilha acima tenta comparar três riscos pelo mesmo score numérico. Qual erro concreto essa comparação comete?",
+      "alternativas": [
+        "Nenhum: os três têm score numérico na mesma faixa de 1 a 10, então já são diretamente comparáveis",
+        "O erro é incluir um risco de fornecedor na mesma planilha que riscos técnicos e de processo",
+        "O erro é o risco de processo ter score mais baixo que os outros dois, o que nunca deveria acontecer",
+        "Dois scores iguais vêm de métodos de cálculo diferentes, tratados como o mesmo tipo de número"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Estar na mesma faixa numérica não significa que os números vieram do mesmo processo de cálculo — é exatamente essa diferença de método que a planilha esconde.",
+        "1": "Misturar tipos de risco na mesma lista é o objetivo de uma comparação de portfólio, não o erro — o problema é como cada score foi calculado, não quais riscos estão juntos.",
+        "2": "Não há regra que exija que risco de processo tenha score mais alto ou mais baixo que os outros — o valor em si não é o problema."
+      },
+      "dicas": [
+        "Olhe a coluna 'metodo', não só a coluna 'score' — os três números não nasceram do mesmo jeito.",
+        "Dois riscos empatam em 8 — mas um tem fórmula, o outro tem conversão sem escala definida.",
+        "Misturar tipos de risco na lista não é problema, e o valor exato do score também não é — repare na coluna ao lado."
+      ],
+      "pergunta_socratica": "Antes de conferir: os dois riscos com score 8 chegaram nesse número pelo mesmo caminho?",
+      "explicacao": "A planilha compara três números que parecem da mesma natureza só porque estão na mesma coluna e na mesma faixa visual — mas um score vem de fórmula definida, com dado documentado, e outro vem de uma conversão de rótulo categórico sem escala clara nenhuma. Comparar 8 com 8 aqui é comparar coisas calculadas de jeitos incompatíveis, disfarçadas de mesma unidade.",
+      "fonte": "Teoria 5.4.t3",
+      "tags": ["grc", "risco", "metodo-de-calculo"]
+    },
+    {
+      "id": "5.4.q13",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "artefato": "$ cat prioridades_trimestre.txt\n1. fornecedor-w (score 9)\n2. vulnerabilidade-servidor-k (score 8)\n3. processo-sem-aprovacao (score 7)\n# critério de corte: corrigir só os 2 primeiros da lista, por orçamento",
+      "enunciado": "O time usa a lista acima, ordenada só pelo score, pra decidir que os dois primeiros riscos recebem orçamento de correção este trimestre e o terceiro fica pra depois. Isso já é suficiente pra sustentar a decisão perante uma auditoria futura?",
+      "alternativas": [
+        "Não: a lista mostra a ordem, mas não registra a origem de cada score nem quem aprovou o critério de corte usado",
+        "Sim: ordenar por score e cortar pelos dois primeiros é, por si só, um critério objetivo e completo de priorização",
+        "Não, porque um risco de fornecedor nunca deveria aparecer em primeiro lugar numa lista de prioridades",
+        "Sim: revisar a lista a cada seis meses já garante que a decisão de corte está documentada"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A lista ordena, mas ordenar não é o mesmo que governar a decisão — falta registro de origem dos scores e de quem aprovou o critério de corte usado.",
+        "2": "Nada na teoria do curso proíbe um risco de fornecedor de liderar uma lista de prioridades — o problema deste caso é outro, sobre o que falta registrar.",
+        "3": "Revisar periodicamente não resolve a ausência original: sem dono e critério registrados desde o início, a decisão de corte não é rastreável, revisão ou não."
+      },
+      "dicas": [
+        "A lista existe, está ordenada, e até tem um critério de corte escrito — mas falta uma peça já vista noutro contexto.",
+        "Uma auditoria pergunta não só o que foi feito, mas quem tinha poder de aprovar aquilo e por qual motivo.",
+        "A posição do fornecedor e a frequência de revisão são detalhes que a pergunta não está testando."
+      ],
+      "pergunta_socratica": "Antes de conferir: essa lista, sozinha, prova quem decidiu cortar exatamente nos dois primeiros itens?",
+      "explicacao": "A lista ordena riscos por score e até define um corte, mas isso é o dado bruto da comparação, não a governança da decisão — falta o registro de quem tinha autoridade pra aprovar esse critério de corte específico e de onde veio cada score. Uma tabela ordenada parece objetiva, mas sem dono e critério registrados por trás dela, é tão vulnerável a desaparecer quanto qualquer decisão verbal.",
+      "fonte": "Teoria 5.4.t3 e Teoria 5.4.t1",
+      "tags": ["grc", "risco", "priorizacao-sem-governanca"]
+    },
+    {
+      "id": "5.4.q14",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um time de resposta a incidentes resolve, na prática, cada incidente dentro do prazo interno combinado — mas não preenche o formulário de pós-incidente que o processo de conformidade exige, porque considera burocracia redundante. Numa auditoria anual, isso conta a favor ou contra o time?",
+      "alternativas": [
+        "A favor: o que importa numa auditoria é resolver o incidente no prazo, o formulário é só formalidade sem peso real",
+        "Contra: sem o formulário, a auditoria não confirma que os prazos foram cumpridos, mesmo tendo sido de fato",
+        "A favor: citar de memória as datas de cada incidente durante a entrevista já conta como evidência de auditoria",
+        "Contra, porque resolver incidente dentro do prazo nunca deveria ser prioridade maior que preencher formulário"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Resolver de fato é necessário, mas não é suficiente pra uma auditoria — sem registro verificável, o cumprimento do prazo não pode ser confirmado por quem está de fora.",
+        "2": "Memória de quem participou não é evidência verificável de forma independente — é o mesmo problema já visto: o que conta é o que existe fora da cabeça de quem fez.",
+        "3": "O cenário não pede pra comparar qual das duas coisas é mais importante — o ponto é que fazer bem sem provar que fez bem ainda falha auditoria, não que provar deveria vir antes de fazer."
+      },
+      "dicas": [
+        "O time faz o trabalho de verdade, dentro do prazo — isso não está em questão aqui.",
+        "Pense no que uma auditoria consegue confirmar sem entrevistar ninguém do time.",
+        "Citar de memória e comparar prioridades entre tarefas não resolvem essa lacuna específica."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguém de fora, sem entrevistar o time, consegue confirmar que os prazos foram cumpridos?",
+      "explicacao": "O time cumpre o prazo de verdade, mas sem o formulário preenchido não existe nada, fora da lembrança de quem participou, que prove isso pra uma auditoria. É o mesmo erro simétrico já visto — segurança real sem conformidade demonstrável — aplicado a um processo diferente (resposta a incidentes) do exemplo original (revisão de código).",
+      "fonte": "Teoria 5.4.t4 e 5.4.t5",
+      "tags": ["grc", "conformidade", "erro-simetrico"]
+    },
+    {
+      "id": "5.4.q15",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um atacante escolhe, de propósito, testar vetores que não aparecem em nenhum benchmark de conformidade público, sabendo que sistemas em conformidade tendem a estar bem defendidos exatamente nesses itens listados. Por que essa estratégia costuma funcionar?",
+      "alternativas": [
+        "Porque sistemas em conformidade são, por definição, mais fáceis de invadir do que sistemas fora de conformidade",
+        "Porque benchmarks de conformidade são sempre desatualizados, nunca revisados depois da primeira publicação",
+        "Porque um benchmark cobre uma lista de itens — atacar fora dela evita pontos que o sistema já reforçou",
+        "Porque nenhum sistema em conformidade passa por teste de intrusão, então vetores fora do benchmark nunca são checados"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Conformidade não torna um sistema mais fácil de invadir — o ponto é que ela concentra defesa numa lista específica, deixando o resto sem a mesma garantia, não que fique pior no que cobre.",
+        "1": "Nada no cenário afirma que o benchmark nunca é atualizado — o mecanismo funciona mesmo com um benchmark atual, porque toda lista, atualizada ou não, tem um limite de cobertura.",
+        "3": "Muitos sistemas em conformidade passam por teste de intrusão — foi um teste desse tipo que revelou o problema já visto neste módulo; a estratégia do atacante não depende de testes não acontecerem."
+      },
+      "dicas": [
+        "O atacante não está contando com o sistema ser mal defendido em geral — está contando com algo mais específico.",
+        "O ataque não depende do sistema estar mal defendido no geral — depende de mirar num ponto específico.",
+        "As duas explicações mais óbvias — sistema mais fácil de invadir, benchmark desatualizado — não sustentam essa estratégia."
+      ],
+      "pergunta_socratica": "Antes de conferir: um sistema reforça mais o que está numa lista pública, ou o que está fora dela?",
+      "explicacao": "Um benchmark, por ser uma lista fixa e pública, concentra o esforço de defesa exatamente nos itens que lista — é isso que conformidade produz. Um atacante que mira fora dessa lista está explorando o mesmo limite estrutural do checklist: cumprir e provar cumprir tudo o que está listado nunca garante cobertura do que a lista não previu.",
+      "fonte": "Teoria 5.4.t4",
+      "tags": ["grc", "conformidade", "perspectiva-atacante"]
+    },
+    {
+      "id": "5.4.q16",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "artefato": "$ cat ticket_aprovacao.txt\nticket: APR-2231\nassunto: aprovação de exceção — patch crítico adiado 30 dias\naprovador: Marina Reyes (gerente de segurança)\ndata: 2026-03-02\ncritério: adiar porque sistema não está exposto à internet até a próxima janela de manutenção\nprazo_de_revisao: não preenchido",
+      "enunciado": "O ticket acima registra aprovador, data e critério de uma exceção. Falta o campo 'prazo_de_revisao'. Isso compromete a evidência de governança desse registro?",
+      "alternativas": [
+        "Não: aprovador, data e critério já são as peças que compõem uma decisão governada, prazo de revisão é item opcional",
+        "Sim, mas só porque o formato do ticket usa texto livre em vez de um campo estruturado obrigatório",
+        "Não, porque exceções concedidas por gerente de segurança nunca precisam de prazo de revisão, diferente de outros tipos de decisão",
+        "Sim: sem prazo de revisão, a exceção fica sem data pra ser reavaliada — prova a decisão, não a checagem futura"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Autoridade, registro e dono cobrem que a decisão foi tomada e por quem — mas não garantem que ela será reavaliada; prazo de revisão é a peça que evita uma decisão antiga continuar valendo por inércia.",
+        "1": "O formato do ticket não é o que está em jogo — o problema é o conteúdo que falta, não como ele é digitado.",
+        "2": "Nada na teoria do curso isenta um tipo de decisão de prazo de revisão pelo cargo de quem aprovou — a necessidade de reavaliação não depende de quem assinou."
+      },
+      "dicas": [
+        "O ticket já tem aprovador, data e critério — essas partes estão bem preenchidas.",
+        "Falta um campo específico: pense no que acontece com uma decisão que nunca é reavaliada.",
+        "O formato do ticket e o cargo de quem aprovou já estão certos — o problema mora em outro campo."
+      ],
+      "pergunta_socratica": "Antes de conferir: sem prazo de revisão, alguém vai voltar a checar se essa exceção ainda faz sentido daqui a um ano?",
+      "explicacao": "O ticket cumpre autoridade, registro e dono — mas sem prazo de revisão, a exceção aprovada hoje pode continuar valendo indefinidamente, mesmo que a condição que a justificou mude. A revisão no prazo é a peça que impede uma decisão antiga de virar risco esquecido, e sua ausência aqui é uma lacuna real de governança, não um detalhe de formulário.",
+      "fonte": "Teoria 5.4.t2 e 5.4.t5",
+      "tags": ["grc", "evidencia", "prazo-de-revisao"]
+    },
+    {
+      "id": "5.4.q17",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um time descobre, na véspera de uma auditoria, que não tem nenhum registro de que revisou logs de acesso nos últimos seis meses — mas revisou, de fato, seis vezes. Na noite anterior, o time preenche seis tickets retroativos, com datas de conteúdo correspondentes aos meses corretos, descrevendo cada revisão. Isso resolve o problema de evidência?",
+      "alternativas": [
+        "Não plenamente: os tickets da véspera são reconstrução — uma auditoria pode notar que todos têm a mesma data de criação",
+        "Sim: o conteúdo de cada ticket descreve exatamente o que aconteceu, então a data de criação do ticket não importa",
+        "Não, porque revisão de log só conta como evidência válida se for registrada em um sistema específico de auditoria, nunca em ticket comum",
+        "Sim: as seis revisões terem realmente acontecido nas datas descritas já resolve o problema de evidência"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O conteúdo descrever corretamente o que aconteceu não apaga o fato de o registro ter sido produzido depois, sob pressão da auditoria — isso é reconstrução, e uma auditoria muitas vezes consegue verificar a data real de criação.",
+        "2": "Nada na teoria do curso exige um sistema específico para que um registro conte como evidência — o problema deste caso é o momento em que o registro foi feito, não a ferramenta usada.",
+        "3": "A revisão ter realmente acontecido é necessário, mas não é suficiente — o ponto é que um registro criado depois do fato tem menos peso como prova do que um registro feito no momento, mesmo descrevendo a verdade."
+      },
+      "dicas": [
+        "As seis revisões aconteceram de verdade — isso não está em dúvida no cenário.",
+        "Pense na diferença entre um registro feito na hora e um registro escrito de memória, meses depois, sob pressão.",
+        "O sistema usado e a revisão ter realmente acontecido não são o que decide este caso."
+      ],
+      "pergunta_socratica": "Antes de conferir: um registro criado na véspera de uma auditoria, sobre eventos de seis meses atrás, tem o mesmo peso que um registro feito na hora de cada evento?",
+      "explicacao": "Evidência criada depois do fato, mesmo descrevendo eventos reais, é reconstrução — e costuma ser identificável. O problema não é a revisão não ter acontecido, é que provar algo depois de saber que vai ser cobrado tem menos peso do que um registro contemporâneo ao evento, exatamente o erro comum já nomeado na teoria deste eixo.",
+      "fonte": "Teoria 5.4.t5",
+      "tags": ["grc", "evidencia", "reconstrucao-retroativa"]
+    },
+    {
+      "id": "5.4.q18",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "trecho": "# memo interno\n'Nosso programa de segurança é forte: fazemos backup diário, aplicamos patch mensal e revisamos acesso trimestralmente. Não achamos necessário manter registro formal dessas atividades, porque a equipe sabe que faz.'",
+      "enunciado": "O memo acima descreve três práticas de segurança reais e nega a necessidade de registro formal delas. Qual é o erro nessa posição?",
+      "alternativas": [
+        "Nenhum erro: se a equipe sabe que faz, a prática existe, e é isso que importa para a segurança do sistema",
+        "Trata 'a equipe sabe que faz' como prova verificável — pra quem está de fora, são coisas diferentes",
+        "O erro é a frequência das práticas: backup diário, patch mensal e revisão trimestral deveriam ser todos no mesmo intervalo",
+        "O erro é o memo ser interno — só documentos aprovados por auditoria externa contam como registro válido"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "A prática existir de verdade é necessário, mas o memo confunde isso com 'não precisar provar' — são perguntas diferentes que uma auditoria faz separadamente.",
+        "2": "Nada no caso indica que os três intervalos diferentes sejam, por si só, um problema — frequências diferentes para atividades diferentes são normais e não é esse o erro apontado.",
+        "3": "A origem do documento não é o ponto — o problema é a ausência de qualquer registro verificável das três práticas, não quem escreveu o memo que fala sobre elas."
+      },
+      "dicas": [
+        "As três práticas de segurança, pelo memo, realmente acontecem — isso não está em dúvida.",
+        "O erro está numa frase específica do memo, sobre não precisar manter registro.",
+        "A frequência das práticas e quem escreveu o memo são detalhes que distraem do erro real."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'a equipe sabe que faz' é a mesma coisa que 'existe prova de que foi feito', para quem avalia de fora?",
+      "explicacao": "O memo comete o erro central deste eixo: tratar a existência de uma prática como suficiente, dispensando registro verificável. Para uma auditoria, e para qualquer pessoa que não estava lá quando a atividade aconteceu, prática sem rastro e prática que nunca ocorreu são indistinguíveis — mesmo quando a prática é genuinamente real.",
+      "fonte": "Teoria 5.4.t5",
+      "tags": ["grc", "evidencia", "pratica-sem-prova"]
+    },
+    {
+      "id": "5.4.q19",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma empresa contrata um fornecedor depois de um processo de due diligence completo: relatório de auditoria do fornecedor revisado, cláusulas contratuais de segurança exigidas, aprovação assinada pelo responsável de compras, revisão anual agendada e cumprida duas vezes. No terceiro ano, o fornecedor sofre um incidente porque um subcontratado dele, nunca mencionado em nenhum documento do processo, foi comprometido. O processo de GRC da empresa contratante falhou?",
+      "alternativas": [
+        "Sim: due diligence completa deveria ter previsto qualquer subcontratado que o fornecedor viesse a usar, mesmo anos depois",
+        "Sim: revisão anual devia ter sido trimestral, o que teria identificado o subcontratado antes do incidente",
+        "Não: o processo avaliou bem o que era conhecido no momento — o subcontratado nunca apareceu em nenhum documento",
+        "Não, porque incidente causado por terceiro nunca é responsabilidade de quem contratou o fornecedor original"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Due diligence avalia o que está documentado e visível no momento — exigir que preveja qualquer subcontratado futuro, nunca declarado, extrapola o que qualquer processo de avaliação consegue captar.",
+        "1": "Nada no cenário indica que uma cadência trimestral teria revelado um subcontratado que não constava em nenhum documento — a frequência de revisão não resolve uma informação que nunca foi declarada.",
+        "3": "O processo de GRC não fica isento de qualquer responsabilidade só porque o incidente veio de um terceiro — a pergunta certa não é 'de quem é a culpa', é se o processo de avaliação foi seguido corretamente, que é o que este caso mostra."
+      },
+      "dicas": [
+        "O processo de avaliação do fornecedor foi seguido do início ao fim, com revisão cumprida duas vezes.",
+        "O que causou o incidente ficou totalmente fora do alcance de qualquer avaliação feita até ali.",
+        "Cadência de revisão e isenção automática por ser terceiro soam bem, mas não respondem à pergunta feita."
+      ],
+      "pergunta_socratica": "Antes de conferir: o processo de due diligence tinha algum jeito de avaliar um subcontratado que nunca foi declarado?",
+      "explicacao": "O processo avaliou tudo que estava disponível para avaliar, corretamente, e revisou no prazo combinado duas vezes seguidas. O incidente veio de uma camada — o subcontratado — que nunca apareceu em nenhuma informação acessível ao processo. Isso não é falha de GRC: é o mesmo limite estrutural já visto com risco aceito, aplicado a um tipo diferente de decisão — o processo garante avaliação correta do que é conhecido, não visibilidade sobre o que nunca foi declarado.",
+      "fonte": "Teoria 5.4.t6",
+      "tags": ["grc", "limite-do-metodo", "fornecedor"]
+    },
+    {
+      "id": "5.4.q36",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "A política interna diz que decisões de risco sobre um sistema devem ser tomadas pelo dono técnico daquele sistema. O dono técnico entra de licença médica por tempo indeterminado. Nesse meio-tempo, a gerente do time aceita um risco urgente, registra o próprio nome como responsável temporário, com critério e data, e documenta que a decisão será revista quando o dono técnico retornar. Essa decisão está governada?",
+      "alternativas": [
+        "Não: só o dono técnico nomeado na política pode decidir sobre esse sistema, não importa a circunstância",
+        "Sim, mas só depois que o dono técnico voltar e ratificar formalmente a decisão tomada em sua ausência",
+        "Não, porque decisão de risco urgente nunca pode ser tomada por alguém que não é o dono original do sistema",
+        "Sim: autoridade, registro e dono estão presentes — a política nomeia papel, mas nunca proíbe delegação"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Tratar o nome na política como a única autoridade possível ignora que ausência prolongada é a circunstância que justifica delegação documentada — a política nomeia um papel padrão, não uma trava absoluta.",
+        "1": "Exigir ratificação retroativa trata a decisão original como inválida até prova em contrário — mas ela já tinha autoridade, registro e dono no momento em que foi tomada, o que já basta pra governança.",
+        "2": "Nada na teoria do curso proíbe decisão urgente por quem não é o dono original — o que se exige é autoridade, registro, dono e critério, presentes aqui."
+      },
+      "dicas": [
+        "A gerente registrou nome, critério, data, e explicou por que assumiu a decisão.",
+        "A ausência prolongada do dono técnico é a circunstância que a política provavelmente não previu em detalhe.",
+        "A ausência foi justificada por escrito, não escondida — isso muda o peso da decisão tomada em seu lugar."
+      ],
+      "pergunta_socratica": "Antes de conferir: a política nomear um papel padrão de decisão impede, por si só, que alguém documente uma delegação temporária justificada?",
+      "explicacao": "A política define quem decide na situação comum, mas não é ela quem define os requisitos de governança — esses são autoridade, registro, dono e critério. A gerente tinha os quatro: assumiu a autoridade pela ausência do titular, registrou com seu nome, data e critério, e documentou o caráter temporário da decisão. Isso cumpre governança mesmo divergindo do papel padrão nomeado na política, porque a divergência foi justificada e registrada, não escondida.",
+      "fonte": "Teoria 5.4.t1 (as peças de governança independem de coincidir com o papel padrão nomeado numa política)",
+      "tags": ["grc", "governanca", "delegacao-documentada"]
+    },
+    {
+      "id": "5.4.q21",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um incidente é detectado; o time segue o playbook à risca: aciona o responsável certo, decide isolar o sistema afetado, documenta a decisão com hora e autor. O comando de isolamento é executado pela ferramenta de rede da empresa — que tem, sem ninguém saber, uma falha que permite o atacante contornar o isolamento e continuar se movendo pela rede. A decisão de isolar foi mal tomada?",
+      "alternativas": [
+        "Não: a decisão de isolar foi correta e bem tomada — a ferramenta usada pra executá-la foi o que falhou depois",
+        "Sim: um isolamento que não contém o atacante prova que a decisão de isolar nunca foi a certa desde o início",
+        "Não, porque nenhuma ferramenta de rede jamais deveria falhar a ponto de permitir contornar um isolamento aplicado corretamente",
+        "Sim, porque o time deveria ter escolhido conter o incidente por outro método, não por isolamento de rede"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A decisão de isolar era a correta diante do que se sabia no momento — a ferramenta falhar depois não reescreve, pra trás, o mérito da decisão tomada.",
+        "2": "Nenhuma ferramenta é imune a falha — exigir isso não é um critério real de avaliação, é uma expectativa que nenhum sistema cumpre.",
+        "3": "Nada no caso indica que outro método de contenção teria funcionado melhor — o problema aqui é a execução técnica, não a escolha do método."
+      },
+      "dicas": [
+        "O time seguiu o playbook certo, do início ao fim, até a hora de decidir.",
+        "O problema aparece numa camada técnica diferente, depois de a escolha já ter sido feita.",
+        "O enunciado nunca questiona a escolha de isolar por rede — só a ferramenta que executou o comando."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem decide isolar um sistema também garante que a ferramenta de isolamento não tem falha nenhuma?",
+      "explicacao": "A decisão foi tomada corretamente, pela pessoa certa, com registro — e mesmo assim o incidente continuou, porque a falha estava na ferramenta usada pra executar a decisão, não na decisão em si. É um mecanismo diferente do risco aceito que resurge ou do fornecedor com subcontratado invisível: aqui GRC governa a decisão e quem a tomou, mas nunca garantiu que a camada técnica de execução funcionaria sem falha.",
+      "fonte": "Teoria 5.4.t6 (terceiro mecanismo do mesmo limite estrutural: falha na execução técnica, não na decisão nem na avaliação de terceiros)",
+      "tags": ["grc", "limite-do-metodo", "execucao-tecnica"]
+    },
+    {
+      "id": "5.4.q22",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Um comitê de cinco pessoas vota e aprova, por maioria, aceitar um risco. A ata registra a votação e o resultado, mas não registra nenhum nome como responsável principal pela decisão. Isso já é suficiente para efeito de governança?",
+      "alternativas": [
+        "Sim: uma votação em comitê já é, por natureza, mais forte que a decisão de uma pessoa só, então dispensa dono nomeado",
+        "Não plenamente: falta um dono principal, identificado dentro do comitê — sem isso, ninguém responde por ela sozinho",
+        "Sim, porque a ata já registra data e resultado, e isso cobre os requisitos de uma decisão de risco bem documentada",
+        "Não, porque decisões de risco nunca podem ser tomadas por comitê, só por uma pessoa sozinha com cargo de autoridade"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Uma votação coletiva não substitui a exigência de um dono identificado — decidir em grupo não isenta a decisão de ter alguém que responda por ela individualmente.",
+        "2": "Data e resultado da votação são parte do registro, mas sem dono nomeado falta a peça que permite cobrar responsabilidade depois — registro completo tem as três peças, não duas.",
+        "3": "Nada na teoria do curso proíbe decisão colegiada — o problema deste caso não é o formato da decisão, é a ausência de um responsável identificado dentro dela."
+      },
+      "dicas": [
+        "A ata tem data, tem resultado da votação — falta outra coisa.",
+        "Um grupo decidiu, mas ninguém especificamente aparece como responsável pela decisão.",
+        "O formato colegiado da decisão não é o problema central deste caso."
+      ],
+      "pergunta_socratica": "Antes de conferir: se essa decisão for questionada daqui a um ano, quem especificamente vai responder por ela?",
+      "explicacao": "Decisão em comitê não é, por si só, um problema — mas sem um dono principal identificado dentro da ata, ninguém responde individualmente por ela quando for cobrada. Registro completo de governança tem três peças: autoridade, registro e dono; aqui faltou nomear quem, dentro do comitê, assume a responsabilidade.",
+      "fonte": "Teoria 5.4.t1",
+      "tags": ["grc", "governanca", "decisao-colegiada"]
+    },
+    {
+      "id": "5.4.q23",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Uma autoridade reconhecida aceita um risco e registra: dono nomeado, data, e o critério 'porque avaliamos que era aceitável'. Esse critério é suficiente para efeito de governança?",
+      "alternativas": [
+        "Sim: ter qualquer frase de justificativa já cumpre o requisito de critério registrado, seja qual for o conteúdo dela",
+        "Não, porque toda decisão de risco precisa citar um número de score específico, nunca uma frase qualitativa",
+        "Não plenamente: o critério não diz com base em quê a avaliação foi feita, e sem isso ninguém confere depois se a lógica ainda vale",
+        "Sim, porque quem tem autoridade reconhecida nunca precisa detalhar o raciocínio por trás de uma decisão que já está no seu poder tomar"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Uma frase de justificativa existir não é o mesmo que um critério verificável — 'achamos aceitável' não diz o que foi pesado nem por quê.",
+        "1": "Nada exige especificamente um número de score — um critério qualitativo bem descrito também vale, desde que explique o raciocínio, o que não é o caso aqui.",
+        "3": "Ter autoridade pra decidir não isenta de registrar o raciocínio — sem isso, ninguém consegue revisar a decisão com o mesmo critério usado originalmente."
+      },
+      "dicas": [
+        "Autoridade, dono e data estão todos presentes neste caso.",
+        "O problema está na frase do critério em si — o que ela realmente diz.",
+        "Exigir um número específico e dispensar explicação pelo cargo de quem decide são as duas respostas fáceis — nenhuma acerta."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguém que ler esse registro daqui a um ano vai entender por que o risco foi considerado aceitável?",
+      "explicacao": "O critério registrado precisa carregar o raciocínio, não só declarar uma conclusão. 'Avaliamos que era aceitável' não diz o que foi comparado, nem com base em qual informação — é uma frase que ocupa o lugar de um critério sem cumprir a função de um: permitir que alguém, depois, confira se a mesma lógica ainda se sustenta.",
+      "fonte": "Teoria 5.4.t1",
+      "tags": ["grc", "governanca", "criterio-vago"]
+    },
+    {
+      "id": "5.4.q24",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "trecho": "# registro_decisao_042.yaml\nrisco: acesso de terceiros ao ambiente de testes\ndecisao: aceito\nautoridade: Diretora de TI (Fernanda Alves)\ndono: Fernanda Alves\ncriterio: ambiente de testes não tem dado real, exposição limitada\nperiodo: 'Q2 deste ano'",
+      "enunciado": "O registro acima tem autoridade, dono e critério bem definidos. O campo 'periodo' diz só 'Q2 deste ano', sem data específica nem prazo de revisão. Qual problema concreto isso cria?",
+      "alternativas": [
+        "Nenhum: um trimestre já é referência de tempo suficientemente precisa pra qualquer decisão de risco",
+        "O problema é a decisão ter sido tomada por uma diretora de TI, quando deveria ser sempre um comitê de risco formal",
+        "O problema é o critério mencionar 'exposição limitada' sem citar um número exato de usuários afetados",
+        "Sem data exata, ninguém sabe quando reavaliar essa decisão nem provar em que dia exatamente ela foi tomada"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Um trimestre inteiro é uma janela grande demais pra funcionar como data de decisão ou como gatilho de revisão — 'Q2 deste ano' cobre três meses, não um momento específico.",
+        "1": "Nada no caso indica que a autoridade de uma diretora de TI seja insuficiente pra esse tipo de risco — o problema apontado aqui é outro, sobre o campo de tempo.",
+        "2": "O critério, como está, já explica o raciocínio (baixa exposição por ausência de dado real) — o problema deste caso não é o nível de detalhe do critério, é a falta de data exata."
+      },
+      "dicas": [
+        "Autoridade, dono e critério estão bem preenchidos neste registro.",
+        "O campo que causa problema é o de tempo — reparem no que ele diz, e no que não diz.",
+        "O cargo de quem decidiu e o nível de detalhe do critério estão bem resolvidos — o problema é outro campo do registro."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'Q2 deste ano' permite saber em que dia exato a decisão foi tomada, ou quando ela precisa ser revista?",
+      "explicacao": "Um período largo como 'Q2 deste ano' não funciona nem como data verificável (quando exatamente?) nem como gatilho de revisão (revisar quando, dentro desses três meses?). Autoridade, dono e critério bem escritos não compensam um registro de tempo vago demais pra ser útil depois — governança precisa de data específica, não de janela aproximada.",
+      "fonte": "Teoria 5.4.t2",
+      "tags": ["grc", "governanca", "data-vaga"]
+    },
+    {
+      "id": "5.4.q25",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Um risco foi registrado com score 3 há oito meses. Desde então, uma vulnerabilidade nova tornou esse mesmo componente muito mais exposto, mas ninguém atualizou o score no sistema. Um time usa a lista de riscos, ordenada pelo score registrado, pra decidir prioridade este trimestre. Que problema concreto essa comparação tem?",
+      "alternativas": [
+        "Compara um score parado no tempo como se ainda refletisse a exposição real de hoje, ignorando o que mudou depois",
+        "Nenhum: o score de 3, uma vez registrado com autoridade e critério, continua válido pra sempre, independente de mudanças no ambiente",
+        "O problema é o sistema de registro não guardar histórico de quem alterou cada score ao longo do tempo",
+        "O problema é comparar um risco antigo com riscos abertos há menos tempo, o que nunca deveria ser feito na mesma lista"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Um score registrado com autoridade não fica congelado como verdade permanente — a exposição real muda com o ambiente, e o registro devia acompanhar isso.",
+        "2": "Histórico de alteração é útil, mas não é o problema central deste caso — o problema é o score atual estar desatualizado, não a falta de rastro de mudanças passadas.",
+        "3": "Nada na teoria do curso proíbe comparar riscos de idades diferentes na mesma lista — o problema aqui é a desatualização do número, não o tempo de existência do risco."
+      },
+      "dicas": [
+        "O score de 3 foi correto na época em que foi registrado — o problema aparece depois.",
+        "Algo mudou no ambiente depois do registro, e o número não acompanhou essa mudança.",
+        "Falta de histórico e comparar riscos de idades diferentes soam plausíveis, mas nenhum explica o problema real."
+      ],
+      "pergunta_socratica": "Antes de conferir: um score parado há oito meses ainda descreve a exposição real do risco hoje?",
+      "explicacao": "O score não é uma verdade permanente — ele descreve a exposição no momento em que foi calculado. Um risco cujo ambiente mudou (nova vulnerabilidade no mesmo componente) precisa de reavaliação, senão a comparação de portfólio usa um número que já não corresponde à realidade, dando prioridade errada sem que ninguém perceba.",
+      "fonte": "Teoria 5.4.t3",
+      "tags": ["grc", "risco", "score-desatualizado"]
+    },
+    {
+      "id": "5.4.q26",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "artefato": "$ cat registro_riscos.txt\nrisco-A: score 8 (nenhuma mitigação aplicada ainda)\nrisco-B: score 8 (depois de firewall e monitoramento já aplicados)",
+      "enunciado": "Os dois riscos acima têm o mesmo score 8, mas um é medido antes de qualquer mitigação e o outro depois de duas camadas de proteção já aplicadas. Tratar os dois scores como equivalentes pra decidir prioridade comete que erro?",
+      "alternativas": [
+        "Nenhum erro: score é score, independente do risco já ter ou não alguma mitigação aplicada sobre ele",
+        "Ignora que o risco-B, mesmo com proteção já aplicada, ainda mede 8 — sugerindo um risco original bem maior por trás",
+        "O erro é o risco-A não ter mitigação nenhuma aplicada ainda, o que nunca deveria acontecer numa empresa organizada",
+        "O erro é comparar riscos com nomes genéricos como 'risco-A' e 'risco-B', em vez de nomes descritivos do problema real"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Ignorar se o score já passou por mitigação esconde uma informação importante: o risco-B provavelmente tinha um risco original bem maior do que o risco-A, coberto só em parte pela proteção já aplicada.",
+        "2": "Não ter mitigação aplicada ainda não é, por si só, um erro de processo — pode ser simplesmente um risco identificado recentemente, aguardando priorização.",
+        "3": "O nome dado a cada risco não afeta o mecanismo do problema — a questão é sobre o que o score representa antes ou depois da mitigação, não sobre nomenclatura."
+      },
+      "dicas": [
+        "Os dois têm o mesmo número — mas um já passou por duas camadas de proteção, o outro não.",
+        "O score do risco-B, mesmo depois de firewall e monitoramento, sugere algo sobre o tamanho do risco antes dessas duas camadas.",
+        "A ausência de mitigação em si, e o nome dado a cada risco, não são o ponto central aqui."
+      ],
+      "pergunta_socratica": "Antes de conferir: um score 8 depois de duas camadas de proteção já aplicadas significa a mesma coisa que um score 8 sem proteção nenhuma?",
+      "explicacao": "Um score medido depois de mitigação e um score medido antes de qualquer mitigação não são a mesma medida, mesmo com o mesmo número. Um risco-B com score 8 apesar de já ter firewall e monitoramento sugere um risco original bem maior por trás — informação que se perde quando os dois números são comparados como se fossem do mesmo tipo.",
+      "fonte": "Teoria 5.4.t3",
+      "tags": ["grc", "risco", "score-antes-e-depois-da-mitigacao"]
+    },
+    {
+      "id": "5.4.q27",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um risco tem score 9 (alto), mas o custo de mitigá-lo é dez vezes o valor máximo de dano estimado se ele se concretizar. A autoridade decide aceitar esse risco, mesmo com score alto, em vez de mitigar. Essa decisão contradiz a lógica de comparação de risco por score?",
+      "alternativas": [
+        "Sim: um risco de score alto deveria ser sempre mitigado, custe o que custar, sem exceção nenhuma",
+        "Sim, porque aceitar um risco de score 9 é, por definição, uma falha de julgamento de quem decidiu",
+        "Não: a decisão também pesa o custo da correção contra o dano — aqui o custo superou muito o benefício",
+        "Não, mas só porque score 9 na verdade não é considerado alto o suficiente pra exigir mitigação obrigatória"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Mitigar sempre, sem considerar custo, ignora que recursos são limitados — uma decisão de segurança madura pesa custo contra benefício, não só o score isolado.",
+        "1": "Aceitar conscientemente, com justificativa de custo registrada, não é falha de julgamento — é exatamente o tipo de decisão que governança existe para sustentar e documentar.",
+        "3": "Score 9 é, sim, considerado alto na escala usada neste módulo — o motivo da decisão aqui não é o score ser baixo, é o custo de correção ser desproporcional ao dano."
+      },
+      "dicas": [
+        "O score alto não está em disputa — o risco de fato tem score 9.",
+        "O que pesa na decisão, além do score, é a relação entre custo de corrigir e dano esperado.",
+        "'Mitigar sempre' ignora o custo; 'o score não era alto de verdade' ignora o próprio score dado no enunciado."
+      ],
+      "pergunta_socratica": "Antes de conferir: um score alto obriga, sozinho, a corrigir o risco, sem considerar quanto custaria corrigir?",
+      "explicacao": "O score compara magnitude de risco, mas a decisão de mitigar, aceitar ou transferir pesa esse número contra o custo de agir. Um risco de score 9 pode ser aceito conscientemente quando o custo de mitigação é claramente desproporcional ao dano esperado — não é contradição, é a mesma lógica de comparação de portfólio aplicada dentro de uma única decisão.",
+      "fonte": "Teoria 5.4.t3 (e triagem de custo × dano já vista em 5.3.t5, aqui aplicada a um caso de portfólio)",
+      "tags": ["grc", "risco", "custo-de-mitigacao"]
+    },
+    {
+      "id": "5.4.q28",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um contrato de monitoramento terceirizado exige, e o time cumpre à risca, um relatório mensal de eventos de segurança — item de conformidade contratual plenamente satisfeito. Um ataque acontece e só é percebido no relatório do mês seguinte, quase quatro semanas depois. Qual dos dois erros simétricos esse caso ilustra?",
+      "alternativas": [
+        "Segurança real sem conformidade demonstrável: o monitoramento funciona bem, só falta provar isso pra uma auditoria",
+        "Nenhum dos dois: relatório mensal e detecção de ataque são atividades sem relação nenhuma entre si",
+        "Os dois ao mesmo tempo: o contrato não está em conformidade e o monitoramento também não funciona",
+        "Conformidade sem segurança real: cumprir o relatório mensal não impediu semanas de atraso na detecção do ataque"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O caso não menciona nenhuma dificuldade de provar que o monitoramento funciona — o relatório mensal é, ele mesmo, a evidência de conformidade cumprida; o problema é outro.",
+        "1": "O caso liga diretamente as duas coisas: cumprir a cadência de relatório contratada e ainda assim demorar semanas pra perceber um ataque real.",
+        "2": "O contrato está, pelo enunciado, plenamente cumprido — relatório mensal entregue à risca; a falha não está na conformidade, está na proteção real que ela deveria garantir."
+      },
+      "dicas": [
+        "O item contratual de relatório mensal foi cumprido sem falha nenhuma.",
+        "O atraso de quase quatro semanas pra perceber o ataque é o dado central do caso.",
+        "O relatório mensal entregue é, ele mesmo, a prova de conformidade — não é isso que falta aqui."
+      ],
+      "pergunta_socratica": "Antes de conferir: cumprir a cadência de relatório contratada garante, sozinho, detecção rápida de um ataque real?",
+      "explicacao": "O contrato foi cumprido à risca — relatório mensal entregue, item de conformidade satisfeito. Mas a cadência mensal, por definição, nunca detecta nada em menos de um mês: cumprir o item contratual não impediu quatro semanas de exposição sem detecção. É o mesmo erro já visto na configuração de máquina e no benchmark de segurança: cumprir e provar cumprir o que foi combinado nunca garante, sozinho, que a proteção real acompanhe.",
+      "fonte": "Teoria 5.4.t4",
+      "tags": ["grc", "conformidade", "erro-simetrico"]
+    },
+    {
+      "id": "5.4.q29",
+      "tipo": "ataque_defesa",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um atacante prefere atacar sistemas cujos controles de segurança nunca passaram por auditoria formal, mesmo sabendo que esses controles podem, na prática, funcionar bem. Por que essa escolha pode ser vantajosa pro atacante?",
+      "alternativas": [
+        "Porque controle nunca auditado nunca teve um segundo olhar externo — falhas nele demoram mais a ser notadas",
+        "Porque controle sem auditoria formal, por definição, nunca funciona de verdade, então é sempre mais fácil de contornar",
+        "Porque sistemas sem auditoria formal nunca têm nenhum tipo de proteção técnica implementada",
+        "Porque nenhum atacante consegue testar um sistema já auditado, então evita esses por impossibilidade técnica"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O caso deixa claro que o controle pode funcionar bem na prática — a vantagem do atacante não vem do controle ser ruim, vem da ausência de revisão externa sobre ele.",
+        "2": "Nada indica ausência total de proteção técnica — o ponto é que a proteção existe, só não foi revisada por ninguém de fora.",
+        "3": "Testar um sistema auditado não é tecnicamente impossível — a escolha do atacante é estratégica, sobre onde a chance de uma falha persistir despercebida é maior."
+      },
+      "dicas": [
+        "O controle, neste caso, pode funcionar bem — isso não está em disputa.",
+        "O que falta nele é ter passado por algum tipo de revisão externa.",
+        "'Nunca funciona' e 'impossível de testar' são generalizações que o cenário não confirma."
+      ],
+      "pergunta_socratica": "Antes de conferir: um controle que nunca foi revisado por ninguém de fora tem mais ou menos chance de esconder uma falha por muito tempo?",
+      "explicacao": "Este é o erro simétrico ao do benchmark: aqui o controle funciona de verdade, mas nunca foi auditado — e sem uma auditoria, nenhum segundo olhar externo checou se ele tem falhas. Um atacante que mira esses sistemas está apostando que a ausência de revisão formal aumenta a chance de uma falha real persistir sem ser notada, não que o controle seja ruim.",
+      "fonte": "Teoria 5.4.t4 e 5.4.t5",
+      "tags": ["grc", "conformidade", "perspectiva-atacante"]
+    },
+    {
+      "id": "5.4.q30",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [2, 3],
+      "enunciado": "Uma auditoria encontra um controle que funciona de verdade, mas sem nenhuma evidência registrada. Coloque em ordem os passos corretos para resolver essa lacuna, do primeiro ao último.",
+      "itens": [
+        "Confirmar, com quem opera o controle, que ele realmente funciona e desde quando",
+        "Definir que tipo de registro (log, ticket, aprovação nomeada) vai passar a comprovar essa prática daqui pra frente",
+        "Implementar o registro combinado e rodar o controle normalmente, agora deixando rastro",
+        "Revisar, depois de um ciclo, se o registro criado realmente comprova o que a auditoria original pedia"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "Não dá pra decidir que tipo de registro criar antes de confirmar que a prática realmente acontece.",
+        "Implementar o registro só faz sentido depois de decidir qual tipo de registro serve pra esse controle.",
+        "Revisar se o registro funciona só é possível depois de ele já estar em uso por um tempo."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá pra revisar um registro que ainda não existe?",
+      "explicacao": "Cada etapa depende da anterior: primeiro confirma-se que a prática é real (sem isso, não se sabe se o problema é falta de registro ou falta de prática); depois se decide o tipo de registro adequado; depois se implementa e roda; e só então se revisa se o registro criado realmente resolveu a lacuna que a auditoria apontou.",
+      "fonte": "Teorias 5.4.t4 e 5.4.t5",
+      "tags": ["grc", "auditoria", "processo"]
+    },
+    {
+      "id": "5.4.q31",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "trecho": "# log_pull_request.txt\nPR #884 - revisão de código de segurança\naprovador: mesmo autor do PR (auto-aprovado)\ndata: 2026-04-01\nferramenta: sistema de controle de versão, registro automático",
+      "enunciado": "O log acima registra data e aprovador automaticamente, pelo próprio sistema de controle de versão. O aprovador listado é o mesmo autor do código revisado. Isso é evidência válida de revisão de código pra efeito de auditoria?",
+      "alternativas": [
+        "Sim: o registro é automático, gerado pelo próprio sistema, então é por definição confiável e suficiente",
+        "Não plenamente: existe registro e data, mas o aprovador não tinha independência da autoria do código",
+        "Não, porque sistemas de controle de versão nunca produzem evidência válida pra fins de auditoria de segurança",
+        "Sim, porque a data do registro automático já garante, sozinha, que a revisão foi feita corretamente"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O registro ser automático garante que algo foi gravado, mas não garante que o conteúdo do que foi gravado cumpre o requisito de revisão — aqui, quem aprovou não é independente de quem escreveu.",
+        "2": "Sistemas de controle de versão produzem, sim, evidência válida em muitos casos — o problema deste registro específico não é a ferramenta, é quem está listado como aprovador.",
+        "3": "A data confirma quando o registro foi gravado, mas não confirma que o processo de revisão, com um segundo olhar independente, realmente aconteceu."
+      },
+      "dicas": [
+        "O registro existe, tem data, foi gerado automaticamente — isso não está em questão.",
+        "Repare em quem está listado como aprovador, comparado a quem escreveu o código.",
+        "A automação do registro e a ferramenta usada já estão corretas — a falha está em outro detalhe do log."
+      ],
+      "pergunta_socratica": "Antes de conferir: revisão de código feita pelo próprio autor cumpre a função de um segundo olhar independente?",
+      "explicacao": "O registro tem data e é gerado automaticamente, mas o conteúdo dele mostra que quem aprovou é a mesma pessoa que escreveu o código — isso não cumpre a função de revisão, que pressupõe um segundo olhar independente. Evidência automática e bem registrada ainda pode documentar um processo que, na prática, não aconteceu do jeito que deveria.",
+      "fonte": "Teoria 5.4.t5 (e Teoria 5.4.t1, autoridade/independência de quem aprova)",
+      "tags": ["grc", "evidencia", "auto-aprovacao"]
+    },
+    {
+      "id": "5.4.q32",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "artefato": "$ diff log_automatico.txt log_manual.txt\n--- log_automatico.txt (gerado pelo sistema de backup, sem intervenção humana)\n2026-01-05 03:00 backup concluído, hash de verificação: a3f9...\n+++ log_manual.txt (digitado por um analista, sem geração automática)\n2026-01-05 backup feito, tudo certo",
+      "enunciado": "Os dois registros acima descrevem o mesmo backup do mesmo dia. Do ponto de vista de força de evidência para auditoria, o que diferencia os dois?",
+      "alternativas": [
+        "Nada os diferencia: os dois confirmam que o backup aconteceu no mesmo dia, e é só isso que importa",
+        "O log manual é mais forte, porque foi escrito por uma pessoa, que entende melhor o contexto do que um sistema automatizado",
+        "O log automático é mais forte: guarda hora exata e um código de checagem gerado sozinho pelo sistema, difícil de forjar depois",
+        "O log manual é mais forte, porque só ele usa linguagem clara, enquanto o automático usa termos técnicos difíceis de entender"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Os dois confirmam que o backup aconteceu, mas 'que aconteceu' não é a única pergunta de uma auditoria — a força da evidência depende também de como o registro foi produzido.",
+        "1": "Entender contexto não é o critério de força de evidência aqui — o que pesa é a dificuldade de alterar ou fabricar o registro depois do fato, e um registro manual é mais fácil de reconstruir de memória.",
+        "3": "Clareza de linguagem não é o mesmo que força de evidência — um registro técnico automático, com hash e hora exata, prova mais do que uma frase simples escrita por alguém depois."
+      },
+      "dicas": [
+        "Os dois registros dizem, no fim, a mesma coisa: que o backup aconteceu naquele dia.",
+        "Pense em qual dos dois seria mais difícil de fabricar ou alterar depois do fato.",
+        "Contexto humano e clareza de linguagem parecem relevantes, mas não são o critério que decide força de evidência."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dos dois registros seria mais difícil de forjar seis meses depois, se alguém quisesse mentir sobre o backup?",
+      "explicacao": "Força de evidência não depende só de dizer que algo aconteceu, depende de como o registro foi produzido. Um log automático, com hora exata e hash de verificação gerados sem intervenção humana, é muito mais difícil de alterar ou reconstruir depois do que uma linha digitada de memória por uma pessoa — mesmo que as duas descrevam o mesmo evento real.",
+      "fonte": "Teoria 5.4.t5",
+      "tags": ["grc", "evidencia", "forca-do-registro"]
+    },
+    {
+      "id": "5.4.q33",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Uma empresa mantém registro impecável de revisão de código havia dois anos — cada PR com aprovador nomeado, data e ticket fechado. Nenhuma prática de teste de segurança automatizado antes do deploy tem qualquer registro, embora o time garanta que os testes rodam. Uma auditoria pede amostra de evidência de 'controles de desenvolvimento seguro' em geral. O que essa empresa consegue mostrar?",
+      "alternativas": [
+        "Evidência completa: o registro de revisão de código, por si só, já cobre qualquer controle de desenvolvimento seguro pedido pela auditoria",
+        "Nenhuma evidência: sem registro dos testes automatizados, o registro de revisão de código também deixa de valer como prova",
+        "Evidência completa, porque confirmação verbal do time sobre os testes automatizados já basta pra uma auditoria",
+        "Evidência parcial: revisão de código está bem documentada, mas testes automatizados, mesmo reais, não têm rastro nenhum"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Revisão de código é só uma das práticas dentro de 'desenvolvimento seguro' — cobrir uma prática bem não cobre automaticamente as outras que a auditoria também pede.",
+        "1": "A ausência de registro de uma prática não invalida o registro bem-feito de outra — as duas são avaliadas separadamente, cada uma pelo que tem ou não tem de evidência própria.",
+        "2": "Confirmação verbal na entrevista não é o mesmo que evidência verificável de forma independente — é o mesmo problema já visto: o que conta é o que existe fora da entrevista."
+      },
+      "dicas": [
+        "A revisão de código, sozinha, está muito bem documentada — isso não está em questão.",
+        "Os testes automatizados têm um problema diferente: acontecem, mas não deixam rastro nenhum.",
+        "Uma prática bem documentada não empresta força pra outra sem registro, e confirmação verbal não substitui nenhuma das duas."
+      ],
+      "pergunta_socratica": "Antes de conferir: um registro impecável de revisão de código prova alguma coisa sobre testes automatizados que nunca deixaram rastro?",
+      "explicacao": "'Desenvolvimento seguro' engloba várias práticas — aqui, uma está impecavelmente documentada e outra não tem rastro nenhum, mesmo rodando de verdade. Uma auditoria avalia cada prática pelo que ela própria consegue provar; o registro forte de uma não empresta força pra outra que não tem evidência própria.",
+      "fonte": "Teoria 5.4.t5",
+      "tags": ["grc", "evidencia", "cobertura-parcial"]
+    },
+    {
+      "id": "5.4.q34",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Três incidentes são descritos: (1) um risco aceito com autoridade, critério e revisão no prazo se materializa antes da próxima revisão; (2) um risco é aceito por alguém sem autoridade reconhecida pra esse tipo de decisão, e se materializa; (3) um risco aceito corretamente nunca é revisado no prazo combinado, e se materializa dois anos depois do prazo perdido. Em qual desses casos o processo de GRC genuinamente falhou?",
+      "alternativas": [
+        "Só no segundo e no terceiro: no primeiro, o processo foi seguido do início ao fim — isso é exatamente o limite do método",
+        "Nos três: todo risco aceito que se materializa em incidente prova que o processo de GRC, de algum jeito, falhou em algum ponto",
+        "Só no terceiro: revisão perdida é o único tipo de falha que realmente conta como erro de processo dentro de GRC",
+        "Em nenhum dos três: nenhum processo de GRC pode ser responsabilizado quando um risco aceito conscientemente se materializa"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O primeiro caso segue autoridade, critério e prazo corretamente — tratar esse como falha de processo apaga a diferença entre o limite estrutural do método e um erro real de execução.",
+        "2": "O segundo caso (decisão sem autoridade reconhecida) também é falha real de processo, não só o terceiro — faltou uma das peças de governança desde a origem da decisão.",
+        "3": "O segundo e o terceiro caso mostram falhas concretas de processo (autoridade ausente; prazo de revisão não cumprido) — isentar todos os três ignora essas duas falhas reais."
+      },
+      "dicas": [
+        "Só um dos três casos segue autoridade, critério e prazo corretamente do início ao fim.",
+        "Os outros dois têm uma peça de governança faltando desde antes do incidente acontecer.",
+        "Julgar só pelo resultado, ou isentar os três por igual, apaga a distinção que este caso pede."
+      ],
+      "pergunta_socratica": "Antes de conferir: nos três casos, o processo foi seguido do mesmo jeito, ou só num deles isso é verdade?",
+      "explicacao": "O primeiro caso é o limite estrutural do método: processo seguido à risca, e mesmo assim o risco se materializa — isso não é falha, é o que a teoria deste eixo já mostrou. Os outros dois são falhas reais e distintas: o segundo por falta de autoridade reconhecida na origem da decisão, o terceiro por não cumprir o prazo de revisão combinado. Confundir os três apaga a diferença entre o limite do método e um erro real de execução dele.",
+      "fonte": "Teoria 5.4.t6 (síntese dos casos já vistos: 5.4.q7, 5.4.q19, 5.4.q21, e dois contraexemplos de falha real de processo)",
+      "tags": ["grc", "limite-do-metodo", "distincao"]
+    },
+    {
+      "id": "5.4.q35",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Um time decide anotar, junto de cada score de risco, uma nota de confiança separada ('alta', 'média', 'baixa', dependendo da fonte do dado). Ao comparar dois riscos de mesmo score mas confiança diferente, o time prioriza primeiro o de confiança mais alta, documentando esse critério de desempate. Essa prática resolve o problema de comparar riscos de origens tão diferentes?",
+      "alternativas": [
+        "Não: a nota de confiança é subjetiva demais pra ter qualquer peso numa decisão de priorização de risco",
+        "Em boa parte: registrar a confiança ao lado do score evita tratar números heterogêneos como se fossem iguais",
+        "Sim, completamente: uma vez que a confiança está registrada, o score em si deixa de ter qualquer importância na decisão",
+        "Não, porque confiança só deveria ser medida por auditoria externa, nunca pelo próprio time que registra o risco"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Confiança bem documentada, mesmo vindo de uma escala qualitativa, é informação real sobre a origem do dado — descartá-la como sempre subjetiva demais ignora que ela é justamente o que faltava nas comparações vistas antes.",
+        "2": "O score continua importando — confiança é um critério adicional pra desempate entre riscos de score parecido, não um substituto que zera a relevância do score.",
+        "3": "Nada na teoria do curso exige que só auditoria externa meça confiança — o próprio time que registra o dado pode, e deve, documentar de onde ele veio."
+      },
+      "dicas": [
+        "O time não abandonou o score — acrescentou uma informação a mais ao lado dele.",
+        "Essa nota extra é justamente o que os riscos comparados antes, neste módulo, não tinham.",
+        "A confiança registrada não é descartável por ser qualitativa, e medi-la não é exclusividade de auditor externo."
+      ],
+      "pergunta_socratica": "Antes de conferir: registrar de onde vem cada score, e usar isso pra desempatar, ataca o mesmo problema já visto nas comparações de risco deste módulo?",
+      "explicacao": "Essa prática ataca diretamente o problema mostrado ao longo do eixo: comparar riscos pelo número sozinho esconde diferenças de confiança entre eles. Registrar a confiança ao lado do score, e documentar seu uso como critério de desempate, não elimina toda imprecisão, mas transforma um problema invisível (números iguais escondendo bases diferentes) numa informação explícita, revisável e auditável.",
+      "fonte": "Teoria 5.4.t3 (fechamento prático do eixo: o que fazer, não só o que evitar)",
+      "tags": ["grc", "risco", "confianca-documentada"]
+    }
+  ]
+}
