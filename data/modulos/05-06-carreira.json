@@ -1,0 +1,1053 @@
+{
+  "id": "5.6",
+  "nivel": 5,
+  "titulo": "Carreira em segurança: o problema que você escolhe repetir",
+  "objetivos": [
+    "Reconhecer que os subcampos de cibersegurança (defensivo, ofensivo, engenharia, governança) pedem perfis diferentes de temperamento profissional, e escolher entre eles pelo tipo de problema que se aguenta repetir por anos, não por afinidade superficial com o tema",
+    "Explicar o que o termo 'júnior' significa de fato em segurança, e por que a porta de entrada raramente é o cargo com o nome mais vistoso",
+    "Avaliar o que uma certificação, um diploma e um portfólio provam de fato sobre uma pessoa, individualmente e em conjunto, e nomear o vazio que os três juntos deixam sem resposta",
+    "Distinguir, numa prática ou conteúdo de aprendizado, o que é mecanismo estrutural durável do que é detalhe específico com prazo de validade curto, para decidir onde investir aprendizado profundo e onde investir só o suficiente pra usar agora",
+    "Comparar as cinco lentes do nível 5 diante de uma situação concreta, reconhecendo qual pergunta central se aplica melhor ao caso e por que as demais, mesmo plausíveis, respondem uma pergunta diferente"
+  ],
+  "pre_requisitos": ["5.1", "5.2", "5.3", "5.4", "5.5"],
+  "teoria": [
+    {
+      "id": "5.6.t1",
+      "titulo": "O campo não é uma coisa só: perfil por tipo de problema que se aguenta repetir",
+      "texto": "Segurança se divide em subcampos que não são opções de cardápio intercambiáveis: defensivo (monitorar, detectar, conter), ofensivo (simular ataque sob autorização), engenharia (construir com a decisão de segurança embutida) e governança (registrar e evidenciar decisão). Cada um repete um tipo diferente de tarefa ao longo dos anos: defensivo repete vigilância contínua sobre o mesmo tipo de sinal, muitas vezes sem incidente real por longos períodos; ofensivo repete entrar em sistemas diferentes a cada engajamento, mas sempre sob prazo e regra impostos por outra pessoa; engenharia repete embutir a mesma pergunta de segurança em decisão técnica nova, quase sempre de forma invisível pra quem não constrói; governança repete documentar e evidenciar decisão, num ritmo mais próximo de processo do que de crise. A escolha entre eles não é sobre qual tema parece mais interessante — é sobre qual dessas rotinas a pessoa aguenta sustentar, ano após ano, inclusive nos dias em que ela é tediosa.",
+      "analogia": "Escolher entre ser cirurgião (mesmo procedimento, muitas vezes, precisão sob pressão) e ser médico de pronto-socorro (crise diferente a cada plantão, sem procedimento fixo) não é sobre qual profissão é mais nobre — é sobre qual tipo de repetição cada pessoa aguenta sustentar por uma carreira inteira.",
+      "erro_comum": "Escolher subcampo pela imagem pública mais vistosa (o teste de invasão dramatizado em filme e notícia) sem perguntar o que a rotina real desse subcampo pede pra repetir todo dia, nos anos em que não há nada dramático acontecendo.",
+      "fonte": "(abre o eixo de escolha de especialização do módulo)"
+    },
+    {
+      "id": "5.6.t2",
+      "titulo": "O que 'júnior' significa de fato, e por que a porta de entrada raramente tem o nome bonito",
+      "texto": "Trabalho de segurança pressupõe entender como um sistema funciona, falha e é usado na prática — essa literatura operacional quase sempre se constrói em papéis que operam o sistema diretamente (suporte técnico, administração, desenvolvimento, triagem de chamado), não em papéis que já nascem com a palavra 'segurança' no nome. 'Júnior', na prática, significa alguém que executa um procedimento bem definido sob supervisão e reconhece quando escalar — não alguém que desenha o procedimento. Uma vaga chamada 'júnior' mas que exige anos de experiência prática específica não é porta de entrada, é um degrau intermediário disfarçado pelo nome; uma vaga sem nenhuma palavra de segurança no título, mas que aceita quem começa do zero, costuma ser a entrada real, porque é ali que a literatura operacional que o trabalho de segurança depois assume como pré-requisito é construída.",
+      "analogia": "Ninguém começa como chef de cozinha — começa como cozinheiro de linha, aprendendo como a cozinha funciona sob pressão antes de decidir o que vai pro cardápio. O título 'chef' vem depois da experiência que o sustenta, não antes dela.",
+      "erro_comum": "Mirar o estudo e a candidatura direto no cargo de nome mais vistoso (testador de invasão, caçador de ameaça), pulando o papel fundacional que constrói a literatura operacional que tornaria a pessoa de fato competente nele.",
+      "fonte": "Teoria 5.6.t1 (mecanismo diferente: aqui não é sobre qual repetição se aguenta, é sobre qual experiência o trabalho pressupõe já ter)"
+    },
+    {
+      "id": "5.6.t3",
+      "titulo": "O que uma certificação, um diploma e um portfólio provam, cada um",
+      "texto": "As três credenciais mais citadas em segurança provam coisas estreitas e diferentes. Certificação prova que a pessoa foi aprovada num exame padronizado sobre um corpo de conhecimento definido, num momento específico — não prova que ela aplica esse conhecimento sob restrição real e imprevisível. Diploma prova estudo sustentado ao longo de anos, avaliado por uma instituição, geralmente sobre um currículo mais amplo e teórico — não prova capacidade prática imediata. Portfólio prova que a pessoa produziu algo, num nível de habilidade específico, nas condições que ela mesma escolheu — quase sempre sem prazo alheio, sem sistema legado de outra pessoa, sem supervisão real — não prova que ela sustenta esse nível fora dessas condições escolhidas.",
+      "analogia": "Um certificado de aprovação na prova teórica de trânsito, um diploma de anos de aula de direção, e um vídeo caseiro de alguém estacionando com perfeição na própria garagem — nenhum dos três, sozinho, diz se essa pessoa dirige bem numa rodovia cheia que ela não controla.",
+      "erro_comum": "Tratar qualquer uma das três credenciais como se, sozinha, encerrasse a pergunta sobre competência — cada uma mede uma fatia estreita e diferente, nenhuma mede a coisa inteira.",
+      "fonte": "(mecanismo próprio: o que cada credencial verifica estruturalmente, precedente de forma em 5.5.t5/t6 e 3.1.t6, mecanismo nunca reensinado)"
+    },
+    {
+      "id": "5.6.t4",
+      "titulo": "O vazio que os três juntos deixam",
+      "texto": "Mesmo reunindo certificação, diploma e portfólio ao mesmo tempo, as três respondem perguntas do tipo 'a pessoa adquiriu ou demonstrou X, nas condições Y' — nenhuma delas mostra como a pessoa se comporta quando o problema muda de forma fora do que foi estudado, testado ou escolhido; como ela se comunica sob atrito organizacional, ambiguidade ou discordância; se ela sustenta julgamento consistente ao longo do tempo, não só num retrato isolado; ou como ela lida com um sistema em produção que não é dela e que não pode ser experimentado livremente. Reconhecer esse vazio, de forma explícita, é o que sustenta uma decisão de contratação ou de autoavaliação mais honesta do que simplesmente empilhar as três credenciais e presumir que a soma delas fecha a pergunta.",
+      "analogia": "Um exame de sangue, uma imagem e uma biópsia, todos normais, ainda não substituem observar como o paciente realmente se recupera nas semanas seguintes — cada teste descarta e confirma coisas diferentes, e nenhum deles é a mesma coisa que ver o resultado ao vivo.",
+      "erro_comum": "Presumir que empilhar as três credenciais soma prova suficiente — o tipo de vazio que cada uma deixa não se sobrepõe nem se fecha por acumulação das outras duas.",
+      "fonte": "Teoria 5.6.t3"
+    },
+    {
+      "id": "5.6.t5",
+      "titulo": "Como decidir se uma prática de aprendizado continua valendo, quando o campo muda mais rápido que qualquer curso",
+      "texto": "Nem tudo em segurança envelhece no mesmo ritmo. Mecanismo estrutural — por que uma decisão fica mais cara quanto mais tarde é revista, por que uma fronteira de confiança muda o resultado de uma análise, por que uma decisão sem dono nomeado não conta como governada — tende a continuar válido, porque não depende de qual ferramenta ou técnica específica está em uso agora. Detalhe amarrado a uma ferramenta ou técnica específica — a interface de uma versão, um comando específico, uma vulnerabilidade específica — envelhece rápido e de forma imprevisível, porque muda com o produto ou é substituído por outro. A decisão de aprendizado contínuo é perguntar, de cada coisa nova estudada, se ela é mecanismo durável (vale investimento profundo e lento) ou detalhe específico com prazo curto (vale aprendizado just-in-time, retomado só quando for realmente necessário) — inclusive dentro de qualquer curso, este incluído, cujos exemplos de ferramenta específica envelhecem mais rápido que os mecanismos que eles ilustram.",
+      "analogia": "Aprender por que uma ponte precisa de determinado tipo de sustentação continua valendo décadas depois; decorar o catálogo de peças de um fabricante específico de 2020 não.",
+      "erro_comum": "Usar 'o campo muda rápido demais' como desculpa pra parar de investir na parte durável — confundir 'esta ferramenta específica vai ficar obsoleta' com 'tudo que eu poderia aprender aqui vai ficar obsoleto'.",
+      "fonte": "(mecanismo próprio: distinguir durabilidade de mecanismo e de detalhe específico, aplicável a qualquer conteúdo de estudo)"
+    },
+    {
+      "id": "5.6.t6",
+      "titulo": "Síntese do nível 5: cinco jeitos de pensar, não cinco ferramentas",
+      "texto": "As cinco disciplinas do nível 5 não são sobre ferramenta nenhuma — cada uma é uma forma de enquadrar uma decisão sob um tipo diferente de incerteza. Desenvolvimento seguro (5.1) enquadra o custo que se acumula quando uma decisão técnica é revista tarde. Nuvem (5.2) enquadra onde cai a linha entre o que o provedor garante e o que o cliente decide configurar. Modelagem de ameaças (5.3) enquadra antecipar um ataque que ainda não existe, decompondo sistema em componente, fluxo e fronteira de confiança. GRC (5.4) enquadra se uma decisão tem dono nomeado e registro, condição pra contar como governada. Economia da segurança (5.5) enquadra orçamento como recurso finito disputado por alternativas concorrentes, sob uma assimetria onde sucesso é invisível e fracasso é espetacular. Diante de uma situação nova, mais de uma lente costuma parecer plausível à primeira vista — a habilidade real não é aplicar a lente mais recente ou a que soa mais sofisticada, é reconhecer qual pergunta central bate exatamente com o atrito específico do caso, e nomear por que as outras, mesmo defensáveis, respondem uma pergunta diferente da que o caso está de fato fazendo.",
+      "analogia": "Um mesmo sintoma físico pode sugerir mais de uma especialidade médica plausível — a habilidade do diagnóstico certo não é conhecer todas as especialidades, é reconhecer qual pergunta específica o sintoma está fazendo, e por que as outras hipóteses, mesmo razoáveis, não respondem exatamente essa pergunta.",
+      "erro_comum": "Escolher a lente do nível 5 que foi estudada mais recentemente, ou que soa mais sofisticada, em vez da que responde exatamente a pergunta que o atrito do caso específico está fazendo.",
+      "fonte": "Teorias 5.1.t2, 5.2.t1/t4, 5.3.t3, 5.4.t1, 5.5.t1/t4 (síntese por comparação, nenhum mecanismo reensinado)"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "5.6.q1",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Duas pessoas, mesma formação de base, escolhem entre carreira em monitoramento defensivo (SOC) e em teste de invasão sob autorização (pentest). Segundo o mecanismo deste eixo, o que deveria pesar mais nessa escolha?",
+      "alternativas": [
+        "O que sempre se repete em cada rotina — vigiar o mesmo sinal, ou entrar em sistema novo sob prazo de terceiros — e qual delas se aguenta sustentar",
+        "Qual dos dois nomes de cargo soa mais impressionante numa conversa com colegas, familiares e gente de fora da área técnica",
+        "Qual dos dois aparece com mais frequência em filme, série e notícia sobre invasão, sempre dramatizado pra parecer mais interessante do que realmente é",
+        "Qual dos dois exige decorar o maior número de ferramentas específicas de mercado usadas hoje em dia"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Impressão causada pelo nome do cargo não diz nada sobre o que a rotina de trabalho realmente repete todos os dias.",
+        "2": "Frequência em filme e notícia reflete o que é visualmente dramático, não o tipo de tarefa que a pessoa vai sustentar por anos.",
+        "3": "Ferramenta específica muda com o tempo e não é o que diferencia estruturalmente as duas rotinas — o que diferencia é o tipo de problema que se repete."
+      },
+      "dicas": [
+        "A pergunta não é sobre nome de cargo nem sobre imagem pública do trabalho.",
+        "Pense no que cada rotina pede pra fazer de novo, todo dia, durante anos.",
+        "Ferramenta muda; o tipo de tarefa que se repete é mais estável que qualquer ferramenta específica."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que cada uma dessas duas rotinas pede pra fazer de novo, sem parar, ano após ano?",
+      "explicacao": "A escolha entre subcampos de segurança não é sobre gosto pelo tema nem sobre imagem pública do cargo — é sobre o tipo de tarefa que se repete no dia a dia, e se a pessoa aguenta sustentar essa repetição por anos sem se esgotar. Monitoramento defensivo repete vigilância contínua sobre o mesmo tipo de sinal; teste de invasão repete entrar em sistemas novos sob prazo e regra impostos por outra pessoa. Nenhuma das duas é objetivamente melhor — a decisão real é qual repetição a pessoa consegue sustentar.",
+      "fonte": "Teoria 5.6.t1",
+      "tags": ["carreira", "perfil-profissional", "escolha-de-especializacao"]
+    },
+    {
+      "id": "5.6.q2",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "trecho": "# conversa entre mentor e estudante (recorte)\n'Vá pra ofensivo, é muito mais divertido que ficar preso numa tela vendo alerta o dia inteiro.'",
+      "enunciado": "Que problema esse conselho tem, segundo o mecanismo deste eixo?",
+      "alternativas": [
+        "Nenhum: divertimento imediato é sempre o critério certo pra escolher especialização de longo prazo, em qualquer situação, sem exceção nenhuma",
+        "Ele troca o critério real — a repetição que se aguenta sustentar por anos, mesmo nos dias sem graça — por 'mais divertido à primeira vista'",
+        "O problema é chamar de 'preso numa tela' o trabalho de monitoramento, o que é sempre ofensivo com a profissão inteira e com quem a exerce",
+        "Nenhum: ofensivo é sempre mais adequado pra qualquer pessoa que já ache monitoramento tedioso hoje, sem exceção alguma"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Divertimento no primeiro contato não prevê se a pessoa aguenta a rotina real do campo depois que a novidade passa — os dois campos têm dias tediosos e dias tensos, o que muda é o tipo de repetição.",
+        "2": "O problema apontado pelo eixo não é o tom da frase usada pelo mentor, é o critério usado pra decidir — escolher por divertimento imediato, não a maneira como o monitoramento foi descrito.",
+        "3": "Achar tedioso hoje não prevê o que a rotina de ofensivo pede pra repetir (entrar em sistema novo sob prazo e regra de terceiros) — pode ser um tipo diferente de repetição difícil, não menos exigente."
+      },
+      "dicas": [
+        "O conselho usa 'mais divertido' como critério de decisão — pense se isso prevê o que sustenta uma rotina de anos.",
+        "Os dois campos têm dias tediosos e dias tensos — o que muda entre eles é o tipo de tarefa que se repete, não a quantidade de diversão.",
+        "Achar uma coisa tediosa hoje não prova que a alternativa não tem sua própria forma de repetição difícil de sustentar."
+      ],
+      "pergunta_socratica": "Antes de conferir: divertimento no primeiro contato prevê se alguém aguenta a rotina real de um campo depois que a novidade passa?",
+      "explicacao": "O conselho comete a troca de critério que o eixo aponta: usa 'mais divertido agora' no lugar de 'que tipo de repetição essa pessoa aguenta sustentar por anos'. Os dois campos têm rotina tediosa e rotina tensa — a diferença real está no tipo de tarefa que se repete (vigilância contínua vs. engajamento novo sob prazo de terceiros), não na quantidade de diversão que cada um promete no primeiro contato.",
+      "fonte": "Teoria 5.6.t1",
+      "tags": ["carreira", "perfil-profissional", "criterio-de-escolha"]
+    },
+    {
+      "id": "5.6.q3",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Duas vagas abertas: 'Analista de Testes de Invasão Júnior', exigindo três anos de experiência prática com ferramentas específicas de teste; e 'Analista de Suporte de TI', sem menção a segurança no título, exigindo triagem de chamado e manutenção básica, sem experiência prévia obrigatória. Para quem está começando do zero, qual das duas é a porta de entrada real, segundo o mecanismo deste eixo?",
+      "alternativas": [
+        "A vaga de 'Testes de Invasão Júnior', porque o nome do cargo já indica a área de interesse futuro do candidato",
+        "Nenhuma das duas — sem um cargo com título de segurança, não existe porta de entrada nenhuma em lugar nenhum do campo",
+        "A que não exige nada prévio: o nome do cargo nunca é o que decide isso, o requisito real de experiência sempre decide",
+        "As duas: a diferença de requisito não importa tanto quanto parece, currículo técnico é currículo técnico"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "O nome do cargo ('júnior') não muda o requisito real de três anos de experiência prática — o rótulo no título não define se a vaga aceita quem está começando do zero.",
+        "1": "Existem portas de entrada fora das duas listadas — o ponto não é que só essas duas existam, é reconhecer qual das duas apresentadas de fato aceita quem começa do zero.",
+        "3": "Nem toda vaga técnica constrói a mesma base — a pergunta pede qual das duas específicas é compatível com zero experiência prévia, não se qualquer vaga ensina algo em geral."
+      },
+      "dicas": [
+        "O nome do cargo e o requisito de experiência às vezes contam histórias diferentes — olhe o requisito, não o título.",
+        "Uma das duas pede três anos de experiência prática específica; a outra não pede nenhuma.",
+        "A porta de entrada real é a que aceita quem ainda não tem a experiência, não a que tem o nome mais relacionado a segurança."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das duas vagas realmente aceita alguém sem nenhuma experiência prévia?",
+      "explicacao": "O nome do cargo não é o que define se uma vaga é porta de entrada — é o requisito real. 'Testes de Invasão Júnior' com três anos de experiência exigida não é entrada, é um degrau intermediário disfarçado de júnior pelo nome. A vaga de suporte, mesmo sem mencionar segurança no título, aceita quem começa do zero e constrói a literatura operacional que o trabalho de segurança depois assume como pré-requisito.",
+      "fonte": "Teoria 5.6.t2",
+      "tags": ["carreira", "porta-de-entrada", "titulo-de-cargo"]
+    },
+    {
+      "id": "5.6.q4",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Por que a maioria das pessoas em cargo de destaque em segurança (resposta a incidente sênior, arquitetura de segurança) costuma ter começado num papel que não tinha 'segurança' no nome?",
+      "alternativas": [
+        "Porque cargo de segurança raramente existe de verdade — a maior parte do trabalho é sempre feita por quem tem outro título, em qualquer empresa",
+        "Porque empresa sempre prefere promover internamente, nunca contratando alguém já especializado vindo de fora",
+        "Porque ninguém aprende segurança de verdade sozinho, sempre precisa trabalhar em outro cargo antes, sem exceção",
+        "Porque proteger um sistema sempre pressupõe entender como ele funciona por dentro, aprendido operando-o, não protegendo-o desde o início"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Cargos de segurança existem e são reais — o ponto não é que sejam raros ou falsos, é que o caminho até eles costuma passar por outro papel primeiro.",
+        "1": "O mecanismo não depende de preferência de contratação interna — mesmo quem entra de fora geralmente trouxe experiência operacional de outro contexto antes.",
+        "2": "Aprender por conta própria pode construir parte dessa literatura, mas o ponto do eixo é que a experiência de operar um sistema real — sob pressão e consequência reais — dificilmente se substitui só por estudo individual."
+      },
+      "dicas": [
+        "Pense no que alguém precisa entender sobre um sistema antes de conseguir protegê-lo direito.",
+        "Não é sobre cargo raro nem sobre empresa preferir promover gente de dentro — é sobre um conhecimento prévio necessário, adquirido antes.",
+        "Pense em quem, entre operar algo e só supervisioná-lo de fora, acumula mais experiência prática sobre como ele quebra."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá pra proteger bem um sistema sem entender, na prática, como ele funciona e falha por dentro?",
+      "explicacao": "O trabalho de segurança pressupõe entender como um sistema funciona, falha e é usado na prática — essa literatura operacional costuma se construir em papéis que operam o sistema diretamente (suporte, administração, desenvolvimento), não em papéis que já nascem protegendo-o. É por isso que a porta de entrada raramente carrega o nome 'segurança': o nome vem depois da experiência que o sustenta, não antes.",
+      "fonte": "Teoria 5.6.t2",
+      "tags": ["carreira", "porta-de-entrada", "literatura-operacional"]
+    },
+    {
+      "id": "5.6.q5",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um candidato tem certificação aprovada em exame padronizado, diploma em ciência da computação, e um portfólio de três projetos pessoais de segurança bem documentados. O gerente de contratação diz: 'com os três, já sei tudo que preciso saber sobre esse candidato'. O que essa afirmação ignora?",
+      "alternativas": [
+        "Os três juntos nunca mostram como a pessoa reage a um problema fora do que já estudou, sob prazo de outra pessoa",
+        "Ignora que a certificação, sozinha, sempre bastaria — diploma e portfólio ficam sempre redundantes depois dela",
+        "Ignora que o portfólio, por ser prático, sempre cobre sozinho tudo que falta nos outros dois, sem exceção nenhuma, em qualquer caso",
+        "Nada: reunir os três é, de fato, sempre prova completa e suficiente de competência, em qualquer contratação"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Certificação prova aprovação num exame padronizado num momento específico — não substitui o que diploma e portfólio mostram sobre estudo sustentado e capacidade de produzir algo, nem fecha o vazio comum aos três.",
+        "2": "Portfólio é produzido nas condições que a própria pessoa escolheu, sem prazo nem restrição impostos por outra pessoa — não cobre o que falta nos outros dois nem o vazio comum aos três.",
+        "3": "É exatamente essa suposição que o eixo pede pra questionar — os três medem coisas estreitas e diferentes, e nenhuma combinação deles cobre como a pessoa se comporta fora do que já foi estudado, testado ou escolhido por ela."
+      },
+      "dicas": [
+        "Pense numa situação de trabalho real que nenhum dos três — exame, curso, projeto pessoal — obriga a pessoa a enfrentar.",
+        "As três coisas foram feitas em condições controladas, escolhidas com antecedência por quem as fez.",
+        "A pergunta não é qual dos três é redundante — é o que nenhum dos três, junto ou separado, chega a mostrar."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguma das três credenciais obriga a pessoa a lidar com algo fora do que ela já estudou, treinou ou escolheu sozinha?",
+      "explicacao": "Certificação, diploma e portfólio medem três coisas estreitas e diferentes — aprovação num exame padronizado, estudo sustentado sob avaliação institucional, e capacidade de produzir algo nas condições que a própria pessoa escolheu. Nenhum dos três, nem a soma dos três, mostra como a pessoa se comporta diante de um problema fora desse escopo, sob prazo e restrição impostos por outra pessoa — esse é o vazio que sustenta a decisão deste eixo: reunir as três credenciais não fecha essa lacuna, só empilha três medidas estreitas.",
+      "fonte": "Teoria 5.6.t3 e 5.6.t4",
+      "tags": ["carreira", "credencial", "vazio-de-prova"]
+    },
+    {
+      "id": "5.6.q6",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "artefato": "$ cat curriculo_recorte.txt\nCertificação Y (2024)\nBacharelado em Ciência da Computação (2022)\nPortfólio: 4 projetos no GitHub com documentação completa\n[nenhuma menção a experiência de trabalho sob supervisão de terceiro]",
+      "enunciado": "Um recrutador olha esse currículo e conclui: 'entre os três itens, esse candidato já reúne prova suficiente de competência técnica e prática'. O que continua sem resposta, mesmo com os três presentes?",
+      "alternativas": [
+        "Nada: quando os três itens aparecem juntos, a combinação já é sempre suficiente pra qualquer decisão de contratação, em qualquer empresa",
+        "Como o candidato reage quando tudo muda de repente no meio do trabalho, sob critério alheio — isso nenhum currículo mostra",
+        "Se o candidato sabe formatar bem um currículo, já que os três itens estão sempre organizados com clareza total",
+        "Se a certificação veio antes ou depois do diploma, porque a ordem cronológica sempre muda o que cada um prova"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "É exatamente essa conclusão que o eixo pede pra questionar — reunir os três não fecha a lacuna sobre como a pessoa se comporta fora do escopo que cada um mediu.",
+        "2": "Organização do currículo não é o que o eixo avalia — o ponto é o que os três credenciais, juntas, ainda deixam sem resposta sobre a pessoa.",
+        "3": "A ordem cronológica entre certificação e diploma não muda o vazio comum aos três — nenhuma ordem faz um deles cobrir o que nenhum mede."
+      },
+      "dicas": [
+        "Os três itens do currículo foram produzidos em condições que o próprio candidato escolheu ou preparou com antecedência.",
+        "Nenhum dos três itens do currículo foi feito sob supervisão real de outra pessoa, em tempo real.",
+        "Formatação e ordem cronológica dos itens não é o que falta — o que falta é um tipo de situação que nenhum dos três testou."
+      ],
+      "pergunta_socratica": "Antes de conferir: algum dos três itens do currículo obriga o candidato a reagir a um problema mudando de forma, sob prazo de outra pessoa?",
+      "explicacao": "Certificação, diploma e portfólio, mesmo juntos, foram produzidos em condições que o candidato estudou, treinou ou escolheu com antecedência — nenhum dos três testa como a pessoa reage quando o problema muda de forma no meio do trabalho, sob prazo e critério impostos por outra pessoa. É esse tipo específico de situação, não a soma das três credenciais, que continua sem resposta.",
+      "fonte": "Teoria 5.6.t4",
+      "tags": ["carreira", "credencial", "vazio-de-prova"]
+    },
+    {
+      "id": "5.6.q7",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [4],
+      "enunciado": "Um time hospeda dados de clientes num provedor de nuvem. O armazenamento é criado com o padrão do provedor (acesso restrito por chave), mas alguém do time, meses depois, ao testar uma integração, muda a permissão para 'acesso público de leitura' para simplificar o teste — e esquece de reverter. Três meses depois, um pesquisador de segurança encontra o recurso público e avisa a empresa. Ninguém tinha sido formalmente designado a revisar permissão de armazenamento depois de criada. Qual das lentes do nível 5 explica melhor a causa raiz deste caso?",
+      "alternativas": [
+        "GRC (5.4): faltou um dono formalmente designado pra revisar essa permissão depois de criada, sem o qual nenhuma decisão conta como governada",
+        "Desenvolvimento seguro (5.1): o custo de corrigir cresceu porque o tempo passou e outras coisas sempre se acumulam sobre uma configuração incorreta",
+        "Segurança em nuvem (5.2): configurar acesso é sempre escolha do cliente na responsabilidade compartilhada, nunca neutralidade do provedor",
+        "Economia da segurança (5.5): o sucesso de manter o recurso privado é sempre invisível, então ninguém jamais percebe seu valor até a falha aparecer"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Nomear um dono formal poderia até ter evitado o esquecimento, mas não explica por que a mudança de permissão foi tratada como um ajuste neutro de teste em primeiro lugar — essa é uma pergunta sobre de quem é a responsabilidade técnica da configuração, que a governança sozinha não resolve.",
+        "1": "O custo de corrigir tarde é real, mas o mecanismo de 5.1 é sobre uma decisão de código acumulando dependentes ao longo do ciclo de desenvolvimento — aqui não há dependente de código se acumulando, é uma configuração de infraestrutura esquecida, mecanismo diferente.",
+        "3": "A assimetria de visibilidade explica por que ninguém comemora um recurso bem configurado, mas não explica por que alguém mudou a permissão pra pública achando isso neutro — essa é uma confusão sobre de quem é a responsabilidade da configuração, não sobre orçamento nem incentivo de investimento."
+      },
+      "dicas": [
+        "A mudança de permissão foi feita por alguém do time do cliente, não pelo provedor de nuvem.",
+        "Pense em qual das lentes trata especificamente de onde cai a linha entre o que o provedor garante e o que o cliente decide configurar.",
+        "As outras alternativas explicam pedaços reais do caso — mas nenhuma delas explica por que a mudança de permissão foi tratada como neutra."
+      ],
+      "pergunta_socratica": "Antes de conferir: a permissão foi alterada pelo provedor de nuvem, ou por alguém do lado do cliente que tratou isso como um ajuste sem consequência?",
+      "explicacao": "O armazenamento nasceu no padrão seguro do provedor — o problema não veio de um padrão herdado e ignorado, veio de uma mudança ativa: alguém do time do cliente alterou a permissão pra facilitar um teste, tratando isso como um ajuste neutro. Dentro da responsabilidade compartilhada, configurar acesso é sempre decisão do cliente, nunca neutralidade do provedor — a linha exata que 5.2 traça. Governança (5.4) explicaria por que ninguém foi cobrado a revisar depois — um problema real, mas que não responde por que a mudança inicial foi tratada como inofensiva. Custo composto (5.1) e economia (5.5) tocam em pedaços verdadeiros do caso, mas nenhum dos dois é sobre a linha específica de responsabilidade dentro de um ambiente de nuvem — a pergunta central do caso é exatamente a que 5.2 resolve.",
+      "fonte": "Teoria 5.2.t1 e 5.6.t6 (síntese: por que as outras lentes, mesmo plausíveis, respondem uma pergunta diferente da que este caso faz)",
+      "tags": ["carreira", "sintese-nivel-5", "responsabilidade-compartilhada"]
+    },
+    {
+      "id": "5.6.q8",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Uma pessoa foca em decorar telas e comandos da versão mais recente de uma ferramenta de varredura de vulnerabilidade. Outra foca em entender por que uma fronteira de confiança pesa numa análise de ameaça, sem se prender a nenhuma ferramenta. Qual prática tende a envelhecer pior, e por quê?",
+      "alternativas": [
+        "A segunda, porque isso é um conceito abstrato demais pra ser útil no trabalho real do dia a dia, fora da teoria",
+        "As duas envelhecem sempre igual — decorar telas e comandos e entender fronteira de confiança perdem validade no mesmo ritmo exato",
+        "A primeira, mas só porque manter telas e comandos atualizados custa mais caro do que reler um livro clássico sobre análise de ameaça",
+        "A primeira: telas e comandos mudam rápido, mas o motivo de uma fronteira pesar numa análise vale sempre, em qualquer ferramenta"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O conceito ser abstrato não o torna inútil — é justamente por não depender de uma ferramenta específica que ele continua válido quando a ferramenta muda.",
+        "1": "Nem toda forma de estudo envelhece no mesmo ritmo — é exatamente essa diferença de ritmo que o eixo pede pra reconhecer.",
+        "2": "Custo de manter atualizado não é o mecanismo em jogo — mesmo de graça, decorar uma interface específica perde valor quando ela é substituída; o ponto é a durabilidade do conhecimento, não o custo de acompanhar."
+      },
+      "dicas": [
+        "Repare se o conteúdo estudado depende de um produto específico ou não.",
+        "Pense em qual das duas continua útil mesmo depois que a ferramenta específica estudada for substituída por outra.",
+        "A validade de um dos dois conteúdos expira no instante em que o produto muda de versão."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das duas práticas continua útil depois que a ferramenta específica estudada for substituída?",
+      "explicacao": "A interface de uma versão específica de ferramenta muda ou é substituída, tornando o que foi decorado obsoleto de uma hora pra outra — enquanto o mecanismo de por que uma fronteira de confiança muda o resultado de uma análise de ameaça continua valendo em qualquer ferramenta futura, porque não depende de nenhuma delas. A decisão de aprendizado contínuo é reconhecer essa diferença: investir estudo profundo no que é mecanismo durável, e aprendizado just-in-time no que é detalhe específico com prazo de validade curto — inclusive dentro deste curso, cujos exemplos de ferramenta específica envelhecem mais rápido que os mecanismos que eles ilustram.",
+      "fonte": "Teoria 5.6.t5",
+      "tags": ["carreira", "aprendizado-continuo", "mecanismo-duravel"]
+    },
+    {
+      "id": "5.6.q9",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Uma pessoa se cansa rápido de fazer a mesma coisa duas vezes, mas não se importa de seguir prazo e regra impostos por outra pessoa a cada projeto novo. Entre os quatro subcampos, qual tende a exigir menos da tolerância que essa pessoa não tem — repetir a mesma coisa?",
+      "alternativas": [
+        "Ofensivo — o que sempre se repete ali é estar sob prazo e regra de terceiros, nunca o sistema-alvo, que muda a cada engajamento",
+        "Defensivo — porque vigiar o mesmo tipo de sinal continuamente é a rotina que menos se repete entre os quatro subcampos",
+        "Governança — porque documentar decisão de um jeito padronizado muda bastante de caso a caso, sem repetição nenhuma",
+        "Engenharia — porque cada decisão técnica nova é tão diferente da anterior que nunca embute a mesma pergunta de segurança duas vezes"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Vigiar o mesmo tipo de sinal continuamente é exatamente o tipo de repetição que essa pessoa não tolera bem — o oposto do que a alternativa afirma.",
+        "2": "Documentar decisão com dono, critério e data é um formato que se repete de caso a caso — não é a rotina menos repetitiva das quatro.",
+        "3": "Embutir a mesma pergunta de segurança em decisão técnica nova é, estruturalmente, uma repetição — só muda o contexto técnico específico, não o tipo de pergunta."
+      },
+      "dicas": [
+        "Pense no que muda a cada projeto de teste de invasão, e no que continua igual.",
+        "Nos outros três subcampos, o que se repete é o tipo de sinal, o formato de documentação ou a pergunta embutida em cada decisão.",
+        "A pessoa não se importa com prazo e regra impostos por terceiros — só com repetir a mesma tarefa técnica."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual dos quatro subcampos o alvo técnico muda mais a cada vez, mesmo com prazo e regra de terceiros continuando presentes?",
+      "explicacao": "Ofensivo é o subcampo em que o sistema-alvo muda a cada engajamento — o que se repete ali é estar sob prazo e regra impostos por outra pessoa, não o alvo em si. Os outros três subcampos repetem justamente o tipo de tarefa que essa pessoa não tolera bem: defensivo repete o tipo de sinal vigiado, governança repete o formato de documentação, engenharia repete a mesma pergunta de segurança embutida em decisão nova.",
+      "fonte": "Teoria 5.6.t1",
+      "tags": ["carreira", "perfil-profissional", "tolerancia-a-repeticao"]
+    },
+    {
+      "id": "5.6.q10",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "trecho": "# post de rede social (recorte)\n'Segurança ofensiva é pra quem gosta de variedade; os outros três campos são pra quem gosta de rotina, só isso.'",
+      "enunciado": "Que simplificação esse post comete, segundo o mecanismo deste eixo?",
+      "alternativas": [
+        "Nenhuma: a divisão entre 'variedade' e 'rotina' descreve exatamente e por completo os quatro subcampos, sem exceção nenhuma",
+        "Trata 'variedade' e 'rotina' como a categoria inteira, quando o que sempre muda é o tipo de tarefa que se repete, nunca se ela existe",
+        "O erro é dizer que existem quatro subcampos, quando na prática só existem dois de verdade: ofensivo e defensivo",
+        "O erro é usar a palavra 'rotina' pra descrever qualquer trabalho técnico de segurança, porque nenhum trabalho técnico é realmente rotineiro"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Reduzir a escolha a 'variedade vs. rotina' apaga justamente o que o eixo ensina a olhar: o tipo específico de repetição, não a presença ou ausência dela.",
+        "2": "O post não questiona quantos subcampos existem — o problema é a simplificação binária usada pra descrevê-los, não a contagem.",
+        "3": "Negar que qualquer trabalho técnico seja rotineiro ignora que os quatro subcampos, incluindo ofensivo, têm alguma forma de repetição — a diferença é qual tipo."
+      },
+      "dicas": [
+        "Ofensivo também repete alguma coisa (prazo, regra, processo de engajamento) — só não repete o alvo técnico específico.",
+        "O post separa os subcampos em só duas categorias — pense no que essa divisão esconde sobre cada um dos quatro.",
+        "Reduzir a escolha a duas categorias esconde justamente a pergunta que importa: qual tipo de repetição, não se ela existe."
+      ],
+      "pergunta_socratica": "Antes de conferir: ofensivo realmente não repete nada, ou repete um tipo diferente de coisa do que os outros três?",
+      "explicacao": "O post trata 'variedade' e 'rotina' como categorias que descrevem os subcampos por completo, quando o mecanismo real é outro: todos os quatro têm algum tipo de repetição — o que muda é qual tipo específico de tarefa se repete. Reduzir a escolha a uma dicotomia simples esconde exatamente a distinção que permite escolher bem.",
+      "fonte": "Teoria 5.6.t1",
+      "tags": ["carreira", "perfil-profissional", "simplificacao-binaria"]
+    },
+    {
+      "id": "5.6.q11",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Duas pessoas querem entrar no campo. Uma aplica só pra vagas com 'segurança' no nome e é rejeitada repetidamente por falta de experiência. A outra aplica pra uma vaga geral de suporte de TI, é contratada, e dois anos depois muda internamente pra um time de segurança com sucesso. O que o segundo caminho ilustra, segundo o mecanismo deste eixo?",
+      "alternativas": [
+        "Que segurança só contrata gente que já trabalhou dentro da própria empresa antes, nunca ninguém vindo de fora",
+        "Que aplicar direto pra vaga com a palavra 'segurança' no nome é sempre a estratégia mais rápida de entrar no campo",
+        "Que experiência construída num papel operacional, mesmo sem 'segurança' no nome, quase sempre abre a porta depois",
+        "Que dois anos é sempre o tempo mínimo exato que qualquer pessoa precisa esperar pra mudar de área dentro da mesma empresa"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "O caso não afirma que só contratação interna funciona — mostra um caminho que funcionou, não a única porta possível.",
+        "1": "O caso mostra o oposto: aplicar direto pra vaga com 'segurança' no nome, sem a experiência de base, levou a rejeição repetida.",
+        "3": "Dois anos é o tempo desse caso específico — nada no mecanismo do eixo fixa um prazo mínimo universal pra qualquer transição."
+      },
+      "dicas": [
+        "No caso, quem foi contratado teve uma trajetória; quem insistiu na vaga vistosa teve outra — compare os dois resultados.",
+        "Pense no que a pessoa contratada no suporte construiu, que a vaga de segurança direta não deu chance de construir.",
+        "O prazo de dois anos é um detalhe do caso, não uma regra geral que o eixo ensina."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que a pessoa contratada no suporte construiu, em dois anos, que a outra pessoa nunca teve chance de construir?",
+      "explicacao": "O caso ilustra o mecanismo central do eixo: experiência operacional construída num papel sem 'segurança' no nome costuma ser o que de fato abre a porta pra um cargo de segurança depois, porque constrói a literatura sobre como o sistema funciona na prática. Aplicar direto pra vaga com o nome vistoso, sem essa base, tende a esbarrar na falta de experiência exigida.",
+      "fonte": "Teoria 5.6.t2",
+      "tags": ["carreira", "porta-de-entrada", "transicao-interna"]
+    },
+    {
+      "id": "5.6.q36",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Uma vaga anuncia: 'Analista Júnior de Segurança — a pessoa vai liderar a resposta a incidentes críticos, decidindo sozinha quais sistemas isolar durante um ataque em andamento'. Isso é coerente com o que 'júnior' descreve, segundo o mecanismo deste eixo?",
+      "alternativas": [
+        "Sim, porque toda vaga júnior envolve responder a incidente ou liderar decisão sozinha, não importa o nível de autonomia descrito",
+        "Não: liderar sozinha, decidindo sob pressão de um ataque em andamento, é o tipo de autonomia que descreve alguém além da fase de execução sob supervisão",
+        "Sim, porque liderar sozinha um ataque em andamento é sempre tarefa de quem está começando, em qualquer empresa",
+        "Não: o problema é o nome do cargo dizer 'júnior' pra alguém que lidera sozinha, em vez de usar um nome mais chamativo, como 'especialista'"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O tipo de tarefa (responder a incidente) não é, sozinho, o que define júnior ou não — decidir sozinha, sob pressão, sem supervisão, é o que descaracteriza a descrição.",
+        "2": "Resposta a incidente não é tarefa exclusiva de quem está começando — depende de quem decide e sob que supervisão, não da tarefa em si.",
+        "3": "O nome do cargo não é o problema apontado aqui — o problema é o conteúdo da descrição (decidir sozinha, sob pressão) ser incompatível com execução supervisionada."
+      },
+      "dicas": [
+        "Preste atenção no verbo: quem 'decide sozinha' durante um ataque em andamento não está sob supervisão constante.",
+        "O tipo de tarefa, por si só, não define o nível — o nível de autonomia descrito é que define.",
+        "O nome do cargo bate com 'júnior' — o problema não está no nome, está no que a descrição da tarefa realmente pede."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'decidir sozinha quais sistemas isolar durante um ataque em andamento' descreve alguém sob supervisão constante, ou alguém com autonomia de decisão real?",
+      "explicacao": "A descrição da vaga usa o rótulo 'júnior', mas o conteúdo da tarefa — decidir sozinha, sob pressão, durante um incidente em andamento — descreve autonomia de decisão incompatível com execução sob supervisão constante. O rótulo do cargo não muda o que a tarefa de fato pede; aqui, o nome e o conteúdo real da vaga se contradizem, e o conteúdo é o que importa.",
+      "fonte": "Teoria 5.6.t2",
+      "tags": ["carreira", "definicao-de-junior", "supervisao"]
+    },
+    {
+      "id": "5.6.q13",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um candidato apresenta só a certificação, sem diploma nem portfólio, e diz: 'isso prova que eu sei aplicar segurança na prática'. O que a certificação, sozinha, realmente prova?",
+      "alternativas": [
+        "Que a pessoa foi aprovada num exame padronizado, num momento específico, o que nunca garante absolutamente nada além disso",
+        "Que a pessoa aplica esse conhecimento sob restrição real de trabalho, porque é exatamente isso que o exame testa",
+        "Que a pessoa é tecnicamente melhor do que qualquer outro candidato sem certificação nenhuma, em qualquer situação",
+        "Que a pessoa vai continuar atualizada sobre o assunto pelo resto da carreira, sem precisar estudar de novo"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Exame padronizado testa conhecimento sobre conteúdo já definido, não a aplicação sob restrição real de trabalho — essa é exatamente a lacuna que a certificação sozinha deixa.",
+        "2": "Aprovação em exame não compara a pessoa com quem não tem certificação — mede aprovação num padrão, não superioridade relativa a outro candidato.",
+        "3": "O exame vale pra um momento específico — não garante manter-se atualizado depois, sem esforço contínuo."
+      },
+      "dicas": [
+        "Pense no formato de um exame de certificação: pergunta com resposta certa, dentro de tempo limitado, sobre conteúdo já definido.",
+        "O exame não observa a pessoa trabalhando sob prazo real, nem compara com outros candidatos.",
+        "Passar num teste não garante nada sobre o que vem depois dele, sem esforço contínuo."
+      ],
+      "pergunta_socratica": "Antes de conferir: o exame de certificação observa a pessoa aplicando conhecimento sob restrição real de trabalho, ou testa conhecimento sobre conteúdo já definido?",
+      "explicacao": "Certificação prova aprovação num exame padronizado sobre um corpo de conhecimento definido, num momento específico — nada mais que isso. Não prova aplicação sob restrição real, não compara com outros candidatos, e não garante atualização contínua depois da aprovação.",
+      "fonte": "Teoria 5.6.t3",
+      "tags": ["carreira", "credencial", "certificacao"]
+    },
+    {
+      "id": "5.6.q14",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "trecho": "# anúncio de curso (recorte)\n'Nosso diploma prova que você está pronto pra qualquer desafio prático do mercado de segurança.'",
+      "enunciado": "O que esse anúncio erra, segundo o que um diploma de fato prova?",
+      "alternativas": [
+        "Nada: diploma, por definição, sempre prova prontidão prática completa pra qualquer desafio existente do campo",
+        "Diploma prova estudo sustentado avaliado por uma instituição — não prova prontidão prática pra um desafio de trabalho",
+        "O erro é a palavra 'nosso' — qualquer diploma de qualquer instituição prova exatamente a mesma coisa, sem diferença nenhuma",
+        "O erro é dizer 'mercado', porque diploma nunca tem relação nenhuma com trabalho remunerado de forma alguma, em lugar nenhum"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "É exatamente essa afirmação que o eixo pede pra questionar — diploma mede estudo sustentado, não prontidão prática pra qualquer desafio específico.",
+        "2": "A palavra 'nosso' não é o problema apontado pelo eixo — o problema é o tipo de prova que qualquer diploma, de qualquer instituição, é capaz de oferecer.",
+        "3": "O eixo não trata da palavra 'mercado' nem nega relação com trabalho — o ponto é o que o diploma prova, não o vocabulário do anúncio."
+      },
+      "dicas": [
+        "Pense no formato de uma instituição de ensino: nota, prazo de curso, aprovação — e se isso testa uma situação real de trabalho.",
+        "O problema não está em qual instituição emite o diploma — está no tipo de coisa que qualquer diploma mede.",
+        "A crítica mira a promessa de prontidão prática completa, não as palavras específicas usadas no anúncio."
+      ],
+      "pergunta_socratica": "Antes de conferir: anos de estudo avaliado por uma instituição é a mesma coisa que estar pronto pra um desafio prático específico de trabalho?",
+      "explicacao": "Diploma prova estudo sustentado ao longo de anos, avaliado por uma instituição, geralmente sobre um currículo mais amplo e teórico — não prova prontidão prática imediata pra um desafio específico de trabalho. A promessa do anúncio excede exatamente o que esse tipo de credencial é capaz de provar, independente de qual instituição a emite.",
+      "fonte": "Teoria 5.6.t3",
+      "tags": ["carreira", "credencial", "diploma"]
+    },
+    {
+      "id": "5.6.q15",
+      "tipo": "artefato",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "artefato": "$ cat painel_avaliacao.txt\nCertificação: sim\nDiploma: sim\nPortfólio: sim\nConclusão: Aprovado — critério completo atendido",
+      "enunciado": "O painel marca as três credenciais como atendidas e conclui 'critério completo atendido'. Que tipo de informação sobre o candidato esse painel, por construção, nunca poderia ter capturado?",
+      "alternativas": [
+        "Se o candidato realmente estudou pra certificação ou só decorou respostas de simulado de prova, sem entender nada",
+        "Se o diploma foi emitido por uma instituição oficialmente reconhecida, dentro do próprio país",
+        "Como a pessoa se comunica e sustenta julgamento ao longo do tempo, sob atrito real — nenhuma das três observa isso",
+        "Se o portfólio tem toda a documentação escrita em português, inglês ou em qualquer outro idioma disponível"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Verificar se o estudo foi genuíno ou decorado é, em tese, auditável dentro do próprio exame — não é o vazio estrutural que o eixo aponta.",
+        "1": "Reconhecimento da instituição é informação que o próprio diploma já carrega e pode ser checada — não é o vazio comum às três credenciais.",
+        "3": "Idioma da documentação é um detalhe de formato do portfólio, não o tipo de informação que nenhuma das três credenciais é capaz de capturar por construção."
+      },
+      "dicas": [
+        "Pense num tipo de comportamento que só aparece ao longo do tempo, em mais de um momento isolado.",
+        "As outras três alternativas são detalhes checáveis dentro de cada credencial — não o vazio comum às três.",
+        "Pense num tipo de qualidade que só se percebe observando alguém agir repetidas vezes, não numa prova única."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguma das três credenciais observa o candidato se comunicando sob discordância real, ao longo de mais de um momento?",
+      "explicacao": "Certificação, diploma e portfólio são, cada um, uma medição pontual ou de condições controladas — nenhum dos três, por construção, observa como a pessoa se comunica e sustenta julgamento ao longo do tempo, sob atrito organizacional real. Marcar as três como 'atendidas' não fecha esse vazio específico, porque nenhuma delas foi desenhada pra capturar esse tipo de informação.",
+      "fonte": "Teoria 5.6.t4",
+      "tags": ["carreira", "credencial", "vazio-de-prova"]
+    },
+    {
+      "id": "5.6.q16",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Duas pessoas se preparam pra uma entrevista técnica. Uma passa a semana decorando os atalhos de teclado exatos da versão mais nova de uma ferramenta de análise de log. A outra revisa por que um log incompleto pode esconder o momento exato de um ataque, independente de qual ferramenta exibe esse log. Qual prática tende a valer mais tempo depois?",
+      "alternativas": [
+        "As duas, porque toda ferramenta e todo mecanismo têm exatamente o mesmo valor de longo prazo, não importa a versão",
+        "A primeira, porque decorar atalho de uma ferramenta economiza tempo real em qualquer situação de trabalho futura",
+        "Nenhuma das duas, porque um exemplo de estudo incompleto nunca reflete o trabalho real do dia a dia depois, em hipótese alguma",
+        "A segunda: o motivo de um log incompleto esconder informação vale em qualquer ferramenta futura; o atalho muda a cada versão"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "As duas têm valor bem diferente de longo prazo — um detalhe amarrado a uma versão de ferramenta não dura o mesmo tempo que um mecanismo geral.",
+        "1": "Atalho de teclado é específico da interface de uma versão — muda ou desaparece quando a ferramenta é atualizada ou trocada.",
+        "2": "O eixo não questiona se entrevista técnica reflete trabalho real — questiona qual das duas preparações envelhece melhor, e uma claramente envelhece pior."
+      },
+      "dicas": [
+        "Repare no que muda pra cada uma das duas se a ferramenta estudada for atualizada amanhã.",
+        "Pense em qual das duas continua útil depois que a ferramenta estudada for atualizada ou substituída.",
+        "O mecanismo por trás de um problema não muda quando a ferramenta que o exibe muda."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das duas preparações continua útil depois que a ferramenta específica estudada mudar de versão?",
+      "explicacao": "Atalho de teclado é detalhe amarrado à interface de uma versão específica — muda ou desaparece na próxima atualização. O mecanismo de por que um log incompleto pode esconder o momento de um ataque continua valendo em qualquer ferramenta futura, porque não depende de nenhuma delas.",
+      "fonte": "Teoria 5.6.t5",
+      "tags": ["carreira", "aprendizado-continuo", "mecanismo-duravel"]
+    },
+    {
+      "id": "5.6.q17",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Alguém decide não aprender nenhum mecanismo novo, alegando: 'o campo muda tão rápido que não vale a pena investir fundo em nada, é melhor só acompanhar por cima tudo que aparece'. O que esse raciocínio erra?",
+      "alternativas": [
+        "Ele generaliza a mesma regra pra qualquer tipo de conteúdo de estudo, quando mecanismo estrutural dura mais do que detalhe de ferramenta",
+        "Ele erra ao supor que existe absolutamente qualquer coisa que continua válida por mais de um ano inteiro neste campo, sem nenhuma exceção",
+        "Ele erra só por escolher acompanhar o conteúdo novo por cima, quando na verdade deveria parar de estudar segurança por completo",
+        "Ele erra porque qualquer curso existente, sem exceção nenhuma, ensina só mecanismo durável, nunca nenhum detalhe específico de ferramenta"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O eixo não nega que algo dure mais de um ano — pelo contrário, afirma que mecanismo estrutural tende a durar bem mais do que isso.",
+        "2": "Parar de estudar por completo não é a alternativa proposta pelo eixo — a alternativa é investir fundo no que é durável e superficial no que é específico, não abandonar o estudo.",
+        "3": "Nenhum curso ensina só mecanismo durável — todo curso mistura os dois tipos, inclusive este; a habilidade é reconhecer qual é qual."
+      },
+      "dicas": [
+        "Nem todo conteúdo de estudo envelhece do mesmo jeito — pense no que separa um tipo do outro.",
+        "A alternativa ao aprendizado raso não é parar de estudar — é escolher onde investir fundo.",
+        "Nenhum curso, incluindo este, separa sozinho o que é durável do que é específico — quem estuda precisa fazer essa distinção."
+      ],
+      "pergunta_socratica": "Antes de conferir: tudo neste campo envelhece no mesmo ritmo, ou existe diferença entre mecanismo estrutural e detalhe específico?",
+      "explicacao": "O raciocínio erra ao tratar 'o campo muda rápido' como regra que se aplica igualmente a qualquer coisa que se aprenda — mas mecanismo estrutural tende a durar muito mais do que detalhe específico de ferramenta. A decisão certa não é parar de investir fundo em nada, é reconhecer onde vale investir fundo e onde vale só acompanhar por cima — inclusive dentro de qualquer curso, que sempre mistura os dois tipos de conteúdo.",
+      "fonte": "Teoria 5.6.t5",
+      "tags": ["carreira", "aprendizado-continuo", "mecanismo-durabilidade"]
+    },
+    {
+      "id": "5.6.q18",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [4],
+      "enunciado": "Ao desenhar uma nova funcionalidade de pagamento, o time identifica que um plugin de terceiro vai ter acesso a dado de transação. Antes de escrever qualquer código, decidem tratar o plugin como uma zona de confiança menor e validar de novo qualquer dado que cruze dele pro serviço principal. Dois anos depois, nenhum incidente envolvendo o plugin ocorreu. Qual das lentes do nível 5 explica melhor o que o time fez de certo?",
+      "alternativas": [
+        "Desenvolvimento seguro (5.1): a decisão foi tomada na fase de design, quando o custo de mudar ainda era baixo — é esse timing barato que evitou o problema",
+        "Modelagem de ameaças (5.3): o time tratou o plugin como componente de confiança menor, validando sempre o fluxo que cruza essa fronteira",
+        "GRC (5.4): a decisão foi registrada oficialmente com dono e critério antes de a funcionalidade nova ir pra produção, tornando-a formalmente governada",
+        "Segurança em nuvem (5.2): esse tipo de plugin de terceiro se encaixa exatamente na parte da responsabilidade compartilhada que cabe só ao cliente configurar"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Decidir cedo, quando é mais barato, é verdade e relevante — mas não nomeia o mecanismo técnico específico usado (isolar uma fronteira de confiança), que é o que o caso descreve com mais precisão.",
+        "2": "Registrar a decisão com dono e critério pode ter acontecido, mas não foi isso que evitou o incidente — foi a decomposição técnica do sistema em componentes de confiança diferente, decidida antes do código existir.",
+        "3": "Nada no caso descreve um provedor de nuvem nem uma configuração de acesso — é um plugin de terceiro tratado tecnicamente como zona de confiança menor, mecanismo diferente do de responsabilidade compartilhada."
+      },
+      "dicas": [
+        "A decisão específica foi sobre onde um dado cruza de uma zona de confiança pra outra, dentro do próprio desenho do sistema.",
+        "Mais de uma lente toca em algo real do caso — pense em qual delas nomeia o mecanismo técnico específico usado, não só o momento ou o registro da decisão.",
+        "As outras três alternativas descrevem contextos que este caso específico não menciona em nenhum lugar."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das quatro lentes nomeia especificamente o que o time fez — tratar o plugin como zona de confiança diferente e isolar o que cruza essa fronteira?",
+      "explicacao": "O time decompôs o sistema em componentes e tratou a fronteira entre eles como um ponto que exige validação extra — exatamente o mecanismo de modelagem de ameaças: antecipar onde um ataque poderia entrar, antes de existir, decompondo o sistema em componente, fluxo e fronteira de confiança. Desenvolvimento seguro (5.1) explica corretamente por que decidir cedo foi barato, mas não nomeia essa decomposição técnica específica; GRC (5.4) e nuvem (5.2) tocam em pedaços verdadeiros ou irrelevantes do caso, mas nenhum descreve o mecanismo central tão bem quanto 5.3.",
+      "fonte": "Teoria 5.3.t3 e 5.6.t6",
+      "tags": ["carreira", "sintese-nivel-5", "fronteira-de-confianca"]
+    },
+    {
+      "id": "5.6.q19",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [4],
+      "enunciado": "Seis meses depois de estar em produção, com dezenas de funcionalidades construídas em cima dele, um módulo de autenticação se revela ter um defeito de desenho. Corrigi-lo agora exige tocar em dezenas de funcionalidades dependentes e semanas de teste de regressão — se pego na revisão de desenho, teria sido um dia de trabalho. Qual das lentes do nível 5 explica melhor por que consertar agora ficou tão mais caro do que teria sido no início?",
+      "alternativas": [
+        "GRC (5.4): sem um dono nomeado revisando esse módulo de autenticação regularmente, o defeito não foi pego a tempo, antes de acumular tantos dependentes",
+        "Economia da segurança (5.5): o orçamento de segurança inteiro deveria ter sido dividido de outro jeito entre as alternativas concorrentes deste trimestre",
+        "Desenvolvimento seguro (5.1): o custo de corrigir a mesma decisão sempre cresce conforme dependentes reais se acumulam sobre ela, do design até a produção",
+        "Modelagem de ameaças (5.3): faltou decompor o sistema em componente e fronteira de confiança antes de escrever esse módulo de autenticação inteiro"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Nomear um dono de revisão poderia ter ajudado a pegar o defeito mais cedo, mas não explica por que o custo especificamente cresce com o tempo — essa é uma pergunta sobre dinâmica de custo, não sobre quem deveria ter revisado.",
+        "1": "Este caso não é sobre dividir orçamento entre alternativas concorrentes — é sobre o custo de revisar uma única decisão técnica já embutida em muitas outras, unidade de análise diferente de portfólio.",
+        "3": "Modelagem de ameaças ajudaria a antecipar o defeito antes de ele existir, mas a pergunta não é sobre como detectar — é sobre por que consertar agora ficou tão mais caro, que é exatamente custo composto."
+      },
+      "dicas": [
+        "A pergunta pede especificamente o que explica o custo ter crescido, não como o defeito poderia ter sido detectado antes.",
+        "Pense em quantas coisas precisam ser tocadas junto quando uma decisão embutida há meses precisa mudar.",
+        "Dividir orçamento entre alternativas concorrentes é outra pergunta — aqui há uma única decisão técnica, não um portfólio de opções disputando recurso."
+      ],
+      "pergunta_socratica": "Antes de conferir: a pergunta pede como detectar o defeito mais cedo, ou por que consertá-lo agora ficou tão mais caro?",
+      "explicacao": "O custo cresceu porque a decisão de autenticação acumulou dependentes reais entre o design e a produção — exatamente o mecanismo de custo composto de desenvolvimento seguro. GRC explicaria por que ninguém pegou antes, modelagem de ameaças explicaria como antecipar o defeito, e economia trataria de alocação de orçamento entre alternativas concorrentes — nenhuma das três nomeia a dinâmica específica de custo crescendo com dependentes acumulados sobre uma única decisão.",
+      "fonte": "Teoria 5.1.t2 e 5.6.t6 (distinção com 5.5.t4 já estabelecida: decisão única acumulando dependentes vs. portfólio de alternativas concorrentes)",
+      "tags": ["carreira", "sintese-nivel-5", "custo-composto"]
+    },
+    {
+      "id": "5.6.q20",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [4],
+      "enunciado": "Um time de segurança tem verba pra só uma de duas coisas este trimestre: corrigir um conjunto de falhas de baixa severidade espalhadas por muitos sistemas (barato, amplo, nada chamativo), ou rodar um engajamento de red-team único (relatório impressionante, adorado pela diretoria). A diretoria empurra pelo red-team porque 'vai ficar ótimo na apresentação pro conselho'. A chefia do time avisa que isso ignora algo. Qual lente explica melhor o que essa preferência ignora?",
+      "alternativas": [
+        "Modelagem de ameaças (5.3): faltou decompor o sistema inteiro em componente e fronteira de confiança antes de decidir qual das duas opções escolher",
+        "GRC (5.4): a escolha entre as duas opções precisa de um dono nomeado e um critério registrado antes de ser tomada, seja qual for a decisão final",
+        "Desenvolvimento seguro (5.1): o custo de deixar essas falhas sem correção vai crescer conforme mais código se acumula em cima delas com o tempo",
+        "Economia da segurança (5.5): ignora que corrigir amplamente é sempre um sucesso invisível, e que o orçamento nunca deixa de ser finito entre alternativas concorrentes"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Não há componente nem fronteira de confiança em disputa aqui — a escolha é entre duas alternativas de orçamento já definidas, não uma decomposição de sistema.",
+        "1": "Nomear um dono e um critério é necessário, mas não explica por que a opção vistosa está sendo favorecida — essa é uma pergunta sobre incentivo e visibilidade, que a governança sozinha não resolve.",
+        "2": "O custo composto de uma decisão técnica não corrigida é uma preocupação real, mas o caso pede o que explica a preferência de liderança entre duas alternativas de orçamento, não a dinâmica de custo de uma decisão técnica isolada."
+      },
+      "dicas": [
+        "Pense em por que uma correção ampla e discreta atrai menos atenção de liderança do que um relatório de red-team.",
+        "As duas opções competem pelo mesmo orçamento fixo deste trimestre — pense em qual lente trata exatamente desse tipo de escolha.",
+        "Decompor sistema e registrar decisão não respondem por que a opção mais vistosa parece mais atraente aqui."
+      ],
+      "pergunta_socratica": "Antes de conferir: por que um relatório de red-team parece mais valioso pra liderança do que corrigir várias vulnerabilidades de forma discreta?",
+      "explicacao": "A escolha de liderança ignora a assimetria de visibilidade (corrigir amplamente, com sucesso, não gera nenhuma história pra contar — o relatório de red-team gera) e trata como decisão isolada o que é, na verdade, uma escolha de portfólio entre duas alternativas concorrentes pelo mesmo orçamento fixo. GRC explicaria a necessidade de registrar a decisão, desenvolvimento seguro explicaria custo composto de uma decisão técnica não corrigida, e modelagem de ameaças não se aplica a uma escolha entre alternativas já definidas — nenhuma delas nomeia o mecanismo de incentivo e orçamento finito em jogo aqui.",
+      "fonte": "Teoria 5.5.t1 e 5.5.t4, 5.6.t6",
+      "tags": ["carreira", "sintese-nivel-5", "orcamento-finito"]
+    },
+    {
+      "id": "5.6.q21",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Uma pessoa gosta de resolver quebra-cabeça técnico complexo sozinha, mas detesta documentar ou explicar decisão pra outras pessoas. Qual dos quatro subcampos tende a cobrar mais exatamente da parte que essa pessoa detesta?",
+      "alternativas": [
+        "Governança — documentar decisão com dono, critério e data, de um jeito que outra pessoa sempre entenda depois, é o núcleo dessa rotina",
+        "Ofensivo — porque relatório de teste de invasão nunca precisa ser entendido por quem não participou do teste, em circunstância nenhuma",
+        "Defensivo — porque vigiar alerta nunca exige explicar pra ninguém o que foi decidido sobre ele, em circunstância nenhuma",
+        "Engenharia — porque nenhuma decisão técnica embutida em código precisa ser documentada pra outra pessoa entender depois"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Relatório de pentest também precisa ser entendido por quem não participou — a diferença é intensidade e frequência da rotina, e governança é onde documentar decisão é o núcleo, não um produto ocasional.",
+        "2": "Vigiar alerta pode gerar pouca documentação por vigilância isolada, mas escalar e registrar o que foi decidido sobre ele ainda existe — só não é o núcleo da rotina como em governança.",
+        "3": "Decisão técnica embutida em código também se beneficia de documentação (revisão de código, por exemplo) — negar isso por completo exagera a diferença."
+      },
+      "dicas": [
+        "Pense em qual dos quatro subcampos tem 'registrar decisão pra outra pessoa entender' como a própria definição da rotina.",
+        "Nos outros três, documentar acontece, mas não é o núcleo do trabalho — em um deles, é exatamente isso.",
+        "As alternativas que dizem 'nunca precisa documentar' exageram — pense em qual subcampo faz disso o centro do trabalho."
+      ],
+      "pergunta_socratica": "Antes de conferir: em qual dos quatro subcampos documentar decisão pra outra pessoa entender depois é o próprio objetivo da rotina, não um produto ocasional dela?",
+      "explicacao": "Governança tem documentar decisão — com dono, critério e data, de um jeito que sobreviva a quem decidiu — como o núcleo da própria rotina. Os outros três subcampos também geram algum registro (relatório de pentest, escalonamento de alerta, revisão de código), mas nenhum deles tem isso como o centro definidor da tarefa que se repete.",
+      "fonte": "Teoria 5.6.t1",
+      "tags": ["carreira", "perfil-profissional", "tolerancia-a-documentacao"]
+    },
+    {
+      "id": "5.6.q22",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "trecho": "# post de conselho de carreira (recorte)\n'Se você é bom em programar, vá pra engenharia; se é bom em explicar as coisas, vá pra governança; simples assim.'",
+      "enunciado": "O que esse conselho erra, segundo o mecanismo deste eixo?",
+      "alternativas": [
+        "Nada: habilidade técnica ou de comunicação já basta, sozinha, pra decidir qual subcampo escolher, em qualquer trajetória",
+        "Reduz a escolha a uma habilidade isolada, quando o critério real é o tipo de tarefa que se repete, não a habilidade técnica em si",
+        "O erro é sugerir só dois subcampos, quando governança nem devia ser considerada carreira técnica de verdade por ninguém",
+        "O erro é a palavra 'simples', porque escolher carreira nunca pode ser resumido em nenhuma frase curta, em hipótese alguma"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Habilidade isolada não prevê se a pessoa aguenta o tipo específico de repetição de cada subcampo — os dois podem coexistir com desconforto por outro motivo.",
+        "2": "O post não questiona quantos subcampos existem nem a legitimidade de governança como carreira — o problema é o critério de escolha usado.",
+        "3": "O problema não é o tamanho da frase — o problema é o critério usado (habilidade isolada), não a brevidade."
+      },
+      "dicas": [
+        "Ser bom numa habilidade não garante que a pessoa aguenta o tipo de repetição da rotina inteira daquele subcampo.",
+        "O post não questiona a lista de subcampos nem a legitimidade de nenhum deles — pense no critério usado pra escolher.",
+        "Frase curta ou longa não muda o critério usado pra escolher — é o critério em si que está sob crítica."
+      ],
+      "pergunta_socratica": "Antes de conferir: ser bom em programar garante que a pessoa aguenta a rotina inteira de engenharia segura, incluindo os dias sem resultado visível?",
+      "explicacao": "O conselho reduz a escolha de subcampo a uma habilidade isolada, quando o critério real do eixo é o tipo de tarefa que se repete ao longo dos anos — alguém tecnicamente competente pode não aguentar a espera por resultado invisível de engenharia segura, mesmo tendo a habilidade de base pra fazer o trabalho tecnicamente.",
+      "fonte": "Teoria 5.6.t1",
+      "tags": ["carreira", "perfil-profissional", "habilidade-vs-tolerancia"]
+    },
+    {
+      "id": "5.6.q23",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Por que 'escolher pelo tipo de problema que se aguenta repetir' é um critério melhor do que 'escolher pelo que parece mais interessante hoje'?",
+      "alternativas": [
+        "Porque o que parece interessante hoje nunca continua interessante depois de seis meses, em nenhum caso, sem exceção nenhuma",
+        "Porque interesse não é um critério válido pra escolha de carreira nenhuma, em nenhuma área profissional, sob nenhuma circunstância",
+        "Porque interesse no tema muda com exposição; o tipo de tarefa que se repete continua sempre o mesmo, mesmo depois que o tema deixa de ser novidade",
+        "Porque tolerância à repetição é sempre mais fácil de medir objetivamente do que qualquer forma de interesse pessoal, em qualquer contexto"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Dizer que interesse 'nunca' continua depois de seis meses é exagero — o ponto não é que interesse sempre acabe, é que ele é mais instável do que o tipo de tarefa repetida.",
+        "1": "Interesse pode ser parte legítima de uma escolha de carreira — o eixo mostra que ele sozinho não prevê sustentação de longo prazo tão bem quanto tolerância à repetição.",
+        "3": "Facilidade de medir não é o argumento do eixo — o argumento é sobre estabilidade ao longo do tempo, não sobre qual critério é mais fácil de quantificar."
+      },
+      "dicas": [
+        "Pense no que acontece com um sentimento inicial forte, comparado a algo que se mantém constante ano após ano.",
+        "O eixo não descarta interesse por completo — mostra por que interesse sozinho prevê pior do que tolerância à repetição.",
+        "O que decide aqui é estabilidade ao longo do tempo, não quão fácil é medir cada critério."
+      ],
+      "pergunta_socratica": "Antes de conferir: o interesse por um tema tende a ser mais estável ao longo dos anos, ou o tipo de tarefa que se repete numa rotina?",
+      "explicacao": "Interesse por um tema tende a mudar com exposição e novidade — o que parece fascinante no primeiro contato pode virar neutro depois de meses. O tipo de tarefa que se repete numa rotina continua o mesmo, independente de o tema ainda parecer novo — por isso é um critério mais estável pra prever se alguém sustenta uma escolha de carreira por anos.",
+      "fonte": "Teoria 5.6.t1",
+      "tags": ["carreira", "perfil-profissional", "estabilidade-do-criterio"]
+    },
+    {
+      "id": "5.6.q24",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um recém-formado recebe duas ofertas: uma vaga 'Especialista em Segurança Ofensiva' que promete 'treinamento completo do zero, sem experiência prévia necessária'; outra vaga 'Assistente de TI' com tarefas de suporte básico. A primeira parece mais alinhada com o que ele quer fazer no futuro. Segundo o mecanismo deste eixo, o que deveria pesar mais na decisão?",
+      "alternativas": [
+        "O nome do cargo da primeira vaga, porque já indica exatamente a área de interesse futuro do candidato, sem sombra de dúvida",
+        "A promessa de 'treinamento completo do zero', porque isso garante que a empresa realmente ensina tudo que falta, sempre, em qualquer caso",
+        "Nenhuma das duas é confiável, porque toda vaga de entrada é, por definição, uma armadilha de contratação, sem exceção nenhuma",
+        "Quão incomum é a promessa de 'treinamento completo do zero' numa área que pressupõe experiência prévia — vale desconfiar de promessa boa demais nesse formato"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O nome do cargo bater com interesse futuro não é o mesmo que a vaga de fato aceitar quem começa do zero — a promessa exige verificação, não confiança automática.",
+        "1": "Promessa de treinamento completo não garante execução — é exatamente o tipo de alegação que vale desconfiar até ver evidência concreta de como funciona na prática.",
+        "2": "Nem toda vaga de entrada é armadilha — o eixo não trata todas com desconfiança automática, trata com desconfiança específica as que prometem algo incomum pra área."
+      },
+      "dicas": [
+        "Pense em quão comum é uma área pressupor experiência prévia — e o que significa uma vaga prometer o oposto disso.",
+        "A promessa em si não é prova de que a empresa vai cumprir — pense no que tornaria essa promessa verificável.",
+        "Desconfiar não significa recusar automaticamente — significa pedir mais evidência antes de aceitar a promessa como verdadeira."
+      ],
+      "pergunta_socratica": "Antes de conferir: é comum uma área que normalmente pressupõe experiência prévia oferecer treinamento completo do zero, sem nenhuma ressalva?",
+      "explicacao": "A promessa de 'treinamento completo do zero' numa área que normalmente pressupõe experiência operacional prévia é incomum o bastante pra merecer desconfiança específica — não porque toda vaga de entrada seja suspeita, mas porque essa combinação foge do padrão, e vale checar como o treinamento de fato funciona antes de decidir com base só na promessa.",
+      "fonte": "Teoria 5.6.t2",
+      "tags": ["carreira", "porta-de-entrada", "promessa-de-treinamento"]
+    },
+    {
+      "id": "5.6.q25",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "artefato": "$ cat trajetoria.txt\n2019: Estágio em suporte técnico\n2020: Analista de infraestrutura júnior\n2021: Analista de infraestrutura pleno\n2022: Analista de segurança da informação júnior\n2023: Analista de segurança da informação pleno",
+      "enunciado": "Essa trajetória mostra a palavra 'júnior' aparecendo duas vezes, em cargos diferentes, com um ano de intervalo entre elas. O que isso ilustra sobre o mecanismo deste eixo?",
+      "alternativas": [
+        "Que 'júnior' descreve o tipo de tarefa dentro de um cargo específico, não uma fase única da vida profissional pela qual se passa só uma vez",
+        "Que a pessoa cometeu um erro de carreira, porque ninguém deveria ser júnior de novo depois de já ter sido pleno em outra área",
+        "Que 'júnior' e 'pleno' são só nomes decorativos, sem nenhuma diferença real de tarefa entre eles, em nenhum caso",
+        "Que essa trajetória é rara e não ilustra absolutamente nada sobre como carreiras em segurança normalmente funcionam"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nada no mecanismo do eixo trata mudar de área e recomeçar como júnior como erro — muda o tipo de tarefa que a pessoa domina, o que reabre a fase de execução sob supervisão nessa nova área.",
+        "2": "Júnior e pleno descrevem tipos de tarefa diferentes (execução sob supervisão vs. autonomia maior) — não são rótulos decorativos, mesmo aparecendo mais de uma vez na trajetória.",
+        "3": "O eixo não afirma que essa trajetória é comum ou rara — o ponto pedido é o que ela ilustra sobre o significado de 'júnior', não sua frequência."
+      },
+      "dicas": [
+        "'Júnior' apareceu de novo depois de a pessoa já ter sido 'pleno' numa área diferente — pense no que isso diz sobre o significado da palavra.",
+        "Mudar de área técnica pode reabrir a fase de execução sob supervisão, mesmo com experiência acumulada em outra área.",
+        "Frequência da trajetória é irrelevante aqui — o que importa é o que ela revela sobre o significado do termo."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'júnior' descreve uma fase única da vida profissional, ou o tipo de tarefa dentro de uma área específica?",
+      "explicacao": "'Júnior' aparece duas vezes na trajetória porque descreve o tipo de tarefa dentro de uma área específica (execução sob supervisão, nessa área), não uma fase única pela qual a pessoa passa uma vez na vida. Mudar de infraestrutura pra segurança da informação reabriu a fase de execução sob supervisão na nova área, mesmo com experiência sólida acumulada na anterior.",
+      "fonte": "Teoria 5.6.t2",
+      "tags": ["carreira", "definicao-de-junior", "mudanca-de-area"]
+    },
+    {
+      "id": "5.6.q26",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Uma empresa anuncia vaga 'Sênior' pra alguém com um ano de experiência total. Segundo o mecanismo deste eixo, o que isso sugere?",
+      "alternativas": [
+        "Que a empresa está certa: um ano de experiência sempre é suficiente pra qualquer cargo sênior de qualquer área técnica, em qualquer setor",
+        "Que o nome do cargo pode estar inflado em relação ao requisito real — o mesmo tipo de problema, só na direção oposta",
+        "Que a empresa cometeu um erro de digitação, porque nenhuma vaga sênior legítima existe com um ano de experiência, em lugar nenhum",
+        "Que 'sênior' e 'júnior' não têm relação nenhuma com tempo de experiência em nenhuma empresa, de forma alguma"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Nada no eixo valida um ano como suficiente pra qualquer cargo sênior — o ponto é desconfiar do nome do cargo, não confirmá-lo.",
+        "2": "Tratar como erro de digitação ignora um padrão real (nome de cargo inflado pra atrair candidato, ou justificar remuneração menor) que existe independente de erro de digitação.",
+        "3": "O eixo não nega toda relação entre nome de cargo e experiência — mostra que o nome sozinho não é confiável, o que é diferente de dizer que não há relação nenhuma."
+      },
+      "dicas": [
+        "O mesmo tipo de problema que acontece numa direção pode acontecer também na direção contrária.",
+        "Esse tipo de desalinhamento não depende de nenhum erro de digitação pra acontecer.",
+        "O eixo não nega toda relação entre nome e experiência — nega que o nome sozinho seja suficiente pra confiar."
+      ],
+      "pergunta_socratica": "Antes de conferir: o desalinhamento entre nome de cargo e requisito real só acontece na direção 'júnior exige muito', ou pode acontecer também na direção oposta?",
+      "explicacao": "O mesmo mecanismo que explica um cargo 'júnior' exigindo três anos de experiência explica, na direção oposta, um cargo 'sênior' com pouca experiência real exigida: o nome do cargo nem sempre reflete o requisito ou o nível de autonomia real da função. Confiar só no nome do cargo, em qualquer direção, é o erro que o eixo pede pra evitar.",
+      "fonte": "Teoria 5.6.t2",
+      "tags": ["carreira", "definicao-de-junior", "titulo-inflado"]
+    },
+    {
+      "id": "5.6.q27",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Duas pessoas debatem: uma diz 'diploma prova mais competência do que certificação, porque leva mais tempo pra terminar'. A outra diz 'não, os dois provam a mesma coisa, só duram tempos diferentes'. Qual é o problema nos dois argumentos?",
+      "alternativas": [
+        "O primeiro está certo: mais tempo de estudo sempre prova mais competência do que menos tempo, em qualquer contexto",
+        "O segundo está certo: diploma e certificação sempre medem exatamente a mesma coisa, só em durações diferentes, sem exceção",
+        "Os dois comparam só duração, quando o que sempre diferencia é o tipo de coisa medida em cada um dos dois",
+        "Nenhum dos dois está errado, porque duração e tipo de conteúdo são exatamente a mesma variável nesse contexto"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Duração de estudo não é, sozinha, prova de mais competência — os dois medem tipos diferentes de coisa, não graus diferentes da mesma coisa.",
+        "1": "Diploma e certificação não medem a mesma coisa em durações diferentes — um mede estudo amplo sustentado, o outro mede aprovação pontual num escopo definido.",
+        "3": "Duração e tipo de conteúdo medido são variáveis diferentes — tratá-las como a mesma coisa apaga exatamente a distinção que o eixo ensina a fazer."
+      },
+      "dicas": [
+        "Pense se 'quanto tempo levou' é a mesma pergunta que 'o que exatamente foi avaliado'.",
+        "Diploma e certificação diferem no tipo de conteúdo avaliado, não só na duração do processo.",
+        "As duas posições do debate erram no mesmo lugar: o que elas comparam não é o que realmente separa as duas credenciais."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que diferencia diploma de certificação é quanto tempo cada um leva, ou o tipo de coisa que cada um avalia?",
+      "explicacao": "Os dois argumentos do debate erram pelo mesmo motivo: reduzem a comparação a duração, quando o que de fato diferencia as duas credenciais é o tipo de coisa avaliada — diploma mede estudo sustentado sobre um currículo amplo, ao longo de anos; certificação mede aprovação num corpo de conhecimento definido, num momento específico. Duração mais longa não implica avaliação mais ampla.",
+      "fonte": "Teoria 5.6.t3",
+      "tags": ["carreira", "credencial", "diploma-vs-certificacao"]
+    },
+    {
+      "id": "5.6.q37",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "O cargo exige escrever regra de detecção sob restrição real de produção (sistema em uso, não pode quebrar nada). Candidato A tem certificação na plataforma de detecção exata usada pela empresa. Candidato B tem portfólio com três projetos de regra de detecção, em plataformas diferentes, sem prazo nem produção real envolvidos. Qual evidência pesa mais especificamente pra essa exigência do cargo, e por quê?",
+      "alternativas": [
+        "A certificação de A, porque ela prova, sozinha, que ele sabe escrever regra de detecção sob restrição real de produção",
+        "O portfólio de B, porque três projetos sempre pesam mais do que uma única certificação, não importa o contexto do cargo",
+        "Nenhuma das duas prova a exigência específica: uma prova conhecimento da plataforma, a outra capacidade de produzir, não produção real",
+        "As duas pesam exatamente igual, porque certificação e portfólio são sempre evidências equivalentes de competência técnica"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Certificação prova aprovação num exame sobre a plataforma — não prova ter escrito regra sob restrição real de produção, que é exatamente o que falta testar.",
+        "1": "Número de projetos não é, sozinho, argumento de peso — os projetos de B foram feitos sem prazo nem produção real, a mesma lacuna da certificação de A, só que pro lado prático.",
+        "3": "Tratar as duas como sempre equivalentes ignora que elas medem coisas diferentes — nenhuma resolve a exigência específica deste cargo."
+      },
+      "dicas": [
+        "Pense no que o cargo realmente pede pro dia a dia, e se alguma das duas evidências foi produzida nessas condições.",
+        "Nem certificação nem portfólio, nesse caso, foram produzidos sob restrição real de produção.",
+        "A pergunta não é qual credencial é 'melhor' em geral — é qual prova a exigência específica deste cargo."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguma das duas evidências — certificação ou portfólio — foi produzida sob restrição real de sistema em produção?",
+      "explicacao": "Nem a certificação de A (que testa conhecimento da plataforma, não produção real) nem o portfólio de B (produzido sem prazo nem sistema em produção) demonstram diretamente a exigência específica do cargo — trabalhar sob restrição real de produção. As duas evidências são relevantes, mas nenhuma fecha essa lacuna específica; reconhecer isso, em vez de declarar uma delas vencedora por reflexo, é a decisão real que este eixo ensina.",
+      "fonte": "Teoria 5.6.t3 e 5.6.t4",
+      "tags": ["carreira", "credencial", "vazio-de-prova"]
+    },
+    {
+      "id": "5.6.q29",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Uma empresa decide contratar só candidatos que tenham certificação, diploma E portfólio ao mesmo tempo, achando que essa exigência tripla elimina qualquer risco de contratar mal. O que essa política ainda deixa passar, mesmo sendo mais rigorosa que exigir só uma das três?",
+      "alternativas": [
+        "Nunca observa como o candidato reage a um problema fora do que já estudou ou produziu, sob prazo real de outra pessoa",
+        "Nada: exigir as três ao mesmo tempo elimina completamente qualquer risco de contratação, por ser o padrão mais rigoroso possível",
+        "A política se torna excessiva só porque exclui bons candidatos que têm apenas uma das três credenciais completas",
+        "A política resolve o problema de custo de contratação, mas cria um problema de tempo de processo seletivo maior"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Exigir as três não elimina o vazio — só empilha três medições estreitas e diferentes, nenhuma delas observando o tipo de situação que continua sem resposta.",
+        "2": "Excluir bons candidatos sem as três é um efeito colateral possível, mas não é o que a pergunta pede — a pergunta é sobre o que a política deixa sem resposta mesmo pros que passam nela.",
+        "3": "Tempo de processo seletivo é uma consequência prática possível, mas não é o vazio estrutural que o eixo pede pra nomear."
+      },
+      "dicas": [
+        "As três credenciais, mesmo juntas, continuam sendo produzidas em condições estudadas, testadas ou escolhidas com antecedência.",
+        "Pense num tipo de situação de trabalho que nenhuma das três — mesmo juntas — obriga o candidato a enfrentar.",
+        "Excluir candidato e tempo de processo são consequências possíveis da política — o alvo desta pergunta é outra coisa."
+      ],
+      "pergunta_socratica": "Antes de conferir: exigir as três credenciais ao mesmo tempo muda o tipo de situação que nenhuma delas testa, ou só empilha três medições que continuam sem testar essa situação?",
+      "explicacao": "Exigir certificação, diploma e portfólio ao mesmo tempo é mais rigoroso do que exigir só um deles, mas não fecha o vazio estrutural: nenhuma das três, nem a soma das três, observa como o candidato se comporta diante de um problema fora do que ele já estudou, testou ou escolheu produzir, sob prazo real imposto por outra pessoa. Empilhar exigência não é o mesmo que testar o que continua sem resposta.",
+      "fonte": "Teoria 5.6.t4",
+      "tags": ["carreira", "credencial", "vazio-de-prova"]
+    },
+    {
+      "id": "5.6.q30",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Uma pessoa aprende, num curso, o comando exato de uma ferramenta de exploração pra uma vulnerabilidade específica de uma versão de software que será descontinuada em um ano. Ao mesmo tempo, aprende por que dado repetido em múltiplas fontes é mais confiável do que dado de fonte única, um princípio usado em investigação de incidente. Qual dos dois vale mais investimento de memorização profunda?",
+      "alternativas": [
+        "O comando da versão específica, porque comando prático sempre vale mais do que princípio abstrato em qualquer situação de trabalho",
+        "O princípio sobre confiabilidade de fonte, porque continua sempre útil mesmo depois que a versão de software específica for descontinuada",
+        "Os dois igualmente, porque qualquer conteúdo sobre ferramenta ou fonte de dado merece exatamente o mesmo nível de memorização",
+        "Nenhum dos dois, porque comando de software e princípio de fonte deveriam sempre ser só consultados, nunca memorizados de jeito nenhum"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Comando prático não vale sempre mais — quando está amarrado a uma versão que será descontinuada, seu prazo de validade é curto, ao contrário do princípio.",
+        "2": "Nem todo conteúdo de curso merece o mesmo nível de investimento — é exatamente essa diferença de durabilidade que o eixo ensina a reconhecer.",
+        "3": "Nunca memorizar nada ignora que mecanismo durável, aprendido fundo, tende a ser aplicado com mais fluência do que algo só consultado no momento."
+      },
+      "dicas": [
+        "Pense em qual dos dois conteúdos ainda vai ser válido depois que a versão de software específica for descontinuada.",
+        "Nem todo conteúdo de um curso tem a mesma durabilidade — pense no que diferencia os dois deste caso.",
+        "Memorizar tudo ou nada são os dois extremos — a resposta certa mora em decidir onde investir fundo."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual dos dois conteúdos continua válido depois que a versão de software específica for descontinuada?",
+      "explicacao": "O comando específico está amarrado a uma versão de software com prazo de validade conhecido e curto — memorizá-lo fundo é investimento que expira previsivelmente. O princípio sobre confiabilidade de fonte não depende de nenhuma versão de software — continua útil em qualquer investigação futura, o que justifica investimento de memorização mais profundo nele.",
+      "fonte": "Teoria 5.6.t5",
+      "tags": ["carreira", "aprendizado-continuo", "durabilidade"]
+    },
+    {
+      "id": "5.6.q38",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Uma pessoa hesita entre investir estudo profundo no fluxo de autorização do OAuth 2.0 (um padrão aberto, usado por centenas de serviços diferentes, estável há mais de dez anos) ou no fluxo de login específico de um único aplicativo interno da empresa onde trabalha agora. Segundo o mecanismo deste eixo, qual critério decide corretamente onde investir mais fundo?",
+      "alternativas": [
+        "O fluxo do aplicativo interno, único e específico da empresa atual, porque isso sempre vale muito mais no curto prazo de qualquer carreira",
+        "O OAuth 2.0, porque qualquer coisa com nome de padrão técnico é sempre mecanismo durável, nunca detalhe específico, não importa há quantos anos existe",
+        "O OAuth 2.0: um padrão usado por muitos serviços diferentes, estável há bastante tempo, tem mais chance de continuar relevante",
+        "Nenhum dos dois, porque login e autorização, estáveis ou específicos, mudam rápido demais pra valer qualquer investimento profundo de estudo"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Conhecimento do sistema interno atual tem valor imediato, mas esse valor não se transfere pra outro emprego ou sistema — é a especificidade que o eixo pede pra reconhecer, não descartar.",
+        "1": "Ter nome de padrão técnico não garante durabilidade automaticamente — o que importa é a adoção ampla e a estabilidade histórica, que precisam ser avaliadas, não presumidas só pelo nome.",
+        "3": "Login e autorização têm, sim, mecanismo estável por trás, como o OAuth demonstra há mais de dez anos — descartar todo investimento nessa área ignora essa estabilidade real."
+      },
+      "dicas": [
+        "Pense em quantos sistemas diferentes usam o mesmo padrão, e há quanto tempo ele existe sem mudar de forma essencial.",
+        "Ter nome de 'padrão' não garante nada sozinho — largura de adoção e histórico de estabilidade é que contam.",
+        "Nem tudo relacionado a login e autorização muda rápido — alguns mecanismos se mantêm estáveis por décadas."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que torna um conteúdo mais durável — o nome que ele carrega, ou quantos contextos diferentes o usam de forma estável ao longo do tempo?",
+      "explicacao": "O critério certo não é se algo tem 'nome de padrão' ou é usado num único sistema — é a largura de adoção e a estabilidade histórica. OAuth 2.0, usado por centenas de serviços diferentes e estável há mais de dez anos, tem muito mais chance de continuar relevante do que o fluxo de login de um único aplicativo interno, específico daquele contexto. O eixo não separa 'ferramenta' de 'princípio' pelo rótulo, separa pela adoção e estabilidade reais.",
+      "fonte": "Teoria 5.6.t5",
+      "tags": ["carreira", "aprendizado-continuo", "durabilidade-por-adocao"]
+    },
+    {
+      "id": "5.6.q32",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "trecho": "# post de fórum (recorte)\n'Não faz sentido estudar fundamentação teórica de segurança — na prática, o que importa é saber usar as ferramentas que o mercado pede agora.'",
+      "enunciado": "Qual erro esse post comete, segundo o mecanismo deste eixo?",
+      "alternativas": [
+        "Nenhum: ferramenta específica sempre importa mais do que fundamentação teórica, em qualquer etapa da carreira profissional",
+        "O erro é a palavra 'mercado', porque fundamentação teórica nunca teve relação nenhuma com nenhum mercado de trabalho real",
+        "Ele descarta o tipo de conteúdo que continua útil depois que a ferramenta atual for substituída, tratando os dois como se tivessem o mesmo prazo",
+        "O erro é sugerir que existe qualquer ferramenta que o mercado peça agora, porque nenhuma ferramenta específica é usada por nenhuma empresa real"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Ferramenta específica não importa sempre mais — seu prazo de validade costuma ser mais curto do que o de um mecanismo durável.",
+        "1": "A palavra 'mercado' não é o alvo da crítica — fundamentação teórica pode, sim, ter relação com o que o mercado pede, especialmente a longo prazo.",
+        "3": "Negar que ferramenta específica seja usada por empresa real ignora a realidade descrita no próprio post — o erro está em descartar o que dura mais, não nisso."
+      },
+      "dicas": [
+        "Pense no que acontece com o valor de uma ferramenta específica depois que ela é substituída no mercado.",
+        "O post iguala coisas que envelhecem em ritmos bem diferentes — pense se essa comparação é justa.",
+        "A crítica recai sobre o critério de durabilidade usado, não sobre a palavra 'mercado' nem sobre a ferramenta existir de fato."
+      ],
+      "pergunta_socratica": "Antes de conferir: fundamentação teórica e ferramenta específica têm o mesmo prazo de validade, ou um dura mais que o outro?",
+      "explicacao": "O post descarta fundamentação teórica em favor só de ferramenta específica, tratando os dois como se tivessem a mesma durabilidade — quando na verdade a ferramenta específica costuma ser substituída, enquanto o mecanismo que a fundamentação explica continua útil mesmo depois da substituição.",
+      "fonte": "Teoria 5.6.t5",
+      "tags": ["carreira", "aprendizado-continuo", "fundamentacao-vs-ferramenta"]
+    },
+    {
+      "id": "5.6.q33",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [4],
+      "enunciado": "Um engenheiro descobre, numa sexta à noite, um risco crítico. Avisa um colega verbalmente, mas só abre o chamado formal na segunda-feira. Ninguém fica formalmente designado como dono da decisão durante o fim de semana. No sábado, o risco é explorado. Depois do incidente, alguém sugere que faltou verba pra plantão de segurança no fim de semana. Qual lente do nível 5 explica melhor a causa raiz mais imediata deste caso?",
+      "alternativas": [
+        "Modelagem de ameaças (5.3): faltou decompor o sistema em componente e fronteira de confiança antes de o risco existir, decisão que ninguém tomou a tempo",
+        "Segurança em nuvem (5.2): faltou definir formalmente a linha de responsabilidade compartilhada entre provedor e cliente, o que importava mais nesse fim de semana",
+        "Economia da segurança (5.5): faltou um dono pra decisão de alocar mais orçamento de plantão de fim de semana, competindo com outras alternativas",
+        "GRC (5.4): o risco foi identificado e comunicado, mas a decisão nunca foi formalmente registrada com dono nomeado durante o intervalo em que mais importava"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O risco já tinha sido identificado — modelagem de ameaças ajudaria a antecipar riscos ainda desconhecidos, não a resolver um risco já conhecido e comunicado informalmente.",
+        "1": "Nada no caso descreve provedor de nuvem nem configuração de acesso — o risco foi comunicado entre pessoas da mesma equipe.",
+        "2": "Orçamento de plantão pode ser uma melhoria real depois, mas não explica a causa raiz mais imediata: o risco já tinha sido identificado e comunicado, só faltou virar decisão registrada com dono formal."
+      },
+      "dicas": [
+        "O risco já era conhecido antes do incidente acontecer — pense em qual lente trata do que acontece depois de um risco ser identificado.",
+        "Não há provedor de nuvem nem decisão de portfólio orçamentário disputando neste caso específico.",
+        "Avisar um colega de boca é diferente de fazer essa informação virar algo que sobrevive ao fim de semana."
+      ],
+      "pergunta_socratica": "Antes de conferir: o risco deste caso era desconhecido antes do incidente, ou já tinha sido identificado e só não virou decisão formal?",
+      "explicacao": "O risco já tinha sido identificado e comunicado informalmente — o problema não foi falta de antecipação, nem responsabilidade de nuvem, nem, na causa mais imediata, orçamento de plantão. A causa raiz mais imediata é de governança: uma decisão conhecida que nunca foi formalmente registrada com dono nomeado durante a janela em que mais importava.",
+      "fonte": "Teoria 5.4.t1 e 5.6.t6",
+      "tags": ["carreira", "sintese-nivel-5", "decisao-sem-dono"]
+    },
+    {
+      "id": "5.6.q34",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [4],
+      "enunciado": "Uma startup escolhe, desde o início, hashear senha com algoritmo forte, mesmo sendo um pouco mais lento. Dois anos depois, ao escalar o login, essa escolha não custa nada extra. Uma concorrente escolheu um hash fraco e rápido — e precisa migrar todo hash já armazenado, com tráfego ao vivo, um projeto de meses. Qual lente explica melhor por que a concorrente pagou um preço tão mais alto?",
+      "alternativas": [
+        "Desenvolvimento seguro (5.1): decidir cedo custou zero a mais; migrar depois, com senha real e tráfego ao vivo, custa muito mais",
+        "GRC (5.4): a concorrente não tinha dono nomeado responsável por decidir migrar a senha antes de o tráfego ficar vivo demais, segundo essa hipótese",
+        "Economia da segurança (5.5): a concorrente deveria ter alocado mais orçamento desde o início pra evitar migrar a senha depois",
+        "Modelagem de ameaças (5.3): faltou decompor o sistema em componente e fronteira de confiança antes de escolher o algoritmo"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Ter ou não dono nomeado não explica a diferença de custo entre as duas empresas — mesmo com dono nomeado, migrar hash com tráfego ao vivo tem o mesmo custo técnico alto.",
+        "2": "Mais orçamento geral não é o mecanismo específico aqui — migrar senha já armazenada, com usuário ativo, é tecnicamente caro por natureza, não por falta de dinheiro.",
+        "3": "Modelagem de ameaças ajudaria a antecipar que hash fraco é um risco, mas a pergunta pede o que explica o custo da correção tardia, não como antecipar o risco."
+      },
+      "dicas": [
+        "A pergunta pede o que explica a diferença de custo entre migrar cedo (nunca precisou) e migrar tarde (com tráfego ao vivo).",
+        "Pense em quantos sistemas e usuários dependem da senha já armazenada, quando a migração acontece tarde.",
+        "Dono nomeado e orçamento geral ficam de fora dessa conta — o que pesa é o custo técnico de mexer numa decisão já embutida em produção."
+      ],
+      "pergunta_socratica": "Antes de conferir: migrar o algoritmo de hash antes de ter usuário nenhum custa o mesmo que migrar com milhões de senhas reais já armazenadas e tráfego ao vivo?",
+      "explicacao": "A decisão sobre algoritmo de hash, tomada uma vez, cedo, custou zero a mais pra empresa que escolheu bem desde o início. Pra quem escolheu errado, corrigir depois significa migrar senha real, com usuário ativo, sob tráfego ao vivo — mais caro exatamente porque mais coisa se acumulou sobre a decisão original. É o mecanismo de custo composto, não falta de dono, orçamento ou modelagem de ameaça.",
+      "fonte": "Teoria 5.1.t2 e 5.6.t6",
+      "tags": ["carreira", "sintese-nivel-5", "custo-composto"]
+    },
+    {
+      "id": "5.6.q35",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [4],
+      "enunciado": "Um time constrói uma ferramenta interna que permite ao suporte acessar a conta de um cliente pra debugar problema, sem nenhuma aprovação adicional, porque 'é só uso interno'. Meses depois, o laptop comprometido de um funcionário de suporte é usado pra acessar várias contas de clientes — a ferramenta funcionou exatamente como desenhada. Qual lente explica melhor o que passou despercebido na construção?",
+      "alternativas": [
+        "GRC (5.4): a construção da ferramenta não foi registrada como decisão formal, com dono e critério nomeados, antes de ir pra produção",
+        "Modelagem de ameaças (5.3): a ferramenta cruza uma fronteira de confiança — de funcionário pra conta de cliente — que nunca foi tratada como tal",
+        "Desenvolvimento seguro (5.1): o custo de adicionar aprovação depois cresceu, porque outras funcionalidades já dependiam totalmente do fluxo sem essa etapa",
+        "Economia da segurança (5.5): faltou orçamento pra revisar essa ferramenta antes de lançá-la em produção, competindo com outras prioridades"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "A ferramenta pode até ter sido registrada como decisão formal — isso não muda o fato técnico de que ela concede uma travessia de confiança sem controle adicional.",
+        "2": "O caso não descreve nenhuma outra funcionalidade dependendo do fluxo sem aprovação — o problema não é custo de mudar uma decisão embutida, é a ausência original de tratar essa fronteira como risco.",
+        "3": "Falta de orçamento é uma explicação possível de por que a revisão não aconteceu, mas não nomeia o mecanismo técnico específico que faltou: identificar a fronteira de confiança cruzada."
+      },
+      "dicas": [
+        "A ferramenta permite que uma pessoa acesse dado de outra sem verificação adicional — pense em que tipo de fronteira isso cruza.",
+        "O caso não menciona nenhuma outra funcionalidade dependendo do fluxo sem aprovação — não é sobre custo de mudar depois.",
+        "Foque no que faltou pensar tecnicamente durante a construção da ferramenta, deixando de lado o motivo de a revisão não ter ocorrido."
+      ],
+      "pergunta_socratica": "Antes de conferir: que tipo de fronteira a ferramenta cruza ao deixar um funcionário acessar a conta de um cliente sem verificação adicional?",
+      "explicacao": "A ferramenta cruza uma fronteira de confiança real — de funcionário pra conta de cliente — sem nenhum controle adicional, e ninguém tratou essa travessia como um ponto que merece atenção específica durante a construção. É o mecanismo de modelagem de ameaças: decompor o sistema, identificar onde uma fronteira de confiança é cruzada, e pensar no ataque antes de ele existir. Governança, custo composto e orçamento tocam em aspectos reais do processo, mas nenhum nomeia a ausência técnica específica que permitiu o incidente.",
+      "fonte": "Teoria 5.3.t3 e 5.6.t6",
+      "tags": ["carreira", "sintese-nivel-5", "fronteira-de-confianca"]
+    }
+  ]
+}
