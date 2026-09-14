@@ -1,0 +1,1048 @@
+{
+  "id": "5.5",
+  "nivel": 5,
+  "titulo": "Economia da segurança: por que fica caro demais fingir que não vai acontecer",
+  "objetivos": [
+    "Reconhecer o defeito estrutural do investimento em segurança — sucesso invisível, fracasso espetacular — e explicar por que isso torna cortar orçamento de segurança uma decisão racional no curto prazo, mesmo para quem entende o risco",
+    "Identificar incentivo desalinhado (quem decide e se beneficia do corte não é quem paga o custo do dano) como causa estrutural de insegurança, distinta de má-fé ou ignorância",
+    "Comparar alternativas de orçamento de segurança como alocação de um recurso finito entre alternativas concorrentes ao longo do tempo, distinguindo essa pergunta de decidir o destino de um risco isolado",
+    "Argumentar por orçamento de segurança separando o que é medição local verificável do que é premissa estimada, sem inventar número de mercado como se fosse dado próprio"
+  ],
+  "pre_requisitos": ["5.4", "5.1", "5.3"],
+  "teoria": [
+    {
+      "id": "5.5.t1",
+      "titulo": "O defeito estrutural: sucesso invisível, fracasso espetacular",
+      "texto": "Investimento em segurança tem uma assimetria que nenhum outro investimento de TI enfrenta do mesmo jeito: quando funciona, nada acontece — o ataque que não aconteceu não aparece em nenhum relatório, não gera nenhuma história para contar, não prova nada para quem não é da área. Quando falha, o resultado é o oposto: visível, datado, às vezes público, sempre fácil de apontar. Isso não é um problema de comunicação que se resolve com um relatório melhor — é uma característica estrutural do que está sendo comprado. Um investimento em performance mostra número que sobe; um investimento em um novo recurso mostra tela que funciona; um investimento em segurança bem-sucedido mostra, na melhor das hipóteses, ausência de evento — e ausência de evento é indistinguível de sorte, de a ameaça nunca ter existido, ou de o dinheiro ter sido desperdiçado.",
+      "analogia": "Uma vacina que funciona não produz nenhuma doença visível para comparar — quem não entende de epidemiologia vê só o custo da vacina e nenhuma doença, e conclui, errado, que ela não fez diferença nenhuma.",
+      "erro_comum": "Tratar a ausência de incidente como prova de que o investimento era desnecessário, em vez de reconhecer que ausência de incidente é exatamente o resultado esperado de um investimento que funcionou — indistinguível, à primeira vista, de um investimento que nunca precisou existir.",
+      "fonte": "(abre o eixo de defeito estrutural do módulo)"
+    },
+    {
+      "id": "5.5.t2",
+      "titulo": "Por que isso distorce a decisão de orçamento",
+      "texto": "A assimetria de visibilidade não fica só no campo da percepção — ela muda o incentivo de quem decide orçamento. Cortar o orçamento de segurança tem uma consequência que pode não aparecer por meses ou anos, e quando aparece, muitas vezes é atribuível a várias causas ao mesmo tempo, não só ao corte. Cortar o orçamento de outra área (marketing, um novo produto) tem consequência rápida e claramente atribuível: a métrica que dependia daquele investimento cai logo, e cai visivelmente ligada ao corte. Entre dois cortes de mesmo tamanho, o de segurança é sistematicamente o mais barato de fazer no curto prazo, porque a conta chega depois, embaralhada com outras causas, e às vezes nunca chega — não porque segurança importe menos, mas porque o custo de cortá-la é mais fácil de adiar e mais difícil de atribuir quando aparece.",
+      "analogia": "Adiar a troca de um pneu carecado custa zero até o dia em que custa tudo — mas nos meses de adiamento, nada no painel do carro mostra o risco crescendo, e é fácil confundir 'nada aconteceu ainda' com 'não era necessário'.",
+      "erro_comum": "Explicar corte de orçamento de segurança só por má-fé ou ignorância de quem decide — ignora que a estrutura de visibilidade e atribuição torna esse corte racional no curto prazo, mesmo para quem entende o risco perfeitamente.",
+      "fonte": "Teoria 5.5.t1"
+    },
+    {
+      "id": "5.5.t3",
+      "titulo": "Quem paga não é sempre quem sofre: incentivo desalinhado",
+      "texto": "Um segundo mecanismo, independente do primeiro: em muitas decisões de segurança, quem decide gastar (ou não gastar) não é a mesma pessoa ou organização que sofre o dano se a decisão sair errada. Um time de produto que lança rápido sem revisão de segurança ganha a métrica de velocidade pela qual é avaliado; quem paga o custo de um incidente, meses depois, costuma ser um time diferente — segurança, suporte, jurídico — ou a empresa inteira, de um jeito que não volta pro time que decidiu a pressa. Isso não é um caso de alguém sendo desonesto — é uma estrutura de incentivo onde o benefício de cortar segurança é concentrado e imediato para quem decide, e o custo é disperso, atrasado, e recai sobre outra pessoa.",
+      "analogia": "Uma fábrica que despeja resíduo num rio economiza o custo do tratamento; quem paga é a cidade rio abaixo, que nunca teve voto nenhum na decisão da fábrica — o dano existe, só que a conta foi endereçada para o lugar errado.",
+      "erro_comum": "Tratar todo caso de insegurança evitável como falta de caráter de quem decidiu — a explicação mais confiável, e mais corrigível, é perguntar quem recebe o benefício de cortar e quem paga o custo de ter cortado errado; quando as duas respostas são pessoas diferentes, a decisão vai pender pra cortar, sistematicamente, mesmo com boas intenções dos dois lados.",
+      "fonte": "(mecanismo independente da teoria 5.5.t1 — aqui o problema não é visibilidade, é quem recebe a conta)"
+    },
+    {
+      "id": "5.5.t4",
+      "titulo": "Orçamento como recurso finito: alocação entre alternativas concorrentes",
+      "texto": "Uma decisão de aceitar ou mitigar um risco específico, pesando custo de corrigir contra dano esperado, já foi vista neste curso. O que essa decisão isolada não mostra é o que acontece quando um orçamento fixo precisa ser dividido entre várias alternativas que competem entre si ao mesmo tempo: mitigar o risco A, mitigar o risco B, contratar mais uma pessoa, ou guardar o dinheiro para o próximo trimestre. Comparar risco contra risco responde 'qual risco é pior'; comparar orçamento contra orçamento responde uma pergunta diferente: dado que só dá pra fazer duas das quatro coisas boas disponíveis, quais duas, e o que se perde ao não fazer as outras duas? O custo de escolher uma alternativa não é só o preço dela — é também o valor da melhor alternativa que ficou de fora, e esse segundo número quase nunca aparece em planilha nenhuma, porque planilha registra o que foi gasto, não o que deixou de ser.",
+      "analogia": "Escolher que faculdade cursar não custa só a mensalidade — custa também o salário dos anos que a pessoa não ganhou fazendo outra coisa; ninguém emite boleto para esse segundo custo, mas ele é real e influencia se a escolha valeu a pena.",
+      "erro_comum": "Confundir esta pergunta (como dividir um orçamento fixo entre várias alternativas) com a pergunta já vista de aceitar ou mitigar um risco isolado — a primeira compara alternativas competindo pelo mesmo recurso ao longo do tempo; a segunda decide o destino de um risco específico, com ou sem restrição de orçamento.",
+      "fonte": "Teoria 5.3.t5 (decisão sobre um risco isolado) e 5.4.t3 (comparação de risco contra risco por score) — aqui o problema é outro: dividir um orçamento fixo entre alternativas de tipos diferentes, nem todas com score de risco, não comparar risco contra risco"
+    },
+    {
+      "id": "5.5.t5",
+      "titulo": "O que dá para medir honestamente, e o que não dá",
+      "texto": "Argumentar por mais orçamento de segurança tenta, com frequência, produzir um número: 'isso vai evitar X reais de prejuízo' ou 'o custo médio de um incidente é Y'. Esse segundo tipo de número — média de mercado, citada de um relatório — muda de metodologia e de valor a cada nova edição, é calculado sobre uma amostra de empresas muito diferentes da que está pedindo o orçamento, e raramente separa custo direto (o que saiu do caixa) de custo estimado (reputação, uma métrica que ninguém mede da mesma forma duas vezes). Usar esse número como fato é comprar uma precisão que ele não tem. O que dá para medir honestamente é mais estreito e mais local: quantos incidentes do mesmo tipo essa organização específica já teve, quanto tempo levou pra detectar e conter da última vez, quanto custou a hora de quem respondeu, e quanto uma medida específica reduziria essa exposição específica, com premissa explícita e discutível — não uma média de mercado emprestada de fora.",
+      "analogia": "Dizer 'a pessoa média ganha X' não diz nada de confiável sobre o salário de uma pessoa específica, numa cidade específica, numa profissão específica — o número pode ser real e, ainda assim, vira decoração de certeza que ele não tem quando aplicado fora do contexto que o produziu.",
+      "erro_comum": "Tratar um número de mercado citado de relatório externo como se fosse dado da própria organização — o número pode ser real e ainda ser a base errada para decidir o orçamento de uma organização específica, porque não veio da situação sendo decidida.",
+      "fonte": "(mecanismo próprio: precisão emprestada de fora vs. medição local, ainda que mais modesta)"
+    },
+    {
+      "id": "5.5.t6",
+      "titulo": "Como argumentar sem inventar número",
+      "texto": "Um argumento de orçamento defensável não precisa de um número de mercado para funcionar — precisa nomear, com honestidade, o que é medição e o que é premissa. 'Nos últimos dois anos, tivemos três incidentes deste tipo, cada um levou em média N horas para conter, ao custo da hora de quem respondeu' é medição local, verificável por qualquer pessoa com acesso ao registro. 'Se isso acontecer de novo e não for contido em N horas, a estimativa de impacto é Y' é premissa, e precisa ser rotulada como premissa, com o raciocínio exposto — não misturada ao dado medido como se tivesse o mesmo peso. Um argumento honesto separa as duas coisas explicitamente; um argumento inflado as funde numa frase só, emprestando a credibilidade do número medido para a parte que é só estimativa.",
+      "analogia": "Uma previsão do tempo honesta diz '70% de chance de chuva' e mostra de onde veio o modelo; uma previsão inflada diz só 'vai chover', escondendo a incerteza real atrás de uma certeza que os dados não sustentam.",
+      "erro_comum": "Achar que separar dado medido de premissa estimada enfraquece o argumento — na prática é o oposto: quem diz exatamente onde a certeza acaba e a estimativa começa é mais difícil de desmontar do que quem apresenta tudo com o mesmo peso e é pego citando um número que não se sustenta.",
+      "fonte": "Teoria 5.5.t5"
+    }
+  ],
+  "questoes": [
+    {
+      "id": "5.5.q1",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Uma empresa investe pesado numa atualização de segurança. Um ano se passa sem nenhum incidente. O novo diretor financeiro corta o orçamento de segurança, argumentando que 'não houve incidente nenhum, então não deu pra ver valor nenhum'. Qual é o defeito real desse argumento?",
+      "alternativas": [
+        "Ausência de incidente é o resultado esperado de um investimento que realmente funcionou, não prova que era desnecessário",
+        "O diretor financeiro deveria ter pedido um relatório de incidentes de outras empresas do mesmo setor antes de decidir",
+        "O defeito é o corte ter vindo de um diretor financeiro específico, e não de alguém da área técnica de segurança da empresa",
+        "Nenhum defeito: sem incidente registrado, realmente não existe nenhuma forma de medir se o investimento valeu a pena"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Buscar dado de outras empresas não resolve o problema lógico do argumento — o erro está em tratar ausência de evento como ausência de valor, não na origem dos dados usados.",
+        "2": "O cargo de quem decide não é o ponto — a mesma lógica falha, com o mesmo defeito, se um diretor técnico cortasse pelo mesmo motivo.",
+        "3": "Existem formas de medir sem depender de incidente ter acontecido (redução de exposição, tempo de detecção, cobertura de controle) — dizer que não existe nenhuma forma é exagero; o eixo 4 deste módulo trata exatamente disso."
+      },
+      "dicas": [
+        "O investimento funcionou exatamente como deveria — nenhum incidente aconteceu.",
+        "O argumento do diretor confunde dois resultados que parecem iguais: 'nunca precisou' e 'funcionou e por isso nunca aconteceu'.",
+        "O relatório de outras empresas funcionando de verdade não mudaria o defeito lógico do argumento do diretor."
+      ],
+      "pergunta_socratica": "Antes de conferir: um ano sem incidente prova que o investimento era desnecessário, ou é o resultado que um investimento bem-sucedido produziria de qualquer jeito?",
+      "explicacao": "Investimento de segurança bem-sucedido e investimento desnecessário produzem exatamente o mesmo resultado visível: nada acontece. O argumento do diretor trata essa ausência como prova de uma coisa (desnecessário) quando ela também é evidência da outra (funcionou) — é o defeito estrutural do eixo: sucesso em segurança é invisível por natureza, não por falta de relatório.",
+      "fonte": "Teoria 5.5.t1",
+      "tags": ["economia-da-seguranca", "visibilidade-assimetrica", "sucesso-invisivel"]
+    },
+    {
+      "id": "5.5.q2",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Entre cortar o orçamento de um novo recurso de produto e cortar o orçamento de segurança, os dois do mesmo tamanho, por que o corte de segurança tende a ser o mais fácil de decidir no curto prazo?",
+      "alternativas": [
+        "Porque segurança é sempre menos importante que recurso de produto para o sucesso da empresa",
+        "Porque a consequência de cortar recurso aparece rápido; a de segurança demora e vem misturada com outras causas",
+        "Porque times de segurança normalmente concordam com o corte, enquanto times de produto sempre resistem",
+        "Porque cortar segurança nunca tem consequência real nenhuma, só cortar produto realmente afeta o resultado da empresa"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Nada na teoria do módulo compara importância entre as duas áreas — o mecanismo que explica o corte é sobre velocidade e clareza de atribuição da consequência, não sobre qual área importa mais.",
+        "2": "A reação dos times envolvidos não é o que determina a facilidade do corte — o mecanismo está na estrutura de tempo e atribuição da consequência, independente de quem concorda.",
+        "3": "Cortar segurança tem consequência real, sim — o ponto é que ela demora mais a aparecer e é mais difícil de atribuir só ao corte quando aparece, não que ela não exista."
+      },
+      "dicas": [
+        "Compare os dois cortes pelo tempo que cada consequência leva pra aparecer, não pela importância de cada área.",
+        "Um corte gera queda de métrica visível logo; o outro pode não gerar nada visível por muito tempo.",
+        "O que separa os dois cortes é a velocidade e a clareza da consequência de cada um, não a opinião de quem está envolvido."
+      ],
+      "pergunta_socratica": "Antes de conferir: qual das duas consequências chega mais rápido, e qual é mais fácil de atribuir à causa certa?",
+      "explicacao": "O corte de segurança tende a ser mais fácil de decidir no curto prazo não porque segurança importe menos, mas porque a consequência de cortá-la costuma demorar mais pra aparecer e, quando aparece, vem misturada com outras causas possíveis — dificultando atribuir o dano ao corte específico. É uma estrutura de tempo e atribuição, não um julgamento de valor entre áreas.",
+      "fonte": "Teoria 5.5.t2",
+      "tags": ["economia-da-seguranca", "atribuicao-atrasada", "incentivo-de-curto-prazo"]
+    },
+    {
+      "id": "5.5.q3",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "enunciado": "Um fabricante de câmeras de segurança doméstica decide não investir em atualização de firmware depois da venda, porque isso reduziria a margem de cada unidade vendida. Anos depois, milhares dessas câmeras, nunca atualizadas, são usadas por um invasor para atacar outros sistemas na internet. Por que esse caso é melhor explicado por incentivo desalinhado do que por má intenção do fabricante?",
+      "alternativas": [
+        "Porque o fabricante provavelmente nem sabia que câmeras sem atualização podiam ser invadidas",
+        "Porque o fabricante decidiu economizar sabendo do risco, mas o dano recai sobre o próprio fabricante no fim das contas, não sobre terceiros",
+        "Porque quem decidiu economizar não é quem paga o custo do ataque — benefício concentrado, custo disperso",
+        "Porque leis de proteção de dados de algum país deveriam ter proibido a venda desse tipo de câmera insegura"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Presumir ignorância não é necessário pra explicar o caso — mesmo um fabricante que soubesse do risco teria o mesmo incentivo de economizar, porque quem paga a economia e quem paga o dano são pessoas diferentes.",
+        "1": "O caso descreve exatamente o oposto — quem sofre o ataque são outros sistemas na internet usados pelo invasor, não o fabricante; se o custo voltasse pro próprio fabricante, o incentivo de cortar desapareceria.",
+        "3": "O módulo não trata de soluções regulatórias específicas de nenhum país — o ponto pedido é o mecanismo econômico por trás do caso, não uma proposta de lei."
+      },
+      "dicas": [
+        "O fabricante decidiu conscientemente não investir, por causa de margem — isso está no enunciado.",
+        "As câmeras foram usadas pra atacar outros sistemas na internet — não o próprio fabricante.",
+        "O caso descreve uma decisão consciente por margem — a explicação não depende de ignorância nem de proposta de lei nenhuma."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem embolsou a economia da decisão, e quem pagou o preço dela anos depois?",
+      "explicacao": "O mecanismo não exige má intenção nem ignorância — exige só que o benefício de cortar (margem maior) e o custo do corte (câmeras usadas num ataque) recaiam sobre pessoas diferentes. Quando isso acontece, a decisão de cortar é racional para quem decide, mesmo sendo ruim para quem paga o resultado — é incentivo desalinhado, não falha moral.",
+      "fonte": "Teoria 5.5.t3",
+      "tags": ["economia-da-seguranca", "incentivo-desalinhado", "quem-paga-quem-sofre"]
+    },
+    {
+      "id": "5.5.q4",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "# post-mortem interno (recorte)\n'A causa raiz do incidente foi negligência do time de produto, que lançou sem revisão de segurança para bater a meta do trimestre. Recomendação: treinar o time para se importar mais com segurança.'",
+      "enunciado": "O post-mortem acima atribui o incidente a falta de cuidado do time de produto e recomenda treinamento para 'se importar mais'. Que problema estrutural essa análise deixa de considerar?",
+      "alternativas": [
+        "Nenhum: falta de cuidado é sempre a explicação correta quando alguém pula uma etapa de segurança pra bater prazo",
+        "O problema é o post-mortem não ter identificado a vulnerabilidade técnica específica que foi realmente explorada no ataque",
+        "O problema é a recomendação ter sido treinamento, quando deveria ter sido demissão do time responsável",
+        "A meta premia velocidade, e o custo recai sobre outro time — o comportamento responde ao incentivo, não ao descuido"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Tratar isso como falta de cuidado individual ignora que a meta do time, do jeito que é medida, recompensa exatamente o comportamento que causou o incidente — o problema pode ser estrutural, não pessoal.",
+        "1": "O post-mortem pode até estar certo sobre a causa técnica — o problema apontado aqui não é sobre detalhe técnico, é sobre a análise de causa raiz organizacional estar incompleta.",
+        "2": "Punir indivíduos não resolve a estrutura de incentivo que fez o comportamento ser racional para quem o praticou — se a meta continuar a mesma, o próximo time responde ao mesmo incentivo."
+      },
+      "dicas": [
+        "O time de produto tinha uma meta específica, medida de um jeito específico, mencionada no memo.",
+        "Quem paga o custo de um incidente de segurança, nesse tipo de empresa, normalmente não é o mesmo time que decide a velocidade de lançamento.",
+        "Nada muda enquanto o time continuar sendo avaliado pelo mesmo critério — o problema está na régua usada, não no caráter de quem decidiu."
+      ],
+      "pergunta_socratica": "Antes de conferir: se a meta do time continuar sendo só velocidade de lançamento, o comportamento vai mudar só porque alguém pediu pra 'se importar mais'?",
+      "explicacao": "A recomendação de 'treinar para se importar mais' trata o problema como falha de caráter individual, mas o próprio memo descreve uma estrutura de incentivo: a meta do time premia velocidade, e o custo de um incidente recai sobre outra área. Enquanto essa estrutura não mudar, o comportamento que causou o incidente continua sendo a resposta racional à meta que o time recebe — o mesmo mecanismo do eixo, aplicado dentro de uma única empresa, entre dois times.",
+      "fonte": "Teoria 5.5.t3",
+      "tags": ["economia-da-seguranca", "incentivo-desalinhado", "post-mortem"]
+    },
+    {
+      "id": "5.5.q5",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um time de segurança tem orçamento fixo para o trimestre, suficiente para só duas das quatro iniciativas: mitigar o risco A, mitigar o risco B, contratar mais uma pessoa, ou treinar a equipe atual num novo processo. O time escolhe mitigar A e B, os dois riscos de maior score. Isso já resolve completamente a decisão de orçamento deste trimestre?",
+      "alternativas": [
+        "Não plenamente: escolher A e B tem um custo que o score sozinho não mostra — o valor perdido por não contratar nem treinar",
+        "Sim: comparar score entre os quatro riscos e escolher os dois maiores é exatamente o critério certo pra esse tipo de decisão",
+        "Não, porque contratar mais uma pessoa deveria sempre vir antes de mitigar qualquer risco, em qualquer orçamento",
+        "Sim: registrar os dois riscos escolhidos com dono, critério e data já garante, sozinho, que o orçamento foi bem alocado"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Score entre os riscos não é o critério certo aqui — dois dos quatro itens competindo (contratar, treinar) não são riscos com score nenhum, são investimentos de tipo diferente, e a comparação de portfólio deste eixo pede outra régua.",
+        "2": "Nada no módulo estabelece uma ordem fixa entre tipos de investimento — depende do que cada alternativa entrega, não de uma regra geral de prioridade.",
+        "3": "Registrar a decisão com dono e critério é necessário mas não é a mesma pergunta — governança confirma que a decisão foi tomada e por quem, não que ela pesou o custo de oportunidade das duas alternativas que ficaram de fora."
+      },
+      "dicas": [
+        "As quatro alternativas competindo pelo orçamento não são todas do mesmo tipo — duas são risco, duas são outra coisa.",
+        "A pergunta não é só se os dois riscos escolhidos eram os piores, é o que se perdeu por não fazer as outras duas coisas.",
+        "Registrar a decisão prova que ela foi tomada — não prova que o valor perdido nas outras opções entrou na conta."
+      ],
+      "pergunta_socratica": "Antes de conferir: escolher os dois riscos de maior score diz alguma coisa sobre o valor perdido por não contratar nem treinar?",
+      "explicacao": "Comparar score entre riscos responde qual risco é pior — mas aqui competem quatro alternativas de tipos diferentes pelo mesmo orçamento fixo, e duas delas (contratar, treinar) nem têm score de risco. A decisão de portfólio exige pesar o valor da melhor alternativa que ficou de fora, não só comparar os dois riscos escolhidos entre si — esse valor perdido é o custo de oportunidade, e ele não aparece comparando só A e B.",
+      "fonte": "Teoria 5.5.t4",
+      "tags": ["economia-da-seguranca", "alocacao-de-orcamento", "custo-de-oportunidade"]
+    },
+    {
+      "id": "5.5.q6",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Decidir 'vamos aceitar o risco X porque o custo de mitigar supera o dano esperado' e decidir 'vamos gastar o orçamento deste trimestre em Y, não em Z' parecem os dois sobre custo. Qual é a diferença real entre as duas perguntas?",
+      "alternativas": [
+        "Não há diferença real: as duas são a mesma pergunta de custo-benefício, só com nomes diferentes",
+        "A primeira decide o destino de um risco só; a segunda divide orçamento entre alternativas concorrentes",
+        "A diferença é só de valor: a primeira lida com números pequenos, a segunda sempre com números bem maiores",
+        "A primeira é sobre governança, e a segunda é sobre economia, então usam critérios sem relação nenhuma"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "As duas envolvem custo, mas resolvem perguntas diferentes: uma é sobre um item só, a outra é sobre a divisão de um recurso finito entre vários itens ao mesmo tempo.",
+        "2": "O tamanho do número envolvido não é o que diferencia as duas perguntas — a diferença é estrutural: uma pergunta tem um item, a outra tem várias alternativas competindo.",
+        "3": "As duas se apoiam em raciocínio de custo — não são disciplinas sem relação nenhuma; a diferença está na unidade de análise (um risco vs. um portfólio de alternativas), não na área de conhecimento."
+      },
+      "dicas": [
+        "As duas perguntas usam a palavra 'custo', mas contam coisas diferentes.",
+        "Uma tem um risco só no centro da decisão; a outra tem várias alternativas competindo pelo mesmo dinheiro.",
+        "O número de itens concorrendo pelo mesmo dinheiro é o que muda entre as duas perguntas — não a área nem o tamanho do número."
+      ],
+      "pergunta_socratica": "Antes de conferir: a primeira pergunta tem quantos itens concorrendo pelo mesmo orçamento — um, ou vários?",
+      "explicacao": "Aceitar um risco porque o custo de mitigar supera o dano é uma decisão sobre um item: o destino de um risco específico. Decidir como dividir o orçamento do trimestre entre várias alternativas é uma decisão de portfólio: envolve pesar o valor perdido de cada alternativa não escolhida, não só o custo e o dano de uma única coisa. As duas usam raciocínio de custo, mas a primeira já foi ensinada neste curso; a segunda é o território novo deste eixo.",
+      "fonte": "Teoria 5.5.t4 (cita 5.3.t5 como decisão sobre um risco isolado, e 5.4.t3 como comparação de risco contra risco por score — aqui o orçamento se divide entre alternativas de tipos diferentes, nem todas com score de risco)",
+      "tags": ["economia-da-seguranca", "alocacao-de-orcamento", "distincao-de-escopo"]
+    },
+    {
+      "id": "5.5.q7",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "artefato": "$ cat pedido_de_orcamento.txt\n'Nos últimos 18 meses, tivemos 4 incidentes de phishing, com tempo médio de contenção de 6 horas e custo de hora de resposta de R$X. O custo médio de um incidente de segurança no mercado é R$2 milhões, segundo relatório do setor. Pedimos verba para treinamento anti-phishing.'",
+      "enunciado": "O pedido de orçamento acima mistura dois tipos de números na mesma frase, com o mesmo peso. Qual é o problema concreto disso?",
+      "alternativas": [
+        "Nenhum: os dois números vêm de fontes que parecem confiáveis, então podem perfeitamente ser citados juntos sem nenhuma distinção",
+        "O problema é o pedido não ter citado a fonte exata do relatório de mercado, só 'segundo relatório do setor'",
+        "Os dois números aparecem com o mesmo peso, sem indicar qual é dado local e qual é estimativa emprestada de fora",
+        "O problema é pedir verba pra treinamento, quando deveria ter pedido pra uma ferramenta técnica de bloqueio de phishing"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "A fonte dos dois números ser 'confiável' não resolve o problema — mesmo um número de mercado confiável tem metodologia e amostra diferentes da organização que está pedindo o orçamento, e isso não desaparece por citar a fonte certa.",
+        "1": "Citar a fonte exata do relatório não resolveria o problema central — mesmo citada com precisão, uma média de mercado continua sendo estimativa externa, não dado da própria organização.",
+        "3": "O módulo não define qual solução técnica é a certa pra phishing — o ponto pedido é sobre como o argumento de orçamento foi construído, não sobre qual ferramenta comprar."
+      },
+      "dicas": [
+        "Um dos números vem do próprio histórico da organização; o outro vem de um relatório externo, de fora.",
+        "A frase trata os dois números como se tivessem o mesmo tipo de certeza por trás.",
+        "Um dos dois números do pedido vem de dentro da empresa; o outro vem de fora — essa origem é o que muda o peso de cada um."
+      ],
+      "pergunta_socratica": "Antes de conferir: os dois números do pedido vieram do mesmo tipo de medição, ou um é local e o outro é emprestado de fora?",
+      "explicacao": "O tempo de contenção e a contagem de incidentes vêm do próprio histórico da organização — são medição local, verificável. O 'custo médio de mercado' é uma estimativa externa, calculada sobre uma amostra diferente, com metodologia que muda a cada edição do relatório. Misturar os dois na mesma frase, com o mesmo peso, empresta a certeza do dado medido para a parte que é só estimativa emprestada — exatamente o problema que este eixo ensina a evitar.",
+      "fonte": "Teoria 5.5.t5 e 5.5.t6",
+      "tags": ["economia-da-seguranca", "medicao-honesta", "numero-de-mercado"]
+    },
+    {
+      "id": "5.5.q8",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um pedido de orçamento diz: 'nos últimos dois anos, tivemos três incidentes deste tipo, cada um custou em média 40 horas de resposta, ao custo de R$X por hora — isso é dado medido do nosso próprio registro. Se um quarto incidente acontecer sem essa correção, estimamos, por premissa, que o impacto seria semelhante ou maior — isso é estimativa, não medição.' Esse pedido comete o mesmo erro do pedido anterior, que misturava dado próprio com média de mercado?",
+      "alternativas": [
+        "Sim: qualquer número que envolva estimativa de impacto futuro é tão problemático quanto uma média de mercado",
+        "Sim, porque nenhum pedido de orçamento deveria incluir nenhum tipo de estimativa, só dado já medido",
+        "Não: a ausência de um valor específico em reais no pedido já invalida qualquer comparação entre os dois números",
+        "Não: o pedido separa o que foi apurado no histórico de dois anos do que é só estimativa de impacto futuro"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O problema do pedido anterior não era conter estimativa nenhuma — era misturar estimativa com dado medido sem indicar a diferença; este pedido rotula os dois separadamente, o que muda o problema completamente.",
+        "1": "Um pedido de orçamento sem nenhuma estimativa de impacto futuro dificilmente sustenta qualquer decisão — o ponto do eixo não é eliminar estimativa, é rotulá-la como estimativa, o que este pedido faz.",
+        "2": "O valor em reais estar ou não citado não muda o critério avaliado aqui — o que importa é se dado medido e premissa estimada foram apresentados com clareza sobre qual é qual, e foram."
+      },
+      "dicas": [
+        "O pedido usa a expressão 'isso é dado medido' e 'isso é estimativa' para cada parte, separadamente.",
+        "O problema do pedido anterior não era ter estimativa nenhuma — era escondê-la atrás do mesmo peso do dado medido.",
+        "O que salva este pedido é rotular com clareza qual parte é fato apurado e qual é suposição sobre o futuro."
+      ],
+      "pergunta_socratica": "Antes de conferir: este pedido esconde a diferença entre o que foi medido e o que foi estimado, ou deixa essa diferença explícita?",
+      "explicacao": "Este pedido faz exatamente o que o eixo recomenda: separa, com rótulo explícito, o que é medição verificável do próprio histórico (três incidentes, horas de resposta, custo por hora) do que é premissa sobre o futuro (impacto estimado de um quarto incidente). Isso é diferente do pedido anterior, que misturava as duas coisas com o mesmo peso — a presença de uma estimativa não é o problema; escondê-la como se fosse medição é.",
+      "fonte": "Teoria 5.5.t6",
+      "tags": ["economia-da-seguranca", "medicao-honesta", "argumento-defensavel"]
+    },
+    {
+      "id": "5.5.q9",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "Já que sucesso em segurança é invisível por natureza, qual das opções abaixo é um proxy honesto de que o investimento está funcionando, sem depender de um ataque grande ter acontecido?",
+      "alternativas": [
+        "Tempo até detectar e conter um incidente nunca depende de um ataque grande — proxies úteis pra medir a resposta",
+        "Número de reuniões de segurança realizadas no trimestre é a melhor prova de que o investimento está funcionando",
+        "Satisfação da equipe de segurança com as ferramentas atuais substitui qualquer necessidade de medir resultado",
+        "Não existe proxy nenhum capaz de substituir a prova direta de que um ataque grande foi impedido com sucesso total"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Contar reuniões mede atividade, não resultado — uma empresa pode reunir bastante e ainda não ter nenhuma melhoria real de resposta a incidente.",
+        "2": "Satisfação da equipe com a ferramenta não mede se a ferramenta reduz exposição real — são perguntas diferentes.",
+        "3": "Proxy não é prova direta, mas isso não significa que nenhum proxy tenha valor — tempo de detecção e contenção é medido independente de um ataque grande ter ocorrido."
+      },
+      "dicas": [
+        "O proxy certo não depende de nenhum ataque grande já ter acontecido pra ser medido.",
+        "Atividade (reuniões) e sentimento (satisfação) não são a mesma coisa que capacidade de resposta medida.",
+        "O fato de não existir prova direta não significa que nenhum proxy sirva pra nada."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá pra medir tempo de detecção e contenção sem esperar um ataque grande acontecer primeiro?",
+      "explicacao": "Tempo até detectar e tempo até conter um incidente são medidos com incidentes de qualquer tamanho, não só com o ataque grande que ainda não aconteceu — por isso servem de proxy honesto de capacidade de resposta, contornando parcialmente o defeito de visibilidade sem inventar uma prova que não existe.",
+      "fonte": "Teoria 5.5.t1 (aplicação prática: o que pode substituir a visibilidade que falta)",
+      "tags": ["economia-da-seguranca", "visibilidade-assimetrica", "proxy-de-resultado"]
+    },
+    {
+      "id": "5.5.q10",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "Uma empresa investe em segurança e não sofre nenhum incidente no ano seguinte. Por que isso não é, sozinho, prova de que o investimento foi a causa da ausência de incidente?",
+      "alternativas": [
+        "Se não houve incidente depois do investimento, isso já prova, sozinho, que o investimento foi a causa",
+        "Nenhum incidente depois do investimento não descarta que a empresa nunca foi alvo, com ou sem o investimento",
+        "A ausência de incidente só conta como prova se a empresa tiver sofrido um ataque idêntico antes do investimento",
+        "Provar causa exige sempre um relatório de auditoria externa contratado especificamente para essa finalidade"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Essa é a afirmação que a pergunta pede pra questionar — tratá-la como verdadeira não responde por que ela é insuficiente.",
+        "2": "Exigir um ataque idêntico anterior é um padrão de prova impossível na prática, e não é o motivo real pelo qual a inferência falha aqui.",
+        "3": "Nenhuma auditoria externa resolve o problema lógico descrito — o problema é a existência de uma explicação concorrente (nunca foi alvo), não a falta de um documento."
+      },
+      "dicas": [
+        "Existe pelo menos uma outra explicação, além do investimento, pra ausência de incidente.",
+        "Essa explicação concorrente não depende de o investimento ter existido ou não.",
+        "Existe uma explicação concorrente pra ausência de incidente, e ela não depende de o investimento ter existido."
+      ],
+      "pergunta_socratica": "Antes de conferir: além do investimento ter funcionado, que outra explicação, igualmente possível, existe pra nenhum incidente ter acontecido?",
+      "explicacao": "Ausência de incidente é compatível com duas explicações: o investimento funcionou, ou a empresa simplesmente nunca foi alvo de um ataque sério, com ou sem o investimento. Sem conseguir eliminar a segunda explicação, não dá pra atribuir a ausência de incidente ao investimento com certeza — é o mesmo problema de fundo da assimetria de visibilidade, agora do lado da inferência causal.",
+      "fonte": "Teoria 5.5.t1",
+      "tags": ["economia-da-seguranca", "visibilidade-assimetrica", "inferencia-causal"]
+    },
+    {
+      "id": "5.5.q11",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "Um diretor pede 'prova definitiva' de que um investimento específico impediu um ataque específico que nunca chegou a acontecer. O que é realisticamente possível oferecer a ele?",
+      "alternativas": [
+        "É possível provar com certeza total que um investimento específico impediu um ataque que não chegou a acontecer, nem uma vez",
+        "A única prova aceitável é esperar um ataque acontecer sem o investimento, pra comparar os dois resultados depois",
+        "Não dá pra provar com certeza — o melhor disponível é sempre a evidência indireta, medida com cuidado antes e depois",
+        "Pedir a alguém de fora que garanta por escrito que o ataque teria acontecido resolve essa limitação por completo"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Provar com certeza total um evento contrafactual (o que não aconteceu, e por quê) não é possível — não existe esse tipo de prova para nenhum investimento de prevenção.",
+        "1": "Esperar o ataque acontecer de propósito, sem o investimento, contradiz o próprio objetivo de investir em prevenção — não é uma opção realista nem desejável.",
+        "3": "Uma garantia por escrito de terceiro não é prova, é opinião de terceiro — não elimina a incerteza sobre um evento que nunca aconteceu."
+      },
+      "dicas": [
+        "O diretor pede prova de algo que, por definição, não aconteceu — pense no que esse tipo de prova exigiria.",
+        "Nenhuma das alternativas que promete certeza total lida bem com essa exigência impossível.",
+        "A resposta realista aceita a limitação em vez de fingir que ela não existe."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá pra provar com certeza total a causa de um evento que nunca aconteceu?",
+      "explicacao": "Nenhum tipo de evidência prova, com certeza total, que um investimento específico impediu um ataque específico que não aconteceu — esse é exatamente o limite estrutural da visibilidade em segurança. O que é possível, honestamente, é evidência indireta: exposição medida antes e depois, redução de superfície, tempo de resposta melhorado — sinais consistentes com o investimento ter funcionado, não prova definitiva de causa.",
+      "fonte": "Teoria 5.5.t1",
+      "tags": ["economia-da-seguranca", "visibilidade-assimetrica", "limite-da-prova"]
+    },
+    {
+      "id": "5.5.q12",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um CISO recebe bônus atrelado a 'zero incidente visível reportado no ano'. Que problema estrutural esse tipo de meta cria?",
+      "alternativas": [
+        "Bônus atrelado a zero incidente visível no ano é neutro: não muda em nada o comportamento de quem decide reportar um incidente",
+        "Esse tipo de bônus só existe em empresas pequenas, sem estrutura de segurança madura o suficiente pra ter outro critério",
+        "O problema desse bônus seria resolvido só com mais treinamento de ética pra quem ocupa o cargo de decisão",
+        "Bônus atrelado a zero incidente visível cria incentivo pra esconder um incidente, não só pra evitar que ele aconteça"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Atrelar bônus a uma métrica muda, sim, o comportamento de quem é avaliado por ela — é exatamente o mecanismo que a teoria do eixo descreve.",
+        "1": "O tamanho da empresa não é o que determina se esse tipo de meta cria o problema — qualquer estrutura de bônus baseada só em incidente visível tem a mesma falha.",
+        "2": "Treinar ética não muda a estrutura do incentivo — mesmo uma pessoa bem-intencionada responde à pressão de uma meta que pune reportar, não só que pune deixar acontecer."
+      },
+      "dicas": [
+        "A meta é sobre incidente visível reportado, não sobre incidente que realmente aconteceu.",
+        "Pense em duas formas de chegar a 'zero incidente visível': prevenir de verdade, ou não reportar.",
+        "Duas maneiras diferentes levam a 'zero incidente reportado' — só uma delas envolve prevenir de verdade."
+      ],
+      "pergunta_socratica": "Antes de conferir: existem duas formas de chegar a 'zero incidente reportado' — quais são elas?",
+      "explicacao": "Uma meta de 'zero incidente visível' pode ser cumprida de duas formas: prevenindo incidentes de verdade, ou simplesmente não reportando os que acontecem. Como a meta mede só o que é visível, ela cria incentivo pras duas — inclusive pra segunda, que piora a situação ao esconder informação que ajudaria a corrigir a causa real.",
+      "fonte": "Teoria 5.5.t3 (mecanismo de incentivo desalinhado aplicado dentro de uma única função, não entre empresas)",
+      "tags": ["economia-da-seguranca", "incentivo-desalinhado", "meta-de-visibilidade"]
+    },
+    {
+      "id": "5.5.q13",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Uma seguradora de risco cibernético vende apólices baratas exigindo pouquíssimos controles de segurança dos segurados. Que mecanismo de incentivo desalinhado esse caso pode ilustrar?",
+      "alternativas": [
+        "Uma seguradora que exige poucos controles pode estar transferindo o custo do próprio risco mal avaliado pra outros",
+        "Seguradoras nunca exigem controle nenhum de segurança, isso é característica universal do setor inteiro",
+        "O problema é só a seguradora cobrar um preço baixo demais pela apólice, sem nenhuma relação com incentivo estrutural",
+        "O segurado que compra a apólice barata é sempre quem paga integralmente qualquer dano que ultrapasse a cobertura, então não há problema de incentivo nenhum"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O enunciado descreve um caso específico, não uma regra universal do setor — tratar como universal ignora o que a pergunta pede pra analisar.",
+        "2": "O preço da apólice, sozinho, não é o mecanismo — o ponto é quem acaba pagando quando o risco mal avaliado se concretiza, não o valor cobrado.",
+        "3": "O caso descreve custo que pode se espalhar além de quem comprou a apólice — via reajuste de preço pra outros segurados ou pressão sobre o mercado — não fica contido só no comprador que assumiu o risco mal avaliado."
+      },
+      "dicas": [
+        "Pense em quem paga quando um segurado mal protegido sofre um incidente grande demais pra apólice cobrir sozinha.",
+        "O caso descrito é específico, não uma regra universal do setor inteiro de seguros.",
+        "Quem compra a apólice barata não é, necessariamente, quem paga a conta se o risco mal avaliado estourar."
+      ],
+      "pergunta_socratica": "Antes de conferir: se um segurado mal protegido sofre um incidente caro demais, quem mais acaba pagando essa conta?",
+      "explicacao": "Quando uma seguradora exige poucos controles pra vender barato, ela pode estar concentrando o ganho (mais apólices vendidas) enquanto dispersa o custo do risco mal avaliado — para outros segurados (via reajuste de preço no setor) ou para o próprio mercado, se sinistros grandes demais estourarem a reserva. É o mesmo mecanismo de quem paga ≠ quem decide, agora numa escala de mercado, não só dentro de uma empresa.",
+      "fonte": "Teoria 5.5.t3",
+      "tags": ["economia-da-seguranca", "incentivo-desalinhado", "seguro-cibernetico"]
+    },
+    {
+      "id": "5.5.q14",
+      "tipo": "caca_erro",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "trecho": "# cláusula de contrato de fornecedor (recorte)\n'Responsabilidade do fornecedor limitada a R$50.000 por incidente, independente do dano real causado ao cliente.'",
+      "enunciado": "O cliente que assina esse contrato pode sofrer um dano muito maior que R$50.000 se o produto do fornecedor falhar. Que efeito esse limite de responsabilidade tem sobre o incentivo do fornecedor de investir em segurança do próprio produto?",
+      "alternativas": [
+        "Um limite de responsabilidade contratual baixo nunca afeta em nada o quanto o fornecedor decide investir em segurança do próprio produto",
+        "Quando o limite de responsabilidade do fornecedor é bem menor que o dano potencial, o incentivo de investir mais cai",
+        "O problema do contrato é só o valor estar em moeda diferente da praticada pelo cliente que está comprando o produto",
+        "Contratos com limite de responsabilidade baixo são sempre ilegais, nunca deveriam ser assinados por nenhuma empresa"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "O limite de responsabilidade define o teto do que o fornecedor paga se algo der errado — isso afeta, sim, quanto vale a pena investir pra evitar que dê errado.",
+        "2": "O trecho não menciona moeda nenhuma — o problema apontado é sobre o valor do teto comparado ao dano potencial, não sobre unidade monetária.",
+        "3": "O módulo não avalia legalidade de cláusula contratual — o ponto pedido é o efeito econômico do limite sobre o incentivo de investimento, não um julgamento jurídico."
+      },
+      "dicas": [
+        "O fornecedor paga, no máximo, o valor do teto — não o dano real, seja ele qual for.",
+        "Pense no que acontece com o incentivo de prevenir um dano quando o custo de não prevenir tem um teto baixo.",
+        "O fornecedor só paga até o teto combinado — o resto do dano, se existir, sobra pra outra conta."
+      ],
+      "pergunta_socratica": "Antes de conferir: se o fornecedor só paga até R$50.000 não importa o tamanho do dano real, até onde vale a pena, pra ele, investir em prevenir esse dano?",
+      "explicacao": "Quando o teto de responsabilidade é muito menor que o dano potencial, o fornecedor internaliza só uma fração pequena e fixa do risco — o resto do dano recai sobre o cliente, que não decide o quanto o fornecedor investe em segurança. O incentivo de investir além do que cobre esse teto cai, porque o fornecedor não paga a diferença, mesmo que ela seja real e grande.",
+      "fonte": "Teoria 5.5.t3",
+      "tags": ["economia-da-seguranca", "incentivo-desalinhado", "limite-de-responsabilidade"]
+    },
+    {
+      "id": "5.5.q15",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Um time de segurança adia a contratação de mais uma pessoa por dois trimestres seguidos, sempre citando 'algo mais urgente este trimestre'. O custo dessa decisão repetida é só o atraso em contratar, ou tem mais alguma coisa envolvida?",
+      "alternativas": [
+        "Adiar uma contratação por um trimestre não tem custo nenhum — o dinheiro fica intacto, esperando o próximo trimestre",
+        "O problema de adiar sempre a mesma contratação é só a demora em si, não importa o que foi feito no meio-tempo",
+        "Cada trimestre adiado tem custo de oportunidade próprio — o que essa fatia do orçamento fez em vez de contratar",
+        "Adiar contratação de segurança é sempre um erro, mesmo com uma alternativa comprovadamente mais urgente no trimestre"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Adiar não é gratuito só porque a contratação acontece eventualmente — cada trimestre de adiamento tem seu próprio custo de oportunidade, mesmo que a contratação aconteça depois.",
+        "1": "A demora em si não é o único custo — o que foi feito com o orçamento em cada trimestre adiado é exatamente o que determina se o adiamento valeu a pena.",
+        "3": "Nada no eixo trata adiar como sempre errado — quando existe uma alternativa genuinamente mais urgente, adiar pode ser a decisão certa; o ponto é contabilizar o custo de cada adiamento, não proibi-lo."
+      },
+      "dicas": [
+        "A pergunta não é se adiar foi certo ou errado — é sobre o que o adiamento custou, além do tempo perdido.",
+        "Cada trimestre em que a contratação foi adiada, o dinheiro foi pra algum outro lugar.",
+        "O dinheiro que não foi para a contratação, em cada um dos dois trimestres, foi gasto em outra coisa — pergunte no quê."
+      ],
+      "pergunta_socratica": "Antes de conferir: o dinheiro que não foi pra contratação, nos dois trimestres, ficou parado ou foi gasto em outra coisa?",
+      "explicacao": "Cada trimestre em que a contratação é adiada tem seu próprio custo de oportunidade: o que foi feito com aquela fatia específica do orçamento em vez de contratar. Adiar duas vezes seguidas não é um custo só — são dois custos de oportunidade diferentes, um por trimestre, e avaliar se valeu a pena exige olhar pro que cada um comprou, não só pro atraso acumulado.",
+      "fonte": "Teoria 5.5.t4",
+      "tags": ["economia-da-seguranca", "alocacao-de-orcamento", "custo-de-oportunidade-recorrente"]
+    },
+    {
+      "id": "5.5.q16",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "artefato": "$ cat movimentacao_orcamento.txt\njulho: R$80.000 realocados de 'monitoramento contínuo' para 'resposta a incidentes'\nmotivo registrado: 'prioridade mudou'",
+      "enunciado": "O registro acima documenta a realocação e o motivo em uma frase. Isso já é suficiente para tratar essa realocação como uma decisão de portfólio bem documentada?",
+      "alternativas": [
+        "Mover dinheiro de uma iniciativa de segurança pra outra no meio do ano não é decisão de portfólio, é ajuste administrativo",
+        "A tabela orçamentária, sozinha, já documenta automaticamente o que foi sacrificado ao mover o dinheiro",
+        "Documentar o que foi sacrificado só é necessário quando o valor movido passa de um percentual alto do orçamento",
+        "Realocar dinheiro entre iniciativas nunca deixa de ser decisão de portfólio — falta registrar o que a outra perdeu"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Mover orçamento fixo de uma iniciativa pra outra é exatamente o tipo de decisão de portfólio que este eixo descreve — chamar de 'ajuste administrativo' não muda a natureza econômica da escolha.",
+        "1": "A tabela registra o valor movido e um motivo genérico, mas não diz o que 'monitoramento contínuo' deixou de entregar com R$80.000 a menos — isso não aparece automaticamente só por existir uma linha na planilha.",
+        "2": "Nada no módulo condiciona a necessidade de documentar o custo de oportunidade a um percentual do orçamento total — o mesmo raciocínio se aplica a qualquer valor realocado."
+      },
+      "dicas": [
+        "O registro tem valor, data e um motivo — mas o motivo é genérico, sem dizer o que foi perdido.",
+        "Pense no que 'monitoramento contínuo' deixou de fazer com R$80.000 a menos neste ano.",
+        "O motivo registrado diz que a prioridade mudou, mas não diz o que a iniciativa que perdeu recurso vai deixar de entregar."
+      ],
+      "pergunta_socratica": "Antes de conferir: esse registro diz o que a iniciativa que perdeu R$80.000 vai deixar de entregar por causa disso?",
+      "explicacao": "Realocar orçamento entre duas iniciativas de segurança é uma decisão de portfólio como qualquer outra — só que acontece no meio do caminho, não na largada do orçamento. 'Prioridade mudou' registra que uma decisão foi tomada, mas não documenta o custo de oportunidade dela: o que a iniciativa que perdeu recurso vai deixar de entregar. Sem isso, a realocação é tão pouco auditável quanto qualquer decisão de portfólio sem essa peça.",
+      "fonte": "Teoria 5.5.t4",
+      "tags": ["economia-da-seguranca", "alocacao-de-orcamento", "realocacao-nao-documentada"]
+    },
+    {
+      "id": "5.5.q17",
+      "tipo": "ordenacao",
+      "dificuldade": 2,
+      "objetivos": [2, 3],
+      "enunciado": "Coloque em ordem os passos de uma decisão defensável de orçamento de segurança, do primeiro ao último.",
+      "itens": [
+        "Listar todas as alternativas concretas competindo pelo mesmo orçamento neste ciclo",
+        "Para cada alternativa, separar o que é medição local verificável do que é premissa estimada sobre o futuro",
+        "Decidir a alocação, escolhendo quais alternativas recebem orçamento e quais ficam de fora",
+        "Registrar, para as alternativas que ficaram de fora, o que elas deixaram de entregar"
+      ],
+      "ordem_correta": [0, 1, 2, 3],
+      "dicas": [
+        "Não dá pra separar medição de premissa de uma alternativa antes de saber quais alternativas existem pra comparar.",
+        "A decisão de alocação depende de já ter, pra cada alternativa, o que é dado e o que é estimativa.",
+        "Só depois de decidir o que fica de fora dá pra registrar o que ficou de fora deixou de entregar."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá pra registrar o que uma alternativa não escolhida deixou de entregar antes de decidir que ela não seria escolhida?",
+      "explicacao": "Cada etapa depende da anterior: listar as alternativas vem primeiro, porque não dá pra avaliar nada sem saber o que está competindo; separar dado de premissa em cada uma vem antes da decisão, porque é isso que sustenta a escolha; decidir a alocação só faz sentido depois dessa separação; e registrar o custo de oportunidade das alternativas descartadas só é possível depois de saber quais foram descartadas.",
+      "fonte": "Teorias 5.5.t4 e 5.5.t6",
+      "tags": ["economia-da-seguranca", "alocacao-de-orcamento", "processo-defensavel"]
+    },
+    {
+      "id": "5.5.q18",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um pedido de orçamento calcula 'R$X = horas de indisponibilidade medidas × custo de hora verificado localmente', em vez de citar um número pronto de algum lugar. Esse número calculado ainda conta como medição honesta, mesmo não sendo lido direto de um sistema?",
+      "alternativas": [
+        "Multiplicar dois números sempre verificados localmente ainda produz um número honesto, mesmo sendo calculado",
+        "Qualquer número que envolva multiplicação deixa de ser medição honesta, mesmo com os dois fatores verificados",
+        "Só conta como medição honesta o número que aparece pronto em algum sistema, sem cálculo nenhum feito por cima",
+        "Multiplicar dois números aumenta sempre a margem de erro a ponto de tornar o resultado inútil pro argumento"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O que torna um número honesto ou não é a origem dos fatores usados, não a operação matemática aplicada sobre eles — multiplicar dois números medidos não os transforma em estimativa.",
+        "2": "Exigir que o número já apareça pronto num sistema é um padrão exagerado — cálculo feito sobre dado verificado continua sendo medição, só que derivada.",
+        "3": "Multiplicação não aumenta erro por si só quando os dois fatores são bem medidos — o problema de margem de erro é outro, não uma propriedade automática de multiplicar."
+      },
+      "dicas": [
+        "Os dois fatores da multiplicação vêm do próprio histórico da organização, verificados localmente.",
+        "O que importa não é se o número precisou de conta, é de onde vieram os dois números usados na conta.",
+        "A origem dos dois números multiplicados é local e verificável — é isso, não a conta em si, que decide se é honesto."
+      ],
+      "pergunta_socratica": "Antes de conferir: o problema de honestidade está na operação matemática, ou na origem dos números usados nela?",
+      "explicacao": "Um número calculado a partir de dois fatores medidos localmente continua sendo medição honesta — a multiplicação não introduz estimativa nenhuma que já não estivesse nos fatores originais. O critério do eixo não é 'nenhum cálculo', é 'de onde vêm os números usados no cálculo' — e aqui os dois vêm do próprio histórico verificável da organização.",
+      "fonte": "Teoria 5.5.t6",
+      "tags": ["economia-da-seguranca", "medicao-honesta", "numero-derivado"]
+    },
+    {
+      "id": "5.5.q19",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "Um fornecedor de ferramenta de segurança apresenta, no pedido interno de orçamento, o dado 'nossa ferramenta reduz risco de invasão em 60%, segundo média de clientes do nosso portfólio'. Esse número tem o mesmo problema do número de mercado citado num pedido anterior?",
+      "alternativas": [
+        "A origem comercial do número já basta, sozinha, pra tornar a citação aceitável como fato num pedido de orçamento",
+        "Um número de fornecedor sempre carrega o mesmo problema do número de mercado: estimativa externa como fato",
+        "Números vindos de fornecedor são sempre mais confiáveis que números de relatório de mercado, por virem de quem vende",
+        "O problema desse número é só ele estar em percentual, não em valor absoluto de reais economizados"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "A origem comercial do número não muda o problema — ele continua sendo uma média externa, calculada sobre uma amostra de clientes diferente da organização que está decidindo o orçamento.",
+        "2": "Vir de quem vende a solução não torna o número mais confiável — se alguma coisa, é motivo pra mais cautela, não menos, dado o interesse comercial de quem produziu o dado.",
+        "3": "Trocar percentual por valor absoluto não resolveria o problema de fundo — a questão não é a unidade do número, é ele vir de uma amostra externa e ser citado como se descrevesse a organização específica que está pedindo o orçamento."
+      },
+      "dicas": [
+        "Pense em quem calculou esse número, e sobre qual grupo de empresas ele foi calculado.",
+        "O fato de vir de um fornecedor, em vez de um relatório de mercado, não muda o tipo de número que é.",
+        "Trocar a unidade do número não muda de onde ele veio nem quem o calculou."
+      ],
+      "pergunta_socratica": "Antes de conferir: esse número descreve o que aconteceu especificamente nesta organização, ou uma média de outras empresas que compraram a mesma ferramenta?",
+      "explicacao": "Um número de redução de risco calculado sobre a carteira de clientes de um fornecedor é o mesmo tipo de estimativa externa que um número de mercado — vem de uma amostra diferente, com metodologia que o fornecedor controla, e citado como fato descreveria uma situação que ainda não foi medida na organização que está decidindo o orçamento. O interesse comercial de quem produziu o número é motivo pra mais cuidado, não pra aceitá-lo com menos crítica.",
+      "fonte": "Teoria 5.5.t5",
+      "tags": ["economia-da-seguranca", "medicao-honesta", "numero-de-fornecedor"]
+    },
+    {
+      "id": "5.5.q20",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "trecho": "# relatório interno de segurança (recorte)\n'A nova política de acesso trouxe uma significativa redução de risco para a organização.'",
+      "enunciado": "A frase acima não inventa nenhum dado externo nem exagera com um valor específico. Ainda assim, ela tem um problema de honestidade de medição. Qual?",
+      "alternativas": [
+        "'Significativa redução de risco' é frase forte o bastante pra substituir qualquer medição específica num relatório",
+        "O problema dessa frase é ela ser curta demais — um relatório mais longo resolveria a falta de precisão",
+        "A frase não é falsa nem inflada como número de mercado, mas nunca é verificável, porque não diz o que mudou",
+        "Frases qualitativas como essa só são problema quando aparecem em relatório destinado a auditoria externa"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Uma frase forte não substitui medição — 'significativa' não diz quanto, nem em relação a quê, nem como foi observado.",
+        "1": "O tamanho do relatório não é o problema — um relatório longo cheio da mesma frase vaga continua sem dizer nada verificável.",
+        "3": "O problema de uma afirmação não verificável não depende do destinatário do relatório — interno ou externo, a frase continua sem dizer o que mudou."
+      },
+      "dicas": [
+        "A frase não inventa nenhum número — mas também não oferece nenhum número pra checar.",
+        "O tamanho do relatório e o destinatário dele não são o ponto central aqui.",
+        "Ninguém consegue conferir 'significativa redução de risco' sem nenhum número ou critério por trás da frase."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguém que leia essa frase consegue checar, de algum jeito, se a redução de risco realmente aconteceu?",
+      "explicacao": "A frase evita o erro de inventar um número, mas comete um erro vizinho: não diz o que foi medido, quanto mudou, nem como. 'Significativa redução de risco' é tão resistente a verificação quanto um número inflado seria enganoso — os dois escondem a mesma informação que faltou, cada um a seu jeito. O eixo pede o oposto: nomear com clareza o que é medição e o que é estimativa, não evitar todo número escondendo-se atrás de um adjetivo.",
+      "fonte": "Teoria 5.5.t6",
+      "tags": ["economia-da-seguranca", "medicao-honesta", "linguagem-vaga"]
+    },
+    {
+      "id": "5.5.q21",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [0],
+      "enunciado": "Diante do defeito estrutural de visibilidade, um time passa a publicar um relatório de transparência interno nomeando o que foi medido e como. Isso ataca o problema descrito na teoria deste eixo?",
+      "alternativas": [
+        "Um relatório de transparência que sempre nomeia o que foi medido torna parte do sucesso verificável, mesmo sem provar tudo",
+        "Nenhum relatório de transparência muda em nada o problema de visibilidade, porque o sucesso continua sendo sempre invisível",
+        "Relatório de transparência só serve pra auditoria externa, nunca ajuda a convencer alguém dentro da própria empresa",
+        "Publicar qualquer relatório, mesmo sem nenhum dado específico, já resolve completamente o problema de visibilidade descrito"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "Nomear o que foi medido, mesmo sem prova definitiva, muda parte do problema — de invisível por completo pra parcialmente verificável.",
+        "2": "Nada limita esse tipo de relatório a auditoria externa — o mesmo nome-o-que-foi-medido ajuda a convencer também dentro da empresa.",
+        "3": "Um relatório sem dado específico nenhum não resolve nada — o que ataca o problema é nomear o que foi medido, não publicar qualquer coisa."
+      },
+      "dicas": [
+        "O relatório não elimina toda incerteza pra já contribuir com o eixo deste módulo.",
+        "Pense na diferença entre um relatório vago e um que nomeia especificamente o que foi medido.",
+        "Um relatório que nomeia especificamente o que foi medido já ajuda a convencer dentro da própria empresa, não só pra fora."
+      ],
+      "pergunta_socratica": "Antes de conferir: nomear o que foi medido resolve o problema de visibilidade por completo, ou ataca só uma parte dele?",
+      "explicacao": "Nomear especificamente o que foi medido — exposição reduzida, tempo de resposta, cobertura de controle — não prova causa com certeza, mas transforma parte do sucesso invisível em algo verificável por quem lê o relatório. É uma resposta parcial ao defeito estrutural, não uma solução completa nem uma medida inútil.",
+      "fonte": "Teoria 5.5.t1",
+      "tags": ["economia-da-seguranca", "visibilidade-assimetrica", "relatorio-de-transparencia"]
+    },
+    {
+      "id": "5.5.q22",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0],
+      "enunciado": "Um conselho pede que o time de segurança calcule o 'ROI' (retorno sobre investimento) do orçamento pedido, do mesmo jeito que se calcula ROI de uma campanha de marketing. Esse enquadramento é adequado pra segurança?",
+      "alternativas": [
+        "Pedir retorno sobre investimento de segurança é sempre o jeito certo de justificar orçamento, igual a qualquer outro investimento",
+        "Enquadrar segurança como retorno cobra um resultado visível que o investimento nunca produz — redução de risco encaixa melhor",
+        "O problema do pedido de retorno sobre investimento é só a sigla ser em inglês, um termo em português resolveria",
+        "Calcular retorno de segurança é impossível em qualquer circunstância, então a pergunta nunca deveria ser respondida"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "ROI pressupõe um ganho visível e atribuível — exatamente o que o defeito estrutural do eixo diz que segurança bem-sucedida não produz.",
+        "2": "Trocar a sigla por um termo em português não muda o problema — o enquadramento de retorno visível continua inadequado, em qualquer idioma.",
+        "3": "Recusar responder qualquer coisa não é a postura defensável — existe um enquadramento melhor (redução de risco) que o eixo já oferece."
+      },
+      "dicas": [
+        "O problema não é a palavra usada, é o tipo de resultado que ela cobra.",
+        "Existe um jeito diferente de nomear o que se espera do investimento, sem cobrar um resultado que ele não entrega.",
+        "O nome da métrica pedida já embute uma expectativa de resultado visível que o investimento não cumpre, em qualquer idioma."
+      ],
+      "pergunta_socratica": "Antes de conferir: segurança bem-sucedida produz um ganho visível pra comparar, do jeito que uma campanha de marketing produz?",
+      "explicacao": "ROI pressupõe um retorno visível e mensurável — mas segurança bem-sucedida produz ausência de evento, não um ganho comparável. Enquadrar como redução de exposição ou de risco pede o tipo certo de evidência (o que mudou na exposição), em vez de cobrar um retorno que a natureza do investimento não entrega.",
+      "fonte": "Teoria 5.5.t1",
+      "tags": ["economia-da-seguranca", "visibilidade-assimetrica", "enquadramento-de-argumento"]
+    },
+    {
+      "id": "5.5.q23",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um mantenedor de uma biblioteca de código aberto, sem receber nada por isso, decide não corrigir uma falha de segurança conhecida — a correção tomaria tempo que ele não tem. Centenas de empresas usam a biblioteca de graça em produtos comerciais. Que mecanismo de incentivo desalinhado esse caso ilustra?",
+      "alternativas": [
+        "Um mantenedor de biblioteca aberta que não corrige uma falha está sempre agindo por preguiça ou desleixo pessoal",
+        "O mantenedor recebe o mesmo benefício que as empresas ao corrigir a falha, então o incentivo é igual para todos os lados",
+        "O benefício de corrigir vai sempre pras empresas que usam de graça; o custo fica só com o mantenedor não pago",
+        "O problema seria resolvido só proibindo empresas de usarem bibliotecas de código aberto em produto comercial"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Tratar como preguiça pessoal ignora a estrutura descrita no caso: o mantenedor não é pago, e o benefício da correção vai pra quem usa de graça.",
+        "1": "O mantenedor arca com todo o custo de corrigir e não recebe nada em troca — o benefício se espalha pras empresas que usam de graça, não é dividido igualmente entre as partes.",
+        "3": "Proibir o uso não resolve o mecanismo de incentivo — o ponto pedido é entender por que a decisão de não corrigir é racional para o mantenedor, não propor banir a prática."
+      },
+      "dicas": [
+        "O mantenedor não recebe nada pelo trabalho — isso está no enunciado.",
+        "Quem usa a biblioteca sem pagar nada colhe o resultado do trabalho de corrigir, feito por outra pessoa.",
+        "Quem faz o trabalho de corrigir a falha não é quem colhe o resultado dele — o resultado vai de graça pra quem usa a biblioteca."
+      ],
+      "pergunta_socratica": "Antes de conferir: quem ganha com a correção sendo feita, e quem paga o custo de fazê-la?",
+      "explicacao": "O mantenedor não pago arca com todo o custo de corrigir, enquanto o benefício da correção se espalha por centenas de empresas que usam a biblioteca de graça e nunca contribuem com o custo de mantê-la segura. É o mesmo tipo de mecanismo do fabricante de câmeras (quem paga ≠ quem se beneficia), mas com a polaridade invertida: lá, quem decidia lucrava com o corte e terceiros pagavam o dano; aqui, quem decide (o mantenedor) é quem paga o custo, e terceiros colhem o benefício de graça — o desalinhamento pode empurrar pro lado de investir demais ou de menos, dependendo de quem carrega o custo.",
+      "fonte": "Teoria 5.5.t3",
+      "tags": ["economia-da-seguranca", "incentivo-desalinhado", "codigo-aberto"]
+    },
+    {
+      "id": "5.5.q24",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [1],
+      "enunciado": "Um comprador de um produto de segurança não consegue avaliar, antes de comprar, se ele é bem construído por dentro. Isso é o mesmo mecanismo de incentivo desalinhado (quem paga ≠ quem sofre) já visto neste eixo?",
+      "alternativas": [
+        "Incentivo desalinhado e informação incompleta pro comprador são sempre o mesmo mecanismo, só com nomes diferentes",
+        "Informação incompleta pro comprador nunca acontece em produto de segurança, só incentivo desalinhado é relevante aqui",
+        "O comprador sempre tem acesso completo à informação de segurança de um produto antes de decidir comprar",
+        "Incentivo desalinhado é sobre quem paga; não avaliar segurança antes de comprar é outro mecanismo, de informação"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "Tratar os dois como o mesmo mecanismo apaga uma distinção real: um é sobre quem arca com o custo, o outro é sobre quem consegue verificar qualidade antes de decidir.",
+        "1": "Informação incompleta sobre segurança de um produto é comum, não inexistente — o enunciado descreve exatamente esse caso.",
+        "2": "O caso descreve justamente o oposto: o comprador não consegue avaliar completamente a segurança antes de comprar."
+      },
+      "dicas": [
+        "Pense em duas perguntas diferentes: quem paga o dano, e quem consegue verificar qualidade antes de decidir.",
+        "O caso descrito é sobre a segunda pergunta, não sobre quem paga.",
+        "Uma pergunta é sobre quem paga o dano; a outra é sobre quem consegue checar qualidade antes de decidir comprar."
+      ],
+      "pergunta_socratica": "Antes de conferir: o problema deste caso é sobre quem paga o dano, ou sobre quem consegue checar qualidade antes de comprar?",
+      "explicacao": "Incentivo desalinhado (quem paga ≠ quem decide) e informação incompleta (o comprador não consegue verificar qualidade antes de decidir) são dois mecanismos diferentes que podem, às vezes, aparecer juntos — mas não são o mesmo. Aqui, o problema descrito é de informação: o comprador decide sem saber o suficiente sobre o que está comprando, o que é uma falha diferente de saber tudo e mesmo assim repassar o custo pra outra pessoa.",
+      "fonte": "Teoria 5.5.t3 (distinção de mecanismo, não reincidência)",
+      "tags": ["economia-da-seguranca", "incentivo-desalinhado", "informacao-incompleta"]
+    },
+    {
+      "id": "5.5.q25",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [1],
+      "artefato": "$ cat organograma_recorte.txt\nVP de Produto\n  -> Gerente de Engenharia (bônus atrelado a velocidade de lançamento)\n    -> Time de Segurança de Aplicação",
+      "enunciado": "O organograma acima mostra o time de segurança respondendo, em última instância, ao mesmo executivo cujo bônus depende só de velocidade de lançamento. Que problema estrutural essa linha de reporte cria?",
+      "alternativas": [
+        "Quem decide em última instância acaba sendo avaliado só por uma das duas prioridades em disputa, o que pende a balança de saída",
+        "A estrutura do organograma nunca influencia qual prioridade prevalece quando segurança e velocidade entram em conflito",
+        "O problema seria resolvido só trocando o nome do cargo do executivo, sem mudar pra quem ele responde",
+        "Esse tipo de estrutura de reporte é rara e não representa um padrão comum o suficiente pra valer a pena analisar"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A linha de reporte determina, na prática, quem tem a palavra final quando segurança e velocidade competem — negar essa influência ignora o mecanismo do próprio organograma.",
+        "2": "Trocar só o nome do cargo não muda a quem o time de segurança precisa responder — o problema é estrutural, não de nomenclatura.",
+        "3": "A frequência do padrão não é o ponto pedido — mesmo um caso raro ilustra o mecanismo de conflito estrutural de prioridade que a pergunta pede pra identificar."
+      },
+      "dicas": [
+        "Quem decide, em última instância, quando segurança e velocidade de lançamento entram em conflito?",
+        "O bônus do executivo no topo dessa linha de reporte está atrelado só a uma das duas prioridades.",
+        "Pense em quem, no topo dessa cadeia, tem a palavra final quando as duas prioridades batem de frente."
+      ],
+      "pergunta_socratica": "Antes de conferir: se segurança e velocidade entrarem em conflito direto, o executivo no topo dessa linha de reporte é avaliado por qual das duas?",
+      "explicacao": "Quando o time de segurança responde, ainda que indiretamente, a um executivo avaliado só por velocidade, qualquer conflito entre as duas prioridades tende a se resolver a favor de quem paga o bônus de quem decide — não porque segurança seja desvalorizada de propósito, mas porque a estrutura de reporte já embutiu qual prioridade tem vantagem estrutural na disputa.",
+      "fonte": "Teoria 5.5.t3",
+      "tags": ["economia-da-seguranca", "incentivo-desalinhado", "linha-de-reporte"]
+    },
+    {
+      "id": "5.5.q26",
+      "tipo": "cenario",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "enunciado": "Entre três fornecedores de um mesmo tipo de controle de segurança, um time escolhe sempre o mais barato, sem comparar mais nada. Isso já é uma boa alocação de orçamento?",
+      "alternativas": [
+        "Escolher sempre a alternativa mais barata entre as que competem já é, por definição, a melhor alocação possível",
+        "Escolher pelo menor custo sempre ignora o valor entregue — a mais barata pode entregar bem menos que as outras",
+        "O critério de custo mínimo só falha quando a diferença de preço entre alternativas é pequena demais pra importar",
+        "Nenhuma organização real decide orçamento de segurança olhando só pro preço mais baixo entre as opções"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Definir 'melhor' só pelo menor preço ignora que as três opções podem entregar valores bem diferentes — preço baixo não é sinônimo de melhor escolha.",
+        "2": "O problema não depende do tamanho da diferença de preço — mesmo uma diferença grande de preço não justifica ignorar o valor entregue por cada opção.",
+        "3": "O enunciado descreve exatamente esse comportamento acontecendo — negar que ele exista na prática não responde à pergunta."
+      },
+      "dicas": [
+        "A pergunta não é sobre o preço em si, é sobre o que cada opção entrega por esse preço.",
+        "Um preço baixo às vezes reflete exatamente o que fica de fora da proposta.",
+        "Um preço mais baixo pode estar refletindo exatamente a parte que foi cortada da proposta."
+      ],
+      "pergunta_socratica": "Antes de conferir: a opção mais barata das três necessariamente entrega o mesmo valor que as outras duas?",
+      "explicacao": "Comparar só o preço, sem considerar o que cada alternativa entrega, esconde uma diferença de valor que o número sozinho não mostra — duas propostas de preços parecidos podem entregar coisas muito diferentes. Uma decisão de portfólio exige pesar custo contra valor entregue, não só escolher o número mais baixo.",
+      "fonte": "Teoria 5.5.t4",
+      "tags": ["economia-da-seguranca", "alocacao-de-orcamento", "custo-vs-valor"]
+    },
+    {
+      "id": "5.5.q36",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [2],
+      "enunciado": "Um time tem orçamento fixo pra só uma de duas iniciativas neste trimestre: concluir um projeto de monitoramento que já consumiu 70% do orçamento reservado pra ele, mas que só entrega qualquer redução de risco se for finalizado por completo; ou trocar pra um projeto novo de controle de acesso, mais barato, que já entrega redução de risco parcial mesmo que só metade seja implementada este trimestre. Comparando as duas, o que trocar de projeto custa de fato, além do dinheiro já gasto no projeto de monitoramento?",
+      "alternativas": [
+        "Custa a redução de risco que o projeto de monitoramento entregaria se fosse concluído — a melhor alternativa que fica de fora",
+        "Custa só o dinheiro já investido nos 70% do projeto de monitoramento, que se perde de qualquer jeito nos dois casos",
+        "Nada: trocar de projeto não tem custo nenhum quando o novo é mais barato que o que estava em andamento",
+        "Custa o tempo que a equipe vai levar pra aprender do zero o novo projeto de controle de acesso"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "O dinheiro já gasto no monitoramento é irrecuperável nos dois cenários — não é isso que diferencia trocar de continuar, é o que cada escolha ainda pode entregar dali pra frente.",
+        "2": "Preço mais baixo não significa ausência de custo — o custo de trocar é o que a alternativa abandonada deixaria de entregar, não o valor pago pela nova.",
+        "3": "Tempo de adaptação da equipe é um custo real, mas não é o que a pergunta está pedindo — o ponto pedido é o valor da alternativa que fica de fora, não o custo operacional de trocar."
+      },
+      "dicas": [
+        "O dinheiro gasto nos 70% do projeto de monitoramento não volta, escolha o time o que escolher a partir de agora.",
+        "Pense no que o time deixa de ganhar ao não terminar o projeto que já estava em andamento.",
+        "A opção mais barata ainda carrega um custo — o que ela deixa de entregar, não o que ela cobra."
+      ],
+      "pergunta_socratica": "Antes de conferir: o que a organização perde, além de dinheiro, ao escolher uma das duas alternativas e abandonar a outra?",
+      "explicacao": "O dinheiro já investido no projeto de monitoramento é irrecuperável nas duas alternativas — continuar ou trocar não muda isso, então ele não é o que diferencia a decisão. O que diferencia é o custo de oportunidade: ao trocar, o time abre mão da redução de risco que o monitoramento entregaria se concluído — essa é a melhor alternativa que fica de fora, e é ela que precisa entrar na conta, não o preço da opção nova nem o quanto já foi gasto na antiga.",
+      "fonte": "Teoria 5.5.t4",
+      "tags": ["economia-da-seguranca", "alocacao-de-orcamento", "custo-de-oportunidade"]
+    },
+    {
+      "id": "5.5.q28",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "trecho": "# justificativa de orçamento (recorte)\n'Escolhemos investir em X porque foi a recomendação do consultor externo que contratamos para avaliar nossa postura de segurança.'",
+      "enunciado": "A justificativa acima cita quem sugeriu a escolha, sem mencionar nenhuma outra opção considerada. O que falta nesse tipo de registro de decisão de orçamento?",
+      "alternativas": [
+        "Escolher a alternativa recomendada por consultor externo já é, sozinho, prova de que a comparação foi feita direito",
+        "O problema de contratar consultor externo é sempre o custo da consultoria em si, não o processo que veio depois",
+        "Nenhuma decisão de orçamento deveria envolver opinião de consultor externo, só dado interno da própria organização",
+        "Justificar só pela recomendação do consultor, sem comparar com outra alternativa, pula a etapa central da decisão"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "A opinião do consultor pode ser um insumo válido, mas não substitui, sozinha, o registro de que alternativas concorrentes foram comparadas.",
+        "1": "O custo da consultoria não é o ponto pedido — o problema é a ausência de comparação explícita entre alternativas na justificativa, não quanto custou contratar o consultor.",
+        "2": "Nada no eixo proíbe usar opinião externa como insumo — o problema não é ter ouvido um consultor, é não ter registrado a comparação entre alternativas."
+      },
+      "dicas": [
+        "A justificativa cita quem recomendou, mas não cita com o que essa recomendação foi comparada.",
+        "Uma decisão de portfólio exige saber quais alternativas competiam pelo mesmo orçamento.",
+        "Uma recomendação, sozinha, não diz se outras opções chegaram a ser postas na mesa."
+      ],
+      "pergunta_socratica": "Antes de conferir: essa justificativa diz quais outras alternativas foram consideradas antes de escolher X?",
+      "explicacao": "A justificativa pula a etapa central de uma decisão de portfólio: listar e comparar as alternativas concorrentes. Citar a recomendação de um consultor não é, por si só, evidência de que outras opções foram avaliadas — pode ser, mas a justificativa como está não registra essa comparação, deixando a decisão tão pouco auditável quanto qualquer escolha sem processo documentado.",
+      "fonte": "Teoria 5.5.t4",
+      "tags": ["economia-da-seguranca", "alocacao-de-orcamento", "decisao-sem-comparacao"]
+    },
+    {
+      "id": "5.5.q29",
+      "tipo": "artefato",
+      "dificuldade": 2,
+      "objetivos": [2],
+      "artefato": "$ cat comparacao_portfolio.txt\nopcao A: custo R$40k, valor esperado (redução de exposição) alto\nopcao B: custo R$25k, valor esperado médio\nopcao C: custo R$60k, valor esperado alto, mas redundante com controle já existente\ndecisão: opção A, registrada com essa tabela anexada",
+      "enunciado": "A tabela acima lista custo e valor esperado de cada alternativa, incluindo por que a opção C foi descartada apesar do valor alto. Isso ilustra o quê sobre documentar decisão de portfólio?",
+      "alternativas": [
+        "Uma tabela que sempre lista custo e valor esperado lado a lado documenta bem todo o raciocínio, de forma auditável",
+        "Uma tabela de custo e valor esperado só tem utilidade depois que a decisão de orçamento já foi tomada e não pode mais mudar",
+        "Registrar custo e valor esperado lado a lado é redundante quando a autoridade que decide já é experiente na área",
+        "Nenhuma tabela documenta decisão de portfólio de verdade — só uma ata assinada por todos os envolvidos tem esse valor"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A utilidade da tabela não é só retrospectiva — ela sustenta a decisão no momento em que é tomada, permitindo revisão e auditoria depois.",
+        "2": "Experiência de quem decide não substitui o registro — mesmo uma autoridade experiente se beneficia (e beneficia quem audita depois) de ter o raciocínio escrito.",
+        "3": "A tabela não precisa de assinatura formal de todos pra ter valor de documentação — o que importa é o raciocínio estar registrado de um jeito que alguém consiga conferir depois."
+      },
+      "dicas": [
+        "A tabela não só lista números — ela explica por que a opção de valor alto (C) foi descartada.",
+        "Esse tipo de registro permite que alguém, depois, confira o raciocínio da escolha.",
+        "Um registro assim continua valendo mesmo vindo de quem já tem anos de experiência na função."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguém que ler essa tabela depois consegue entender por que a opção C, de valor alto, não foi escolhida?",
+      "explicacao": "A tabela documenta exatamente o que uma decisão de portfólio defensável precisa: as alternativas comparadas, custo e valor esperado de cada uma, e a razão específica (redundância com controle já existente) pela qual a opção de maior valor isolado não foi escolhida. É esse tipo de registro que torna uma decisão de alocação auditável depois, não a experiência de quem decidiu nem uma assinatura formal.",
+      "fonte": "Teoria 5.5.t4",
+      "tags": ["economia-da-seguranca", "alocacao-de-orcamento", "decisao-documentada"]
+    },
+    {
+      "id": "5.5.q30",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um conselho pede: 'nos dê um número exato de quanto essa iniciativa vai reduzir nosso risco de invasão'. Qual é a resposta honesta mais defensável?",
+      "alternativas": [
+        "Dar um número exato, mesmo sem base pra sustentá-lo, é a única forma de atender esse tipo de pedido do conselho",
+        "Responder com uma faixa estimada, junto com o que sustenta cada ponta dela, atende ao pedido sem inventar precisão falsa",
+        "Recusar completamente dar qualquer resposta é sempre a atitude mais honesta diante de um pedido de número único",
+        "O conselho nunca deveria fazer esse tipo de pedido, então a resposta certa é só explicar por que a pergunta está errada"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Dar um número exato sem base é exatamente o tipo de precisão inventada que este eixo ensina a evitar.",
+        "2": "Recusar toda resposta não é mais honesto do que inventar um número — existe uma resposta honesta disponível (a faixa com premissas explícitas), e não usá-la também é uma falha.",
+        "3": "Só explicar por que a pergunta está mal formulada, sem oferecer nada em troca, não ajuda o conselho a decidir — a resposta honesta ainda tenta responder, com os limites certos."
+      },
+      "dicas": [
+        "A resposta certa não é nem inventar um número, nem recusar dar informação nenhuma.",
+        "Uma faixa, com o raciocínio de cada ponta explicado, ainda responde à pergunta.",
+        "Existe uma resposta possível entre inventar um número e ficar em silêncio total."
+      ],
+      "pergunta_socratica": "Antes de conferir: existe uma resposta honesta que não seja nem inventar um número nem recusar responder qualquer coisa?",
+      "explicacao": "A resposta mais defensável nem inventa uma precisão que não existe, nem recusa engajar com a pergunta — oferece uma faixa estimada, com o raciocínio de cada extremo exposto (por que o mínimo, por que o máximo), permitindo ao conselho decidir com os olhos abertos sobre o que é medição e o que é premissa.",
+      "fonte": "Teoria 5.5.t6",
+      "tags": ["economia-da-seguranca", "medicao-honesta", "faixa-estimada"]
+    },
+    {
+      "id": "5.5.q31",
+      "tipo": "conceitual",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "enunciado": "'Não temos dado preciso o bastante pra afirmar isso' e 'não vamos medir nada' parecem as duas recusar dar um número. Elas são a mesma postura?",
+      "alternativas": [
+        "As duas posturas — 'não temos dado preciso' e 'não vamos medir nada' — são sempre exatamente equivalentes na prática",
+        "'Não vamos medir nada' é sempre a postura mais honesta, porque evita qualquer risco de inventar um número",
+        "Reconhecer o limite do que dá pra medir com precisão é diferente de recusar medir qualquer coisa, mesmo o possível",
+        "Toda vez que falta dado preciso, a única resposta honesta disponível é nunca fornecer nenhuma informação ao interessado"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Tratar as duas como sempre equivalentes ignora a diferença entre reconhecer um limite específico e recusar qualquer esforço de medição.",
+        "1": "Recusar medir qualquer coisa não é automaticamente a postura mais honesta — pode ser evasão de um trabalho que era possível fazer, só que mais modesto.",
+        "3": "Faltar precisão total não elimina toda possibilidade de medição parcial — a resposta honesta costuma ser medir o que dá, não parar de medir tudo."
+      },
+      "dicas": [
+        "Uma postura reconhece um limite específico; a outra evita qualquer tentativa.",
+        "Pense em quanto ainda dá pra medir mesmo sem chegar à precisão total.",
+        "Faltar precisão total não é o mesmo que não ter nada útil pra oferecer sobre o assunto."
+      ],
+      "pergunta_socratica": "Antes de conferir: 'não temos precisão total' e 'não vamos tentar medir nada' pedem o mesmo esforço de quem responde?",
+      "explicacao": "Reconhecer o limite do que dá pra medir com precisão (e ainda assim medir o que é possível, como no eixo t5/t6) é diferente de usar a falta de precisão total como desculpa pra não medir nada. A primeira postura é honesta e ainda útil; a segunda evita o trabalho que era possível fazer, escondida atrás de uma linguagem parecida com rigor.",
+      "fonte": "Teoria 5.5.t5 e 5.5.t6",
+      "tags": ["economia-da-seguranca", "medicao-honesta", "limite-vs-evasao"]
+    },
+    {
+      "id": "5.5.q32",
+      "tipo": "caca_erro",
+      "dificuldade": 2,
+      "objetivos": [3],
+      "trecho": "# apresentação interna (recorte)\n'Estudos mostram que empresas sem esse tipo de controle sofrem mais ataques. Por isso, propomos a compra imediata da ferramenta X.'",
+      "enunciado": "A apresentação usa 'estudos mostram' sem nomear nenhum estudo específico, pra justificar uma compra. Qual é o problema concreto dessa frase?",
+      "alternativas": [
+        "Citar 'estudos mostram' sem nomear qual estudo é sempre forma válida de sustentar uma decisão, se o tom parecer confiante",
+        "O problema de citar 'estudos mostram' sem nome nenhum é só formatação, resolvido citando a referência em rodapé depois",
+        "Frases vagas de autoridade emprestada só viram problema quando alguém de fora pergunta pela fonte um dia depois",
+        "Citar 'estudos mostram', sem dizer qual estudo, sempre empresta autoridade de uma fonte que ninguém consegue checar direito"
+      ],
+      "correta": 3,
+      "por_que_erradas": {
+        "0": "O tom confiante da frase não supre a ausência de uma fonte checável — confiança na entrega não é a mesma coisa que rigor na origem do dado.",
+        "1": "Não é um problema de formatação resolvido citando a referência depois — o problema é usar a frase para justificar uma ação antes de qualquer verificação, não onde a citação aparece no documento.",
+        "2": "O problema já existe no momento em que a frase é usada pra justificar uma decisão, mesmo que ninguém de fora chegue a perguntar pela fonte."
+      },
+      "dicas": [
+        "A frase pede confiança emprestada de uma fonte que não é nomeada em lugar nenhum.",
+        "O problema não é o formato da citação, é a ausência de qualquer fonte checável por trás dela.",
+        "Não depende de alguém de fora perguntar — o problema já existe no momento em que a frase justifica a compra."
+      ],
+      "pergunta_socratica": "Antes de conferir: alguém que ouvir essa apresentação consegue checar qual estudo, exatamente, está sendo citado?",
+      "explicacao": "'Estudos mostram', sem nomear nenhum, empresta a autoridade de uma fonte que ninguém na sala consegue checar, avaliar a metodologia ou confirmar que existe. É o mesmo problema do número de mercado sem origem clara: uma afirmação usada como se fosse fato estabelecido, quando na verdade é uma alegação que ninguém pode verificar.",
+      "fonte": "Teoria 5.5.t5",
+      "tags": ["economia-da-seguranca", "medicao-honesta", "autoridade-emprestada"]
+    },
+    {
+      "id": "5.5.q33",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [3],
+      "enunciado": "Um time se recusa a dar qualquer estimativa de impacto, mesmo aproximada, alegando: 'qualquer número que dermos seria desonesto'. Essa recusa total é a postura que este eixo ensina?",
+      "alternativas": [
+        "Fechar a porta pra qualquer estimativa comete o erro simétrico ao número inventado, não é o meio-termo que o eixo defende",
+        "Recusar dar qualquer número é sempre a atitude mais correta quando a precisão total não está disponível",
+        "A única alternativa à invenção de número é sempre o silêncio completo sobre qualquer estimativa possível",
+        "Times que se recusam a estimar qualquer coisa estão, por definição, praticando o rigor que este eixo sempre ensina"
+      ],
+      "correta": 0,
+      "por_que_erradas": {
+        "1": "A recusa total não é sempre a atitude correta — o eixo ensina a rotular premissa como premissa, não a evitar toda estimativa.",
+        "2": "Existe uma terceira via, já ensinada no eixo: estimativa rotulada com clareza, separada do dado medido — silêncio completo não é a única alternativa à invenção.",
+        "3": "Recusar estimar qualquer coisa não é rigor — é o oposto do que o eixo pede, que é engajar com a pergunta separando o que é medido do que é estimado."
+      },
+      "dicas": [
+        "O eixo nunca pediu pra evitar toda estimativa — pediu pra rotulá-la com clareza.",
+        "Existe uma via honesta entre inventar um número e não dizer nada.",
+        "Uma estimativa rotulada como estimativa ainda é mais honesta do que simplesmente não dizer nada."
+      ],
+      "pergunta_socratica": "Antes de conferir: o eixo ensinou a evitar toda estimativa, ou a rotular claramente o que é estimativa?",
+      "explicacao": "Essa recusa total comete o erro espelhado do número inventado: em vez de inflar uma certeza que não existe, ela nega qualquer tentativa de estimar, mesmo quando uma estimativa rotulada como tal — como o eixo ensinou — seria útil e honesta. O rigor ensinado aqui não é silêncio, é transparência sobre o que é dado e o que é premissa.",
+      "fonte": "Teoria 5.5.t6",
+      "tags": ["economia-da-seguranca", "medicao-honesta", "recusa-total"]
+    },
+    {
+      "id": "5.5.q34",
+      "tipo": "conceitual",
+      "dificuldade": 3,
+      "objetivos": [0, 1, 2, 3],
+      "enunciado": "Quatro situações: (1) um corte de orçamento cuja consequência ainda não apareceu; (2) um time recompensado por não reportar incidente; (3) uma escolha de fornecedor baseada só no menor preço; (4) um número de mercado citado como fato num pedido de orçamento. Essas quatro situações ilustram o mesmo mecanismo deste módulo, ou mecanismos diferentes?",
+      "alternativas": [
+        "As quatro situações descritas têm sempre a mesma causa raiz, então distingui-las nunca muda nenhuma decisão prática",
+        "Cada uma das quatro corresponde a um eixo diferente já visto no módulo, com um remédio próprio que não serve pras outras três",
+        "Só a primeira das quatro situações tem relação real com este módulo, as outras três são sempre a mesma coisa disfarçada",
+        "Nenhuma das quatro situações se encaixa em mais de um eixo, então a distinção entre elas é sempre trivial"
+      ],
+      "correta": 1,
+      "por_que_erradas": {
+        "0": "Tratar as quatro como a mesma causa apaga distinções que mudam, sim, o que se faz a respeito de cada uma — o remédio pra visibilidade não é o remédio pra incentivo desalinhado.",
+        "2": "As quatro situações correspondem, cada uma, a um eixo diferente já ensinado no módulo — negar isso às três últimas ignora o conteúdo específico de cada eixo.",
+        "3": "A distinção não é trivial: cada situação exige um tipo de intervenção diferente (proxy de resultado, mudar estrutura de incentivo, comparar valor não só custo, separar dado de premissa)."
+      },
+      "dicas": [
+        "Cada situação puxa pra uma parte distinta do que este módulo cobriu, não pro mesmo ponto repetido quatro vezes.",
+        "O remédio para uma delas não serve pra resolver as outras três.",
+        "Cada uma dessas quatro situações pede uma ferramenta diferente das outras três, não a mesma repetida quatro vezes."
+      ],
+      "pergunta_socratica": "Antes de conferir: o mesmo tipo de solução resolveria as quatro situações ao mesmo tempo, ou cada uma pede uma resposta diferente?",
+      "explicacao": "As quatro situações mapeiam, uma a uma, os quatro eixos do módulo: visibilidade assimétrica (1), incentivo desalinhado (2), alocação de portfólio ignorando valor (3), e medição desonesta (4). Reconhecer qual mecanismo está por trás de cada caso é o que permite escolher a intervenção certa — tratar tudo como a mesma causa, ou negar que três delas pertençam ao módulo, apaga exatamente a distinção que ele ensina a fazer.",
+      "fonte": "Teorias 5.5.t1, 5.5.t3, 5.5.t4 e 5.5.t5/t6 (síntese dos quatro eixos)",
+      "tags": ["economia-da-seguranca", "sintese", "distincao-de-mecanismo"]
+    },
+    {
+      "id": "5.5.q37",
+      "tipo": "cenario",
+      "dificuldade": 3,
+      "objetivos": [0, 3],
+      "enunciado": "Depois de dois anos sem incidente grave, o conselho propõe cortar 30% do orçamento de segurança e pede ao CISO: 'prove que esse dinheiro fez diferença, ou aceitamos o corte'. Qual resposta encara a pergunta do conselho sem cair nos erros que este módulo mapeou?",
+      "alternativas": [
+        "Concordar com o corte, já que dois anos sem incidente grave é prova suficiente de que o orçamento anterior era maior do que precisava",
+        "Citar o custo médio de incidente do setor, segundo relatório de mercado, como prova de quanto a empresa economizou por não ter sofrido um",
+        "Apresentar medição local (tempo de detecção, cobertura de controle, incidentes menores contidos) como evidência indireta de que o investimento funcionou, dizendo com clareza que a ausência de incidente grave sozinha não prova nem desmente isso",
+        "Recusar responder, alegando que o valor de um investimento de segurança nunca pode ser medido de nenhuma forma"
+      ],
+      "correta": 2,
+      "por_que_erradas": {
+        "0": "Tratar dois anos sem incidente grave como prova de excesso de orçamento repete o defeito estrutural do eixo 1 — ausência de evento também é o resultado esperado de um investimento que funcionou.",
+        "1": "Um número de mercado citado como fato é exatamente o problema do eixo 4 — estimativa externa, de amostra diferente, usada pra descrever uma situação que ainda não foi medida nesta organização.",
+        "3": "Recusar toda medição ignora que existe evidência indireta honesta disponível (proxies de resultado) — não é a postura mais rigorosa, é evasão do trabalho que era possível fazer."
+      },
+      "dicas": [
+        "Dois anos sem incidente grave é compatível com o investimento ter funcionado, e também com a empresa nunca ter sido alvo sério.",
+        "Existe evidência que não depende de um incidente ter acontecido, nem de citar número de fora da empresa.",
+        "Uma resposta defensável nomeia o que foi medido e, na mesma frase, admite o que essa medição não prova sozinha."
+      ],
+      "pergunta_socratica": "Antes de conferir: dá pra responder ao conselho sem inventar uma precisão que não existe e sem fingir que a pergunta não tem resposta nenhuma?",
+      "explicacao": "A resposta defensável combina os dois eixos: reconhece que ausência de incidente grave não prova nem desmente o valor do investimento (eixo 1), e sustenta o argumento com medição local — o que dá pra medir honestamente sem inventar um número de mercado como se fosse fato da própria organização (eixo 4). Concordar com o corte por falta de incidente, recusar medir qualquer coisa, e emprestar precisão de um relatório externo são as três formas específicas de errar que o módulo mapeou, cada uma batendo numa fonte diferente.",
+      "fonte": "Teorias 5.5.t1 e 5.5.t5/t6",
+      "tags": ["economia-da-seguranca", "sintese", "visibilidade-assimetrica", "medicao-honesta"]
+    }
+  ]
+}
