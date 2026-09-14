@@ -3,26 +3,25 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-13 · módulo 5.4 (GRC: governança, risco e
-conformidade) escrito e publicado — **nível 5 em 4 de 6** — governança
-como decisão registrada com dono nomeado, risco como comparação de
-portfólio (não triagem de um risco por vez), os dois erros simétricos
-entre conformidade e segurança, auditoria como distinção entre prática e
-prova de prática, limite honesto do GRC (governa a decisão, não a sorte)
-· dado central de processo desta rodada, agora confirmado em dois módulos
-seguidos (ver regra 13): **decidir posição antes de escrever funciona;
-decidir comprimento antes não funciona, nunca; corrigir comprimento por
-uma alavanca só (só cortar a correta) produz viés espelhado, não elimina
-o defeito — a correção exige as duas alavancas juntas, medidas nas duas
-pontas, sempre** · **décima variante do molde de dica, a mais disseminada
-já achada no curso**: esqueleto "Nem X, nem Y, [verbo]" em 22 de 35
-questões (63%) — medidor só achou 5,7%, cego ao padrão por ser estrutural,
-não lexical (terceira vez que o limite da ferramenta fica explícito:
-sexta variante no 3.7, sétima no 5.2, décima agora) · **sétima variante,
-quarta reincidência**, 4 cópias quase idênticas sem variar entre módulos
-· **primeiro corte de questão por falha no teste "ensina a decidir?"**
-(`5.4.q20`), substituída por questão nova testada antes de aceitar
-(`5.4.q36`) · 4.445 testes passando
+Última atualização: 2026-09-13 · módulo 5.5 (Economia da segurança) escrito
+e publicado — **nível 5 em 5 de 6, penúltimo módulo do curso** — defeito
+estrutural de visibilidade (sucesso invisível, fracasso espetacular),
+incentivo desalinhado (quem paga ≠ quem decide), orçamento como recurso
+finito entre alternativas concorrentes (custo de oportunidade, não
+decisão isolada de risco), argumentar por orçamento sem inventar número
+· eixo 5 original ("limite honesto") cortado antes de escrever — seria a
+quinta reincidência seguida do mesmo fecho estrutural do nível 5, módulo
+fecha com 4 eixos, não 5 · sessão travou entre o checkpoint 3 e as lentes
+adversariais, retomada com reconstrução de estado e varredura completa
+por corrupção de encoding (achada e corrigida em 2 strings) ·
+**décima primeira variante do molde de dica, com dado novo: nasce dentro
+da própria correção em lote**, concentrada em 91% das últimas 11
+questões (q25–q35) contra 0–1 nas 24 anteriores — a correção em lote é a
+origem do molde, não um padrão trazido de fora; consequência de medição
+registrada para módulos futuros: medir a posição da ocorrência dentro do
+lote, não só o total · **segundo e terceiro corte de questão por falha no
+teste "ensina a decidir?"** (`5.5.q35`, `5.5.q27`), o segundo achado por
+releitura própria, não pela lente · 4.559 testes passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -32,18 +31,18 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 39 de 41 |
-| Questões | 1.367 |
-| Blocos de teoria | 236 |
-| Tags distintas | 1.003 |
-| Testes automatizados | 4.445 |
+| Módulos de conteúdo escritos | 40 de 41 |
+| Questões | 1.402 |
+| Blocos de teoria | 242 |
+| Tags distintas | 1.040 |
+| Testes automatizados | 4.559 |
 | Linhas de código Python | ~2.280 no app · ~3.950 com ferramentas e testes |
 
 Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo) · **nível 5** 140 (4 de 6).
+**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo) · **nível 5** 175 (5 de 6).
 
-Tipos de questão em uso: conceitual 523, cenário 314, ataque→defesa 117,
-caça ao erro 116, comando 57, artefato 102, pareamento 79, ordenação 59.
+Tipos de questão em uso: conceitual 534, cenário 328, ataque→defesa 117,
+caça ao erro 121, comando 57, artefato 106, pareamento 79, ordenação 60.
 
 ---
 
@@ -235,9 +234,10 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
-**Nível 5 — Engenharia, risco e carreira** (140 questões, 4 de 6)
+**Nível 5 — Engenharia, risco e carreira** (175 questões, 5 de 6)
 5.1 Desenvolvimento seguro · 5.2 Segurança em nuvem · 5.3 Modelagem de
-ameaças · 5.4 GRC: governança, risco e conformidade
+ameaças · 5.4 GRC: governança, risco e conformidade · 5.5 Economia da
+segurança
 
 **Nível 4 — Defensivo** (280 questões, 8 de 8, completo)
 4.1 Hardening · 4.2 Segurança de rede · 4.3 Defesa em profundidade · 4.4 Malware ·
@@ -267,12 +267,11 @@ ameaças · 5.4 GRC: governança, risco e conformidade
 
 ## 5. O que falta
 
-### Conteúdo — 4 módulos
+### Conteúdo — 1 módulo
 
 - **Nível 3 — Ofensivo**: completo (9 de 9)
 - **Nível 4 — Defensivo**: completo (8 de 8)
-- **Nível 5 — Engenharia e carreira** (2 restantes, 4 de 6 pronto):
-  economia da segurança, carreira
+- **Nível 5 — Engenharia e carreira** (1 restante, 5 de 6 pronto): carreira
 
 ### Decisão de escopo — engenharia social não vira módulo novo, nível 3 fecha com 9 (não 10)
 
@@ -442,6 +441,7 @@ sistema em fase de desenho, nunca em RBAC/web já construído). **Nível 5 em
   | 5.2 | 20,0% | ok (módulo novo, 07/09/2026 — primeiro sob a regra 12, três lotes; viés recorreu nos três mesmo assim: 85,7%→64,7%→53,3% antes de cada correção; publicado dentro do teto) |
   | 5.3 | 9,7% | ok (módulo novo, 08/09/2026 — três lotes; lote 1 nasceu 100% (7/7); lote 2, decidindo o índice da correta antes de escrever, eliminou o viés de posição na origem mas o de comprimento recorreu igual, bruto 66,7%; lote 3, decidindo que a correta não seria a mais longa antes de escrever, não preveniu nada — bruto 76,9% (10/13), pior que qualquer lote anterior do módulo; decidir posição antes funciona, decidir comprimento antes não funciona, são duas técnicas de processo diferentes; publicado bem abaixo do teto) |
   | 5.4 | 9,1% (3/33) | ok (módulo novo, 13/09/2026 — quarto módulo de GRC; três lotes, viés recorreu nos três: lote 1 100% bruto (7/7), lote 2 100% bruto (12/12), lote 3 100% bruto (14/14) — quinta reincidência seguida do mesmo hábito de escrita, confirmando de novo a lição do 5.3: escrever com cuidado não substitui medir depois. Corrigir com uma alavanca só (lote 2, só cortar a correta) produziu viés espelhado — `mais_curta` subiu a 26,3%, o dobro das outras duas métricas do mesmo checkpoint — e a partir do lote 3 a correção passou a usar as duas alavancas sempre juntas (encurtar a correta E alongar o distrator mais curto), medindo as duas pontas a cada rodada; publicado bem abaixo do teto) |
+  | 5.5 | 20,6% (7/34) | ok (módulo novo, 13/09/2026 — quinto módulo do nível 5, economia da segurança; três checkpoints, viés recorreu nos três — sexta, sétima e oitava reincidência seguida do mesmo hábito; sessão travou depois do checkpoint 3, retomada em sessão nova com reconstrução de estado e as duas lentes adversariais, que nunca tinham rodado; publicado bem abaixo do teto após correção pós-travamento, ver seção 5) |
 
   **11 de 31 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
   0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8, 3.4 e 3.5,
@@ -508,6 +508,7 @@ sistema em fase de desenho, nunca em RBAC/web já construído). **Nível 5 em
   | 5.2 | 20,0% (6/30) | 9,5% | ok (módulo novo, 07/09/2026) |
   | 5.3 | 9,7% (3/31) | 9,7% | ok (módulo novo, 08/09/2026) |
   | 5.4 | 21,2% (7/33) | 10,7% | ok (módulo novo, 13/09/2026) |
+  | 5.5 | 32,3% (10/31) | 18,6% | ok (módulo novo, 13/09/2026) |
 
   **Mediana do corpus: 35,5%.** O teto de 40% não foi escolhido de novo —
   foi conferido contra o mesmo critério estatístico independente já usado
@@ -698,6 +699,77 @@ sistema em fase de desenho, nunca em RBAC/web já construído). **Nível 5 em
   autoridade de fato com delegação documentada, mecanismo novo dentro do
   eixo, sem repetir nenhum dos outros seis casos de governança já escritos
   no módulo.
+
+  **Décima primeira variante, achada no 5.5, 13/09/2026 — dado novo que
+  muda o diagnóstico das dez anteriores: o molde não vem de fora, ele
+  nasce dentro da própria correção em lote.** A lente de forma achou o
+  esqueleto "descarta duas alternativas + fecha com verbo negativo" ("Nem
+  X, nem Y", "X e Y não são/respondem/perdem") em **10 de 11 questões de
+  `q25` a `q35` (91%)**, contra **0–1 de 24 em `q1`–`q24`**. Nas dez
+  variantes anteriores, o molde estava disseminado pelo módulo inteiro ou
+  trazido pronto de um módulo anterior; aqui a concentração no terço final
+  do lote 3 revela um mecanismo diferente: **a correção em lote é a
+  própria origem do molde** — ao corrigir uma dica pra resolver
+  comprimento ou vazamento, a forma da correção mais recente vira o
+  modelo mental disponível pra corrigir a próxima, e o esqueleto se
+  autorreplica dentro da mesma sessão de edição, tanto mais provável
+  quanto mais tarde a questão é tocada na rodada. **Consequência de
+  medição, pra módulos futuros**: a fração agregada (28,6% do módulo
+  inteiro) esconde esse padrão — a métrica certa não é só "quantas vezes
+  o molde aparece", é "em que posição do lote ele começa a aparecer";
+  medir só o total, como as dez rodadas anteriores fizeram, deixaria
+  passar despercebida a concentração que é, aqui, o achado mais útil.
+  Reescritas as 8 dicas afetadas que sobreviveram no módulo (`q25`, `q26`,
+  `q28`, `q29`, `q30`, `q31`, `q33`, `q34`), variando a estrutura de fato
+  (afirmação direta, reformulação positiva, instrução, existência de
+  alternativa) — e **duas das reescritas (`q31`, `q34`) criaram defeito
+  novo na primeira tentativa** (vazamento de vocabulário em `q31`, o
+  molde "Pergunte" já catalogado pelo validador em `q34`), confirmando de
+  novo o encadeamento já documentado no 5.2 e no 5.4: corrigir um molde
+  sem medir de novo tende a criar o próximo. Corrigido numa segunda
+  rodada, `validar_modulo.py` limpo depois.
+
+  **Corrupção de encoding pelo travamento do PC, achada no 5.5,
+  13/09/2026 — corrigida, mas sem diagnóstico fechado sobre um achado
+  vizinho.** A sessão travou entre o checkpoint 3 e as duas lentes
+  adversariais (que nunca chegaram a rodar nesse módulo). Na retomada,
+  varredura completa do arquivo (teoria e as 35 questões, todos os
+  campos) contra lista de palavras nunca válidas sem acento em português
+  achou corrupção real, restrita a duas strings: `5.5.q28` (alternativa
+  correta) e `5.5.q29` (alternativa correta) perderam acentuação por
+  completo em parte do texto. Nenhuma outra ocorrência no resto do
+  arquivo. Restaurado. **Separadamente, sem relação de causa confirmada**:
+  `validar_modulo.py` achou 3 avisos de vazamento em `q4`, `q15`, `q23` —
+  questões dos checkpoints 1 e 2, não do 3 — que o relatório do checkpoint
+  3 registrava como "0 avisos" rodando sobre as 35 completas, com o mesmo
+  código de ferramenta (sem diff em `ferramentas/`). **Hipótese, não causa
+  confirmada**: o relatório do checkpoint 3 provavelmente foi escrito
+  antes da última rodada de correção de comprimento do módulo, e o efeito
+  colateral já documentado no projeto (corrigir comprimento reescrevendo
+  a alternativa correta tende a introduzir vazamento na dica) explicaria
+  a divergência — mas não há link causal comprovado, só a coincidência
+  com um mecanismo já conhecido. Registrado como hipótese em aberto, não
+  como diagnóstico fechado. Corrigido reescrevendo as três dicas.
+
+  **Segundo corte de questão por falha no teste "ensina a decidir?", no
+  5.5, 13/09/2026 — primeira vez que o corte vem de releitura própria, não
+  da lente adversarial.** A lente de forma aplicou o teste às 35 questões
+  originais do 5.5: 33 passaram com folga, `5.5.q35` não passou (a mesma
+  recapitulação do módulo, sem decisão real, que já derrubou `5.4.q20`) e
+  `5.5.q6`/`5.5.q27` passaram por margem estreita (resolvíveis por
+  reconhecimento de definição ou por ditado popular externo ao curso, sem
+  precisar do mecanismo específico do eixo). `q35` foi cortada e
+  substituída por `5.5.q37` (síntese dos eixos 1 e 4, testada contra o
+  critério antes de aceitar) — segunda aplicação da regra "corte, não
+  conserte" do 5.4. Mas ao reler `q27` com o mesmo critério, depois da
+  lente, ficou claro que ela também não passava — respondível só pela
+  falácia do custo irrecuperável (conhecimento popular, não o mecanismo
+  de alocação de portfólio deste eixo) — e foi cortada também, substituída
+  por `5.5.q36` (custo de oportunidade de trocar de iniciativa a meio
+  caminho, mesmo eixo, testada antes de aceitar). É a primeira vez que um
+  corte não vem da lente, vem de releitura cética da própria autoria
+  depois do achado — o critério "ensina a decidir?" passou a ser aplicado
+  como checagem contínua, não só como etapa única da revisão adversarial.
 
   **Piloto de correção — módulo 0.1, 01/09/2026.** Escolhido por ser o
   primeiro módulo do curso (vazamento ali contamina a base inteira) e por
