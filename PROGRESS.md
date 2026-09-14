@@ -3,25 +3,29 @@
 Aplicativo desktop local de estudo de cibersegurança, em Python + CustomTkinter,
 com SQLite para progresso e JSON para conteúdo. Roda offline.
 
-Última atualização: 2026-09-13 · módulo 5.5 (Economia da segurança) escrito
-e publicado — **nível 5 em 5 de 6, penúltimo módulo do curso** — defeito
-estrutural de visibilidade (sucesso invisível, fracasso espetacular),
-incentivo desalinhado (quem paga ≠ quem decide), orçamento como recurso
-finito entre alternativas concorrentes (custo de oportunidade, não
-decisão isolada de risco), argumentar por orçamento sem inventar número
-· eixo 5 original ("limite honesto") cortado antes de escrever — seria a
-quinta reincidência seguida do mesmo fecho estrutural do nível 5, módulo
-fecha com 4 eixos, não 5 · sessão travou entre o checkpoint 3 e as lentes
-adversariais, retomada com reconstrução de estado e varredura completa
-por corrupção de encoding (achada e corrigida em 2 strings) ·
-**décima primeira variante do molde de dica, com dado novo: nasce dentro
-da própria correção em lote**, concentrada em 91% das últimas 11
-questões (q25–q35) contra 0–1 nas 24 anteriores — a correção em lote é a
-origem do molde, não um padrão trazido de fora; consequência de medição
-registrada para módulos futuros: medir a posição da ocorrência dentro do
-lote, não só o total · **segundo e terceiro corte de questão por falha no
-teste "ensina a decidir?"** (`5.5.q35`, `5.5.q27`), o segundo achado por
-releitura própria, não pela lente · 4.559 testes passando
+Última atualização: 2026-09-14 · módulo 5.6 (Carreira) escrito e
+publicado — **nível 5 completo (6 de 6), 41 de 41 módulos, corpus
+fechado**. Escolher especialização pelo tipo de problema que se aguenta
+repetir, não pelo tema; o que "júnior" significa de fato (tipo de tarefa,
+não tempo de casa); o que certificação, diploma e portfólio provam
+individualmente e o vazio que os três juntos deixam sem resposta; como
+decidir onde investir aprendizado profundo quando o campo muda mais
+rápido que qualquer curso; síntese do nível 5 por comparação entre as
+cinco lentes (custo composto, responsabilidade compartilhada, fronteira
+de confiança, decisão registrada, orçamento finito), nunca por limite
+agregado — o fecho que o corte do eixo 5 do 5.5 reservou pra cá · sessão
+interrompida no meio do lote 3, retomada com verificação de integridade
+(sem corrupção real) · **décima segunda variante do molde de dica**
+("X não é o alvo/ponto — Y é", 10 de 35 dicas) mais uma família ampla do
+esqueleto da décima primeira (9 ocorrências achadas por leitura própria
+antes das lentes) — a hipótese de posição fixa não pôde ser testada
+limpa desta vez, dado registrado como pista de um lote só, não conclusão
+· **terceiro, quarto e quinto corte de questão por falha no teste "ensina
+a decidir?"** (`5.6.q12`, `5.6.q28`, `5.6.q31`) — seis cortes em três
+módulos ao todo, todos no nível 5, porque a regra "corte, não conserte"
+só nasceu perto do fim do corpus · retrospectiva de processo completa
+na seção 5 — o que mudaria começando os 41 módulos hoje · 4.674 testes
+passando
 
 Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
@@ -31,18 +35,88 @@ Repositório: <https://github.com/Renansoader/cybersecurity-app> (privado)
 
 | Item | Quantidade |
 |---|---|
-| Módulos de conteúdo escritos | 40 de 41 |
-| Questões | 1.402 |
-| Blocos de teoria | 242 |
-| Tags distintas | 1.040 |
-| Testes automatizados | 4.559 |
+| Módulos de conteúdo escritos | 41 de 41 (completo) |
+| Questões | 1.437 |
+| Blocos de teoria | 248 |
+| Tags distintas | 1.071 |
+| Testes automatizados | 4.674 |
 | Linhas de código Python | ~2.280 no app · ~3.950 com ferramentas e testes |
 
-Questões por nível: **nível 0** 141 (4 módulos) · **nível 1** 245 (7 módulos) ·
-**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo) · **nível 5** 175 (5 de 6).
+Questões por nível: **nível 0** 141 (4 módulos, completo) · **nível 1** 245 (7 módulos, completo) ·
+**nível 2** 245 (7 módulos, completo) · **nível 3** 316 (9 de 9, completo) · **nível 4** 280 (8 de 8, completo) · **nível 5** 210 (6 de 6, completo). **Corpus de conteúdo fechado — todos os 6 níveis completos.**
 
-Tipos de questão em uso: conceitual 534, cenário 328, ataque→defesa 117,
-caça ao erro 121, comando 57, artefato 106, pareamento 79, ordenação 60.
+Tipos de questão em uso: conceitual 541, cenário 348, ataque→defesa 117,
+caça ao erro 126, comando 57, artefato 109, pareamento 79, ordenação 60.
+
+---
+
+## Retrospectiva do corpus completo — o que faria diferente, começando hoje
+
+Escrita ao fechar o módulo 5.6, o último dos 41. Não é resumo de
+conteúdo — é o que economizaria trabalho real e evitaria dívida
+conhecida, específico o bastante pra alguém agir sobre isso se
+retomar ou repetir este processo. Detalhe completo (números, ids,
+datas) no relatório do 5.6, `data/rascunhos/nivel-5/relatorios/5.6.md`.
+
+1. **`ferramentas/chutador_de_forma.py` teria sido o primeiro arquivo
+   do projeto, escrito antes do módulo 0.1, não descoberto em
+   01/09/2026.** Viés de comprimento e de absolutismo são propriedades
+   mecânicas de como se escreve alternativa, não dependem de maturidade
+   de conteúdo. Todo módulo nasce em 55–100% de viés bruto, sem exceção
+   registrada até hoje — "escrever com cuidado" nunca substituiu medir
+   depois, em nenhuma das onze vezes que isso foi testado. Se a
+   ferramenta existisse desde o início, os 41 módulos nasceriam dentro
+   do teto, e as duas tabelas de dívida medida (`mais_longa`,
+   `evita_absoluto`, seção 5) seriam um registro de convenção, não um
+   histórico de correção retroativa parcial.
+
+2. **A regra 13 (duas alavancas juntas, medir de novo depois de cada
+   correção) deveria ter sido a regra 1, não a 13.** É estatística pura
+   sobre como texto se reescreve — não depende de nenhum conteúdo dos
+   módulos 1 a 4. Corrigir com uma alavanca só produz viés espelhado
+   (visto no 5.2, no 5.4 e de novo no 5.6, checkpoint 3, mesmo depois da
+   regra estar escrita há dois módulos). Nascida como regra 1, nenhum
+   módulo teria precisado de segunda ou terceira rodada de correção por
+   esse motivo específico.
+
+3. **Falta, desde o módulo 3.7, um detector de molde estrutural — não
+   só de prefixo exato — e ainda não existe no módulo 41.**
+   `medidor_molde_dica.py` erra sistematicamente quando o esqueleto
+   gramatical se repete com léxico diferente: documentado como limite
+   explícito da ferramenta em seis ocasiões (3.7, 5.2, 5.4, e duas vezes
+   no 5.6) — a mais recente achando um esqueleto em 28,6% das dicas de
+   fechamento de um módulo enquanto o medidor registrava 5,7%. Cada uma
+   das seis vezes exigiu releitura manual completa de 35 dicas por uma
+   lente cara (agente, tempo, tokens) em vez de uma ferramenta barata
+   rodando a cada módulo. É a maior economia de leitura recuperável que
+   ficou sem escrever no projeto inteiro.
+
+4. **O teste "ensina a decidir?" deveria ser campo obrigatório de
+   rascunho antes de escrever a alternativa correta, não só teste de
+   revisão posterior.** Seis questões foram cortadas depois de escritas
+   (`5.4.q20`; `5.5.q27`, `5.5.q35`; `5.6.q12`, `5.6.q28`, `5.6.q31`) —
+   sempre descobertas depois, nunca no momento da escrita, e sempre no
+   nível 5, porque a regra "corte, não conserte" só nasceu perto do fim
+   do corpus. Os 38 módulos anteriores nunca passaram por esse teste —
+   dívida conhecida e nomeada, não defeito escondido: pode haver questão
+   de recall disfarçada de decisão em qualquer um deles, nunca auditada
+   com este critério. Evidência de que preencher o campo antes ajuda:
+   as três substitutas do 5.6, escritas já com o critério em mente,
+   passaram de primeira. **Não virou regra 14** — é uma rodada de
+   evidência só, medida pela mesma sessão que definiu o critério, e este
+   projeto já descartou três regras por medir contra o conjunto errado
+   (seção 7, "Padrão aprendido"). Fica registrada como recomendação.
+
+5. **Verificação de integridade pós-interrupção deveria ser um script
+   padrão, não inventada ad hoc a cada vez.** Duas sessões diferentes
+   sofreram interrupção no meio da escrita — o travamento do 5.5, a
+   queda de contexto no meio do 5.6 — e as duas vezes a primeira ação de
+   retomada foi inventar, na hora, os comandos de varredura certos. Um
+   script único (`ferramentas/verificar_integridade.py`, ainda não
+   escrito) que faça parse, checagem estrutural e varredura de
+   corrupção de uma vez economizaria essa reinvenção — já aconteceu duas
+   vezes em 41 módulos, e aconteceria de novo em qualquer trabalho
+   futuro no mesmo formato.
 
 ---
 
@@ -234,10 +308,10 @@ C:\Dev\cybersecurity-app\
 Directory · 1.4 Redes I · 1.5 Redes II · 1.6 Python para segurança ·
 1.7 Git e versionamento
 
-**Nível 5 — Engenharia, risco e carreira** (175 questões, 5 de 6)
+**Nível 5 — Engenharia, risco e carreira** (210 questões, 6 de 6, completo)
 5.1 Desenvolvimento seguro · 5.2 Segurança em nuvem · 5.3 Modelagem de
 ameaças · 5.4 GRC: governança, risco e conformidade · 5.5 Economia da
-segurança
+segurança · 5.6 Carreira em segurança
 
 **Nível 4 — Defensivo** (280 questões, 8 de 8, completo)
 4.1 Hardening · 4.2 Segurança de rede · 4.3 Defesa em profundidade · 4.4 Malware ·
@@ -267,11 +341,11 @@ segurança
 
 ## 5. O que falta
 
-### Conteúdo — 1 módulo
+### Conteúdo — completo, 41 de 41 módulos
 
-- **Nível 3 — Ofensivo**: completo (9 de 9)
-- **Nível 4 — Defensivo**: completo (8 de 8)
-- **Nível 5 — Engenharia e carreira** (1 restante, 5 de 6 pronto): carreira
+Todos os 6 níveis fechados (0 a 5). O que falta no projeto agora é só
+funcionalidade de app (abaixo) e dívida técnica conhecida — nenhum
+módulo de conteúdo pendente.
 
 ### Decisão de escopo — engenharia social não vira módulo novo, nível 3 fecha com 9 (não 10)
 
@@ -442,6 +516,7 @@ sistema em fase de desenho, nunca em RBAC/web já construído). **Nível 5 em
   | 5.3 | 9,7% | ok (módulo novo, 08/09/2026 — três lotes; lote 1 nasceu 100% (7/7); lote 2, decidindo o índice da correta antes de escrever, eliminou o viés de posição na origem mas o de comprimento recorreu igual, bruto 66,7%; lote 3, decidindo que a correta não seria a mais longa antes de escrever, não preveniu nada — bruto 76,9% (10/13), pior que qualquer lote anterior do módulo; decidir posição antes funciona, decidir comprimento antes não funciona, são duas técnicas de processo diferentes; publicado bem abaixo do teto) |
   | 5.4 | 9,1% (3/33) | ok (módulo novo, 13/09/2026 — quarto módulo de GRC; três lotes, viés recorreu nos três: lote 1 100% bruto (7/7), lote 2 100% bruto (12/12), lote 3 100% bruto (14/14) — quinta reincidência seguida do mesmo hábito de escrita, confirmando de novo a lição do 5.3: escrever com cuidado não substitui medir depois. Corrigir com uma alavanca só (lote 2, só cortar a correta) produziu viés espelhado — `mais_curta` subiu a 26,3%, o dobro das outras duas métricas do mesmo checkpoint — e a partir do lote 3 a correção passou a usar as duas alavancas sempre juntas (encurtar a correta E alongar o distrator mais curto), medindo as duas pontas a cada rodada; publicado bem abaixo do teto) |
   | 5.5 | 20,6% (7/34) | ok (módulo novo, 13/09/2026 — quinto módulo do nível 5, economia da segurança; três checkpoints, viés recorreu nos três — sexta, sétima e oitava reincidência seguida do mesmo hábito; sessão travou depois do checkpoint 3, retomada em sessão nova com reconstrução de estado e as duas lentes adversariais, que nunca tinham rodado; publicado bem abaixo do teto após correção pós-travamento, ver seção 5) |
+  | 5.6 | 37,1% (13/35) | ok (módulo novo, 14/09/2026 — sexto e último módulo do nível 5, carreira, fecha o curso; três lotes, viés recorreu nos três — nona, décima e décima primeira observação seguida da mesma constante, agora tratada como constante do processo, não mais reincidência a contar; sessão interrompida no meio do lote 3, retomada com verificação de integridade; três questões cortadas por falha no teste "ensina a decidir?", ver seção 5) |
 
   **11 de 31 módulos acima do teto de 40%** (era 15 antes do nível 0; nível
   0 (0.1-0.4) está inteiro abaixo do teto agora; 4.7, 4.8, 3.4 e 3.5,
@@ -509,6 +584,7 @@ sistema em fase de desenho, nunca em RBAC/web já construído). **Nível 5 em
   | 5.3 | 9,7% (3/31) | 9,7% | ok (módulo novo, 08/09/2026) |
   | 5.4 | 21,2% (7/33) | 10,7% | ok (módulo novo, 13/09/2026) |
   | 5.5 | 32,3% (10/31) | 18,6% | ok (módulo novo, 13/09/2026) |
+  | 5.6 | 36,7% (11/30) | 21,9% | ok (módulo novo, 14/09/2026) |
 
   **Mediana do corpus: 35,5%.** O teto de 40% não foi escolhido de novo —
   foi conferido contra o mesmo critério estatístico independente já usado
@@ -770,6 +846,80 @@ sistema em fase de desenho, nunca em RBAC/web já construído). **Nível 5 em
   corte não vem da lente, vem de releitura cética da própria autoria
   depois do achado — o critério "ensina a decidir?" passou a ser aplicado
   como checagem contínua, não só como etapa única da revisão adversarial.
+
+  **Décima segunda variante, achada no 5.6, 14/09/2026 — esqueleto "X não
+  é o alvo/ponto — Y é".** A lente de forma achou esse esqueleto em **10
+  de 35 dicas de fechamento (28,6%)**, com `5.6.q14`, `5.6.q22` e
+  `5.6.q32` quase cópias literais umas das outras (duas delas reciclando
+  a mesma palavra-isca, "mercado", como sujeito da negação). Igual às
+  variantes 6, 7 e 10, o `medidor_molde_dica.py` não pegou — léxico varia
+  a cada questão, esqueleto gramatical não, e a ferramenta só compara
+  prefixo exato. Reescritas as 9 ocorrências restantes, cada uma com
+  estrutura sintática diferente (declarativa, instrução, contraste sem
+  negação).
+
+  **Família ampla do mesmo esqueleto que gerou a décima primeira
+  variante ("Uma das duas/três/quatro X; a outra/nenhuma Y"), achada por
+  leitura própria antes de qualquer lente, no mesmo módulo 5.6.** Ao
+  reler o módulo pra corrigir vazamento, o autor achou **9 ocorrências
+  espalhadas pelos três lotes** (`q3`, `q8` ×2, `q11`, `q16`, `q27`,
+  `q28` ×2, `q29`) — mais que o dobro do que tinha sido registrado no
+  checkpoint 2 (só 2, em `q8` e `q16`, ambas na posição 8 de seus
+  respectivos lotes, hipótese de "fadiga posicional" levantada ali).
+  Reescritas 6 das 9 antes de rodar qualquer lente — o que significa que
+  **a hipótese da posição 8 não pôde ser testada de forma limpa**: a
+  intervenção do autor aconteceu antes do teste que a confirmaria ou
+  refutaria. O dado que sobrou, honesto sobre sua própria limitação: as
+  três ocorrências do lote 3 (`q27`, `q28`, `q29`, posições 7–9 de 15)
+  formavam um **cluster de três perguntas seguidas**, não uma posição
+  fixa repetida — sugerindo um mecanismo mais parecido com "a forma da
+  correção mais recente vira modelo pras 2-3 perguntas seguintes dentro
+  da mesma sessão de escrita corrida" do que com um ponto fixo do lote.
+  **Isso é sugestão de um lote só, não conclusão** — a hipótese "posição
+  8" nasceu de 2 pontos de dado e nunca chegou a ser testada por um
+  terceiro; a hipótese "cluster de escrita corrida" nasce agora de um
+  cluster só, no mesmo módulo que a levantou. Nenhuma das duas está
+  confirmada contra corpus nenhum; ambas ficam registradas como o que
+  são — pistas de baixa confiança, não regra.
+
+  **Terceiro, quarto e quinto corte de questão por falha no teste "ensina
+  a decidir?", no 5.6, 14/09/2026 — achados pela lente, não por releitura
+  própria desta vez.** A lente de forma aplicou o teste às 35 questões
+  originais: 32 passaram, `5.6.q12` (reconhecimento de definição por
+  eliminação óbvia — as três erradas descreviam, sem disfarce, gente com
+  autoridade sozinha), `5.6.q28` (pareamento de definição, não decisão
+  sob ambiguidade) e `5.6.q31` (ordenação de procedimento já definido
+  pela teoria, recall de dependência causal, não julgamento) não
+  passaram. Cortadas as três, substituídas por `5.6.q36`, `5.6.q37` e
+  `5.6.q38`, cada uma testada contra o critério antes de aceitar.
+  **Contando os dois cortes do 5.5 e o do 5.4, são seis questões cortadas
+  em três módulos — todos do nível 5, todos nos últimos dias do
+  desenvolvimento do curso.** Isso não é defeito escondido nos outros 38
+  módulos publicados antes — é dívida conhecida e nomeada: a regra
+  "corte, não conserte" só nasceu com `5.4.q20`, em 13/09/2026, perto do
+  fim do corpus inteiro. Nenhum dos 38 módulos anteriores jamais passou
+  por esse teste especificamente; pode haver questões de recall/pareamento
+  disfarçadas de decisão em qualquer um deles, nunca auditadas com este
+  critério. Não é uma varredura pendente registrada aqui como tarefa — é
+  só o registro honesto de que o teste é recente e sua cobertura é parcial.
+
+  **Recomendação (não regra 14) — campo obrigatório de rascunho pré-escrita
+  pro teste "ensina a decidir?", evidência de uma rodada só.** As três
+  substitutas do 5.6 (`q36`, `q37`, `q38`) foram escritas já com a
+  pergunta "qual ambiguidade genuína isto exige pesar, e qual é a segunda
+  resposta mais defensável que o aluno precisa descartar" respondida
+  antes da primeira frase — e passaram no teste de primeira, sem segunda
+  rodada. É um resultado favorável, mas é uma amostra de três questões,
+  num módulo só, escritas pela mesma sessão que definiu o critério
+  momentos antes — exatamente o tipo de medição que este projeto já
+  aprendeu a desconfiar (ver "Padrão aprendido: regra nascida, medida e
+  descartada", abaixo): uma heurística só prova alguma coisa medida
+  contra o conjunto que não a inspirou, nunca contra os casos que a
+  motivaram. Fica registrado como prática recomendada pra próximos
+  módulos ou cursos — preencher esse campo antes de escrever a
+  alternativa correta — não como regra 14 obrigatória, até que apareça
+  medida contra um lote inteiro de questões que a pessoa escrevendo não
+  soubesse, de antemão, que estava sendo usado pra testar a recomendação.
 
   **Piloto de correção — módulo 0.1, 01/09/2026.** Escolhido por ser o
   primeiro módulo do curso (vazamento ali contamina a base inteira) e por
